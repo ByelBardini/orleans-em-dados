@@ -32,6 +32,11 @@ function Conteudo({ ano, entidade, r, d, pop, entidades }) {
 
   const origens = r.porOrigem.filter((o) => N(o.arrecadadoNoMes) > 0);
   const deFora = origens.filter((o) => ORIGENS_DE_FORA.has(o.chave)).reduce((s, o) => s + N(o.arrecadadoNoMes), 0);
+  // Empréstimos (21, 23) não são arrecadação da cidade nem repasse.
+  const emprestimos = r.porOrigem
+    .filter((o) => o.chave === '21' || o.chave === '23')
+    .reduce((s, o) => s + N(o.arrecadadoNoMes), 0);
+  const propria = arrecadado - deFora - emprestimos;
   const principalOrigem = origens[0] && (ORIGEM_CIDADAO[origens[0].chave] ?? origens[0].descricao);
   const [o1, o2] = d.porOrgao;
 
@@ -104,8 +109,11 @@ function Conteudo({ ano, entidade, r, d, pop, entidades }) {
         <Numero rotulo="Pago" detalhe={`${pct(pago, empenhado)} do empenhado`} barra={(pago / empenhado) * 100} vermelho>
           <Mi valor={pago} />
         </Numero>
-        <Numero rotulo="Por morador" detalhe={`arrecadado ÷ ${numero(pop.pessoas)} moradores (${pop.fonte})`}>
-          R$ {numero(Math.round(arrecadado / pop.pessoas))}
+        <Numero
+          rotulo="Arrecadado aqui, por morador"
+          detalhe={`impostos, taxas e tarifas da cidade ÷ ${numero(pop.pessoas)} moradores (${pop.fonte}). Com os repasses, R$ ${numero(Math.round(arrecadado / pop.pessoas))}`}
+        >
+          R$ {numero(Math.round(propria / pop.pessoas))}
         </Numero>
       </Numeros>
 
