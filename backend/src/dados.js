@@ -2,11 +2,19 @@
 
 export async function anosDisponiveis() {
   const { rows } = await pool.query(
-    `SELECT p.ano, bool_and(c.status = 'exemplo') AS exemplo
+    `SELECT p.ano, bool_and(c.status = 'exemplo') AS exemplo, max(c.finalizado_em) AS atualizado
      FROM publicacoes p JOIN coletas c ON c.id = p.coleta_id
      GROUP BY p.ano ORDER BY p.ano DESC`,
   );
-  return { anos: rows.map((r) => r.ano), exemplo: rows.length > 0 && rows.every((r) => r.exemplo) };
+  const { rows: entidades } = await pool.query(
+    'SELECT codigo_betha AS codigo, nome, sigla FROM entidades ORDER BY codigo_betha::int = 728 DESC, nome',
+  );
+  return {
+    anos: rows.map((r) => r.ano),
+    exemplo: rows.length > 0 && rows.every((r) => r.exemplo),
+    atualizadoEm: Object.fromEntries(rows.map((r) => [r.ano, r.atualizado])),
+    entidades,
+  };
 }
 
 // Coleta publicada de uma consulta/ano, com os metadados exibidos no dashboard.
