@@ -182,3 +182,13 @@ export async function buscarEmpenhos({ coletaId }, { offset = 0, limit = 50, ...
   return { total, offset, limit, itens };
 }
 
+export async function todosEmpenhos({ coletaId }, opcoes) {
+  const { filtro, params } = filtroBusca(opcoes);
+  return consultar(
+    `SELECT ${COLUNAS_EMPENHO}
+     FROM empenhos e LEFT JOIN entidades en ON en.codigo_betha = e.entidade_codigo
+     WHERE ${filtro}
+     ORDER BY data_empenho DESC NULLS LAST, numero DESC`,
+    [coletaId, ...params],
+  );
+}
