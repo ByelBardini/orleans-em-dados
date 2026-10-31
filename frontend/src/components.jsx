@@ -273,6 +273,28 @@ export function BarraDividida({ partes, total, descricao }) {
   );
 }
 
+const temaAtual = () =>
+  document.documentElement.dataset.theme ??
+  (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+
+// Alterna entre papel claro e escuro; sem escolha salva, segue o sistema.
+export function SeletorTema() {
+  const [tema, setTema] = useState(temaAtual);
+  const trocar = () => {
+    const novo = tema === 'dark' ? 'light' : 'dark';
+    document.documentElement.dataset.theme = novo;
+    try {
+      localStorage.setItem('tema', novo);
+    } catch {}
+    setTema(novo);
+  };
+  return (
+    <button type="button" className="botao-tema" onClick={trocar} aria-label={tema === 'dark' ? 'Usar tema claro' : 'Usar tema escuro'}>
+      <span aria-hidden="true">{tema === 'dark' ? '☀' : '☾'}</span> {tema === 'dark' ? 'Tema claro' : 'Tema escuro'}
+    </button>
+  );
+}
+
 export function Alternador({ rotulo, opcoes, valor, aoMudar }) {
   return (
     <div role="group" aria-label={rotulo} className="alternador">

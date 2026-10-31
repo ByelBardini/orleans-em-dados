@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useApi } from './api.js';
-import { Estado } from './components.jsx';
+import { Estado, SeletorTema } from './components.jsx';
 import { dataCurta } from './format.js';
 import Despesas from './paginas/Despesas.jsx';
 import Metodologia from './paginas/Metodologia.jsx';
@@ -71,7 +71,9 @@ export default function App() {
           <div className="faixa-meta">
             <span>Orleans, Santa Catarina</span>
             <span>{exercicio}</span>
-            <span>Fonte: Portal da Transparência</span>
+            <span>
+              Fonte: Portal da Transparência · <SeletorTema />
+            </span>
           </div>
           <div className="fio-duplo" aria-hidden="true" />
           <div className="titulo-jornal">
@@ -91,7 +93,9 @@ export default function App() {
           </header>
           <div className="faixa-meta">
             <span>{atual.caderno}</span>
-            <span>{exercicio}</span>
+            <span>
+              {exercicio} · <SeletorTema />
+            </span>
           </div>
         </>
       )}

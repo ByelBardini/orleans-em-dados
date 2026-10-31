@@ -1376,3 +1376,20 @@ tr.expansivel {
 .numeros-grade {
   clip-path: inset(0 0 0 1px);
 }
+
+.botao-tema {
+  font: inherit;
+  text-transform: inherit;
+  letter-spacing: inherit;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--tinta);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+
+.botao-tema:hover {
+  color: var(--vermelho);
+}
