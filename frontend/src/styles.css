@@ -14,6 +14,7 @@
   --serif: 'Instrument Serif', Georgia, serif;
   --sans: 'IBM Plex Sans', system-ui, sans-serif;
   --mono: 'IBM Plex Mono', ui-monospace, monospace;
+  --margem: clamp(16px, 3vw, 48px);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -139,9 +140,8 @@ h3 {
 /* ---------- moldura ---------- */
 
 .pagina {
-  max-width: 1296px;
-  margin: 0 auto;
-  padding: 24px clamp(16px, 4vw, 72px) 64px;
+  margin: 0;
+  padding: 24px var(--margem) 64px;
 }
 
 .faixa-meta {
@@ -1363,4 +1363,16 @@ tr.expansivel {
 .lista-pontos li.is-selecionado .lp-nome {
   color: var(--vermelho);
   font-weight: 600;
+}
+
+/* Os fios horizontais atravessam a tela de ponta a ponta; o conteúdo
+   continua recuado pela margem. */
+.pagina :is(.fio-duplo, .faixa-meta, .capa .nav-principal, .cabecalho-compacto, .barra-filtros, .abertura, .numeros, .colunas.dupla, .secao.dupla, .rodape, .fonte) {
+  margin-inline: calc(-1 * var(--margem));
+  padding-inline: var(--margem);
+}
+
+/* Esconde o fio esquerdo da primeira célula sem depender do overflow do pai. */
+.numeros-grade {
+  clip-path: inset(0 0 0 1px);
 }
