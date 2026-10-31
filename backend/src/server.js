@@ -18,17 +18,24 @@ async function snapshotOu404(res, consulta, ano) {
   return s;
 }
 
+const filtrosEmpenho = (q) => ({
+  q: q.get('q') ?? '',
+  entidade: q.get('entidade') ?? '',
+  orgao: q.get('orgao') ?? '',
+  situacao: q.get('situacao') ?? '',
+});
+
 const rotas = {
   '/api/anos': async (_q, res) => json(res, 200, await anosDisponiveis()),
 
   '/api/receitas': async (q, res) => {
     const s = await snapshotOu404(res, 'receitas', q.get('ano'));
-    if (s) json(res, 200, await resumoReceitas(s));
+    if (s) json(res, 200, await resumoReceitas(s, { entidade: q.get('entidade') ?? '' }));
   },
 
   '/api/despesas/empenhos/resumo': async (q, res) => {
     const s = await snapshotOu404(res, 'empenhos', q.get('ano'));
-    if (s) json(res, 200, await resumoEmpenhos(s));
+    if (s) json(res, 200, await resumoEmpenhos(s, { entidade: q.get('entidade') ?? '' }));
   },
 
   '/api/despesas/empenhos': async (q, res) => {
@@ -38,13 +45,13 @@ const rotas = {
       res,
       200,
       await buscarEmpenhos(s, {
-        q: q.get('q') ?? '',
-        entidade: q.get('entidade') ?? '',
+        ...filtrosEmpenho(q),
         offset: Math.max(0, Number(q.get('offset')) || 0),
         limit: Math.min(200, Math.max(1, Number(q.get('limit')) || 50)),
       }),
     );
   },
+
 };
 
 createServer(async (req, res) => {
