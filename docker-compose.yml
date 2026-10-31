@@ -1,0 +1,21 @@
+# Banco local de desenvolvimento. Credenciais apenas para uso local.
+services:
+  db:
+    image: postgres:17-alpine
+    container_name: orleans-em-dados-db
+    environment:
+      POSTGRES_USER: orleans
+      POSTGRES_PASSWORD: orleans
+      POSTGRES_DB: orleans_em_dados
+    ports:
+      - '5433:5432'
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U orleans -d orleans_em_dados']
+      interval: 2s
+      timeout: 3s
+      retries: 20
+
+volumes:
+  pgdata:
