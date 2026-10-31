@@ -341,7 +341,7 @@ function Conteudo({ ano, entidade, filtros, dados }) {
           </table>
         </div>
         <div className="paginacao">
-          <p className="nota-serif" style={{ fontSize: 17 }}>
+          <p className="nota-serif">
             O traço vertical marca 100% do previsto. Em vermelho, receitas que passaram da meta.
           </p>
           {!busca && rubricas.length > INICIAL && (
