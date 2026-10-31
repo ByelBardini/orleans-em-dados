@@ -1,0 +1,16 @@
+{
+  "name": "@orleans-em-dados/db",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "main": "index.js",
+  "exports": {
+    ".": "./index.js"
+  },
+  "scripts": {
+    "migrar": "node --env-file-if-exists=../.env migrar.js"
+  },
+  "dependencies": {
+    "pg": "^8.16.0"
+  }
+}
