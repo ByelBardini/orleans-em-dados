@@ -1,0 +1,21 @@
+node_modules/
+dist/
+
+# Dados coletados: podem conter dados pessoais de credores. Não versionar.
+data/
+
+# Segredos e artefatos de depuração (HAR guarda cabeçalhos Authorization)
+.env
+.env.*
+!.env.example
+*.har
+*.log
+
+# Planilhas e demonstrativos baixados durante a investigação
+*.xls
+*.xlsx
+
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/

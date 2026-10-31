@@ -1,0 +1,202 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>Orleans em Dados · Visão geral</title>
+<script src="./vendor/react.js"></script>
+<script src="./vendor/react-dom.js"></script>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&amp;family=IBM+Plex+Sans+Condensed:wght@400;500;600&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#1c1a17}a:hover{color:#b52d1b}
+.mono{font-family:'IBM Plex Mono',ui-monospace,monospace;font-variant-numeric:tabular-nums}
+.serif{font-family:'Instrument Serif',Georgia,serif;font-weight:400}
+.nav a:hover{color:#b52d1b}
+.tog:hover{color:#b52d1b}
+a:focus-visible,button:focus-visible,select:focus-visible{outline:2px solid #b52d1b;outline-offset:2px}
+</style>
+</helmet>
+<div style="background: #efeadf; color: #1c1a17; font-family: 'IBM Plex Sans Condensed', 'Arial Narrow', sans-serif; font-size: 17px; line-height: 1.45; min-height: 100vh">
+<div style="max-width: 1296px; margin: 0 auto; padding: 28px clamp(20px, 4vw, 72px) 64px">
+
+<div class="mono" style="display: flex; flex-wrap: wrap; justify-content: space-between; gap: 4px 24px; font-size: 12px; letter-spacing: 0.06em; text-transform: uppercase; padding-bottom: 10px">
+<span>Orleans, Santa Catarina</span>
+<span>Exercício de 2025 · Atualizado em [data da última coleta]</span>
+<span>Fonte: Portal da Transparência</span>
+</div>
+<div aria-hidden="true" style="border-top: 3px solid #1c1a17; border-bottom: 1px solid #1c1a17; height: 3px"></div>
+<div style="text-align: center; padding: 16px 0 12px">
+<a href="Main.dc.html" class="serif" style="font-size: clamp(52px, 8vw, 108px); line-height: 0.95; letter-spacing: -0.02em; text-decoration: none">Orleans <span style="font-style: italic">em</span> Dados</a>
+</div>
+<nav class="nav" aria-label="Principal" style="display: flex; flex-wrap: wrap; justify-content: center; border-top: 1px solid #1c1a17; border-bottom: 1px solid #1c1a17">
+<a href="Main.dc.html" aria-current="page" style="padding: 12px 24px; text-decoration: none; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; font-size: 14px; color: #b52d1b">Visão geral</a>
+<a href="Receitas.dc.html" style="padding: 12px 24px; text-decoration: none; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; font-size: 14px; border-left: 1px solid #1c1a17">Receitas</a>
+<a href="Despesas.dc.html" style="padding: 12px 24px; text-decoration: none; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; font-size: 14px; border-left: 1px solid #1c1a17">Despesas</a>
+<a href="#sobre" style="padding: 12px 24px; text-decoration: none; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; font-size: 14px; border-left: 1px solid #1c1a17">Sobre os dados</a>
+</nav>
+
+<div style="display: flex; flex-wrap: wrap; align-items: center; gap: 8px 28px; padding: 12px 0; border-bottom: 1px solid #1c1a17; font-size: 15px">
+<div style="display: flex; align-items: center; gap: 8px">
+<label for="ano" class="mono" style="font-size: 12px; text-transform: uppercase; letter-spacing: 0.06em">Ano</label>
+<select id="ano" style="font: inherit; font-weight: 600; min-height: 44px; padding: 0 28px 0 4px; border: 0; border-bottom: 1px solid #1c1a17; background: transparent; color: #1c1a17"><option>2025</option></select>
+</div>
+<div role="group" aria-labelledby="ent-l" style="display: flex; flex-wrap: wrap; align-items: center; gap: 0 4px">
+<span id="ent-l" class="mono" style="font-size: 12px; text-transform: uppercase; letter-spacing: 0.06em; margin-right: 8px">Entidade</span>
+<sc-for list="{{entidades}}" as="e" hint-placeholder-count="5">
+<button class="tog" type="button" aria-pressed="{{e.pressed}}" onClick="{{e.pick}}" style="{{e.style}}">{{e.label}}</button>
+</sc-for>
+</div>
+</div>
+
+<div style="display: flex; flex-wrap: wrap; gap: 32px 48px; padding: 40px 0 36px; border-bottom: 1px solid #1c1a17">
+<h1 class="serif" style="margin: 0; flex: 2 1 560px; min-width: 0; font-size: clamp(38px, 4.6vw, 64px); line-height: 1.02; letter-spacing: -0.015em; text-wrap: balance">Em 2025, Orleans arrecadou <span style="font-style: italic; color: #b52d1b">R$ 171,1 milhões</span> e empenhou <span style="font-style: italic; color: #b52d1b">R$ 176,3 milhões</span> em despesas.</h1>
+<div style="flex: 1 1 300px; border-left: 1px solid #1c1a17; padding-left: 28px; display: flex; flex-direction: column; justify-content: flex-end; gap: 12px">
+<p style="margin: 0; font-size: 18px; text-wrap: pretty"><span class="serif" style="font-size: 54px; float: left; line-height: 0.8; padding: 6px 8px 0 0">O</span>dinheiro veio principalmente de repasses da União e do Estado. A maior parte foi para educação e saúde. Do que foi empenhado, 95,8% já estava pago no fim do ano.</p>
+<a href="#sobre" class="mono" style="font-size: 13px; text-transform: uppercase; letter-spacing: 0.06em; min-height: 44px; display: inline-flex; align-items: center">Como estes dados são feitos →</a>
+</div>
+</div>
+
+<section aria-label="Totais do ano" style="overflow: hidden; border-bottom: 1px solid #1c1a17">
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(240px, 100%), 1fr)); margin-left: -1px">
+<div style="padding: 24px; border-left: 1px solid #1c1a17; display: flex; flex-direction: column; gap: 4px">
+<span class="mono" style="font-size: 12px; text-transform: uppercase; letter-spacing: 0.06em">Arrecadado</span>
+<span class="serif" style="font-size: 60px; line-height: 1">171,1<span style="font-size: 28px"> mi</span></span>
+<span style="font-size: 15px; color: #5a554c">93,8% dos R$ 182,4 mi previstos</span>
+<div aria-hidden="true" style="height: 3px; background: #d8d1c2; margin-top: 6px"><div style="width: 93.8%; height: 100%; background: #1c1a17"></div></div>
+</div>
+<div style="padding: 24px; border-left: 1px solid #1c1a17; display: flex; flex-direction: column; gap: 4px">
+<span class="mono" style="font-size: 12px; text-transform: uppercase; letter-spacing: 0.06em">Empenhado</span>
+<span class="serif" style="font-size: 60px; line-height: 1">176,3<span style="font-size: 28px"> mi</span></span>
+<span style="font-size: 15px; color: #5a554c">9.757 empenhos, 975 credores</span>
+</div>
+<div style="padding: 24px; border-left: 1px solid #1c1a17; display: flex; flex-direction: column; gap: 4px">
+<span class="mono" style="font-size: 12px; text-transform: uppercase; letter-spacing: 0.06em">Pago</span>
+<span class="serif" style="font-size: 60px; line-height: 1">168,9<span style="font-size: 28px"> mi</span></span>
+<span style="font-size: 15px; color: #5a554c">95,8% do empenhado</span>
+<div aria-hidden="true" style="height: 3px; background: #d8d1c2; margin-top: 6px"><div style="width: 95.8%; height: 100%; background: #b52d1b"></div></div>
+</div>
+<div style="padding: 24px; border-left: 1px solid #1c1a17; display: flex; flex-direction: column; gap: 4px">
+<span class="mono" style="font-size: 12px; text-transform: uppercase; letter-spacing: 0.06em">Por habitante</span>
+<span class="serif" style="font-size: 60px; line-height: 1; font-style: italic">R$ [—]</span>
+<span style="font-size: 15px; color: #5a554c">arrecadado ÷ [população IBGE]</span>
+</div>
+</div>
+</section>
+
+<div style="display: flex; flex-wrap: wrap; gap: 40px 48px; padding-top: 36px">
+<section style="flex: 2 1 560px; min-width: 0; display: flex; flex-direction: column; gap: 14px">
+<div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; gap: 8px 24px; border-bottom: 1px solid #1c1a17; padding-bottom: 8px">
+<h2 class="serif" style="margin: 0; font-size: 34px">Mês a mês</h2>
+<span class="mono" style="font-size: 12px; display: flex; flex-wrap: wrap; gap: 6px 18px; text-transform: uppercase"><span style="display: flex; align-items: center; gap: 6px"><span aria-hidden="true" style="width: 10px; height: 10px; background: #1c1a17"></span>Arrecadado</span><span style="display: flex; align-items: center; gap: 6px"><span aria-hidden="true" style="width: 10px; height: 10px; background: #b52d1b"></span>Empenhado</span><span>R$ milhões</span></span>
+</div>
+<div role="img" aria-label="Barras mensais de arrecadado e empenhado em 2025" style="position: relative; height: 300px; margin-top: 8px">
+<div aria-hidden="true" class="mono" style="position: absolute; left: 0; right: 0; bottom: 29.4%; border-top: 1px dotted #a39b8a; font-size: 11px"><span style="position: absolute; right: 0; top: -16px">10</span></div>
+<div aria-hidden="true" class="mono" style="position: absolute; left: 0; right: 0; bottom: 58.8%; border-top: 1px dotted #a39b8a; font-size: 11px"><span style="position: absolute; right: 0; top: -16px">20</span></div>
+<div aria-hidden="true" class="mono" style="position: absolute; left: 0; right: 0; bottom: 88.2%; border-top: 1px dotted #a39b8a; font-size: 11px"><span style="position: absolute; right: 0; top: -16px">30</span></div>
+<div style="position: absolute; inset: 0 28px 0 0; display: flex; align-items: flex-end; gap: clamp(4px, 1.2vw, 14px); border-bottom: 2px solid #1c1a17">
+<sc-for list="{{meses}}" as="m" hint-placeholder-count="12">
+<div style="flex: 1 1 0; min-width: 0; height: 100%; display: flex; align-items: flex-end; gap: 2px">
+<div title="{{m.rt}}" style="flex: 1 1 0; height: {{m.rh}}; background: #1c1a17"></div>
+<div title="{{m.dt}}" style="flex: 1 1 0; height: {{m.dh}}; background: #b52d1b"></div>
+</div>
+</sc-for>
+</div>
+<div style="position: absolute; left: 10%; top: 4px; max-width: 320px; display: flex; gap: 10px; align-items: flex-start">
+<span aria-hidden="true" style="flex: none; width: 36px; border-top: 1px solid #1c1a17; margin-top: 12px"></span>
+<span class="serif" style="font-style: italic; font-size: 19px; line-height: 1.2">Janeiro: R$ 32,1 mi. Contratos do ano inteiro são empenhados de uma vez.</span>
+</div>
+</div>
+<div aria-hidden="true" class="mono" style="display: flex; gap: clamp(4px, 1.2vw, 14px); padding-right: 28px; font-size: 12px; text-transform: uppercase">
+<sc-for list="{{meses}}" as="m" hint-placeholder-count="12"><span style="flex: 1 1 0; min-width: 0; text-align: center">{{m.label}}</span></sc-for>
+</div>
+</section>
+
+<section style="flex: 1 1 320px; min-width: 0; display: flex; flex-direction: column; gap: 12px">
+<h2 class="serif" style="margin: 0; font-size: 34px; border-bottom: 1px solid #1c1a17; padding-bottom: 8px">De onde vem</h2>
+<sc-for list="{{origens}}" as="o" hint-placeholder-count="6">
+<div title="{{o.tip}}" style="display: flex; flex-direction: column; gap: 4px">
+<div style="display: flex; align-items: baseline; gap: 8px; font-size: 16px">
+<span>{{o.nome}}</span>
+<span aria-hidden="true" style="flex: 1 1 auto; border-bottom: 1px dotted #1c1a17; transform: translateY(-4px)"></span>
+<span class="mono" style="font-size: 15px">{{o.valor}}</span>
+</div>
+<div aria-hidden="true" style="height: 3px; background: #d8d1c2"><div style="width: {{o.w}}; height: 100%; background: #1c1a17"></div></div>
+</div>
+</sc-for>
+<p class="serif" style="margin: 8px 0 0; font-style: italic; font-size: 19px; line-height: 1.25; border-top: 1px solid #1c1a17; padding-top: 12px">57,5% do que entrou veio de fora: repasses da União e do Estado.</p>
+<a href="Receitas.dc.html" class="mono" style="font-size: 13px; text-transform: uppercase; letter-spacing: 0.06em; min-height: 44px; display: inline-flex; align-items: center">Todas as receitas →</a>
+</section>
+</div>
+
+<div style="display: flex; flex-wrap: wrap; gap: 40px 48px; padding-top: 40px; margin-top: 40px; border-top: 3px double #1c1a17">
+<section style="flex: 1 1 320px; min-width: 0; display: flex; flex-direction: column; gap: 12px">
+<h2 class="serif" style="margin: 0; font-size: 34px; border-bottom: 1px solid #1c1a17; padding-bottom: 8px">Quem gasta</h2>
+<sc-for list="{{gastos}}" as="g" hint-placeholder-count="4">
+<div title="{{g.tip}}" style="display: flex; flex-direction: column; gap: 4px">
+<div style="display: flex; align-items: baseline; gap: 8px; font-size: 16px">
+<span>{{g.nome}}</span>
+<span aria-hidden="true" style="flex: 1 1 auto; border-bottom: 1px dotted #1c1a17; transform: translateY(-4px)"></span>
+<span class="mono" style="font-size: 15px">{{g.valor}}</span>
+</div>
+<div aria-hidden="true" style="height: 3px; background: #d8d1c2"><div style="width: {{g.w}}; height: 100%; background: #b52d1b"></div></div>
+<span class="mono" style="font-size: 12px; color: #5a554c">{{g.qtd}} empenhos</span>
+</div>
+</sc-for>
+<a href="Despesas.dc.html" class="mono" style="font-size: 13px; text-transform: uppercase; letter-spacing: 0.06em; min-height: 44px; display: inline-flex; align-items: center">Todas as despesas →</a>
+</section>
+
+<section style="flex: 2 1 560px; min-width: 0; display: flex; flex-direction: column; gap: 12px">
+<h2 class="serif" style="margin: 0; font-size: 34px; border-bottom: 1px solid #1c1a17; padding-bottom: 8px">Pequeno glossário</h2>
+<dl style="margin: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(min(240px, 100%), 1fr)); gap: 20px 32px">
+<div><dt class="serif" style="font-size: 26px; font-style: italic">Previsto</dt><dd style="margin: 2px 0 0; font-size: 16px">Quanto o orçamento aprovado pela Câmara esperava arrecadar no ano.</dd></div>
+<div><dt class="serif" style="font-size: 26px; font-style: italic">Arrecadado</dt><dd style="margin: 2px 0 0; font-size: 16px">O que de fato entrou nos cofres: impostos, taxas, tarifas e repasses.</dd></div>
+<div><dt class="serif" style="font-size: 26px; font-style: italic">Empenhado</dt><dd style="margin: 2px 0 0; font-size: 16px">O valor reservado para uma despesa. É o primeiro passo, ainda não é pagamento.</dd></div>
+<div><dt class="serif" style="font-size: 26px; font-style: italic">Pago</dt><dd style="margin: 2px 0 0; font-size: 16px">O que saiu do caixa depois que o serviço foi prestado ou o produto, entregue.</dd></div>
+</dl>
+</section>
+</div>
+
+<footer id="sobre" style="margin-top: 56px; border-top: 3px solid #1c1a17; padding-top: 20px; display: grid; grid-template-columns: repeat(auto-fit, minmax(min(280px, 100%), 1fr)); gap: 24px 48px; font-size: 15px">
+<div><p class="mono" style="margin: 0 0 6px; font-size: 12px; text-transform: uppercase; letter-spacing: 0.06em">Sobre os dados</p><p style="margin: 0">Portal da Transparência de Orleans (Betha): Receitas Orçamentárias e Execução Detalhada de Despesas.</p></div>
+<div><p class="mono" style="margin: 0 0 6px; font-size: 12px; text-transform: uppercase; letter-spacing: 0.06em">Pessoas físicas</p><p style="margin: 0">Credores pessoas físicas aparecem somados, sem nome, para proteger dados pessoais.</p></div>
+<div><p class="mono" style="margin: 0 0 6px; font-size: 12px; text-transform: uppercase; letter-spacing: 0.06em">Baixe os dados</p><p style="margin: 0"><a href="#">Receitas 2025 (CSV)</a> · <a href="#">Despesas 2025 (CSV)</a> · <a href="#">Dicionário de dados</a></p></div>
+</footer>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":2080}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { ent: 'todas' };
+  }
+  renderVals() {
+    const f = (v) => v.toLocaleString('pt-BR', { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+    const nomes = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+    const rec = [17.2,13.1,14.0,14.6,13.8,13.5,14.2,13.9,13.6,14.4,13.3,15.49];
+    const des = [32.1,14.2,13.0,12.4,12.8,11.9,12.6,12.1,11.7,12.3,12.0,19.2];
+    const meses = nomes.map((n, i) => ({ label: n, rh: (rec[i] / 34 * 100).toFixed(1) + '%', dh: (des[i] / 34 * 100).toFixed(1) + '%', rt: n + ' · arrecadado R$ ' + f(rec[i]) + ' mi', dt: n + ' · empenhado R$ ' + f(des[i]) + ' mi' }));
+    const og = [['Transferências da União e do Estado',98.4],['Impostos e taxas municipais',38.6],['Tarifas do SAMAE',17.9],['Repasses para obras',6.8],['Rendimentos de aplicações',5.6],['Outras receitas',3.79]];
+    const origens = og.map(([nome, v]) => ({ nome, valor: f(v), w: (v / 98.4 * 100).toFixed(1) + '%', tip: nome + ': R$ ' + f(v) + ' mi' }));
+    const gs = [['Prefeitura Municipal', 112.4, '6.220'], ['Fundo Municipal de Saúde', 41.8, '2.241'], ['SAMAE', 19.6, '1.200'], ['Fundação Ambiental', 2.5, '96']];
+    const gastos = gs.map(([nome, v, qtd]) => ({ nome, qtd, valor: f(v), w: (v / 112.4 * 100).toFixed(1) + '%', tip: nome + ': R$ ' + f(v) + ' mi em ' + qtd + ' empenhos' }));
+    const ents = [['todas','Todas'],['pref','Prefeitura'],['saude','Fundo de Saúde'],['samae','SAMAE'],['fam','Fundação Ambiental']];
+    const entidades = ents.map(([id, label]) => {
+      const on = this.state.ent === id;
+      return {
+        label, pressed: on ? 'true' : 'false',
+        pick: () => this.setState({ ent: id }),
+        style: 'font: inherit; font-size: 15px; min-height: 44px; padding: 0 10px; border: 0; background: transparent; cursor: pointer; color: ' + (on ? '#b52d1b' : '#1c1a17') + '; font-weight: ' + (on ? '600' : '400') + '; text-decoration: ' + (on ? 'underline' : 'none') + '; text-underline-offset: 6px; text-decoration-thickness: 2px'
+      };
+    });
+    return { meses, origens, gastos, entidades };
+  }
+}
+</script>
+</body>
+</html>
