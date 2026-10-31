@@ -1,0 +1,237 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>Orleans em Dados · Despesas</title>
+<script src="./vendor/react.js"></script>
+<script src="./vendor/react-dom.js"></script>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&amp;family=IBM+Plex+Sans+Condensed:wght@400;500;600&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#1c1a17}a:hover{color:#b52d1b}
+.mono{font-family:'IBM Plex Mono',ui-monospace,monospace;font-variant-numeric:tabular-nums}
+.serif{font-family:'Instrument Serif',Georgia,serif;font-weight:400}
+.nav a:hover{color:#b52d1b}
+.tog:hover{color:#b52d1b}
+.row:hover td{background:#e6e0d2}
+a:focus-visible,button:focus-visible,select:focus-visible,input:focus-visible{outline:2px solid #b52d1b;outline-offset:2px}
+th,td{padding:12px 14px;text-align:left;border-bottom:1px solid #b9b09e;vertical-align:top}
+th{font-family:'IBM Plex Mono',ui-monospace,monospace;font-size:11px;font-weight:500;text-transform:uppercase;letter-spacing:0.06em;border-bottom:2px solid #1c1a17;white-space:nowrap;vertical-align:bottom}
+</style>
+</helmet>
+<div style="background: #efeadf; color: #1c1a17; font-family: 'IBM Plex Sans Condensed', 'Arial Narrow', sans-serif; font-size: 17px; line-height: 1.45; min-height: 100vh">
+<div style="max-width: 1296px; margin: 0 auto; padding: 24px clamp(20px, 4vw, 72px) 64px">
+
+<header style="display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 12px 32px; padding-bottom: 10px; border-bottom: 3px solid #1c1a17">
+<a href="Main.dc.html" class="serif" style="font-size: 44px; line-height: 1; letter-spacing: -0.02em; text-decoration: none">Orleans <span style="font-style: italic">em</span> Dados</a>
+<nav class="nav" aria-label="Principal" style="display: flex; flex-wrap: wrap">
+<a href="Main.dc.html" style="padding: 12px 16px; text-decoration: none; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; font-size: 14px">Visão geral</a>
+<a href="Receitas.dc.html" style="padding: 12px 16px; text-decoration: none; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; font-size: 14px; border-left: 1px solid #1c1a17">Receitas</a>
+<a href="Despesas.dc.html" aria-current="page" style="padding: 12px 16px; text-decoration: none; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; font-size: 14px; color: #b52d1b; border-left: 1px solid #1c1a17">Despesas</a>
+<a href="Main.dc.html#sobre" style="padding: 12px 16px; text-decoration: none; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; font-size: 14px; border-left: 1px solid #1c1a17">Sobre os dados</a>
+</nav>
+</header>
+<div class="mono" style="display: flex; flex-wrap: wrap; justify-content: space-between; gap: 4px 24px; padding: 8px 0; border-bottom: 1px solid #1c1a17; font-size: 12px; letter-spacing: 0.06em; text-transform: uppercase">
+<span>Caderno de Despesas</span>
+<span>Exercício de 2025 · Atualizado em [data da última coleta]</span>
+</div>
+
+<div style="display: flex; flex-wrap: wrap; gap: 32px 48px; padding: 40px 0 32px; border-bottom: 1px solid #1c1a17">
+<h1 class="serif" style="flex: 2 1 560px; min-width: 0; margin: 0; font-size: clamp(38px, 4.6vw, 60px); line-height: 1.02; letter-spacing: -0.015em; text-wrap: balance">De cada R$ 100 reservados para despesas, <span style="font-style: italic; color: #b52d1b">R$ 95,80</span> já tinham sido pagos no fim do ano.</h1>
+<p style="flex: 1 1 300px; margin: 0; align-self: flex-end; font-size: 18px; border-left: 1px solid #1c1a17; padding-left: 28px; text-wrap: pretty"><span class="serif" style="font-size: 54px; float: left; line-height: 0.8; padding: 6px 8px 0 0">T</span>oda despesa pública passa por três etapas: empenho, liquidação e pagamento. Aqui você acompanha cada uma delas, por órgão e por credor.</p>
+</div>
+
+<div style="display: flex; flex-wrap: wrap; align-items: center; gap: 8px 28px; padding: 12px 0; border-bottom: 1px solid #1c1a17; font-size: 15px">
+<div style="display: flex; align-items: center; gap: 8px">
+<label for="ano-d" class="mono" style="font-size: 12px; text-transform: uppercase; letter-spacing: 0.06em">Ano</label>
+<select id="ano-d" style="font: inherit; font-weight: 600; min-height: 44px; padding: 0 28px 0 4px; border: 0; border-bottom: 1px solid #1c1a17; background: transparent; color: #1c1a17"><option>2025</option></select>
+</div>
+<div role="group" aria-labelledby="ent-d" style="display: flex; flex-wrap: wrap; align-items: center; gap: 0 4px">
+<span id="ent-d" class="mono" style="font-size: 12px; text-transform: uppercase; letter-spacing: 0.06em; margin-right: 8px">Entidade</span>
+<sc-for list="{{entidades}}" as="e" hint-placeholder-count="5">
+<button class="tog" type="button" aria-pressed="{{e.pressed}}" onClick="{{e.pick}}" style="{{e.style}}">{{e.label}}</button>
+</sc-for>
+</div>
+<div style="display: flex; align-items: center; gap: 8px">
+<label for="orgao" class="mono" style="font-size: 12px; text-transform: uppercase; letter-spacing: 0.06em">Órgão</label>
+<select id="orgao" style="font: inherit; font-weight: 600; min-height: 44px; padding: 0 28px 0 4px; border: 0; border-bottom: 1px solid #1c1a17; background: transparent; color: #1c1a17"><option>Todos os 13</option></select>
+</div>
+</div>
+
+<section aria-label="Totais de despesa" style="overflow: hidden; border-bottom: 1px solid #1c1a17">
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(240px, 100%), 1fr)); margin-left: -1px">
+<div style="padding: 24px; border-left: 1px solid #1c1a17; display: flex; flex-direction: column; gap: 4px">
+<span class="mono" style="font-size: 12px; text-transform: uppercase; letter-spacing: 0.06em">Empenhado</span>
+<span class="serif" style="font-size: 56px; line-height: 1">176,3<span style="font-size: 26px"> mi</span></span>
+<span style="font-size: 15px; color: #5a554c">9.757 empenhos no ano</span>
+</div>
+<div style="padding: 24px; border-left: 1px solid #1c1a17; display: flex; flex-direction: column; gap: 4px">
+<span class="mono" style="font-size: 12px; text-transform: uppercase; letter-spacing: 0.06em">Pago</span>
+<span class="serif" style="font-size: 56px; line-height: 1">168,9<span style="font-size: 26px"> mi</span></span>
+<span style="font-size: 15px; color: #5a554c">95,8% do empenhado</span>
+</div>
+<div style="padding: 24px; border-left: 1px solid #1c1a17; display: flex; flex-direction: column; gap: 4px">
+<span class="mono" style="font-size: 12px; text-transform: uppercase; letter-spacing: 0.06em">Falta pagar</span>
+<span class="serif" style="font-size: 56px; line-height: 1; color: #b52d1b">0,8<span style="font-size: 26px"> mi</span></span>
+<span style="font-size: 15px; color: #5a554c">em 35 empenhos</span>
+</div>
+<div style="padding: 24px; border-left: 1px solid #1c1a17; display: flex; flex-direction: column; gap: 4px">
+<span class="mono" style="font-size: 12px; text-transform: uppercase; letter-spacing: 0.06em">Credores</span>
+<span class="serif" style="font-size: 56px; line-height: 1">975</span>
+<span style="font-size: 15px; color: #5a554c">empresas e pessoas que receberam</span>
+</div>
+</div>
+</section>
+
+<section style="padding-top: 36px; display: flex; flex-direction: column; gap: 20px">
+<h2 class="serif" style="margin: 0; font-size: 34px; border-bottom: 1px solid #1c1a17; padding-bottom: 8px">O caminho dos R$ 176,3 milhões empenhados</h2>
+<ol style="margin: 0; padding: 0; list-style: none; display: flex; flex-wrap: wrap; gap: 16px 40px">
+<li style="flex: 1 1 260px; display: flex; gap: 14px; align-items: baseline"><span class="serif" style="font-size: 44px; line-height: 1; font-style: italic; color: #b52d1b">1</span><span><strong>Empenho.</strong> A Prefeitura reserva o valor no orçamento para uma compra ou serviço.</span></li>
+<li style="flex: 1 1 260px; display: flex; gap: 14px; align-items: baseline"><span class="serif" style="font-size: 44px; line-height: 1; font-style: italic; color: #b52d1b">2</span><span><strong>Liquidação.</strong> Confere que o produto foi entregue ou o serviço, prestado.</span></li>
+<li style="flex: 1 1 260px; display: flex; gap: 14px; align-items: baseline"><span class="serif" style="font-size: 44px; line-height: 1; font-style: italic; color: #b52d1b">3</span><span><strong>Pagamento.</strong> O dinheiro sai do caixa para o credor.</span></li>
+</ol>
+<div role="img" aria-label="Barra dividida: pago 95,8%, sem informação 2,9%, anulado 0,8%, falta pagar 0,5%" style="display: flex; gap: 2px; height: 44px; margin-top: 8px">
+<div title="Pago: R$ 168,9 mi" style="width: 95.8%; background: #1c1a17"></div>
+<div title="Sem informação de pagamento: R$ 5,2 mi" style="width: 2.9%; min-width: 8px; background: repeating-linear-gradient(45deg, #1c1a17 0 1.5px, transparent 1.5px 5px); box-shadow: inset 0 0 0 1px #1c1a17"></div>
+<div title="Anulado ou não executado: R$ 1,4 mi" style="width: 0.8%; min-width: 8px; background: #b9b09e"></div>
+<div title="Falta pagar: R$ 0,8 mi" style="width: 0.5%; min-width: 8px; background: #b52d1b"></div>
+</div>
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(240px, 100%), 1fr)); gap: 12px 32px; font-size: 15px">
+<div style="display: flex; gap: 10px; align-items: flex-start"><span aria-hidden="true" style="flex: none; margin-top: 5px; width: 12px; height: 12px; background: #1c1a17"></span><span><span class="mono" style="font-weight: 500">168,9 mi · 95,8%</span><br>Pago</span></div>
+<div style="display: flex; gap: 10px; align-items: flex-start"><span aria-hidden="true" style="flex: none; margin-top: 5px; width: 12px; height: 12px; background: repeating-linear-gradient(45deg, #1c1a17 0 1.5px, transparent 1.5px 4px); box-shadow: inset 0 0 0 1px #1c1a17"></span><span><span class="mono" style="font-weight: 500">5,2 mi · 2,9%</span><br>Sem informação de pagamento (278 empenhos)</span></div>
+<div style="display: flex; gap: 10px; align-items: flex-start"><span aria-hidden="true" style="flex: none; margin-top: 5px; width: 12px; height: 12px; background: #b9b09e"></span><span><span class="mono" style="font-weight: 500">1,4 mi · 0,8%</span><br>Anulado ou não executado</span></div>
+<div style="display: flex; gap: 10px; align-items: flex-start"><span aria-hidden="true" style="flex: none; margin-top: 5px; width: 12px; height: 12px; background: #b52d1b"></span><span><span class="mono" style="font-weight: 500">0,8 mi · 0,5%</span><br>Falta pagar (35 empenhos)</span></div>
+</div>
+</section>
+
+<div style="display: flex; flex-wrap: wrap; gap: 40px 48px; padding-top: 40px; margin-top: 40px; border-top: 3px double #1c1a17">
+<section style="flex: 1 1 380px; min-width: 0; display: flex; flex-direction: column; gap: 12px">
+<h2 class="serif" style="margin: 0; font-size: 34px; border-bottom: 1px solid #1c1a17; padding-bottom: 8px">Por órgão</h2>
+<p class="mono" style="margin: 0; font-size: 12px; text-transform: uppercase; letter-spacing: 0.04em; color: #5a554c">Valor empenhado · R$ mi</p>
+<sc-for list="{{orgaos}}" as="o" hint-placeholder-count="8">
+<div title="{{o.tip}}" style="display: flex; flex-direction: column; gap: 4px">
+<div style="display: flex; align-items: baseline; gap: 8px; font-size: 16px">
+<span>{{o.nome}}</span>
+<span aria-hidden="true" style="flex: 1 1 auto; border-bottom: 1px dotted #1c1a17; transform: translateY(-4px)"></span>
+<span class="mono" style="font-size: 15px">{{o.valor}}</span>
+<span class="mono" style="font-size: 13px; color: #5a554c; width: 48px; text-align: right">{{o.pct}}</span>
+</div>
+<div aria-hidden="true" style="height: 3px; background: #d8d1c2"><div style="width: {{o.w}}; height: 100%; background: {{o.cor}}"></div></div>
+</div>
+</sc-for>
+</section>
+
+<section style="flex: 1 1 380px; min-width: 0; display: flex; flex-direction: column; gap: 12px; border-left: 1px solid #1c1a17; padding-left: 28px">
+<h2 class="serif" style="margin: 0; font-size: 34px; border-bottom: 1px solid #1c1a17; padding-bottom: 8px">Quem mais recebeu</h2>
+<p class="mono" style="margin: 0; font-size: 12px; text-transform: uppercase; letter-spacing: 0.04em; color: #5a554c">Total pago a cada empresa no ano</p>
+<ol style="margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column">
+<sc-for list="{{credores}}" as="c" hint-placeholder-count="8">
+<li style="display: flex; align-items: baseline; gap: 12px; padding: 8px 0; border-bottom: 1px solid #b9b09e">
+<span class="serif" style="width: 26px; font-size: 24px; font-style: italic; line-height: 1">{{c.pos}}</span>
+<span style="flex: 1 1 auto; min-width: 0"><span style="font-weight: 600">{{c.nome}}</span><br><span class="mono" style="font-size: 12px; color: #5a554c">{{c.det}}</span></span>
+<span class="mono" style="font-size: 15px; white-space: nowrap">{{c.valor}}</span>
+</li>
+</sc-for>
+<li style="display: flex; align-items: baseline; gap: 12px; padding: 10px 0">
+<span aria-hidden="true" style="width: 26px"></span>
+<span style="flex: 1 1 auto; min-width: 0"><span class="serif" style="font-size: 20px; font-style: italic">Pessoas físicas, somadas</span><br><span class="mono" style="font-size: 12px; color: #5a554c">[N] credores · nomes não exibidos</span></span>
+<span class="mono" style="font-size: 15px; white-space: nowrap">R$ [valor]</span>
+</li>
+</ol>
+</section>
+</div>
+
+<section style="padding-top: 40px; margin-top: 40px; border-top: 3px double #1c1a17; display: flex; flex-direction: column; gap: 14px">
+<div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-end; gap: 12px 24px; border-bottom: 1px solid #1c1a17; padding-bottom: 10px">
+<div>
+<h2 class="serif" style="margin: 0; font-size: 34px">Todos os empenhos</h2>
+<p class="mono" style="margin: 0; font-size: 12px; text-transform: uppercase; letter-spacing: 0.04em; color: #5a554c">Busque por credor, número ou descrição</p>
+</div>
+<div style="display: flex; flex-wrap: wrap; align-items: flex-end; gap: 12px 24px">
+<div style="display: flex; flex-direction: column; gap: 2px">
+<label for="busca-d" class="mono" style="font-size: 12px; text-transform: uppercase; letter-spacing: 0.06em">Buscar</label>
+<input id="busca-d" type="search" placeholder="merenda, combustível…" style="font: inherit; font-size: 16px; min-height: 44px; width: 260px; max-width: 100%; box-sizing: border-box; padding: 0 4px; border: 0; border-bottom: 1px solid #1c1a17; background: transparent; color: #1c1a17">
+</div>
+<div style="display: flex; flex-direction: column; gap: 2px">
+<label for="sit" class="mono" style="font-size: 12px; text-transform: uppercase; letter-spacing: 0.06em">Situação</label>
+<select id="sit" style="font: inherit; font-size: 16px; min-height: 44px; padding: 0 28px 0 4px; border: 0; border-bottom: 1px solid #1c1a17; background: transparent; color: #1c1a17"><option>Todas</option><option>Pago</option><option>Falta pagar</option><option>Sem informação</option></select>
+</div>
+<a href="#" class="mono" style="font-size: 13px; text-transform: uppercase; letter-spacing: 0.06em; min-height: 44px; display: inline-flex; align-items: center">Baixar CSV ↓</a>
+</div>
+</div>
+<div style="overflow-x: auto">
+<table style="width: 100%; min-width: 980px; border-collapse: collapse; font-size: 16px">
+<thead><tr><th scope="col">Empenho</th><th scope="col">Órgão</th><th scope="col">Credor e descrição</th><th scope="col" style="text-align: right">Empenhado</th><th scope="col" style="text-align: right">Pago</th><th scope="col">Situação</th></tr></thead>
+<tbody>
+<sc-for list="{{empenhos}}" as="r" hint-placeholder-count="6">
+<tr class="row">
+<td style="white-space: nowrap"><span class="mono" style="font-weight: 500">Nº {{r.num}}</span><br><span class="mono" style="font-size: 12px; color: #5a554c">{{r.data}} · {{r.ent}}</span></td>
+<td style="max-width: 180px">{{r.orgao}}</td>
+<td style="max-width: 420px"><span style="font-weight: 600">{{r.credor}}</span><br><span class="serif" style="font-size: 18px; font-style: italic; line-height: 1.25">{{r.hist}}</span></td>
+<td class="mono" style="text-align: right; white-space: nowrap">{{r.emp}}</td>
+<td class="mono" style="text-align: right; white-space: nowrap">{{r.pago}}</td>
+<td style="white-space: nowrap"><span class="mono" style="{{r.sitStyle}}"><span aria-hidden="true" style="{{r.dot}}"></span>{{r.sit}}</span></td>
+</tr>
+</sc-for>
+</tbody>
+</table>
+</div>
+<div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 12px">
+<span class="mono" style="font-size: 13px">Mostrando 1–6 de 9.757 empenhos</span>
+<nav aria-label="Paginação" class="mono" style="display: flex; gap: 4px; font-size: 13px; text-transform: uppercase; letter-spacing: 0.06em">
+<a href="#" style="min-height: 44px; display: inline-flex; align-items: center; padding: 0 10px">← Anterior</a>
+<a href="#" style="min-height: 44px; display: inline-flex; align-items: center; padding: 0 10px; border-left: 1px solid #1c1a17">Próxima →</a>
+</nav>
+</div>
+</section>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":2560}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { ent: 'todas' };
+  }
+  renderVals() {
+    const f = (v) => v.toLocaleString('pt-BR', { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+    const brl = (v) => v.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    const tot = 176.3;
+    const og = [['Secretaria de Educação', 46.2], ['Fundo Municipal de Saúde', 41.8], ['Secretaria de Obras e Infraestrutura', 28.5], ['Secretaria de Administração e Finanças', 21.7], ['SAMAE', 19.6], ['Secretaria de Assistência Social', 7.9], ['Secretaria de Agricultura', 4.6], ['Outros 6 órgãos', 6.0]];
+    const orgaos = og.map(([nome, v], i) => ({ nome, valor: f(v), pct: f(v / tot * 100) + '%', w: (v / 46.2 * 100).toFixed(1) + '%', cor: i === og.length - 1 ? '#a39b8a' : '#1c1a17', tip: nome + ': R$ ' + f(v) + ' mi' }));
+    const credores = [1,2,3,4,5,6,7,8].map((pos) => ({ pos, nome: '[Nome da empresa ' + pos + ']', det: '[N] empenhos · [órgão principal]', valor: 'R$ [valor]' }));
+    const base = 'display: inline-flex; align-items: center; gap: 8px; font-size: 12px; text-transform: uppercase; letter-spacing: 0.04em; ';
+    const sit = {
+      pago: { t: 'Pago', s: base + 'color: #1c1a17', d: 'width: 9px; height: 9px; background: #1c1a17' },
+      apagar: { t: 'Falta pagar', s: base + 'color: #b52d1b; font-weight: 500', d: 'width: 9px; height: 9px; background: #b52d1b' },
+      sem: { t: 'Sem informação', s: base + 'color: #5a554c', d: 'width: 9px; height: 9px; box-shadow: inset 0 0 0 1px #1c1a17; background: repeating-linear-gradient(45deg, #1c1a17 0 1px, transparent 1px 3px)' }
+    };
+    const rows = [
+      ['4.812', '14/10/2025', 'Prefeitura', 'Secretaria de Educação', '[Credor]', 'Aquisição de gêneros alimentícios para a merenda escolar, conforme ata de registro de preços [nº]…', 48230.0, 48230.0, 'pago'],
+      ['1.127', '09/10/2025', 'Fundo de Saúde', 'Fundo Municipal de Saúde', '[Credor]', 'Fornecimento de medicamentos para a farmácia básica municipal…', 21615.4, 21615.4, 'pago'],
+      ['903', '06/10/2025', 'SAMAE', 'SAMAE', '[Credor]', 'Compra de produtos químicos para o tratamento de água…', 36900.0, 18450.0, 'apagar'],
+      ['4.790', '02/10/2025', 'Prefeitura', 'Secretaria de Obras e Infraestrutura', '[Credor]', 'Combustível para a frota de máquinas e caminhões da secretaria…', 15000.0, null, 'sem'],
+      ['4.774', '30/09/2025', 'Prefeitura', 'Secretaria de Administração e Finanças', 'Pessoa física', 'Pagamento de diárias para participação em curso de capacitação…', 840.0, 840.0, 'pago'],
+      ['88', '25/09/2025', 'Fundação Ambiental', 'Fundação Ambiental Municipal', '[Credor]', 'Serviço de coleta e análise de amostras para licenciamento ambiental…', 7350.0, 7350.0, 'pago']
+    ];
+    const empenhos = rows.map(([num, data, ent, orgao, credor, hist, emp, pago, s]) => ({ num, data, ent, orgao, credor, hist, emp: brl(emp), pago: pago == null ? '—' : brl(pago), sit: sit[s].t, sitStyle: sit[s].s, dot: sit[s].d }));
+    const ents = [['todas','Todas'],['pref','Prefeitura'],['saude','Fundo de Saúde'],['samae','SAMAE'],['fam','Fundação Ambiental']];
+    const entidades = ents.map(([id, label]) => {
+      const on = this.state.ent === id;
+      return {
+        label, pressed: on ? 'true' : 'false',
+        pick: () => this.setState({ ent: id }),
+        style: 'font: inherit; font-size: 15px; min-height: 44px; padding: 0 10px; border: 0; background: transparent; cursor: pointer; color: ' + (on ? '#b52d1b' : '#1c1a17') + '; font-weight: ' + (on ? '600' : '400') + '; text-decoration: ' + (on ? 'underline' : 'none') + '; text-underline-offset: 6px; text-decoration-thickness: 2px'
+      };
+    });
+    return { orgaos, credores, empenhos, entidades };
+  }
+}
+</script>
+</body>
+</html>

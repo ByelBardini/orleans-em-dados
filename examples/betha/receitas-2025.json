@@ -1,0 +1,31 @@
+{
+  "meta": {
+    "fonte": "DADOS FICTÍCIOS — exemplo no formato do snapshot Betha",
+    "consultaId": 57153,
+    "consultaNome": "Receitas Orçamentárias",
+    "urlOrigem": "https://transparencia.betha.cloud/#/mJRAZlfGu2RI9KNBWj49aw==/consulta/57153",
+    "ano": 2025,
+    "filtro": { "ano": ["2025"] },
+    "iniciadoEm": "2025-01-01T00:00:00.000Z",
+    "coletadoEm": "2025-01-01T00:00:00.000Z",
+    "totalHits": 10,
+    "capturados": 10,
+    "idsUnicos": 10,
+    "camposAusentes": { "valorOrcadoAtualizado": 0, "valorArrecadadoNoMes": 0 },
+    "conferencia": [],
+    "status": "exemplo",
+    "erros": []
+  },
+  "registros": [
+    { "id": "211:728:1_1", "rubricaNatureza": "11125001000000", "descricaoNatureza": "IPTU (exemplo)", "valorOrcado": 1000000, "valorOrcadoDeducoes": 0, "valorOrcadoAtualizado": 1000000, "valorLancadoNoMes": 0, "valorArrecadadoNoMes": 300000, "valorArrecadadoAteMes": 300000, "percentualRealizado": 30 },
+    { "id": "211:728:1_2", "rubricaNatureza": "11125001000000", "descricaoNatureza": "IPTU (exemplo)", "valorOrcado": 0, "valorOrcadoDeducoes": 0, "valorOrcadoAtualizado": 0, "valorLancadoNoMes": 0, "valorArrecadadoNoMes": 250000, "valorArrecadadoAteMes": 550000, "percentualRealizado": 55 },
+    { "id": "211:728:2_1", "rubricaNatureza": "17115101000000", "descricaoNatureza": "Cota-parte FPM (exemplo)", "valorOrcado": 3000000, "valorOrcadoDeducoes": 0, "valorOrcadoAtualizado": 3000000, "valorLancadoNoMes": 0, "valorArrecadadoNoMes": 900000, "valorArrecadadoAteMes": 900000, "percentualRealizado": 30 },
+    { "id": "211:728:2_2", "rubricaNatureza": "17115101000000", "descricaoNatureza": "Cota-parte FPM (exemplo)", "valorOrcado": 0, "valorOrcadoDeducoes": 0, "valorOrcadoAtualizado": 0, "valorLancadoNoMes": 0, "valorArrecadadoNoMes": 850000, "valorArrecadadoAteMes": 1750000, "percentualRealizado": 58.33 },
+    { "id": "211:728:3_3", "rubricaNatureza": "13210011000000", "descricaoNatureza": "Rendimentos de aplicações (exemplo)", "valorOrcado": 200000, "valorOrcadoDeducoes": 0, "valorOrcadoAtualizado": 200000, "valorLancadoNoMes": 0, "valorArrecadadoNoMes": 60000, "valorArrecadadoAteMes": 60000, "percentualRealizado": 30 },
+    { "id": "211:319:4_1", "rubricaNatureza": "17135011000000", "descricaoNatureza": "SUS — Atenção Primária (exemplo)", "valorOrcado": 1200000, "valorOrcadoDeducoes": 0, "valorOrcadoAtualizado": 1200000, "valorLancadoNoMes": 0, "valorArrecadadoNoMes": 400000, "valorArrecadadoAteMes": 400000, "percentualRealizado": 33.33 },
+    { "id": "211:319:4_2", "rubricaNatureza": "17135011000000", "descricaoNatureza": "SUS — Atenção Primária (exemplo)", "valorOrcado": 0, "valorOrcadoDeducoes": 0, "valorOrcadoAtualizado": 0, "valorLancadoNoMes": 0, "valorArrecadadoNoMes": -15000, "valorArrecadadoAteMes": 385000, "percentualRealizado": 32.08 },
+    { "id": "211:2473:5_1", "rubricaNatureza": "16110101000000", "descricaoNatureza": "Serviços de água e esgoto (exemplo)", "valorOrcado": 900000, "valorOrcadoDeducoes": 0, "valorOrcadoAtualizado": 900000, "valorLancadoNoMes": 0, "valorArrecadadoNoMes": 280000, "valorArrecadadoAteMes": 280000, "percentualRealizado": 31.11 },
+    { "id": "211:2473:5_2", "rubricaNatureza": "16110101000000", "descricaoNatureza": "Serviços de água e esgoto (exemplo)", "valorOrcado": 0, "valorOrcadoDeducoes": 0, "valorOrcadoAtualizado": 0, "valorLancadoNoMes": 0, "valorArrecadadoNoMes": 290000, "valorArrecadadoAteMes": 570000, "percentualRealizado": 63.33 },
+    { "id": "211:320:6_3", "rubricaNatureza": "16100111000000", "descricaoNatureza": "Taxas de licenciamento ambiental (exemplo)", "valorOrcado": 20000, "valorOrcadoDeducoes": 0, "valorOrcadoAtualizado": 20000, "valorLancadoNoMes": 0, "valorArrecadadoNoMes": 7000, "valorArrecadadoAteMes": 7000, "percentualRealizado": 35 }
+  ]
+}

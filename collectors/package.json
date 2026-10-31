@@ -1,0 +1,13 @@
+{
+  "name": "@orleans-em-dados/collectors",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "coletar": "node --env-file-if-exists=../.env betha/coletar.js",
+    "importar": "node --env-file-if-exists=../.env importar-arquivo.js"
+  },
+  "dependencies": {
+    "@orleans-em-dados/db": "*"
+  }
+}

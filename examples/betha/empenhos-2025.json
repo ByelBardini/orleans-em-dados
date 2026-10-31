@@ -1,0 +1,27 @@
+{
+  "meta": {
+    "fonte": "DADOS FICTÍCIOS — exemplo no formato do snapshot Betha",
+    "consultaId": 57140,
+    "consultaNome": "Execução Detalhada de Despesas",
+    "urlOrigem": "https://transparencia.betha.cloud/#/mJRAZlfGu2RI9KNBWj49aw==/consulta/57140",
+    "ano": 2025,
+    "filtro": { "anoExercicio": ["2025"] },
+    "iniciadoEm": "2025-01-01T00:00:00.000Z",
+    "coletadoEm": "2025-01-01T00:00:00.000Z",
+    "totalHits": 6,
+    "capturados": 6,
+    "idsUnicos": 6,
+    "camposAusentes": { "valorEmpenho": 0, "valorLiquidadoEmpenho": 1, "valorPagoEmpenho": 1 },
+    "conferencia": [],
+    "status": "exemplo",
+    "erros": []
+  },
+  "registros": [
+    { "id": "211:728:1001", "numeroEmpenho": 1, "dataEmpenho": "2025-01-10", "descricaoOrgao": "SECRETARIA MUNICIPAL DE EDUCAÇÃO", "credor": { "nomeCredor": "FORNECEDOR EXEMPLO A LTDA" }, "historicoEmpenho": "Aquisição de material escolar (exemplo)", "valorEmpenho": 120000, "valorLiquidadoEmpenho": 120000, "valorPagoEmpenho": 120000, "saldoAPagar": 0 },
+    { "id": "211:728:1002", "numeroEmpenho": 2, "dataEmpenho": "2025-02-03", "descricaoOrgao": "SECRETARIA MUNICIPAL DE INFRA-ESTRUTURA", "credor": { "nomeCredor": "CONSTRUTORA EXEMPLO B LTDA" }, "historicoEmpenho": "Pavimentação de via (exemplo)", "valorEmpenho": 450000, "valorLiquidadoEmpenho": 300000, "valorPagoEmpenho": 300000, "saldoAPagar": 0 },
+    { "id": "211:728:1003", "numeroEmpenho": 3, "dataEmpenho": "2025-02-20", "descricaoOrgao": "SECRETARIA MUNICIPAL DE ADMINISTRAÇÃO", "credor": { "nomeCredor": "BANCO EXEMPLO SA" }, "historicoEmpenho": "Tarifas bancárias (exemplo)", "valorEmpenho": 5000, "valorLiquidadoEmpenho": 4200, "valorPagoEmpenho": 4200, "saldoAPagar": 0 },
+    { "id": "211:319:2001", "numeroEmpenho": 1, "dataEmpenho": "2025-01-15", "descricaoOrgao": "FUNDO MUNICIPAL DE SAÚDE", "credor": { "nomeCredor": "DISTRIBUIDORA EXEMPLO C LTDA" }, "historicoEmpenho": "Medicamentos da atenção básica (exemplo)", "valorEmpenho": 210000, "valorLiquidadoEmpenho": 180000, "valorPagoEmpenho": 180000, "saldoAPagar": 0 },
+    { "id": "211:2473:3001", "numeroEmpenho": 1, "dataEmpenho": "2025-03-02", "descricaoOrgao": "SAMAE - SERVIÇO AUT. MUN. DE ÁGUA E ESGOTO", "credor": { "nomeCredor": "QUIMICA EXEMPLO D LTDA" }, "historicoEmpenho": "Produtos para tratamento de água (exemplo)", "valorEmpenho": 80000, "valorLiquidadoEmpenho": 60000, "valorPagoEmpenho": 55000, "saldoAPagar": 5000 },
+    { "id": "211:320:4001", "numeroEmpenho": 1, "dataEmpenho": "2025-03-12", "descricaoOrgao": "FUNDAÇÃO AMBIENTAL MUNICIPAL DE ORLEANS", "credor": { "nomeCredor": "PAPELARIA EXEMPLO E ME" }, "historicoEmpenho": "Material de expediente (exemplo)", "valorEmpenho": 3000 }
+  ]
+}
