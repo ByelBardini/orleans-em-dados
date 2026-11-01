@@ -31,6 +31,35 @@ const NORMALIZAR = {
       (payload->>'valorEmpenho')::numeric, (payload->>'valorLiquidadoEmpenho')::numeric,
       (payload->>'valorPagoEmpenho')::numeric, (payload->>'saldoAPagar')::numeric
     FROM registros_brutos WHERE coleta_id = $1`,
+  57170: `
+    INSERT INTO despesas (
+      coleta_id, id_externo, ano, entidade_codigo, natureza, acao_numero, acao,
+      valor_orcado, valor_orcado_atualizado, valor_empenhado, valor_liquidado, valor_pago)
+    SELECT coleta_id, id_externo, $2, split_part(id_externo, ':', 2),
+      payload->>'idNatureza', payload->>'numero', payload->>'descricao',
+      (payload->>'valorOrcado')::numeric, (payload->>'valorOrcadoAtualizado')::numeric,
+      (payload->>'valorEmpenhadoAtualizado')::numeric, (payload->>'valorLiquidadoAtualizado')::numeric,
+      (payload->>'valorPagoAtualizado')::numeric
+    FROM registros_brutos WHERE coleta_id = $1`,
+  // TCE-SC: valores chegam do coletor como strings decimais já conferidas.
+  900001: `
+    INSERT INTO tcesc_receitas (
+      coleta_id, id_externo, ano, unidade, codigo, natureza, tipo_deducao, mes, valor_arrecadado)
+    SELECT coleta_id, id_externo, $2, payload->>'nomeunidade', payload->>'codigoreceita',
+      payload->>'natureza', payload->>'descricaotipodeducaoreceita',
+      array_position(ARRAY['jan','fev','mar','abr','mai','jun','jul','ago','set','out','nov','dez'], payload->>'Mês'),
+      (payload->>'valorArrecadado')::numeric
+    FROM registros_brutos WHERE coleta_id = $1`,
+  900002: `
+    INSERT INTO tcesc_empenhos (
+      coleta_id, id_externo, ano, codigo_ug, numero, data_empenho, credor, historico,
+      valor_original, valor_reforco, valor_estorno, valor_empenhado, valor_liquidado, valor_pago)
+    SELECT coleta_id, id_externo, $2, payload->>'codigoUG', (payload->>'numero')::integer,
+      (payload->>'dataEmpenho')::date, payload->>'credor', payload->>'historico',
+      (payload->>'valorOriginal')::numeric, (payload->>'valorReforco')::numeric,
+      (payload->>'valorEstorno')::numeric, (payload->>'valorEmpenhado')::numeric,
+      (payload->>'valorLiquidado')::numeric, (payload->>'valorPago')::numeric
+    FROM registros_brutos WHERE coleta_id = $1`,
 };
 
 export async function gravarColeta({ meta, registros }, origem) {
@@ -72,9 +101,12 @@ export async function gravarColeta({ meta, registros }, origem) {
     }
 
     // Um único parâmetro JSON expandido no servidor, em vez de milhares de INSERTs.
+    // IDs repetidos só ocorrem em coletas rejeitadas (o coletor acusa o erro);
+    // guarda-se a primeira ocorrência para a coleta ainda poder ser registrada.
     await c.query(
       `INSERT INTO registros_brutos (coleta_id, id_externo, payload)
-       SELECT $1, r->>'id', r - 'id' FROM jsonb_array_elements($2::jsonb) AS r`,
+       SELECT $1, r->>'id', r - 'id' FROM jsonb_array_elements($2::jsonb) AS r
+       ON CONFLICT (coleta_id, id_externo) DO NOTHING`,
       [coletaId, JSON.stringify(registros)],
     );
     await c.query(normalizar, [coletaId, meta.ano]);

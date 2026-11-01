@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react';
 import { useApi } from '../api.js';
 import { BarraDividida, Estado, Filtros, Fonte, LinhaAcumulada, ListaPontos, Mi, Numero, Numeros } from '../components.jsx';
 import { emMilhoes, MESES, MESES_LONGOS, milhoes, moeda, numero, pct, porExtenso } from '../format.js';
+import { Selo, seloReceita, seloRubrica, useConferencia } from '../selos.jsx';
 import { ORIGEM_CIDADAO, ORIGENS_DE_FORA, populacao, sujeito } from '../referencias.js';
 
 const N = Number;
@@ -22,15 +23,16 @@ const nomeTributo = (r) => TRIBUTOS.find(([prefixo]) => r.rubrica.startsWith(pre
 
 export default function Receitas({ ano, entidade, filtros }) {
   const { dados, carregando, erro } = useApi(`/api/receitas?${new URLSearchParams({ ano, entidade })}`);
+  const conf = useConferencia(ano);
   return (
     <>
       <Estado carregando={carregando} erro={erro} />
-      {dados && <Conteudo ano={ano} entidade={entidade} filtros={filtros} dados={dados} />}
+      {dados && <Conteudo ano={ano} entidade={entidade} filtros={filtros} dados={dados} conf={conf} />}
     </>
   );
 }
 
-function Conteudo({ ano, entidade, filtros, dados }) {
+function Conteudo({ ano, entidade, filtros, dados, conf }) {
   const [busca, setBusca] = useState('');
   const [todas, setTodas] = useState(false);
   const pop = populacao(ano);
@@ -130,7 +132,7 @@ function Conteudo({ ano, entidade, filtros, dados }) {
         <Numero rotulo="Previsto" detalhe="orçamento atualizado do ano">
           <Mi valor={previsto} />
         </Numero>
-        <Numero rotulo="Arrecadado" detalhe={moeda(arrecadado)}>
+        <Numero rotulo="Arrecadado" detalhe={moeda(arrecadado)} selo={<Selo selo={seloReceita(conf, entidade)} />}>
           <Mi valor={arrecadado} />
         </Numero>
         <Numero rotulo="Realizado" vermelho barra={realizado ?? undefined}>
@@ -315,6 +317,7 @@ function Conteudo({ ano, entidade, filtros, dados }) {
                         {r.rubrica}
                         {r.entidades.size === 1 && !entidade ? ` · ${[...r.entidades][0]}` : ''}
                       </span>
+                      <Selo compacto selo={seloRubrica(conf, r.rubrica, r.entidades)} />
                     </td>
                     <td>{ORIGEM_CIDADAO[r.rubrica.slice(0, 2)] ?? r.rubrica.slice(0, 2)}</td>
                     <td className="num">{r.previsto ? milhoes(r.previsto) : '—'}</td>
@@ -341,6 +344,7 @@ function Conteudo({ ano, entidade, filtros, dados }) {
           </table>
         </div>
         <div className="paginacao">
+          <SoNoTce conf={conf} entidade={entidade} />
           <p className="nota-serif">
             O traço vertical marca 100% do previsto. Em vermelho, receitas que passaram da meta.
           </p>
@@ -354,5 +358,20 @@ function Conteudo({ ano, entidade, filtros, dados }) {
 
       <Fonte meta={dados.meta} />
     </>
+  );
+}
+
+// Rubricas que o TCE-SC registra e que não existem na Betha: não aparecem na tabela acima.
+function SoNoTce({ conf, entidade }) {
+  const linhas = (conf?.receitaPorNatureza ?? []).filter(
+    (n) => n.tipo === 'soTce' && (!entidade || n.codigoEntidade === entidade),
+  );
+  if (!linhas.length) return null;
+  return (
+    <p className="nota" style={{ flexBasis: '100%' }}>
+      <strong className="vermelho">Só no TCE-SC, sem rubrica correspondente aqui:</strong>{' '}
+      {linhas.map((n) => `${n.natureza} ${nomeReceita(n.descricao ?? '')} (${n.entidade}, ${moeda(n.tce)})`).join('; ')}.{' '}
+      <a href="#conferencia">Ver conferência</a>
+    </p>
   );
 }

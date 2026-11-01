@@ -3,6 +3,7 @@ import { useApi } from '../api.js';
 import { BarraDividida, BarrasMensais, Estado, Filtros, Fonte, ListaPontos, Mi, Numero, Numeros } from '../components.jsx';
 import { data, decimal, emMilhoes, MESES, MESES_LONGOS, moeda, nomeProprio, numero, pct } from '../format.js';
 import { populacao } from '../referencias.js';
+import { Selo, seloDespesa, seloEmpenho, useConferencia } from '../selos.jsx';
 
 const POR_PAGINA = 25;
 const N = Number;
@@ -26,15 +27,24 @@ const situacaoDe = (e) => (e.liquidado === null ? 'sem' : N(e.saldoAPagar) > 0 ?
 
 export default function Despesas({ ano, entidade, filtros }) {
   const resumo = useApi(`/api/despesas/empenhos/resumo?${new URLSearchParams({ ano, entidade })}`);
+  const desp = useApi(`/api/despesas/resumo?${new URLSearchParams({ ano, entidade })}`);
+  const conf = useConferencia(ano);
   return (
     <>
-      <Estado carregando={resumo.carregando && !resumo.dados} erro={resumo.erro} />
-      {resumo.dados && <Conteudo ano={ano} entidade={entidade} filtros={filtros} d={resumo.dados} />}
+      <Estado
+        carregando={(resumo.carregando && !resumo.dados) || (desp.carregando && !desp.dados)}
+        erro={resumo.erro || desp.erro}
+      />
+      {resumo.dados && desp.dados && (
+        <Conteudo ano={ano} entidade={entidade} filtros={filtros} d={resumo.dados} o={desp.dados} conf={conf} />
+      )}
     </>
   );
 }
 
-function Conteudo({ ano, entidade, filtros, d }) {
+// `o`: despesa orçamentária (57170), já descontadas as anulações: totais e etapas.
+// `d`: empenhos individuais (57140), pelo valor original: mês, órgão, credor e lista.
+function Conteudo({ ano, entidade, filtros, d, o, conf }) {
   const [busca, setBusca] = useState('');
   const [orgao, setOrgao] = useState('');
   const [situacao, setSituacao] = useState('');
@@ -53,11 +63,14 @@ function Conteudo({ ano, entidade, filtros, d }) {
   const totalPaginas = lista.dados ? Math.max(1, Math.ceil(lista.dados.total / POR_PAGINA)) : 1;
 
   const t = d.totais;
-  const empenhado = N(t.empenhado);
-  const pago = N(t.pago ?? 0);
-  const semInfo = N(t.semValoresDeExecucaoValor);
-  const saldo = N(t.saldoAPagar);
-  const anulado = Math.max(empenhado - pago - semInfo - saldo, 0);
+  const empenhado = N(o.totais.empenhado);
+  const liquidado = N(o.totais.liquidado ?? 0);
+  const pago = N(o.totais.pago ?? 0);
+  const liquidadoAPagar = Math.max(liquidado - pago, 0);
+  const naoLiquidado = Math.max(empenhado - liquidado, 0);
+  const faltaPagar = liquidadoAPagar + naoLiquidado;
+  const original = N(t.empenhado);
+  const camara = o.camara;
   const anoEncerrado = ano < new Date().getFullYear();
 
   const meses = MESES.map((rotulo, i) => {
@@ -93,14 +106,22 @@ function Conteudo({ ano, entidade, filtros, d }) {
       <Filtros {...filtros} />
 
       <Numeros rotulo="Totais de despesa">
-        <Numero rotulo="Empenhado" detalhe={`${numero(t.quantidade)} empenhos no ano`}>
+        <Numero
+          rotulo="Empenhado"
+          detalhe={`já descontadas as anulações · ${numero(t.quantidade)} empenhos somavam ${emMilhoes(original)} no valor original`}
+          selo={<Selo selo={seloDespesa(conf, entidade)} />}
+        >
           <Mi valor={empenhado} />
         </Numero>
-        <Numero rotulo="Pago" detalhe={`${pct(pago, empenhado)} do empenhado`}>
+        <Numero rotulo="Pago" detalhe={`${pct(pago, empenhado)} do empenhado · liquidado ${emMilhoes(liquidado)}`}>
           <Mi valor={pago} />
         </Numero>
-        <Numero rotulo="Falta pagar" vermelho detalhe={`em ${numero(t.comSaldoAPagar)} empenhos`}>
-          <Mi valor={saldo} />
+        <Numero
+          rotulo="Falta pagar"
+          vermelho
+          detalhe={`${emMilhoes(liquidadoAPagar)} já liquidados · ${emMilhoes(naoLiquidado)} ainda não liquidados`}
+        >
+          <Mi valor={faltaPagar} />
         </Numero>
         <Numero rotulo="Credores" detalhe="empresas, órgãos e pessoas que receberam">
           {numero(t.credores)}
@@ -133,17 +154,11 @@ function Conteudo({ ano, entidade, filtros, d }) {
         </ol>
         <BarraDividida
           total={empenhado}
-          descricao={`Pago ${pct(pago, empenhado)}, sem informação ${pct(semInfo, empenhado)}, anulado ${pct(anulado, empenhado)}, falta pagar ${pct(saldo, empenhado)}`}
+          descricao={`Pago ${pct(pago, empenhado)}, liquidado e não pago ${pct(liquidadoAPagar, empenhado)}, ainda não liquidado ${pct(naoLiquidado, empenhado)}`}
           partes={[
             { nome: 'Pago', valor: pago },
-            {
-              nome: 'Sem informação de pagamento',
-              valor: semInfo,
-              classe: 'listrada',
-              detalhe: `${numero(t.semValoresDeExecucao)} empenhos`,
-            },
-            { nome: 'Anulado ou não executado', valor: anulado, classe: 'cinza' },
-            { nome: 'Falta pagar', valor: saldo, classe: 'vermelho', detalhe: `${numero(t.comSaldoAPagar)} empenhos` },
+            { nome: 'Liquidado, falta pagar', valor: liquidadoAPagar, classe: 'vermelho' },
+            { nome: 'Ainda não liquidado', valor: naoLiquidado, classe: 'listrada' },
           ]}
         />
       </section>
@@ -160,7 +175,7 @@ function Conteudo({ ano, entidade, filtros, d }) {
               <span className="amostra vermelho" aria-hidden="true" />
               Já pago
             </span>
-            <span>R$ milhões · pelo mês do empenho</span>
+            <span>R$ milhões · valor original, pelo mês do empenho</span>
           </span>
         </div>
         <BarrasMensais meses={meses} series={['Empenhado', 'Já pago']} descricao={`Empenhado e pago por mês de ${ano}`} />
@@ -169,9 +184,9 @@ function Conteudo({ ano, entidade, filtros, d }) {
       <div className="colunas dupla">
         <section className="secao media">
           <h2 className="secao-titulo">Por órgão</h2>
-          <p className="legenda-secao">Valor empenhado · R$ mi · clique para ver os empenhos</p>
+          <p className="legenda-secao">Valor original dos empenhos · R$ mi · clique para ver os empenhos</p>
           <ListaPontos
-            total={empenhado}
+            total={original}
             aoClicar={(o) => {
               if (o.outro) return;
               setOrgao(o.chave);
@@ -349,6 +364,7 @@ function Conteudo({ ano, entidade, filtros, d }) {
                           <span className="historico">
                             {e.historico?.toLocaleLowerCase('pt-BR').replace(/^./, (c) => c.toUpperCase())}
                           </span>
+                          <Selo compacto selo={seloEmpenho(conf, e.id)} />
                           {aberta === e.id && e.liquidado !== null && (
                             <span className="sub" style={{ display: 'block', marginTop: 6 }}>
                               Liquidado {moeda(e.liquidado)} · saldo a pagar {moeda(e.saldoAPagar)}
@@ -400,10 +416,32 @@ function Conteudo({ ano, entidade, filtros, d }) {
         )}
       </section>
 
+      {camara && (
+        <section className="secao solta">
+          <h2 className="secao-titulo" style={{ borderBottom: '1px solid var(--tinta)', paddingBottom: 8 }}>
+            Câmara Municipal
+          </h2>
+          <p className="nota-serif">
+            A Câmara não publica no portal Betha da Prefeitura. Pelos dados enviados ao TCE-SC
+            {anoEncerrado ? '' : ` (até ${data(camara.ultimoEmpenho)})`}, ela empenhou{' '}
+            <strong>{moeda(camara.empenhado)}</strong> em {numero(camara.quantidade)} empenhos e pagou{' '}
+            <strong>{moeda(camara.pago)}</strong>. Somada às entidades acima, a despesa empenhada do município é de{' '}
+            <strong>{moeda(empenhado + N(camara.empenhado))}</strong>.
+          </p>
+          <p className="nota">
+            Fonte: <a href={camara.urlOrigem}>Farol TCE-SC — Despesas Municipais</a>, coletado em {data(camara.coletadoEm)}.
+          </p>
+        </section>
+      )}
+
       <p className="nota" style={{ marginTop: 32 }}>
-        Valores <strong>originais</strong> de cada empenho (consulta Betha 57140), sem descontar anulações. A despesa
-        orçamentária líquida virá da consulta 57170, ainda não integrada.
+        Os totais (empenhado, liquidado, pago e falta pagar) são a <strong>despesa orçamentária</strong> (consulta Betha
+        57170), já descontadas as anulações: é o número que confere com o TCE-SC. O mês, os órgãos, os credores e a
+        lista usam o <strong>valor original</strong> de cada empenho (consulta 57140). Registros que a{' '}
+        <a href="#conferencia">conferência</a> aponta como versões antigas ou repetidas aparecem na lista com um selo,
+        mas ficam fora das somas{t.excluidos ? ` (${numero(t.excluidos)} neste ano)` : ''}.
       </p>
+      <Fonte meta={o.meta} />
       <Fonte meta={d.meta} />
     </>
   );

@@ -29,6 +29,14 @@ export const CONSULTAS = {
     filtro: (ano) => ({ anoExercicio: [String(ano)] }),
     camposSoma: ['valorEmpenho', 'valorLiquidadoEmpenho', 'valorPagoEmpenho'],
   },
+  // Despesa por natureza × ação, líquida de anulações. Sem filtro, `anoExercicio`
+  // é ignorado e voltam todos os exercícios: o filtro desta consulta é `ano`.
+  despesas: {
+    id: 57170,
+    nome: 'Despesas Orçamentárias',
+    filtro: (ano) => ({ ano: [String(ano)] }),
+    camposSoma: ['valorEmpenhadoAtualizado', 'valorLiquidadoAtualizado', 'valorPagoAtualizado'],
+  },
 };
 
 export const urlConsulta = (id) => `${BETHA.portalUrl}/consulta/${id}`;

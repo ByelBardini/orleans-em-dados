@@ -2,8 +2,9 @@
 // Não consulta a Betha a cada acesso.
 
 import { createServer } from 'node:http';
+import { conferencia } from '@orleans-em-dados/db/conferencias';
 import { anosDisponiveis, coletaPublicada } from './dados.js';
-import { buscarEmpenhos, resumoEmpenhos, resumoReceitas, todosEmpenhos } from './indicadores.js';
+import { buscarEmpenhos, resumoDespesas, resumoEmpenhos, resumoReceitas, todosEmpenhos } from './indicadores.js';
 
 const PORT = Number(process.env.PORT ?? 3000);
 
@@ -35,6 +36,22 @@ async function snapshotOu404(res, consulta, ano) {
   return s;
 }
 
+// Empenhos Betha que a conferência aponta como versões antigas de empenhos
+// renumerados ou registros repetidos: saem das somas. Cache curto por ano,
+// porque a conferência roda várias consultas.
+const CACHE_MS = 5 * 60_000;
+const cacheExcluir = new Map();
+async function empenhosExcluidos(ano) {
+  const c = cacheExcluir.get(ano);
+  if (c && Date.now() - c.em < CACHE_MS) return c.ids;
+  const conf = await conferencia(ano);
+  const ids = conf?.disponivel
+    ? conf.empenhosSemPar.filter((e) => e.fonte === 'betha' && (e.ocorrencia > 1 || e.numeroNaOutra)).map((e) => e.id)
+    : [];
+  cacheExcluir.set(ano, { em: Date.now(), ids });
+  return ids;
+}
+
 const filtrosEmpenho = (q) => ({
   q: q.get('q') ?? '',
   entidade: q.get('entidade') ?? '',
@@ -44,6 +61,14 @@ const filtrosEmpenho = (q) => ({
 
 const rotas = {
   '/api/anos': async (_q, res) => json(res, 200, await anosDisponiveis()),
+
+  // Betha × TCE-SC sobre as coletas publicadas; 404 se faltar alguma das fontes.
+  '/api/conferencias': async (q, res) => {
+    const ano = Number(q.get('ano'));
+    const c = Number.isInteger(ano) ? await conferencia(ano) : null;
+    if (!c?.disponivel) return json(res, 404, { erro: `Sem as duas fontes publicadas para ${q.get('ano')}`, faltando: c?.faltando });
+    json(res, 200, c);
+  },
 
   '/api/receitas': async (q, res) => {
     const s = await snapshotOu404(res, 'receitas', q.get('ano'));
@@ -68,9 +93,17 @@ const rotas = {
     );
   },
 
+  // Despesa orçamentária (57170) e, à parte, a Câmara pelo TCE-SC.
+  '/api/despesas/resumo': async (q, res) => {
+    const s = await snapshotOu404(res, 'despesas', q.get('ano'));
+    if (s) json(res, 200, await resumoDespesas(s, { entidade: q.get('entidade') ?? '', ano: Number(q.get('ano')) }));
+  },
+
   '/api/despesas/empenhos/resumo': async (q, res) => {
     const s = await snapshotOu404(res, 'empenhos', q.get('ano'));
-    if (s) json(res, 200, await resumoEmpenhos(s, { entidade: q.get('entidade') ?? '' }));
+    if (!s) return;
+    const excluir = await empenhosExcluidos(Number(q.get('ano')));
+    json(res, 200, await resumoEmpenhos(s, { entidade: q.get('entidade') ?? '', excluir }));
   },
 
   '/api/despesas/empenhos': async (q, res) => {
