@@ -2,8 +2,11 @@
 
 export async function anosDisponiveis() {
   const { rows } = await pool.query(
+    // Só as consultas Betha que as páginas atuais leem: um ano publicado apenas
+    // no TCE-SC (ou só em 57170) não deve aparecer no filtro e gerar 404.
     `SELECT p.ano, bool_and(c.status = 'exemplo') AS exemplo, max(c.finalizado_em) AS atualizado
-     FROM publicacoes p JOIN coletas c ON c.id = p.coleta_id
+     FROM publicacoes p JOIN coletas c ON c.id = p.coleta_id JOIN consultas q ON q.id = p.consulta_id
+     WHERE q.chave IN ('receitas', 'empenhos')
      GROUP BY p.ano ORDER BY p.ano DESC`,
   );
   const { rows: entidades } = await pool.query(
