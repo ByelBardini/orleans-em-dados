@@ -19,3 +19,6 @@ data/
 Thumbs.db
 .vscode/
 .idea/
+
+# Cache de dependências do Vite
+.vite/
