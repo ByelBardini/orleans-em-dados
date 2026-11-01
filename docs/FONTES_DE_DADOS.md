@@ -20,6 +20,10 @@ portal antes de implementar.
 Próxima a integrar: `57170` (Despesas Orçamentárias, empenhado/liquidado/pago **atualizado**), cujo filtro ainda
 precisa ser confirmado.
 
+**Paginação:** sem ordenação explícita, a paginação por offset devolveu IDs repetidos no exercício corrente (2026), e
+mesmo `sortBy=id` falhou em páginas de 1.000. O coletor ordena por `id` e pede até 10.000 registros por requisição
+(uma página só nos volumes atuais); se houver repetição, relê tudo até 3 vezes antes de rejeitar a coleta.
+
 ## Acesso à API Betha
 
 - O portal obtém um token anônimo por OAuth (fluxo implícito, HTTP 303). O coletor reproduz esse fluxo. O token
