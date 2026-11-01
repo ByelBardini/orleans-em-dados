@@ -19,7 +19,8 @@ import { CONSULTAS, urlConsulta } from './config.js';
 
 const RAIZ = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
 const DATA_DIR = path.resolve(RAIZ, process.env.DATA_DIR ?? 'data', 'betha');
-const PAGE_SIZE = Number(process.env.BETHA_PAGE_SIZE ?? 100);
+const PAGE_SIZE = Number(process.env.BETHA_PAGE_SIZE ?? 10000);
+const TENTATIVAS_COLETA = 3;
 const PAUSA_MS = Number(process.env.BETHA_PAUSA_MS ?? 300);
 
 const esperar = (ms) => new Promise((r) => setTimeout(r, ms));
@@ -34,20 +35,15 @@ async function salvarJson(chave, ano, snapshot) {
   return destino;
 }
 
-async function coletar(client, chave, ano, { json }) {
-  const consulta = CONSULTAS[chave];
-  const filtro = consulta.filtro(ano);
-  const iniciadoEm = new Date().toISOString();
-  console.log(`\n[${consulta.id}] ${consulta.nome} — ${ano}`);
-
-  const primeira = await client.buscar(consulta.id, filtro, { offset: 0, limit: PAGE_SIZE });
+async function lerPaginas(client, consultaId, filtro) {
+  const primeira = await client.buscar(consultaId, filtro, { offset: 0, limit: PAGE_SIZE });
   const totalHits = primeira.totalHits;
   const hits = [...primeira.hits];
   const erros = [];
 
   while (hits.length < totalHits) {
     await esperar(PAUSA_MS);
-    const pagina = await client.buscar(consulta.id, filtro, { offset: hits.length, limit: PAGE_SIZE });
+    const pagina = await client.buscar(consultaId, filtro, { offset: hits.length, limit: PAGE_SIZE });
     if (pagina.totalHits !== totalHits) {
       erros.push(`totalHits mudou durante a coleta (${totalHits} → ${pagina.totalHits})`);
       break;
@@ -57,7 +53,33 @@ async function coletar(client, chave, ano, { json }) {
     process.stdout.write(`\r  ${hits.length}/${totalHits}`);
   }
   process.stdout.write('\n');
+  return { totalHits, hits, erros };
+}
 
+// No exercício corrente o índice muda entre requisições e a paginação por
+// offset pode repetir ou pular registros. Repete a leitura inteira algumas vezes
+// antes de entregar uma coleta inconsistente (que será rejeitada adiante).
+async function paginar(client, consultaId, filtro) {
+  let leitura;
+  for (let tentativa = 1; tentativa <= TENTATIVAS_COLETA; tentativa++) {
+    leitura = await lerPaginas(client, consultaId, filtro);
+    const unicos = new Set(leitura.hits.map((h) => h.id)).size;
+    if (!leitura.erros.length && unicos === leitura.totalHits && leitura.hits.length === leitura.totalHits) break;
+    if (tentativa < TENTATIVAS_COLETA) {
+      console.log(`  leitura inconsistente (${unicos} únicos de ${leitura.totalHits}); repetindo`);
+      await esperar(2000 * tentativa);
+    }
+  }
+  return leitura;
+}
+
+async function coletar(client, chave, ano, { json }) {
+  const consulta = CONSULTAS[chave];
+  const filtro = consulta.filtro(ano);
+  const iniciadoEm = new Date().toISOString();
+  console.log(`\n[${consulta.id}] ${consulta.nome} — ${ano}`);
+
+  const { totalHits, hits, erros } = await paginar(client, consulta.id, filtro);
   const ids = new Set(hits.map((h) => h.id));
   if (hits.length !== totalHits) erros.push(`capturados ${hits.length} de ${totalHits}`);
   if (ids.size !== hits.length) erros.push(`${hits.length - ids.size} IDs repetidos`);

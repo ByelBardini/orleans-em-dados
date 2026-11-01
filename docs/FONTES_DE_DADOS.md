@@ -2,8 +2,8 @@
 
 | Fonte | Papel | Status no projeto |
 |---|---|---|
-| [Portal da Transparência Betha — Orleans](https://transparencia.betha.cloud/#/mJRAZlfGu2RI9KNBWj49aw==) | Dados operacionais de Prefeitura, FMS, SAMAE e Fundação Ambiental | **Integrada**: consultas `57153` e `57140` |
-| [TCE-SC / Farol](https://servicos.tcesc.tc.br/farol_externo/) | Conferência anual, inclusive a Câmara Municipal | A fazer |
+| [Portal da Transparência Betha — Orleans](https://transparencia.betha.cloud/#/mJRAZlfGu2RI9KNBWj49aw==) | Dados operacionais de Prefeitura, FMS, SAMAE e Fundação Ambiental | **Integrada**: consultas `57153`, `57140` e `57170` |
+| [TCE-SC / Farol](https://servicos.tcesc.tc.br/farol_externo/) | Conferência e Câmara Municipal | **Coletor integrado** (receitas e empenhos); ver `collectors/tcesc/README.md` |
 | [SICONFI](https://www.siconfi.tesouro.gov.br/) / [API](https://apidatalake.tesouro.gov.br/docs/siconfi/) | DCA, RREO e RGF | A fazer |
 | [IBGE](https://servicodados.ibge.gov.br/api/docs) | Indicadores socioeconômicos | Futuro |
 
@@ -13,12 +13,14 @@
 |---|---|---|---|
 | `57153` | Receitas Orçamentárias | `{"ano":["AAAA"]}` | `valorOrcadoAtualizado`, `valorArrecadadoNoMes` |
 | `57140` | Execução Detalhada de Despesas | `{"anoExercicio":["AAAA"]}` | `valorEmpenho`, `valorLiquidadoEmpenho`, `valorPagoEmpenho` |
+| `57170` | Despesas Orçamentárias | `{"ano":["AAAA"]}` (`anoExercicio` é ignorado e traz todos os anos) | `valorEmpenhadoAtualizado`, `valorLiquidadoAtualizado`, `valorPagoAtualizado` |
 
 Cada consulta tem um esquema de filtro próprio. Ao acrescentar uma consulta, confirme o payload real no DevTools do
 portal antes de implementar.
 
-Próxima a integrar: `57170` (Despesas Orçamentárias, empenhado/liquidado/pago **atualizado**), cujo filtro ainda
-precisa ser confirmado.
+**Paginação:** sem ordenação explícita, a paginação por offset devolveu IDs repetidos no exercício corrente (2026), e
+mesmo `sortBy=id` falhou em páginas de 1.000. O coletor ordena por `id` e pede até 10.000 registros por requisição
+(uma página só nos volumes atuais); se houver repetição, relê tudo até 3 vezes antes de rejeitar a coleta.
 
 ## Acesso à API Betha
 

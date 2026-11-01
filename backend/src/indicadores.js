@@ -90,10 +90,12 @@ export async function resumoReceitas({ coletaId, meta }, { entidade = '' } = {})
 const SOMAS_EMPENHO = `count(*)::int AS quantidade, sum(valor_empenho) AS empenhado,
   sum(valor_liquidado) AS liquidado, sum(valor_pago) AS pago`;
 
-const FILTRO_ENTIDADE = `coleta_id = $1 AND ($2 = '' OR e.entidade_codigo = $2)`;
+// $3: IDs que a conferência com o TCE-SC aponta como versões antigas de empenhos
+// renumerados ou registros repetidos. Ficam na lista (com selo), fora das somas.
+const FILTRO_ENTIDADE = `coleta_id = $1 AND ($2 = '' OR e.entidade_codigo = $2) AND NOT (id_externo = ANY($3::text[]))`;
 
-export async function resumoEmpenhos({ coletaId, meta }, { entidade = '' } = {}) {
-  const p = [coletaId, entidade];
+export async function resumoEmpenhos({ coletaId, meta }, { entidade = '', excluir = [] } = {}) {
+  const p = [coletaId, entidade, excluir];
   const [[totais], porMes, porEntidade, porOrgao, porCredor, maiores] = await Promise.all([
     consultar(
       `SELECT ${SOMAS_EMPENHO},
@@ -114,8 +116,9 @@ export async function resumoEmpenhos({ coletaId, meta }, { entidade = '' } = {})
     consultar(
       `SELECT e.entidade_codigo AS chave, ${ENTIDADE} AS entidade, ${SOMAS_EMPENHO}
        FROM empenhos e LEFT JOIN entidades en ON en.codigo_betha = e.entidade_codigo
-       WHERE coleta_id = $1 GROUP BY e.entidade_codigo, en.codigo_betha ORDER BY empenhado DESC`,
-      [coletaId],
+       WHERE coleta_id = $1 AND NOT (id_externo = ANY($2::text[]))
+       GROUP BY e.entidade_codigo, en.codigo_betha ORDER BY empenhado DESC`,
+      [coletaId, excluir],
     ),
     consultar(
       `SELECT ${chaveTexto('orgao')} AS chave, mode() WITHIN GROUP (ORDER BY orgao) AS nome, ${SOMAS_EMPENHO}
@@ -138,7 +141,45 @@ export async function resumoEmpenhos({ coletaId, meta }, { entidade = '' } = {})
       p,
     ),
   ]);
-  return { meta, totais, porMes, porEntidade, porOrgao, porCredor, maiores };
+  return { meta, totais: { ...totais, excluidos: excluir.length }, porMes, porEntidade, porOrgao, porCredor, maiores };
+}
+
+// ---------- Despesa orçamentária (57170) ----------
+
+// Empenhado, liquidado e pago já líquidos de anulações: é o número oficial da
+// execução e o que bate com o TCE-SC. A Câmara não está no portal Betha; vem
+// do TCE-SC e é devolvida à parte, nunca somada silenciosamente.
+export async function resumoDespesas({ coletaId, meta }, { entidade = '', ano } = {}) {
+  const [[totais], porEntidade, camara] = await Promise.all([
+    consultar(
+      `SELECT sum(valor_orcado_atualizado) AS "orcadoAtualizado", sum(valor_empenhado) AS empenhado,
+              sum(valor_liquidado) AS liquidado, sum(valor_pago) AS pago
+       FROM despesas d WHERE coleta_id = $1 AND ($2 = '' OR d.entidade_codigo = $2)`,
+      [coletaId, entidade],
+    ),
+    consultar(
+      `SELECT d.entidade_codigo AS chave, ${ENTIDADE} AS entidade, 'betha' AS fonte,
+              sum(valor_empenhado) AS empenhado, sum(valor_liquidado) AS liquidado, sum(valor_pago) AS pago
+       FROM despesas d LEFT JOIN entidades en ON en.codigo_betha = d.entidade_codigo
+       WHERE coleta_id = $1 GROUP BY d.entidade_codigo, en.codigo_betha ORDER BY empenhado DESC`,
+      [coletaId],
+    ),
+    consultar(
+      `SELECT u.nome, u.sigla, count(*)::int AS quantidade, sum(e.valor_empenhado) AS empenhado,
+              sum(e.valor_liquidado) AS liquidado, sum(e.valor_pago) AS pago,
+              to_char(max(e.data_empenho), 'YYYY-MM-DD') AS "ultimoEmpenho", c.finalizado_em AS "coletadoEm",
+              q.url_origem AS "urlOrigem"
+       FROM publicacoes p
+       JOIN consultas q ON q.id = p.consulta_id AND q.chave = 'tcesc_empenhos'
+       JOIN coletas c ON c.id = p.coleta_id
+       JOIN tcesc_empenhos e ON e.coleta_id = p.coleta_id
+       JOIN unidades_tce u ON u.codigo_ug = e.codigo_ug AND u.entidade_betha IS NULL
+       WHERE p.ano = $1
+       GROUP BY u.nome, u.sigla, c.finalizado_em, q.url_origem`,
+      [ano],
+    ),
+  ]);
+  return { meta, totais, porEntidade, camara: entidade ? null : (camara[0] ?? null) };
 }
 
 // Situação a partir dos valores publicados. NULL em liquidado/pago é ausência de

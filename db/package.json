@@ -5,7 +5,8 @@
   "type": "module",
   "main": "index.js",
   "exports": {
-    ".": "./index.js"
+    ".": "./index.js",
+    "./conferencias": "./conferencias.js"
   },
   "scripts": {
     "migrar": "node --env-file-if-exists=../.env migrar.js"

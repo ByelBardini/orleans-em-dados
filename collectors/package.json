@@ -5,6 +5,8 @@
   "type": "module",
   "scripts": {
     "coletar": "node --env-file-if-exists=../.env betha/coletar.js",
+    "coletar:tcesc": "node --env-file-if-exists=../.env tcesc/coletar.js",
+    "conferir": "node --env-file-if-exists=../.env conferir.js",
     "importar": "node --env-file-if-exists=../.env importar-arquivo.js"
   },
   "dependencies": {

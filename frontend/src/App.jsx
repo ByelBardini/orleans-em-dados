@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useApi } from './api.js';
 import { Estado, SeletorTema } from './components.jsx';
 import { dataCurta } from './format.js';
+import Conferencia from './paginas/Conferencia.jsx';
 import Despesas from './paginas/Despesas.jsx';
 import Metodologia from './paginas/Metodologia.jsx';
 import Receitas from './paginas/Receitas.jsx';
@@ -11,6 +12,7 @@ const ABAS = [
   { id: 'visao-geral', nome: 'Visão geral', Componente: VisaoGeral, caderno: null },
   { id: 'receitas', nome: 'Receitas', Componente: Receitas, caderno: 'Caderno de Receitas' },
   { id: 'despesas', nome: 'Despesas', Componente: Despesas, caderno: 'Caderno de Despesas' },
+  { id: 'conferencia', nome: 'Conferência', Componente: Conferencia, caderno: 'Conferência das fontes' },
   { id: 'metodologia', nome: 'Sobre os dados', Componente: Metodologia, caderno: 'Fontes e metodologia' },
 ];
 
@@ -116,8 +118,8 @@ export default function App() {
         <div>
           <p className="rotulo">Sobre os dados</p>
           <p>
-            Portal da Transparência de Orleans (Betha): Receitas Orçamentárias e Execução Detalhada de Despesas.{' '}
-            <a href="#metodologia">Como os números são conferidos</a>.
+            Portal da Transparência de Orleans (Betha), conferido com o Farol do TCE-SC.{' '}
+            <a href="#conferencia">Onde as fontes divergem</a> · <a href="#metodologia">Como os números são conferidos</a>.
           </p>
         </div>
         <div>

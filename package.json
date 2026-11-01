@@ -19,6 +19,8 @@
     "db:migrar": "npm run migrar -w db",
     "db:exemplos": "npm run importar -w collectors -- --exemplos",
     "coletar": "npm run coletar -w collectors --",
+    "coletar:tcesc": "npm run coletar:tcesc -w collectors --",
+    "conferir": "npm run conferir -w collectors --",
     "importar": "npm run importar -w collectors --",
     "dev": "concurrently -n api,web -c blue,green \"npm run dev -w backend\" \"npm run dev -w frontend\"",
     "build": "npm run build -w frontend",

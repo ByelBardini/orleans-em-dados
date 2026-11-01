@@ -1393,3 +1393,77 @@ tr.expansivel {
 .botao-tema:hover {
   color: var(--vermelho);
 }
+
+/* ---------- selos da conferência Betha × TCE-SC ---------- */
+
+.selo {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-top: 10px;
+  padding: 8px 10px;
+  border: 1px solid var(--regua);
+  border-left: 3px solid var(--tinta);
+  font-size: 14px;
+  line-height: 1.35;
+  text-wrap: pretty;
+}
+
+.selo.diverge {
+  border-color: var(--vermelho);
+}
+
+.selo.pendente {
+  border-left-color: var(--pontilhado);
+  color: var(--apagado);
+}
+
+.selo-titulo {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  font-family: var(--mono);
+  font-size: 12px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.selo.diverge .selo-titulo {
+  color: var(--vermelho);
+}
+
+.selo-icone {
+  flex: none;
+  width: 16px;
+  height: 16px;
+  display: inline-grid;
+  place-items: center;
+  border: 1px solid currentColor;
+  border-radius: 50%;
+  font-size: 11px;
+  line-height: 1;
+}
+
+.selo-motivo {
+  color: var(--apagado);
+}
+
+.selo-link {
+  font-family: var(--mono);
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.selo.compacto {
+  margin-top: 6px;
+  padding: 4px 8px;
+  font-size: 13px;
+  white-space: normal;
+}
+
+.diferenca-lado {
+  font-family: var(--sans);
+  font-size: 13px;
+}

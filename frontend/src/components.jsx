@@ -8,7 +8,7 @@ export function Estado({ carregando, erro }) {
 }
 
 // Célula da faixa de totais. `barra` (0–100) desenha o trilho embaixo.
-export function Numero({ rotulo, children, detalhe, barra, vermelho, className = '' }) {
+export function Numero({ rotulo, children, detalhe, barra, vermelho, selo, className = '' }) {
   return (
     <div className="numero-cel">
       <span className="rotulo">{rotulo}</span>
@@ -19,6 +19,7 @@ export function Numero({ rotulo, children, detalhe, barra, vermelho, className =
           <span className={vermelho ? 'vermelho' : ''} style={{ width: `${Math.min(Math.max(barra, 0), 100)}%` }} />
         </div>
       )}
+      {selo}
     </div>
   );
 }
