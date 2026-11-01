@@ -42,7 +42,9 @@ Depois, acesse http://localhost:5173.
 
 Outros comandos:
 
-- `npm run coletar -- --ano 2025 --consulta receitas` (ou `empenhos`) coleta só uma consulta. Com `--json`, também salva o snapshot em `data/betha/`.
+- `npm run coletar -- --ano 2025 --consulta receitas` (ou `empenhos`, `despesas`) coleta só uma consulta. Com `--json`, também salva o snapshot em `data/betha/`.
+- `npm run coletar:tcesc -- --ano 2025` coleta receitas e empenhos do Farol TCE-SC (inclui a Câmara). Com `--json`, salva em `data/tcesc/`.
+- `npm run conferir -- --ano 2025` compara as coletas publicadas das duas fontes (ver [`docs/CONFERENCIA_BETHA_TCE.md`](docs/CONFERENCIA_BETHA_TCE.md)).
 - `npm run importar -- data/betha/receitas-2025.json` importa no banco um snapshot JSON já existente.
 - `npm run db:exemplos` carrega os **dados fictícios** de `examples/`. Eles só são publicados se ainda não houver dado real para o ano.
 
@@ -53,7 +55,8 @@ O banco roda na porta **5433** (veja `docker-compose.yml` e `.env.example`).
 ```
 collectors/
   betha/      coletor do Portal da Transparência Betha (OAuth anônimo, paginação, validação)
-  tcesc/      reservado para a conferência com o TCE-SC
+  tcesc/      coletor do Farol TCE-SC (Qlik Engine API, sessão anônima)
+  conferir.js conferência Betha × TCE-SC sobre as coletas publicadas
   gravar.js   grava uma coleta no banco (bruto → normalizado → publicação)
 db/           conexão, migrações SQL e esquema
 backend/      API REST que lê as coletas publicadas
