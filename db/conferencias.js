@@ -114,6 +114,19 @@ const CONSULTAS = {
            coalesce(bid, tid) AS id
     FROM m WHERE tid IS NULL OR bid IS NULL ORDER BY 2, 3, ocorrencia`,
 
+  // Diferença de cada mês decomposta por rubrica: o total do mês nunca é a causa,
+  // só a soma destas parcelas (inclusive rubricas que batem no ano e mudam de mês).
+  receitaMesPorRubrica: `
+    WITH b AS (SELECT entidade_codigo ent, ${NAT_BETHA} nat, mes, sum(valor_arrecadado_mes) v
+               FROM receitas WHERE coleta_id = ${coleta('receitas')} AND mes <= $2 GROUP BY 1, 2, 3),
+         t AS (SELECT u.entidade_betha ent, ${NAT_TCE} nat, mes, sum(valor_arrecadado) v
+               FROM tcesc_receitas r JOIN unidades_tce u ON u.nome = r.unidade
+               WHERE coleta_id = ${coleta('tcesc_receitas')} AND mes <= $2 GROUP BY 1, 2, 3)
+    SELECT mes, ent, coalesce(en.sigla, ent) AS entidade, nat AS natureza, coalesce(b.v, 0) - coalesce(t.v, 0) AS diferenca
+    FROM b FULL JOIN t USING (ent, nat, mes) LEFT JOIN entidades en ON en.codigo_betha = ent
+    WHERE coalesce(b.v, 0) <> coalesce(t.v, 0)
+    ORDER BY mes, abs(coalesce(b.v, 0) - coalesce(t.v, 0)) DESC`,
+
   // Lançamentos Betha com o mesmo valor, na mesma entidade e mês, em duas
   // rubricas diferentes: pista para diferenças do tipo "só na Betha".
   receitaRepetida: `
@@ -123,6 +136,14 @@ const CONSULTAS = {
       ON o.coleta_id = a.coleta_id AND o.entidade_codigo = a.entidade_codigo AND o.mes = a.mes
      AND o.valor_arrecadado_mes = a.valor_arrecadado_mes AND left(o.rubrica, 8) <> left(a.rubrica, 8)
     WHERE a.coleta_id = ${coleta('receitas')} AND a.valor_arrecadado_mes >= 1000 AND a.mes <= $2`,
+
+  // Mesma rubrica com o mesmo valor em dois meses diferentes na Betha.
+  receitaRepetidaMeses: `
+    SELECT a.entidade_codigo ent, ${NAT_BETHA.replace('rubrica', 'a.rubrica')} nat, a.mes, o.mes AS "outroMes", a.valor_arrecadado_mes v
+    FROM receitas a JOIN receitas o
+      ON o.coleta_id = a.coleta_id AND o.entidade_codigo = a.entidade_codigo AND o.mes > a.mes
+     AND o.valor_arrecadado_mes = a.valor_arrecadado_mes AND left(o.rubrica, 8) = left(a.rubrica, 8)
+    WHERE a.coleta_id = ${coleta('receitas')} AND a.valor_arrecadado_mes >= 1000 AND o.mes <= $2`,
 
   // Câmara: só existe no TCE.
   camara: `
@@ -146,7 +167,7 @@ const fmt = (v) => v.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL
 // Classifica cada natureza divergente e aponta padrões verificáveis nos próprios números.
 const MESES = ['janeiro', 'fevereiro', 'março', 'abril', 'maio', 'junho', 'julho', 'agosto', 'setembro', 'outubro', 'novembro', 'dezembro'];
 
-function anotarNaturezas(linhas, repetidas) {
+function anotarNaturezas(linhas, repetidas, repetidasMeses) {
   return linhas
     .filter((r) => r.diferenca !== 0)
     .map((r) => {
@@ -154,12 +175,27 @@ function anotarNaturezas(linhas, repetidas) {
       const mesmaEntidade = linhas.filter((o) => o.ent === r.ent && o.natureza !== r.natureza);
       const duplicada = r.diferenca > 0 && repetidas.find((d) => d.ent === r.ent && d.nat === r.natureza && igual(d.v, r.diferenca));
       const compensa = mesmaEntidade.find((o) => o.diferenca !== 0 && igual(o.diferenca, -r.diferenca));
+      const emDoisMeses = r.diferenca > 0 && repetidasMeses.find((d) => d.ent === r.ent && d.nat === r.natureza && igual(d.v, r.diferenca));
+      // No grupo de 6 dígitos as fontes batem: a diferença é só de classificação entre rubricas.
+      const grupo = r.natureza.slice(0, 6);
+      const somaGrupo = linhas
+        .filter((o) => o.ent === r.ent && o.natureza.startsWith(grupo))
+        .reduce((t, o) => t + Math.round(o.diferenca * 100), 0);
       let nota;
+      let causa = null;
       if (duplicada) {
+        causa = 'Possível duplicidade';
         const outraBate = linhas.some((o) => o.ent === r.ent && o.natureza === duplicada.outra && o.diferenca === 0);
         nota = `Em ${MESES[duplicada.mes - 1]}, o mesmo valor (${fmt(duplicada.v)}) também foi lançado na rubrica ${duplicada.outra}${outraBate ? ', que bate com o TCE' : ''}: possível lançamento em duplicidade na Betha.`;
+      } else if (emDoisMeses) {
+        causa = 'Possível duplicidade';
+        nota = `O mesmo valor (${fmt(emDoisMeses.v)}) aparece em ${MESES[emDoisMeses.mes - 1]} e em ${MESES[emDoisMeses.outroMes - 1]} na Betha, e uma vez só no TCE: possível lançamento em duplicidade.`;
       } else if (compensa) {
+        causa = 'Provável reclassificação';
         nota = `Compensa exatamente a diferença da rubrica ${compensa.natureza}: provável reclassificação entre rubricas, sem efeito no total.`;
+      } else if (somaGrupo === 0) {
+        causa = 'Provável reclassificação';
+        nota = `No grupo ${grupo}, as duas fontes somam o mesmo valor: a diferença está só na classificação entre as rubricas do grupo.`;
       } else if (tipo === 'soTce') {
         nota = 'Registrado no TCE, sem lançamento correspondente na Betha.';
       } else if (tipo === 'soBetha') {
@@ -168,18 +204,51 @@ function anotarNaturezas(linhas, repetidas) {
         nota = r.diferenca > 0 ? 'A Betha registra mais que o TCE nesta rubrica.' : 'O TCE registra mais que a Betha nesta rubrica.';
       }
       const { ent, ...resto } = r;
-      return { ...resto, codigoEntidade: ent, tipo, nota };
+      // Explicada: um padrão nos números aponta a causa provável. As demais são o foco da conferência.
+      return { ...resto, codigoEntidade: ent, tipo, nota, causa, explicada: causa !== null };
     });
 }
 
 function anotarEmpenho(e) {
   let nota;
-  if (e.ocorrencia > 1) nota = 'Registro repetido: mesmo número, data e valor de outro empenho.';
-  else if (e.numeroNaOutra) nota = `Na outra fonte, o empenho com esta data e valor é o nº ${e.numeroNaOutra}: provável renumeração.`;
-  else nota = e.fonte === 'betha' ? 'Sem correspondente no TCE.' : 'Sem correspondente na Betha.';
+  let causa = null;
+  if (e.ocorrencia > 1) {
+    causa = 'Registro repetido';
+    nota = 'Registro repetido: mesmo número, data e valor de outro empenho.';
+  } else if (e.numeroNaOutra) {
+    causa = 'Provável renumeração';
+    nota = `Na outra fonte, o empenho com esta data e valor é o nº ${e.numeroNaOutra}: provável renumeração.`;
+  } else nota = e.fonte === 'betha' ? 'Sem correspondente no TCE.' : 'Sem correspondente na Betha.';
   if (e.fonte === 'betha' && e.liquidado === null) nota += ' Não tem liquidação registrada.';
-  return { ...e, nota };
+  return { ...e, nota, causa, explicada: causa !== null };
 }
+
+// Exercícios em que as duas fontes de receita estão publicadas, com o último mês recebido pelo TCE.
+const ANOS_COMPARAVEIS = `
+  SELECT p.ano, (SELECT max(mes) FROM tcesc_receitas r WHERE r.coleta_id = p.coleta_id) AS mes
+  FROM publicacoes p JOIN consultas q ON q.id = p.consulta_id JOIN coletas c ON c.id = p.coleta_id
+  WHERE q.chave = 'tcesc_receitas' AND c.status <> 'exemplo'
+    AND EXISTS (SELECT 1 FROM publicacoes p2 JOIN consultas q2 ON q2.id = p2.consulta_id
+                WHERE q2.chave = 'receitas' AND p2.ano = p.ano)
+  ORDER BY p.ano`;
+
+// Rubricas que divergem do mesmo lado em outros exercícios: diferença já conhecida,
+// ainda sem causa confirmada. Devolve, por "entidade|natureza", os outros anos.
+async function divergenciasEmOutrosAnos(ano) {
+  const anos = (await consultar(ANOS_COMPARAVEIS)).filter((a) => a.ano !== ano);
+  const porRubrica = new Map();
+  for (const { ano: outro, mes } of anos) {
+    for (const r of await consultar(CONSULTAS.receitaPorNatureza, [outro, mes])) {
+      if (r.diferenca === 0) continue;
+      const chave = `${r.ent}|${r.natureza}`;
+      if (!porRubrica.has(chave)) porRubrica.set(chave, []);
+      porRubrica.get(chave).push({ ano: outro, diferenca: r.diferenca, parcial: mes < 12 });
+    }
+  }
+  return porRubrica;
+}
+
+const listaAnos = (anos) => (anos.length > 1 ? `${anos.slice(0, -1).join(', ')} e ${anos.at(-1)}` : `${anos[0]}`);
 
 export async function conferencia(ano) {
   const coletas = await consultar(CONSULTAS.coletas, [ano]);
@@ -192,16 +261,19 @@ export async function conferencia(ano) {
   const mes = limites.mesReceita;
   const dataLimite = parcial ? limites.dataEmpenho : null;
 
-  const [despesa, receitaEnt, receitaMes, naturezas, repetidas, empenhos, semPar, [camara]] = await Promise.all([
+  const [despesa, receitaEnt, receitaMes, naturezas, repetidas, repetidasMeses, mesPorRubrica, empenhos, semPar, [camara]] = await Promise.all([
     consultar(CONSULTAS.despesaPorEntidade, [ano]),
     consultar(CONSULTAS.receitaPorEntidade, [ano, mes]),
     consultar(CONSULTAS.receitaPorMes, [ano, mes]),
     consultar(CONSULTAS.receitaPorNatureza, [ano, mes]),
     consultar(CONSULTAS.receitaRepetida, [ano, mes]),
+    consultar(CONSULTAS.receitaRepetidaMeses, [ano, mes]),
+    consultar(CONSULTAS.receitaMesPorRubrica, [ano, mes]),
     consultar(CONSULTAS.empenhos, [ano, dataLimite]),
     consultar(CONSULTAS.empenhosSemPar, [ano, dataLimite]),
     consultar(CONSULTAS.camara, [ano]),
   ]);
+  const outrosAnos = await divergenciasEmOutrosAnos(ano);
 
   const despesaPorEntidade = despesa.map((r) => ({
     ...r,
@@ -209,6 +281,64 @@ export async function conferencia(ano) {
   }));
   const comparadas = despesaPorEntidade.filter((r) => r.comparavel);
   const totalEmp = (k) => empenhos.reduce((s, e) => s + e[k], 0);
+  // Sem padrão conhecido: aponta ao menos os meses onde a diferença aparece, para quem for investigar.
+  const rubricas = anotarNaturezas(naturezas, repetidas, repetidasMeses).map((r) => {
+    if (r.explicada) return r;
+    const meses = mesPorRubrica.filter((m) => m.ent === r.codigoEntidade && m.natureza === r.natureza);
+    if (!meses.length) return r;
+    if (meses.length > 6) return { ...r, nota: `${r.nota} A diferença se repete em ${meses.length} meses do ano.` };
+    const lista = meses.map((m) => `${MESES[m.mes - 1]} (${fmt(Math.abs(m.diferenca))} a mais ${m.diferenca > 0 ? 'na Betha' : 'no TCE'})`);
+    const texto = lista.length > 1 ? `${lista.slice(0, -1).join(', ')} e ${lista.at(-1)}` : lista[0];
+    return { ...r, nota: `${r.nota} A diferença aparece em ${texto}.` };
+  }).map((r) => {
+    // Conhecida: sem causa confirmada, mas diverge do mesmo lado em outro exercício. Sai do destaque,
+    // sem virar "explicada".
+    if (r.explicada) return r;
+    const mesmos = (outrosAnos.get(`${r.codigoEntidade}|${r.natureza}`) ?? []).filter(
+      (o) => Math.sign(o.diferenca) === Math.sign(r.diferenca),
+    );
+    if (!mesmos.length) return r;
+    const anos = [...mesmos.map((o) => o.ano), ano].sort();
+    const outros = mesmos.map((o) => `${o.ano}: ${fmt(Math.abs(o.diferenca))}${o.parcial ? ', ano em curso' : ''}`);
+    return {
+      ...r,
+      conhecida: true,
+      causa: 'Conhecida e recorrente',
+      recorrenteEm: anos,
+      nota: `${r.nota} Diverge do mesmo lado em ${listaAnos(anos)} (${outros.join('; ')}). Causa ainda não confirmada.`,
+    };
+  });
+  const empenhosSemPar = semPar.map(anotarEmpenho);
+
+  // O que sobra sem explicação, já no nível da causa: rubricas e empenhos sem padrão,
+  // e entidades cuja despesa total diverge (a 57170 não desce ao empenho).
+  const semExplicacao = [
+    ...comparadas
+      .filter((r) => r.difEmpenhado !== 0 || r.difLiquidado !== 0 || r.difPago !== 0)
+      .map((r) => ({
+        onde: 'despesa',
+        entidade: r.sigla,
+        codigoEntidade: r.entidadeBetha,
+        titulo: 'Despesa orçamentária (57170)',
+        betha: r.bethaEmpenhado,
+        tce: r.tceEmpenhado,
+        diferenca: r.difEmpenhado,
+        nota: `Empenhado, liquidado ou pago diferem do TCE (liquidado: ${fmt(r.difLiquidado)}; pago: ${fmt(r.difPago)}, Betha − TCE). A consulta 57170 não detalha empenho a empenho; veja os empenhos sem par da entidade.`,
+      })),
+    ...rubricas
+      .filter((r) => !r.explicada && !r.conhecida)
+      .map((r) => ({ onde: 'receita', ...r, titulo: `Rubrica ${r.natureza}` })),
+    ...empenhosSemPar
+      .filter((e) => !e.explicada)
+      .map((e) => ({
+        onde: 'empenho',
+        ...e,
+        titulo: `Empenho nº ${e.numero}`,
+        betha: e.fonte === 'betha' ? e.valor : null,
+        tce: e.fonte === 'tce' ? e.valor : null,
+        diferenca: e.fonte === 'betha' ? e.valor : -e.valor,
+      })),
+  ];
 
   return {
     ano,
@@ -220,10 +350,11 @@ export async function conferencia(ano) {
     camara,
     despesaPorEntidade,
     receitaPorEntidade: receitaEnt,
-    receitaPorMes: receitaMes,
-    receitaPorNatureza: anotarNaturezas(naturezas, repetidas),
+    receitaPorMes: receitaMes.map((m) => ({ ...m, parcelas: mesPorRubrica.filter((r) => r.mes === m.mes) })),
+    receitaPorNatureza: rubricas,
     empenhos,
-    empenhosSemPar: semPar.map(anotarEmpenho),
+    empenhosSemPar,
+    semExplicacao,
     resumo: {
       despesaEntidadesComparadas: comparadas.length,
       despesaEntidadesIguais: comparadas.filter((r) => r.difEmpenhado === 0 && r.difLiquidado === 0 && r.difPago === 0).length,
@@ -235,6 +366,9 @@ export async function conferencia(ano) {
       empenhosBetha: totalEmp('betha'),
       empenhosTce: totalEmp('tce'),
       empenhosCasados: totalEmp('casados'),
+      semExplicacao: semExplicacao.length,
+      comCausaProvavel: rubricas.filter((r) => r.explicada).length + empenhosSemPar.filter((e) => e.explicada).length,
+      conhecidas: rubricas.filter((r) => r.conhecida).length,
     },
   };
 }
