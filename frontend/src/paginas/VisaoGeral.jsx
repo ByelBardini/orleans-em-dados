@@ -1,6 +1,7 @@
 import { useApi } from '../api.js';
 import { BarrasMensais, Estado, Filtros, Fonte, ListaPontos, Mi, Numero, Numeros } from '../components.jsx';
-import { decimal, emMilhoes, MESES, MESES_LONGOS, milhoes, nomeProprio, numero, pct, porExtenso } from '../format.js';
+import { data, decimal, emMilhoes, MESES, MESES_LONGOS, milhoes, nomeProprio, numero, pct, porExtenso } from '../format.js';
+import { Selo, seloDespesa, seloReceita, useConferencia } from '../selos.jsx';
 import { GLOSSARIO, ORIGEM_CIDADAO, ORIGENS_DE_FORA, populacao, sujeito } from '../referencias.js';
 
 const qs = (ano, entidade) => new URLSearchParams({ ano, entidade }).toString();
@@ -9,24 +10,35 @@ const N = Number;
 export default function VisaoGeral({ ano, entidade, filtros }) {
   const rec = useApi(`/api/receitas?${qs(ano, entidade)}`);
   const emp = useApi(`/api/despesas/empenhos/resumo?${qs(ano, entidade)}`);
+  const desp = useApi(`/api/despesas/resumo?${qs(ano, entidade)}`);
+  const conf = useConferencia(ano);
   const r = rec.dados;
   const d = emp.dados;
+  const o = desp.dados;
   const pop = populacao(ano);
 
   return (
     <>
       <Filtros {...filtros} />
-      <Estado carregando={rec.carregando || emp.carregando} erro={rec.erro || emp.erro} />
-      {r && d && <Conteudo ano={ano} entidade={entidade} r={r} d={d} pop={pop} entidades={filtros.entidades} />}
+      <Estado carregando={rec.carregando || emp.carregando || desp.carregando} erro={rec.erro || emp.erro || desp.erro} />
+      {r && d && o && (
+        <Conteudo ano={ano} entidade={entidade} r={r} d={d} o={o} pop={pop} entidades={filtros.entidades} conf={conf} />
+      )}
     </>
   );
 }
 
-function Conteudo({ ano, entidade, r, d, pop, entidades }) {
+// `o`: despesa orçamentária (57170), já descontadas as anulações: os totais oficiais.
+// `d`: empenhos individuais (57140), pelo valor original: só para as divisões
+// por órgão e por mês, que a 57170 não tem.
+function Conteudo({ ano, entidade, r, d, o, pop, entidades, conf }) {
   const arrecadado = N(r.totais.arrecadadoNoMes);
   const previsto = N(r.totais.orcadoAtualizado);
-  const empenhado = N(d.totais.empenhado);
-  const pago = N(d.totais.pago ?? 0);
+  const empenhado = N(o.totais.empenhado);
+  const pago = N(o.totais.pago ?? 0);
+  const original = N(d.totais.empenhado);
+  const camara = o.camara;
+  const comCamara = camara ? empenhado + N(camara.empenhado) : null;
   const quem = sujeito(entidade, entidades);
   const anoEncerrado = ano < new Date().getFullYear();
 
@@ -38,7 +50,7 @@ function Conteudo({ ano, entidade, r, d, pop, entidades }) {
     .reduce((s, o) => s + N(o.arrecadadoNoMes), 0);
   const propria = arrecadado - deFora - emprestimos;
   const principalOrigem = origens[0] && (ORIGEM_CIDADAO[origens[0].chave] ?? origens[0].descricao);
-  const [o1, o2] = d.porOrgao;
+  const [org1, org2] = d.porOrgao;
 
   // Meses: arrecadado (receitas) e empenhado (empenhos), cada um da sua consulta.
   const meses = MESES.map((rotulo, i) => ({
@@ -57,9 +69,9 @@ function Conteudo({ ano, entidade, r, d, pop, entidades }) {
 
   const outros = d.porOrgao.slice(8);
   const cada100 = [
-    ...d.porOrgao.slice(0, 8).map((o) => ({ nome: nomeProprio(o.nome), valor: N(o.empenhado) })),
+    ...d.porOrgao.slice(0, 8).map((x) => ({ nome: nomeProprio(x.nome), valor: N(x.empenhado) })),
     ...(outros.length
-      ? [{ nome: `Outros ${outros.length} órgãos`, valor: outros.reduce((s, o) => s + N(o.empenhado), 0), outro: true }]
+      ? [{ nome: `Outros ${outros.length} órgãos`, valor: outros.reduce((s, x) => s + N(x.empenhado), 0), outro: true }]
       : []),
   ];
 
@@ -73,18 +85,25 @@ function Conteudo({ ano, entidade, r, d, pop, entidades }) {
         <div className="abertura-lado">
           <p className="capitular">
             {principalOrigem && <>O dinheiro veio principalmente de {principalOrigem.charAt(0).toLocaleLowerCase('pt-BR') + principalOrigem.slice(1)}. </>}
-            {o1 && (
+            {org1 && (
               <>
-                {o2 ? (
+                {org2 ? (
                   <>
-                    Quem mais empenhou foram {nomeProprio(o1.nome)} e {nomeProprio(o2.nome)}.{' '}
+                    Quem mais empenhou foram {nomeProprio(org1.nome)} e {nomeProprio(org2.nome)}.{' '}
                   </>
                 ) : (
-                  <>Quem mais empenhou foi {nomeProprio(o1.nome)}. </>
+                  <>Quem mais empenhou foi {nomeProprio(org1.nome)}. </>
                 )}
               </>
             )}
             Do que foi empenhado, {pct(pago, empenhado)} já estava pago{anoEncerrado ? ' no fim do ano' : ' até agora'}.
+            {camara && (
+              <>
+                {' '}
+                Com a Câmara Municipal ({porExtenso(N(camara.empenhado))}, dados do TCE-SC
+                {anoEncerrado ? '' : ` até ${data(camara.ultimoEmpenho)}`}), o município empenhou {porExtenso(comCamara)}.
+              </>
+            )}
           </p>
           <a href="#metodologia" className="botao-link">
             Como estes dados são feitos →
@@ -97,12 +116,14 @@ function Conteudo({ ano, entidade, r, d, pop, entidades }) {
           rotulo="Arrecadado"
           detalhe={previsto > 0 ? `${pct(arrecadado, previsto)} dos ${emMilhoes(previsto)} previstos` : 'sem previsão'}
           barra={previsto > 0 ? (arrecadado / previsto) * 100 : undefined}
+          selo={<Selo selo={seloReceita(conf, entidade)} />}
         >
           <Mi valor={arrecadado} />
         </Numero>
         <Numero
           rotulo="Empenhado"
-          detalhe={`${numero(d.totais.quantidade)} empenhos, ${numero(d.totais.credores)} credores`}
+          detalhe={`já descontadas as anulações · ${numero(d.totais.quantidade)} empenhos, ${numero(d.totais.credores)} credores`}
+          selo={<Selo selo={seloDespesa(conf, entidade)} />}
         >
           <Mi valor={empenhado} />
         </Numero>
@@ -130,7 +151,7 @@ function Conteudo({ ano, entidade, r, d, pop, entidades }) {
                 <span className="amostra vermelho" aria-hidden="true" />
                 Empenhado
               </span>
-              <span>R$ milhões</span>
+              <span>R$ milhões · empenhos pelo valor original</span>
             </span>
           </div>
           <BarrasMensais
@@ -165,14 +186,16 @@ function Conteudo({ ano, entidade, r, d, pop, entidades }) {
       <section className="secao dupla">
         <div className="secao-cab">
           <h2 className="secao-titulo">Para onde vai cada R$ 100</h2>
-          <span className="legenda-secao">Valor empenhado por órgão · e quanto isso dá por morador no ano</span>
+          <span className="legenda-secao">
+            Valor original dos empenhos por órgão · e quanto isso dá por morador no ano
+          </span>
         </div>
         <ul className="cada-100">
           {cada100.map((o) => (
             <li key={o.nome}>
               <span className={`serif${o.outro ? ' apagado' : ''}`}>
                 <span style={{ fontSize: '0.55em' }}>R$ </span>
-                {decimal((o.valor / empenhado) * 100)}
+                {decimal((o.valor / original) * 100)}
               </span>
               <span>{o.nome}</span>
               <div className="trilho" aria-hidden="true">
@@ -194,14 +217,30 @@ function Conteudo({ ano, entidade, r, d, pop, entidades }) {
           <h2 className="secao-titulo">Quem gasta</h2>
           <ListaPontos
             vermelho
-            itens={d.porEntidade.map((e) => ({
-              chave: e.chave,
-              nome: e.entidade?.nome ?? `Entidade ${e.chave}`,
-              valor: e.empenhado,
-              selecionado: e.chave === entidade,
-              extra: `${numero(e.quantidade)} empenhos`,
-              dica: `${e.entidade?.nome}: ${emMilhoes(e.empenhado)} em ${numero(e.quantidade)} empenhos`,
-            }))}
+            itens={[
+              ...o.porEntidade.map((e) => {
+                const qtd = d.porEntidade.find((x) => x.chave === e.chave)?.quantidade;
+                return {
+                  chave: e.chave,
+                  nome: e.entidade?.nome ?? `Entidade ${e.chave}`,
+                  valor: e.empenhado,
+                  selecionado: e.chave === entidade,
+                  extra: qtd ? `${numero(qtd)} empenhos` : undefined,
+                  dica: `${e.entidade?.nome}: ${emMilhoes(e.empenhado)} empenhados, já descontadas as anulações`,
+                };
+              }),
+              ...(camara
+                ? [
+                    {
+                      chave: 'camara',
+                      nome: camara.nome,
+                      valor: camara.empenhado,
+                      extra: `${numero(camara.quantidade)} empenhos · fonte TCE-SC${anoEncerrado ? '' : `, até ${data(camara.ultimoEmpenho)}`}`,
+                      dica: `${camara.nome}: ${emMilhoes(camara.empenhado)} (TCE-SC; não está no portal Betha)`,
+                    },
+                  ]
+                : []),
+            ]}
           />
           <a href="#despesas" className="botao-link">
             Todas as despesas →
@@ -223,9 +262,12 @@ function Conteudo({ ano, entidade, r, d, pop, entidades }) {
 
       <p className="nota" style={{ marginTop: 32 }}>
         Abrangência: Prefeitura, Fundo Municipal de Saúde, SAMAE e Fundação Ambiental, como publicados no portal Betha.
-        A Câmara Municipal não está incluída. O empenhado é o valor original de cada empenho, sem descontar anulações.
+        Empenhado e pago são a despesa orçamentária (consulta 57170), já descontadas as anulações. As divisões por órgão
+        e por mês usam o valor original de cada empenho (consulta 57140), sem os registros que a conferência aponta como
+        repetidos. A Câmara Municipal não está no portal Betha: seus valores vêm do TCE-SC e aparecem à parte.
       </p>
       <Fonte meta={r.meta} />
+      <Fonte meta={o.meta} />
       <Fonte meta={d.meta} />
     </>
   );
