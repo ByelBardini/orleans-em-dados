@@ -3,7 +3,7 @@
 | Fonte | Papel | Status no projeto |
 |---|---|---|
 | [Portal da Transparência Betha — Orleans](https://transparencia.betha.cloud/#/mJRAZlfGu2RI9KNBWj49aw==) | Dados operacionais de Prefeitura, FMS, SAMAE e Fundação Ambiental | **Integrada**: consultas `57153`, `57140` e `57170` |
-| [TCE-SC / Farol](https://servicos.tcesc.tc.br/farol_externo/) | Conferência anual, inclusive a Câmara Municipal | A fazer |
+| [TCE-SC / Farol](https://servicos.tcesc.tc.br/farol_externo/) | Conferência e Câmara Municipal | **Coletor integrado** (receitas e empenhos); ver `collectors/tcesc/README.md` |
 | [SICONFI](https://www.siconfi.tesouro.gov.br/) / [API](https://apidatalake.tesouro.gov.br/docs/siconfi/) | DCA, RREO e RGF | A fazer |
 | [IBGE](https://servicodados.ibge.gov.br/api/docs) | Indicadores socioeconômicos | Futuro |
 

@@ -41,6 +41,25 @@ const NORMALIZAR = {
       (payload->>'valorEmpenhadoAtualizado')::numeric, (payload->>'valorLiquidadoAtualizado')::numeric,
       (payload->>'valorPagoAtualizado')::numeric
     FROM registros_brutos WHERE coleta_id = $1`,
+  // TCE-SC: valores chegam do coletor como strings decimais já conferidas.
+  900001: `
+    INSERT INTO tcesc_receitas (
+      coleta_id, id_externo, ano, unidade, codigo, natureza, tipo_deducao, mes, valor_arrecadado)
+    SELECT coleta_id, id_externo, $2, payload->>'nomeunidade', payload->>'codigoreceita',
+      payload->>'natureza', payload->>'descricaotipodeducaoreceita',
+      array_position(ARRAY['jan','fev','mar','abr','mai','jun','jul','ago','set','out','nov','dez'], payload->>'Mês'),
+      (payload->>'valorArrecadado')::numeric
+    FROM registros_brutos WHERE coleta_id = $1`,
+  900002: `
+    INSERT INTO tcesc_empenhos (
+      coleta_id, id_externo, ano, codigo_ug, numero, data_empenho, credor, historico,
+      valor_original, valor_reforco, valor_estorno, valor_empenhado, valor_liquidado, valor_pago)
+    SELECT coleta_id, id_externo, $2, payload->>'codigoUG', (payload->>'numero')::integer,
+      (payload->>'dataEmpenho')::date, payload->>'credor', payload->>'historico',
+      (payload->>'valorOriginal')::numeric, (payload->>'valorReforco')::numeric,
+      (payload->>'valorEstorno')::numeric, (payload->>'valorEmpenhado')::numeric,
+      (payload->>'valorLiquidado')::numeric, (payload->>'valorPago')::numeric
+    FROM registros_brutos WHERE coleta_id = $1`,
 };
 
 export async function gravarColeta({ meta, registros }, origem) {
