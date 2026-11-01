@@ -72,9 +72,12 @@ export async function gravarColeta({ meta, registros }, origem) {
     }
 
     // Um único parâmetro JSON expandido no servidor, em vez de milhares de INSERTs.
+    // IDs repetidos só ocorrem em coletas rejeitadas (o coletor acusa o erro);
+    // guarda-se a primeira ocorrência para a coleta ainda poder ser registrada.
     await c.query(
       `INSERT INTO registros_brutos (coleta_id, id_externo, payload)
-       SELECT $1, r->>'id', r - 'id' FROM jsonb_array_elements($2::jsonb) AS r`,
+       SELECT $1, r->>'id', r - 'id' FROM jsonb_array_elements($2::jsonb) AS r
+       ON CONFLICT (coleta_id, id_externo) DO NOTHING`,
       [coletaId, JSON.stringify(registros)],
     );
     await c.query(normalizar, [coletaId, meta.ano]);

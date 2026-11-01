@@ -9,9 +9,11 @@ export class BethaQueryClient {
   }
 
   buscar(consultaId, filtro, { offset = 0, limit = 100 } = {}) {
+    // Sem ordenação explícita a paginação é instável: em 2026 a 57153 devolveu
+    // 1.294 registros com só 1.017 IDs únicos. Ordenar por id resolve.
     const qs = new URLSearchParams({
-      sortBy: 'null',
-      sortDirection: 'null',
+      sortBy: 'id',
+      sortDirection: 'asc',
       offset: String(offset),
       limit: String(limit),
       hiperlink: 'false',
