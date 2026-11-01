@@ -45,13 +45,22 @@ export default function Metodologia() {
 
           <h2>Limitações conhecidas</h2>
           <ul>
-            <li>A Câmara Municipal não faz parte da seleção Betha; seus valores virão do TCE-SC.</li>
             <li>
-              O valor da consulta 57140 é o valor original dos empenhos, sem anulações. A despesa orçamentária
-              (empenhado/liquidado/pago atualizado, consulta 57170) ainda não foi integrada.
+              A Câmara Municipal não faz parte da seleção Betha; seus valores vêm do TCE-SC, na página{' '}
+              <a href="#conferencia">Conferência</a>.
             </li>
-            <li>O mês das receitas é inferido do sufixo do ID do registro; a semântica ainda não foi confirmada.</li>
-            <li>As entidades são identificadas pelo código no ID dos registros; o mapeamento foi inferido.</li>
+            <li>
+              O valor da consulta 57140 é o valor original dos empenhos, sem anulações. A despesa orçamentária líquida
+              (consulta 57170) é usada na conferência com o TCE-SC.
+            </li>
+            <li>
+              O mês das receitas é inferido do sufixo do ID do registro. A comparação mês a mês com o TCE-SC confirma essa
+              leitura.
+            </li>
+            <li>
+              As entidades são identificadas pelo código no ID dos registros. O vínculo com as unidades do TCE-SC foi
+              confirmado pela igualdade da despesa em 2025.
+            </li>
             <li>
               Alguns nomes de órgão chegam do portal sem acentos (“SERVIO”, “GUA”). O site junta essas grafias com a
               versão correta antes de somar.
@@ -60,8 +69,9 @@ export default function Metodologia() {
               O portal não informa CPF nem CNPJ dos credores, então não é possível separar pessoas físicas de empresas.
             </li>
             <li>
-              A comparação com TCE-SC/SICONFI ainda não está no painel. Diferenças entre fontes podem decorrer de
-              critério, abrangência ou atualização e não indicam, por si, erro ou irregularidade.
+              A comparação com o TCE-SC está na página <a href="#conferencia">Conferência</a>. O TCE recebe os dados com
+              cerca de um mês de atraso. Diferenças entre fontes podem decorrer de critério, classificação ou atualização
+              e não indicam, por si, erro ou irregularidade.
             </li>
           </ul>
         </article>
@@ -75,6 +85,9 @@ export default function Metodologia() {
           </p>
           <p>
             <a href={`${REPO}/FONTES_DE_DADOS.md`}>Fontes de dados</a>
+          </p>
+          <p>
+            <a href={`${REPO}/CONFERENCIA_BETHA_TCE.md`}>Conferência Betha × TCE-SC</a>
           </p>
           <p>
             <a href={`${REPO}/DICIONARIO_DE_DADOS.md`}>Dicionário de dados</a>
