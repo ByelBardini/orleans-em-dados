@@ -31,6 +31,16 @@ const NORMALIZAR = {
       (payload->>'valorEmpenho')::numeric, (payload->>'valorLiquidadoEmpenho')::numeric,
       (payload->>'valorPagoEmpenho')::numeric, (payload->>'saldoAPagar')::numeric
     FROM registros_brutos WHERE coleta_id = $1`,
+  57170: `
+    INSERT INTO despesas (
+      coleta_id, id_externo, ano, entidade_codigo, natureza, acao_numero, acao,
+      valor_orcado, valor_orcado_atualizado, valor_empenhado, valor_liquidado, valor_pago)
+    SELECT coleta_id, id_externo, $2, split_part(id_externo, ':', 2),
+      payload->>'idNatureza', payload->>'numero', payload->>'descricao',
+      (payload->>'valorOrcado')::numeric, (payload->>'valorOrcadoAtualizado')::numeric,
+      (payload->>'valorEmpenhadoAtualizado')::numeric, (payload->>'valorLiquidadoAtualizado')::numeric,
+      (payload->>'valorPagoAtualizado')::numeric
+    FROM registros_brutos WHERE coleta_id = $1`,
 };
 
 export async function gravarColeta({ meta, registros }, origem) {
