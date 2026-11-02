@@ -1,8 +1,8 @@
 // A API responde igual às respostas gravadas, rota por rota. Regravar só com motivo
-// escrito no commit: REGRAVAR_PARIDADE=1 pnpm exec vitest run --project=integracao backend/test/integration/paridade.spec.js
+// escrito no commit: REGRAVAR_PARIDADE=1 pnpm exec vitest run --project=integracao apps/api/test/integration/paridade.spec.js
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { pool } from '@orleans-em-dados/db';
-import { popularBancoDeTeste } from '../../../collectors/test/support/banco-de-teste.js';
+import { popularBancoDeTeste } from '../../../../packages/importadores/test/support/banco-de-teste.js';
 import { criarServidor } from '../../src/server.js';
 import { CASOS, gravarResposta, pedir, respostaGravada } from '../paridade/casos.js';
 

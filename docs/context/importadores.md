@@ -1,14 +1,14 @@
 # Coletores
 
-Coleta das fontes externas e gravação no banco. Vive em `collectors/` (pacote `@orleans-em-dados/collectors`, sem `src/`: fontes na raiz). Rodam à mão pela CLI; não há agendamento.
+Coleta das fontes externas e gravação no banco. Vive em `packages/importadores/` (pacote `@orleans-em-dados/importadores`, sem `src/`: fontes na raiz). Rodam à mão pela CLI; não há agendamento.
 
 ## Estrutura
 
-- `collectors/betha/` — Portal da Transparência Betha: `auth.js`, `client.js`, `config.js`, `coletar.js` (CLI).
-- `collectors/tcesc/` — Farol TCE-SC (Qlik Engine API sobre WebSocket): `qlik-client.js`, `config.js`, `coletar.js` (CLI). Detalhe do protocolo em `collectors/tcesc/README.md`.
-- `collectors/gravar.js` — `gravarColeta(snapshot, origem)`: grava e publica uma coleta.
-- `collectors/conferir.js` — CLI da conferência (`pnpm conferir --ano 2025 [--json]`).
-- `collectors/importar-arquivo.js` — CLI que grava snapshots JSON já existentes (`pnpm importar <arquivos>` ou `pnpm db:exemplos`).
+- `packages/importadores/betha/` — Portal da Transparência Betha: `auth.js`, `client.js`, `config.js`, `coletar.js` (CLI).
+- `packages/importadores/tcesc/` — Farol TCE-SC (Qlik Engine API sobre WebSocket): `qlik-client.js`, `config.js`, `coletar.js` (CLI). Detalhe do protocolo em `packages/importadores/tcesc/README.md`.
+- `packages/importadores/gravar.js` — `gravarColeta(snapshot, origem)`: grava e publica uma coleta.
+- `packages/importadores/conferir.js` — CLI da conferência (`pnpm conferir --ano 2025 [--json]`).
+- `packages/importadores/importar-arquivo.js` — CLI que grava snapshots JSON já existentes (`pnpm importar <arquivos>` ou `pnpm db:exemplos`).
 
 ## Contrato
 
@@ -37,9 +37,9 @@ Coleta das fontes externas e gravação no banco. Vive em `collectors/` (pacote 
 
 ## Testes
 
-- `collectors/test/support/snapshots.js` — snapshots fictícios das cinco consultas (`receitas`, `empenhos`, `despesas`, `tcescReceitas`, `tcescEmpenhos`, e `snapshot(consultaId, registros, opções)` para montar outro). Carregam receita negativa, incoerência mês × acumulado, empenho renumerado, cópia antiga, empenho sem liquidação e a Câmara; o TCE-SC vai só até fevereiro (exercício parcial).
-- `collectors/test/support/banco-de-teste.js` — `limparColetas()` (mantém o catálogo) e `popularBancoDeTeste()` (as cinco publicadas).
-- Gravação e publicação são provadas em `collectors/test/integration/gravar.spec.js`.
+- `packages/importadores/test/support/snapshots.js` — snapshots fictícios das cinco consultas (`receitas`, `empenhos`, `despesas`, `tcescReceitas`, `tcescEmpenhos`, e `snapshot(consultaId, registros, opções)` para montar outro). Carregam receita negativa, incoerência mês × acumulado, empenho renumerado, cópia antiga, empenho sem liquidação e a Câmara; o TCE-SC vai só até fevereiro (exercício parcial).
+- `packages/importadores/test/support/banco-de-teste.js` — `limparColetas()` (mantém o catálogo) e `popularBancoDeTeste()` (as cinco publicadas).
+- Gravação e publicação são provadas em `packages/importadores/test/integration/gravar.spec.js`.
 
 ## Armadilhas
 

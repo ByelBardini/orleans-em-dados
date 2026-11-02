@@ -26,7 +26,7 @@ e roda em segundos.
 
 ## O que foi feito
 
-1. **Coletor TCE-SC** (`collectors/tcesc/`): sessão anônima na Qlik Engine API, seleção
+1. **Coletor TCE-SC** (`packages/importadores/tcesc/`): sessão anônima na Qlik Engine API, seleção
    conferida de município e exercício, hipercubos próprios e conciliação da soma das linhas com
    o total do motor. Duas consultas:
    - receitas por unidade × natureza × mês;
@@ -162,7 +162,7 @@ Regras simples, todas já possíveis com o que foi implementado:
 ## Próximos passos sugeridos
 
 Já feito: aba **Conferência** no dashboard (`#conferencia`), alimentada por `GET /api/conferencias?ano=AAAA`
-(consultas em `db/conferencias.js`, as mesmas do `pnpm conferir`). No ano em curso, compara só o período que o TCE
+(consultas em `packages/db/conferencias.js`, as mesmas do `pnpm conferir`). No ano em curso, compara só o período que o TCE
 já recebeu.
 
 1. Persistir cada conferência (tabela `comparacoes_fontes`) para ter histórico das divergências.

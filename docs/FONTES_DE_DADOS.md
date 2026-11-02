@@ -1,11 +1,11 @@
 # Fontes de dados
 
-| Fonte                                                                                                    | Papel                                                             | Status no projeto                                                             |
-| -------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------- | ----------------------------------------------------------------------------- |
-| [Portal da Transparência Betha — Orleans](https://transparencia.betha.cloud/#/mJRAZlfGu2RI9KNBWj49aw==)  | Dados operacionais de Prefeitura, FMS, SAMAE e Fundação Ambiental | **Integrada**: consultas `57153`, `57140` e `57170`                           |
-| [TCE-SC / Farol](https://servicos.tcesc.tc.br/farol_externo/)                                            | Conferência e Câmara Municipal                                    | **Coletor integrado** (receitas e empenhos); ver `collectors/tcesc/README.md` |
-| [SICONFI](https://www.siconfi.tesouro.gov.br/) / [API](https://apidatalake.tesouro.gov.br/docs/siconfi/) | DCA, RREO e RGF                                                   | A fazer                                                                       |
-| [IBGE](https://servicodados.ibge.gov.br/api/docs)                                                        | Indicadores socioeconômicos                                       | Futuro                                                                        |
+| Fonte                                                                                                    | Papel                                                             | Status no projeto                                                                        |
+| -------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------- | ---------------------------------------------------------------------------------------- |
+| [Portal da Transparência Betha — Orleans](https://transparencia.betha.cloud/#/mJRAZlfGu2RI9KNBWj49aw==)  | Dados operacionais de Prefeitura, FMS, SAMAE e Fundação Ambiental | **Integrada**: consultas `57153`, `57140` e `57170`                                      |
+| [TCE-SC / Farol](https://servicos.tcesc.tc.br/farol_externo/)                                            | Conferência e Câmara Municipal                                    | **Coletor integrado** (receitas e empenhos); ver `packages/importadores/tcesc/README.md` |
+| [SICONFI](https://www.siconfi.tesouro.gov.br/) / [API](https://apidatalake.tesouro.gov.br/docs/siconfi/) | DCA, RREO e RGF                                                   | A fazer                                                                                  |
+| [IBGE](https://servicodados.ibge.gov.br/api/docs)                                                        | Indicadores socioeconômicos                                       | Futuro                                                                                   |
 
 ## Consultas Betha integradas
 
@@ -45,4 +45,4 @@ O segmento intermediário do ID dos registros (`211:<código>:...`) identifica a
 
 Status: **inferido**. Em 2025, a soma por código reproduziu, centavo a centavo, os totais obtidos com o filtro de
 entidade do portal, e os órgãos dos empenhos são coerentes com cada entidade. Ainda falta a confirmação formal no
-cadastro. Fica na tabela `entidades` (coluna `status_mapeamento`), definida em `db/migrations/001_inicial.sql`.
+cadastro. Fica na tabela `entidades` (coluna `status_mapeamento`), definida em `packages/db/migrations/001_inicial.sql`.

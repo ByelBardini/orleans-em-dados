@@ -45,25 +45,13 @@ importers:
         specifier: ^5.0.5
         version: 5.0.5(@types/node@26.6.6)(vite@6.4.5(@types/node@26.6.6))
 
-  backend:
+  apps/api:
     dependencies:
       '@orleans-em-dados/db':
         specifier: workspace:*
-        version: link:../db
+        version: link:../../packages/db
 
-  collectors:
-    dependencies:
-      '@orleans-em-dados/db':
-        specifier: workspace:*
-        version: link:../db
-
-  db:
-    dependencies:
-      pg:
-        specifier: ^8.16.0
-        version: 8.23.1
-
-  frontend:
+  apps/web:
     dependencies:
       react:
         specifier: ^19.1.0
@@ -78,6 +66,18 @@ importers:
       vite:
         specifier: ^6.3.5
         version: 6.4.5(@types/node@26.6.6)
+
+  packages/db:
+    dependencies:
+      pg:
+        specifier: ^8.16.0
+        version: 8.23.1
+
+  packages/importadores:
+    dependencies:
+      '@orleans-em-dados/db':
+        specifier: workspace:*
+        version: link:../db
 
 packages:
 

@@ -9,7 +9,7 @@
     "./conferencias": "./conferencias.js"
   },
   "scripts": {
-    "migrar": "node --env-file-if-exists=../.env migrar.js"
+    "migrar": "node --env-file-if-exists=../../.env migrar.js"
   },
   "dependencies": {
     "pg": "^8.16.0"

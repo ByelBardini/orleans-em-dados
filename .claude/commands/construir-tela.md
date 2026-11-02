@@ -1,16 +1,16 @@
 ---
-description: Planeja a construção de uma tela do frontend a partir de um HTML de exemplo (como os de docs/screens); pesquisa padrões de mercado para o tipo de tela, levanta pontos de melhoria com recomendação e gera um plano de implementação em que o HTML é base, nunca lei.
+description: Planeja a construção de uma tela do dashboard a partir de um HTML de exemplo (como os de docs/screens); pesquisa padrões de mercado para o tipo de tela, levanta pontos de melhoria com recomendação e gera um plano de implementação em que o HTML é base, nunca lei.
 argument-hint: [caminho do HTML de exemplo] [descrição breve da tela]
 allowed-tools: Read, Grep, Glob, WebSearch, WebFetch, AskUserQuestion, Write, Bash(date:*), Bash(ls:*), Bash(find:*), Bash(mkdir:*), mcp__plugin_context7_context7__resolve-library-id, mcp__plugin_context7_context7__query-docs
 ---
 
 # /construir-tela — Plano de tela a partir de um HTML de exemplo
 
-Transforme um HTML de exemplo + descrição em um plano de implementação de tela para o `frontend/`, seguindo as etapas abaixo **na ordem**. O produto final é um único arquivo de plano em `docs/plans/` — nada além disso é criado ou alterado.
+Transforme um HTML de exemplo + descrição em um plano de implementação de tela para o `apps/web/`, seguindo as etapas abaixo **na ordem**. O produto final é um único arquivo de plano em `docs/plans/` — nada além disso é criado ou alterado.
 
 ## Regras invioláveis
 
-1. **O HTML de exemplo é base, NÃO é lei.** Ele comunica intenção — blocos de conteúdo, hierarquia, ações, dados exibidos. Quando o exemplo diverge da boa prática, isso vira ponto de melhoria (passo 4) e quem decide é o usuário — nunca cópia silenciosa, nem "melhoria silenciosa". "Manter como no exemplo" vale para o que a tela **faz e mostra**; nunca para como o código é escrito: a implementação sempre usa o vocabulário do projeto (React 19 + Vite em JSX, CSS em `frontend/src/styles.css` com os tokens de `:root` — papel, tinta, vermelho, as três famílias de fonte —, componentes de `components.jsx`, dados por `useApi` de `api.js`, formatação por `format.js`) — estilos inline, `onclick`, `support.js` e o `vendor/` do exemplo não são transcritos em nenhuma hipótese.
+1. **O HTML de exemplo é base, NÃO é lei.** Ele comunica intenção — blocos de conteúdo, hierarquia, ações, dados exibidos. Quando o exemplo diverge da boa prática, isso vira ponto de melhoria (passo 4) e quem decide é o usuário — nunca cópia silenciosa, nem "melhoria silenciosa". "Manter como no exemplo" vale para o que a tela **faz e mostra**; nunca para como o código é escrito: a implementação sempre usa o vocabulário do projeto (React 19 + Vite em JSX, CSS em `apps/web/src/styles.css` com os tokens de `:root` — papel, tinta, vermelho, as três famílias de fonte —, componentes de `components.jsx`, dados por `useApi` de `api.js`, formatação por `format.js`) — estilos inline, `onclick`, `support.js` e o `vendor/` do exemplo não são transcritos em nenhuma hipótese.
 2. **Este comando NÃO implementa.** Nenhum código de produção, teste ou config é escrito aqui — o único `Write` permitido é o arquivo do plano.
 3. **Todo ponto de melhoria traz uma recomendação.** A opção recomendada vem primeiro, com "(Recomendado)" no rótulo, e a descrição explica o porquê — baseado na pesquisa e no projeto, nunca "porque sim".
 4. **O plano termina aguardando aprovação manual.** Depois de gerar o arquivo, pare. Não execute o plano, nem "só a fase 1".
@@ -34,11 +34,11 @@ Reformule em 2–3 frases: o que a tela faz, para quem, e qual problema resolve.
 
 ### 2. Mapear o que o projeto já tem
 
-Leia o `AGENTS.md` e `docs/context/frontend.md` (e os docs das áreas que a tela toca, como `db.md` para a conferência, se existirem). Depois confirme no código (`Glob`/`Grep`/`Read`) o que dá para reaproveitar: componentes de `frontend/src/components.jsx` (`Numero`, `Numeros`, `BarrasMensais`, `LinhaAcumulada`, `BarraDividida`, `ListaPontos`, `Filtros`, `Alternador`, `Fonte`, `Estado`), selos de `selos.jsx`, formatação de `format.js`, textos de `referencias.js`, as páginas existentes em `src/paginas/` e as classes já definidas em `styles.css`.
+Leia o `AGENTS.md` e `docs/context/web.md` (e os docs das áreas que a tela toca, como `db.md` para a conferência, se existirem). Depois confirme no código (`Glob`/`Grep`/`Read`) o que dá para reaproveitar: componentes de `apps/web/src/components.jsx` (`Numero`, `Numeros`, `BarrasMensais`, `LinhaAcumulada`, `BarraDividida`, `ListaPontos`, `Filtros`, `Alternador`, `Fonte`, `Estado`), selos de `selos.jsx`, formatação de `format.js`, textos de `referencias.js`, as páginas existentes em `src/paginas/` e as classes já definidas em `styles.css`.
 
 Registre duas listas que entram no plano: **o que será reaproveitado** (com caminho) e **o que será criado do zero**.
 
-Se a tela depende de dados ou rotas que o backend ainda não tem, registre a lacuna — ela vira pergunta de escopo no passo 4: planejar só o frontend contra um shape de resposta documentado no plano, ou incluir fases de backend (e de coleta, se o dado nem é coletado ainda).
+Se a tela depende de dados ou rotas que o api ainda não tem, registre a lacuna — ela vira pergunta de escopo no passo 4: planejar só o web contra um shape de resposta documentado no plano, ou incluir fases de api (e de coleta, se o dado nem é coletado ainda).
 
 ### 3. Pesquisar padrões de mercado para o tipo de tela
 
@@ -51,7 +51,7 @@ Anote padrões encontrados, trade-offs e fontes. Isso alimenta os pontos de melh
 
 ### 4. Levantar pontos de melhoria com recomendação
 
-Compare o exemplo com a pesquisa e com os padrões do projeto. Vira ponto de melhoria toda divergência relevante: o que o exemplo faz, o que o mercado faz, e qual opção você recomenda. Some a isso as decisões que a descrição deixou em aberto (comportamento, escopo, dados, fonte preferida), a lacuna de backend do passo 2, e as dependências de teste que faltam (runner; Testing Library + jsdom para spec de componente).
+Compare o exemplo com a pesquisa e com os padrões do projeto. Vira ponto de melhoria toda divergência relevante: o que o exemplo faz, o que o mercado faz, e qual opção você recomenda. Some a isso as decisões que a descrição deixou em aberto (comportamento, escopo, dados, fonte preferida), a lacuna de api do passo 2, e as dependências de teste que faltam (runner; Testing Library + jsdom para spec de componente).
 
 Estados vazio/carregando/erro/sem coleta/não confere nunca viram pergunta de "ter ou não ter" — são obrigatórios e os testes do passo 5 os cobrem. Pergunte apenas a forma deles, e só se houver mais de uma opção defensável.
 
@@ -66,15 +66,15 @@ Só avance quando não restar decisão em aberto.
 
 ### 5. Montar o plano em fases TDD
 
-Divida o trabalho em **fases pequenas** — cada fase entrega algo verificável e cabe em uma sessão. Specs em `frontend/test/` espelhando `src/`, nunca ao lado do código. Todo teste nasce pelo `/testar` (cenários do contrato, vermelho primeiro, prova de que morde).
+Divida o trabalho em **fases pequenas** — cada fase entrega algo verificável e cabe em uma sessão. Specs em `apps/web/test/` espelhando `src/`, nunca ao lado do código. Todo teste nasce pelo `/testar` (cenários do contrato, vermelho primeiro, prova de que morde).
 
 Cada fase segue TDD à risca, nesta ordem:
 
-1. **Escrever o teste primeiro pelo `/testar`**: qual arquivo em `frontend/test/`, quais casos (incluindo vazio/carregando/erro/sem coleta/não confere) e por que provam o comportamento. Lógica sem DOM (formatação, regra do selo, preparo da série do gráfico) roda só com o runner; componente exige o ambiente de DOM decidido no passo 4.
+1. **Escrever o teste primeiro pelo `/testar`**: qual arquivo em `apps/web/test/`, quais casos (incluindo vazio/carregando/erro/sem coleta/não confere) e por que provam o comportamento. Lógica sem DOM (formatação, regra do selo, preparo da série do gráfico) roda só com o runner; componente exige o ambiente de DOM decidido no passo 4.
 2. **Rodar o spec isolado e ver falhar.**
 3. **Implementar o mínimo** para passar: quais arquivos, qual mudança.
 4. **Rodar e ver passar; refatorar** com os testes verdes; conferir a tela no navegador (claro e escuro, largura de celular).
-5. **Atualizar `docs/context/frontend.md`** (ou o doc da área) com o que a fase entregou. Obrigatório e sempre o último passo da fase.
+5. **Atualizar `docs/context/web.md`** (ou o doc da área) com o que a fase entregou. Obrigatório e sempre o último passo da fase.
 
 ### 6. Gerar o arquivo do plano
 
@@ -121,9 +121,9 @@ Mostre ao usuário: o caminho do arquivo, a lista de fases em uma linha cada, e 
 
 - <item> — <por que não existe equivalente>
 
-## Contrato com o backend
+## Contrato com o api
 
-- <rota e shape da resposta que a tela consome; lacuna de backend, se houver>
+- <rota e shape da resposta que a tela consome; lacuna de api, se houver>
 
 ## Fases
 
@@ -131,11 +131,11 @@ Mostre ao usuário: o caminho do arquivo, a lista de fases em uma linha cada, e 
 
 **Objetivo:** <o que fica funcionando ao final da fase>
 
-1. `/testar <alvo> "<comportamento>"` → `frontend/test/<caminho>`: <casos cobertos>
+1. `/testar <alvo> "<comportamento>"` → `apps/web/test/<caminho>`: <casos cobertos>
 2. Rodar o spec isolado e confirmar que falha
-3. Implementar em `frontend/src/<caminhos>`: <mudança mínima>
+3. Implementar em `apps/web/src/<caminhos>`: <mudança mínima>
 4. Rodar e confirmar que passa; refatorar se necessário; conferir no navegador
-5. Atualizar `docs/context/frontend.md`: <o que registrar>
+5. Atualizar `docs/context/web.md`: <o que registrar>
 
 ### Fase 2 — ...
 

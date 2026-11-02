@@ -17,7 +17,7 @@ import { BethaAuthClient } from './auth.js';
 import { BethaQueryClient } from './client.js';
 import { CONSULTAS, urlConsulta } from './config.js';
 
-const RAIZ = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
+const RAIZ = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../..');
 const DATA_DIR = path.resolve(RAIZ, process.env.DATA_DIR ?? 'data', 'betha');
 const PAGE_SIZE = Number(process.env.BETHA_PAGE_SIZE ?? 10000);
 const TENTATIVAS_COLETA = 3;

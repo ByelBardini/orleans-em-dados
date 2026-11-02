@@ -25,7 +25,7 @@ export default tseslint.config(
     rules: { '@typescript-eslint/no-unused-vars': ['error', { ignoreRestSiblings: true }] },
   },
   {
-    files: ['frontend/**/*.{js,jsx,ts,tsx}'],
+    files: ['apps/web/**/*.{js,jsx,ts,tsx}'],
     languageOptions: { globals: globals.browser, parserOptions: { ecmaFeatures: { jsx: true } } },
     plugins: { 'react-hooks': reactHooks, 'react-refresh': reactRefresh },
     rules: {
@@ -38,7 +38,7 @@ export default tseslint.config(
     },
   },
   {
-    files: ['db/**', 'collectors/**', 'backend/**', '*.{js,ts}', '.claude/**/*.mjs'],
+    files: ['packages/**', 'apps/api/**', 'apps/worker/**', '*.{js,ts}', '.claude/**/*.mjs'],
     languageOptions: { globals: globals.node },
   },
   prettier,

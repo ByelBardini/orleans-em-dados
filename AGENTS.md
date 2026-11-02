@@ -6,34 +6,34 @@ Dashboard público, rastreável, com dados de receitas e despesas do município 
 
 - Node.js ≥ 22.9, pnpm (versão no `packageManager`), PostgreSQL 17 (`docker-compose.yml`, porta 5433).
 - Código em JavaScript (ESM). TypeScript 6 strict configurado em `tsconfig.base.json` para o código novo.
-- `backend`: `node:http` sem framework, SQL direto pelo `pg`.
-- `frontend`: React 19 + Vite 6, JSX, CSS próprio em `styles.css`.
+- `apps/api`: `node:http` sem framework, SQL direto pelo `pg`.
+- `apps/web`: React 19 + Vite 6, JSX, CSS próprio em `styles.css`.
 - Qualidade: Vitest 5 (`vitest.config.ts`, um projeto por workspace), ESLint flat (`eslint.config.js`), Prettier (`.prettierrc.json`, largura 120).
 
 ## Layout do repositório
 
-- `db/` — conexão, migrações SQL e a conferência Betha × TCE-SC.
-- `collectors/` — coletores Betha e TCE-SC, gravação e publicação das coletas, CLIs.
-- `backend/src/` — API REST que lê só as coletas publicadas.
-- `frontend/src/` — dashboard.
+- `packages/db/` — conexão, migrações SQL e a conferência Betha × TCE-SC.
+- `packages/importadores/` — coletores Betha e TCE-SC, gravação e publicação das coletas, CLIs.
+- `apps/api/src/` — API REST que lê só as coletas publicadas.
+- `apps/web/src/` — dashboard.
 - `docs/` — especificação, metodologia, fontes, dicionário de dados; `docs/context/` (contexto para agentes), `docs/plans/` (planos), `docs/screens/` (mockups HTML).
 - `examples/` — snapshots fictícios no formato dos reais. `data/` — snapshots reais opcionais, fora do git.
-- `db/` e `collectors/` não têm `src/`: as fontes ficam na raiz do workspace.
+- `packages/db/` e `packages/importadores/` não têm `src/`: as fontes ficam na raiz do workspace.
 
 ## Contexto por área (`docs/context/`)
 
 Leia o hub da área antes de abrir fonte. O driver do `/testar` indica qual (`leia antes:`).
 
-| Área                | Arquivo                                       | Cobre                                                                  |
-| ------------------- | --------------------------------------------- | ---------------------------------------------------------------------- |
-| Banco e conferência | [`db.md`](docs/context/db.md)                 | tabelas, publicação por ponteiro, regras da conferência Betha × TCE-SC |
-| Coletores           | [`collectors.md`](docs/context/collectors.md) | clientes Betha e Qlik, validação das coletas, `gravarColeta`           |
-| API                 | [`backend.md`](docs/context/backend.md)       | rotas, parâmetros, CSV                                                 |
-| Dashboard           | [`frontend.md`](docs/context/frontend.md)     | páginas, componentes, formatação, selos                                |
+| Área                | Arquivo                                           | Cobre                                                                  |
+| ------------------- | ------------------------------------------------- | ---------------------------------------------------------------------- |
+| Banco e conferência | [`db.md`](docs/context/db.md)                     | tabelas, publicação por ponteiro, regras da conferência Betha × TCE-SC |
+| Coletores           | [`importadores.md`](docs/context/importadores.md) | clientes Betha e Qlik, validação das coletas, `gravarColeta`           |
+| API                 | [`api.md`](docs/context/api.md)                   | rotas, parâmetros, CSV                                                 |
+| Dashboard           | [`web.md`](docs/context/web.md)                   | páginas, componentes, formatação, selos                                |
 
 ## Testes
 
-- Specs em `<workspace>/test/` espelhando a raiz das fontes (`src/` no backend e no frontend, a raiz no db e nos collectors); integração em `<workspace>/test/integration/`.
+- Specs em `<workspace>/test/` espelhando a raiz das fontes (`src/` no api e no web, a raiz no db e nos importadores); integração em `<workspace>/test/integration/`.
 - `describe`/`it`/`expect` importados de `vitest` (sem globals); import relativo com extensão.
 - `pnpm test` roda os unit de todos os workspaces, sem banco; `pnpm exec vitest run <spec>` isola um spec; `--project @orleans-em-dados/<workspace>` filtra pelo `name` do pacote.
 - `pnpm test:integracao` roda `*/test/integration/` no projeto `integracao`, contra o Postgres descartável (`pnpm db:teste` sobe na porta 5434, `pnpm db:teste:parar` derruba). O esquema é recriado a cada rodada; a porta 5433 (`pnpm db:subir`, coletas reais) é recusada.

@@ -1,14 +1,14 @@
 # Dashboard
 
-Dashboard público em React 19 + Vite 6, JSX sem TypeScript. Vive em `frontend/src/` (pacote `@orleans-em-dados/frontend`); o Vite faz proxy de `/api` para `localhost:3000`.
+Dashboard público em React 19 + Vite 6, JSX sem TypeScript. Vive em `apps/web/src/` (pacote `@orleans-em-dados/web`); o Vite faz proxy de `/api` para `localhost:3000`.
 
 ## Estrutura
 
-- `frontend/src/App.jsx` — abas (`ABAS`) navegadas pelo hash da URL, filtros de ano e entidade, "Atualizado em" do exercício (de `/api/anos`).
-- `frontend/src/paginas/` — `VisaoGeral`, `Receitas`, `Despesas`, `Conferencia`, `Metodologia`.
-- `frontend/src/components.jsx` — componentes compartilhados.
-- `frontend/src/selos.jsx` — selos de conferência Betha × TCE-SC.
-- `frontend/src/styles.css` — visual de "caderno de jornal" com tokens em `:root` (papel, tinta, vermelho, três famílias de fonte), tema claro/escuro por `data-theme`. Referência visual: `docs/screens/`.
+- `apps/web/src/App.jsx` — abas (`ABAS`) navegadas pelo hash da URL, filtros de ano e entidade, "Atualizado em" do exercício (de `/api/anos`).
+- `apps/web/src/paginas/` — `VisaoGeral`, `Receitas`, `Despesas`, `Conferencia`, `Metodologia`.
+- `apps/web/src/components.jsx` — componentes compartilhados.
+- `apps/web/src/selos.jsx` — selos de conferência Betha × TCE-SC.
+- `apps/web/src/styles.css` — visual de "caderno de jornal" com tokens em `:root` (papel, tinta, vermelho, três famílias de fonte), tema claro/escuro por `data-theme`. Referência visual: `docs/screens/`.
 
 ## Funções e utilitários
 
@@ -28,7 +28,7 @@ Dashboard público em React 19 + Vite 6, JSX sem TypeScript. Vive em `frontend/s
 
 ## Testes
 
-- Specs em `frontend/test/` espelhando `src/`, sem DOM por enquanto (`format.spec.js`). Componente exige Testing Library + jsdom, ainda não instalados.
+- Specs em `apps/web/test/` espelhando `src/`, sem DOM por enquanto (`format.spec.js`). Componente exige Testing Library + jsdom, ainda não instalados.
 
 ## Armadilhas
 

@@ -1,7 +1,5 @@
 packages:
-  - db
-  - collectors
-  - backend
-  - frontend
+  - apps/*
+  - packages/*
 allowBuilds:
   esbuild: true

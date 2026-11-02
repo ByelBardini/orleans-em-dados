@@ -15,7 +15,7 @@ import { gravarColeta } from '../gravar.js';
 import { CONSULTAS, TCESC } from './config.js';
 import { QlikSessao } from './qlik-client.js';
 
-const RAIZ = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
+const RAIZ = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../..');
 const DATA_DIR = path.resolve(RAIZ, process.env.DATA_DIR ?? 'data', 'tcesc');
 
 // O motor devolve double (ex.: 170915184.25000012). Converte para centavos
