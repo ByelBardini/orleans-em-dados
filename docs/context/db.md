@@ -47,6 +47,7 @@ Esquema PostgreSQL, migrações e conexão. Vive em `packages/db/` (pacote `@orl
 - O `.desc()` do Drizzle gera `DESC NULLS LAST`; para reproduzir um índice `DESC` puro é `.desc().nullsFirst()`.
 - `URL_PADRAO` em `packages/db/src/index.ts`: sem `DATABASE_URL`, conecta no banco de desenvolvimento (porta 5433, coletas reais). O projeto `integracao` do Vitest define a URL descartável e `setup-integracao.js` recusa a 5433 antes do primeiro `import` do pacote.
 - `NUMERIC` é lido como `number` (`setTypeParser`): somas exatas se fazem no SQL ou em centavos inteiros, nunca somando os `number` em JS.
+- Receita conferida usa `receitas.valor_arrecadado_mes` por mês; a soma de cada fonte é do Postgres, e a separação em centavos no JS (`conferencia.bo.ts`). `dadosConferidos(ano)` lê, nunca grava.
 - `conferencia(ano)` devolve `geradoEm: new Date()`: duas chamadas nunca são iguais. Comparação de resposta ignora ou fixa esse campo.
 - `receitas.valor_arrecadado_ate_mes` é acumulado: nunca somar entre meses. `receitas.mes` é inferido do sufixo `_N` do id (semântica não confirmada).
 - `empenhos.numero` não é único (repete entre entidades e, em 2025, dentro do SAMAE). `valor_liquidado` `NULL` é "não informado", diferente de zero.

@@ -168,7 +168,7 @@
         "codigoEntidade": "319",
         "tipo": "valor",
         "incoerenciaBetha": 50000,
-        "nota": "Na própria Betha, o arrecadado no mês não fecha com o acumulado da rubrica em fevereiro (R$ 50.000,00): lançamento que a consulta mantém e o acumulado desconsidera. Explica toda a diferença.",
+        "nota": "Na própria Betha, o arrecadado no mês não fecha com o acumulado da rubrica em fevereiro (R$ 50.000,00): é onde a conta desencontra. A linha que o acumulado provavelmente desconsidera pode ser de outro mês. Explica toda a diferença.",
         "causa": "Lançamento fora do acumulado",
         "explicada": true
       }

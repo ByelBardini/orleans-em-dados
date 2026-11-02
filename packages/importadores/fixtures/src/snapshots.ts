@@ -53,7 +53,7 @@ export function snapshot(
   };
 }
 
-const receita = (
+export const receita = (
   id: string,
   rubricaNatureza: string,
   descricaoNatureza: string,
@@ -85,7 +85,7 @@ export const receitas = () =>
     receita('319:201', '17135011000000', 'Transferência SUS (exemplo)', 2, 200000, 350000),
   ]);
 
-const empenho = (
+export const empenho = (
   id: string,
   numero: number,
   data: string,
@@ -192,7 +192,7 @@ export const empenhos = () =>
     ),
   ]);
 
-const despesa = (
+export const despesa = (
   id: string,
   natureza: string,
   acao: { numero: string; nome: string },
@@ -235,10 +235,12 @@ export const despesas = () =>
     despesa('319:3003', '33903900000000', { numero: '2010', nome: 'Atenção básica (exemplo)' }, 300000, 15000, 0, 0),
   ]);
 
-const PREFEITURA_TCE = 'Prefeitura Municipal de Orleans';
-const FMS_TCE = 'Fundo Municipal de Saúde de Orleans';
+export const PREFEITURA_TCE = 'Prefeitura Municipal de Orleans';
+export const FMS_TCE = 'Fundo Municipal de Saúde de Orleans';
+export const SAMAE_TCE = 'Serviço Autônomo Municipal de Água e Esgoto de Orleans';
+export const FUNDACAO_TCE = 'Fundação Ambiental Municipal de Orleans';
 
-const receitaTce = (unidade: string, codigoreceita: string, natureza: string, mes: string, valor: string) => ({
+export const receitaTce = (unidade: string, codigoreceita: string, natureza: string, mes: string, valor: string) => ({
   id: [unidade, codigoreceita, mes, ''].join('|'),
   nomeunidade: unidade,
   codigoreceita,
@@ -258,7 +260,7 @@ export const tcescReceitas = () =>
     receitaTce(FMS_TCE, '1.7.1.3.50.1.1', 'Transferência SUS', 'fev', '150000.00'),
   ]);
 
-const empenhoTce = (
+export const empenhoTce = (
   id: number,
   ug: string,
   numero: number,

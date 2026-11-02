@@ -77,6 +77,17 @@ describe('anotarNaturezas', () => {
     expect(linha?.nota).toContain('Explica toda a diferença.');
   });
 
+  it('incoerência aponta o mês em que o acumulado desencontra, sem dizer que a linha sobrando é desse mês', () => {
+    const [linha] = anotarNaturezas(
+      [natureza({ diferenca: 50000 })],
+      [],
+      [{ ent: '728', nat: '11125001', mes: 6, excesso: 50000 }],
+    );
+    expect(linha?.nota).toBe(
+      `Na própria Betha, o arrecadado no mês não fecha com o acumulado da rubrica em junho (R$${NBSP}50.000,00): é onde a conta desencontra. A linha que o acumulado provavelmente desconsidera pode ser de outro mês. Explica toda a diferença.`,
+    );
+  });
+
   it('incoerência que explica parte diz quanto explica e quanto resta', () => {
     const [linha] = anotarNaturezas(
       [natureza({ diferenca: 100 })],
@@ -485,7 +496,10 @@ describe('listarSemExplicacao', () => {
     const lista = listarSemExplicacao(
       [],
       [],
-      [anotarEmpenho(semPar({ valor: 40 })), anotarEmpenho(semPar({ fonte: 'tce', valor: 25, numero: 11, id: '5001' }))],
+      [
+        anotarEmpenho(semPar({ valor: 40 })),
+        anotarEmpenho(semPar({ fonte: 'tce', valor: 25, numero: 11, id: '5001' })),
+      ],
     );
     expect(lista.map((i) => [i.titulo, i.betha, i.tce, i.diferenca])).toEqual([
       ['Empenho nº 10', 40, null, 40],
