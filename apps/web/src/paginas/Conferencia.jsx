@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useApi } from '../api';
-import { Estado, Filtros, Mi, Numero, Numeros } from '../components.jsx';
-import { data, dataHora, emMilhoes, MESES, MESES_LONGOS, moeda, numero, pct } from '../format.js';
+import { Estado, Filtros, Mi, Numero, Numeros } from '../components';
+import { data, dataHora, emMilhoes, MESES, MESES_LONGOS, moeda, numero, pct } from '../format';
 
 const N = Number;
 const INICIAL = 8;

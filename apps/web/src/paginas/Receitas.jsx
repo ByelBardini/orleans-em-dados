@@ -1,19 +1,10 @@
 import { useMemo, useState } from 'react';
 import { useApi } from '../api';
-import {
-  BarraDividida,
-  Estado,
-  Filtros,
-  Fonte,
-  LinhaAcumulada,
-  ListaPontos,
-  Mi,
-  Numero,
-  Numeros,
-} from '../components.jsx';
-import { emMilhoes, MESES, MESES_LONGOS, milhoes, moeda, numero, pct, porExtenso } from '../format.js';
-import { Selo, seloReceita, seloRubrica, useConferencia } from '../selos.jsx';
-import { ORIGEM_CIDADAO, ORIGENS_DE_FORA, populacao, sujeito } from '../referencias.js';
+import { BarraDividida, Estado, Filtros, Fonte, LinhaAcumulada, ListaPontos, Mi, Numero, Numeros } from '../components';
+import { emMilhoes, MESES, MESES_LONGOS, milhoes, moeda, numero, pct, porExtenso } from '../format';
+import { Selo, useConferencia } from '../selo';
+import { seloReceita, seloRubrica } from '../selos';
+import { ORIGEM_CIDADAO, ORIGENS_DE_FORA, populacao, sujeito } from '../referencias';
 
 const N = Number;
 const INICIAL = 10;

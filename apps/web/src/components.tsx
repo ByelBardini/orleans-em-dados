@@ -1,14 +1,33 @@
-import { useState } from 'react';
-import { dataHora, milhoes, moeda, numero } from './format.js';
+import type { Meta } from '@orleans-em-dados/contracts';
+import { useState, type CSSProperties, type ReactNode } from 'react';
+import { dataHora, milhoes, moeda, numero } from './format';
 
-export function Estado({ carregando, erro }) {
+export type Anotacao = { texto: ReactNode; posicao?: CSSProperties };
+
+export function Estado({ carregando, erro }: { carregando: boolean; erro: string | null }) {
   if (erro) return <p className="aviso">Não foi possível carregar: {erro}</p>;
   if (carregando) return <p className="carregando">Carregando os números…</p>;
   return null;
 }
 
 // Célula da faixa de totais. `barra` (0–100) desenha o trilho embaixo.
-export function Numero({ rotulo, children, detalhe, barra, vermelho, selo, className = '' }) {
+export function Numero({
+  rotulo,
+  children,
+  detalhe,
+  barra,
+  vermelho,
+  selo,
+  className = '',
+}: {
+  rotulo: ReactNode;
+  children: ReactNode;
+  detalhe?: ReactNode;
+  barra?: number;
+  vermelho?: boolean;
+  selo?: ReactNode;
+  className?: string;
+}) {
   return (
     <div className="numero-cel">
       <span className="rotulo">{rotulo}</span>
@@ -24,14 +43,14 @@ export function Numero({ rotulo, children, detalhe, barra, vermelho, selo, class
   );
 }
 
-export const Mi = ({ valor }) => (
+export const Mi = ({ valor }: { valor: number | null | undefined }) => (
   <>
     {milhoes(valor)}
     <small> mi</small>
   </>
 );
 
-export function Numeros({ rotulo, children }) {
+export function Numeros({ rotulo, children }: { rotulo: string; children: ReactNode }) {
   return (
     <section aria-label={rotulo} className="numeros">
       <div className="numeros-grade">{children}</div>
@@ -40,7 +59,29 @@ export function Numeros({ rotulo, children }) {
 }
 
 // Nome … valor, com trilho proporcional ao maior item.
-export function ListaPontos({ itens, vermelho, total, aoClicar }) {
+export type ItemDaLista = {
+  chave?: string | null;
+  nome: string;
+  valor: number | null;
+  cod?: ReactNode;
+  dica?: string;
+  selecionado?: boolean;
+  vermelho?: boolean;
+  cor?: string;
+  extra?: ReactNode;
+};
+
+export function ListaPontos<I extends ItemDaLista>({
+  itens,
+  vermelho,
+  total,
+  aoClicar,
+}: {
+  itens: readonly I[];
+  vermelho?: boolean;
+  total?: number | null;
+  aoClicar?: (item: I) => void;
+}) {
   const max = Math.max(...itens.map((i) => Number(i.valor)), 0) || 1;
   return (
     <ul className="lista-pontos">
@@ -72,29 +113,39 @@ export function ListaPontos({ itens, vermelho, total, aoClicar }) {
   );
 }
 
-const pctCurto = (v, t) =>
+const pctCurto = (v: number | null, t: number | null) =>
   `${((Number(v) / Number(t)) * 100).toLocaleString('pt-BR', { maximumFractionDigits: 1, minimumFractionDigits: 1 })}%`;
 
 // Escala "redonda" para o eixo: 34 → passo 10, topo 40.
-export function escala(maximo, linhas = 3) {
+export function escala(maximo: number, linhas = 3): { topo: number; passos: number[] } {
   if (!(maximo > 0)) return { topo: 1, passos: [] };
   const bruto = maximo / linhas;
   const magnitude = 10 ** Math.floor(Math.log10(bruto));
-  const passo = [1, 2, 2.5, 5, 10].map((m) => m * magnitude).find((p) => p >= bruto);
+  const passo = [1, 2, 2.5, 5, 10].map((m) => m * magnitude).find((p) => p >= bruto) as number;
   const topo = Math.ceil((maximo * 1.04) / passo) * passo;
-  const passos = [];
+  const passos: number[] = [];
   for (let v = passo; v < topo - passo / 1000; v += passo) passos.push(v);
   return { topo, passos };
 }
 
-const rotuloEixo = (v) => v.toLocaleString('pt-BR', { maximumFractionDigits: 1 });
+const rotuloEixo = (v: number) => v.toLocaleString('pt-BR', { maximumFractionDigits: 1 });
 
 // Duas séries mês a mês, em milhões. `meses`: [{ rotulo, nome, a, b }].
-export function BarrasMensais({ meses, series, descricao, anotacao }) {
-  const [ativo, setAtivo] = useState(null);
+export function BarrasMensais({
+  meses,
+  series,
+  descricao,
+  anotacao,
+}: {
+  meses: readonly { rotulo: string; nome: string; a: number | null; b: number | null }[];
+  series: readonly [string, string];
+  descricao: string;
+  anotacao?: Anotacao | null;
+}) {
+  const [ativo, setAtivo] = useState<number | null>(null);
   const max = Math.max(...meses.flatMap((m) => [m.a ?? 0, m.b ?? 0])) / 1e6;
   const { topo, passos } = escala(max, 4);
-  const altura = (v) => `${(Math.max(Number(v ?? 0), 0) / 1e6 / topo) * 100}%`;
+  const altura = (v: number | null) => `${(Math.max(Number(v ?? 0), 0) / 1e6 / topo) * 100}%`;
 
   return (
     <>
@@ -145,18 +196,32 @@ export function BarrasMensais({ meses, series, descricao, anotacao }) {
 }
 
 // Nas pontas, a dica abre para dentro do gráfico.
-const dicaNasBordas = (i, n) =>
+const dicaNasBordas = (i: number, n: number): CSSProperties | undefined =>
   i < 2 ? { left: 0, transform: 'none' } : i > n - 3 ? { left: 'auto', right: 0, transform: 'none' } : undefined;
 
 // Acumulado do ano contra o ritmo previsto (meta ÷ 12 por mês).
-export function LinhaAcumulada({ acumulado, meta, rotulos, nomes, descricao, anotacao }) {
-  const [ativo, setAtivo] = useState(null);
+export function LinhaAcumulada({
+  acumulado,
+  meta,
+  rotulos,
+  nomes,
+  descricao,
+  anotacao,
+}: {
+  acumulado: readonly number[];
+  meta: number;
+  rotulos: readonly string[];
+  nomes: readonly (string | undefined)[];
+  descricao: string;
+  anotacao?: Anotacao | null;
+}) {
+  const [ativo, setAtivo] = useState<number | null>(null);
   const final = acumulado.at(-1) ?? 0;
   const { topo, passos } = escala(Math.max(meta, final) / 1e6, 4);
-  const y = (v) => 300 - (v / 1e6 / topo) * 300;
-  const x = (i) => (i / 11) * 1000;
+  const y = (v: number) => 300 - (v / 1e6 / topo) * 300;
+  const x = (i: number) => (i / 11) * 1000;
   const linha = acumulado.map((v, i) => `${x(i).toFixed(1)},${y(v).toFixed(1)}`).join(' ');
-  const pctY = (v) => `${(v / 1e6 / topo) * 100}%`;
+  const pctY = (v: number) => `${(v / 1e6 / topo) * 100}%`;
   const acima = final >= meta;
 
   return (
@@ -242,7 +307,15 @@ export function LinhaAcumulada({ acumulado, meta, rotulos, nomes, descricao, ano
 }
 
 // Uma barra cheia dividida em partes. `partes`: [{ nome, valor, classe, detalhe }].
-export function BarraDividida({ partes, total, descricao }) {
+export function BarraDividida({
+  partes,
+  total,
+  descricao,
+}: {
+  partes: readonly { nome: string; valor: number | null; classe?: string; detalhe?: ReactNode }[];
+  total: number | null;
+  descricao: string;
+}) {
   const visiveis = partes.filter((p) => Number(p.valor) > 0);
   return (
     <>
@@ -304,7 +377,17 @@ export function SeletorTema() {
   );
 }
 
-export function Alternador({ rotulo, opcoes, valor, aoMudar }) {
+export function Alternador<V extends string>({
+  rotulo,
+  opcoes,
+  valor,
+  aoMudar,
+}: {
+  rotulo: string;
+  opcoes: readonly { valor: V; nome: string }[];
+  valor: V;
+  aoMudar: (valor: V) => void;
+}) {
   return (
     <div role="group" aria-label={rotulo} className="alternador">
       <span className="rotulo" aria-hidden="true">
@@ -320,7 +403,17 @@ export function Alternador({ rotulo, opcoes, valor, aoMudar }) {
 }
 
 // Barra de ano e entidade, posicionada por cada página.
-export function Filtros({ anos, ano, setAno, entidades, entidade, setEntidade, children }) {
+export type PropsDosFiltros = {
+  anos: readonly number[];
+  ano: number | null;
+  setAno: (ano: number) => void;
+  entidades: readonly { codigo: string; sigla: string; nome: string }[];
+  entidade: string;
+  setEntidade: (entidade: string) => void;
+  children?: ReactNode;
+};
+
+export function Filtros({ anos, ano, setAno, entidades, entidade, setEntidade, children }: PropsDosFiltros) {
   return (
     <div className="barra-filtros">
       {anos.length > 0 && (
@@ -350,14 +443,14 @@ export function Filtros({ anos, ano, setAno, entidades, entidade, setEntidade, c
   );
 }
 
-const STATUS = {
+const STATUS: Record<string, string> = {
   totalizador_conciliado: 'Somatório conciliado com o totalizador da fonte',
   exemplo: 'Dados fictícios de exemplo',
   coletado: 'Coletado, ainda não comparado',
 };
 
 // Metadados exibidos em toda seção: fonte, consulta, filtro, data de coleta e nível de validação.
-export function Fonte({ meta }) {
+export function Fonte({ meta }: { meta: Meta | null | undefined }) {
   if (!meta) return null;
   return (
     <details className="fonte">
@@ -381,7 +474,7 @@ export function Fonte({ meta }) {
         </dd>
         <dt>Validação</dt>
         <dd>{STATUS[meta.status] ?? meta.status}</dd>
-        {meta.conferencia?.map((c) => (
+        {meta.conferencia.map((c) => (
           <div key={c.campo} className="fonte-conferencia">
             <dt>
               <code>{c.campo}</code>
