@@ -24,6 +24,8 @@ export const pct = (parte: number, total: Talvez<number>, casas = 1) =>
 
 export const data = (iso: Talvez<string>) =>
   iso ? new Date(`${iso.slice(0, 10)}T12:00:00`).toLocaleDateString('pt-BR') : '—';
+// '2026-09-30' → '30/09', sem passar por fuso.
+export const diaEMes = (iso: Talvez<string>) => (iso ? `${iso.slice(8, 10)}/${iso.slice(5, 7)}` : '—');
 export const dataHora = (iso: Talvez<string>) => (iso ? new Date(iso).toLocaleString('pt-BR') : '—');
 export const dataCurta = (iso: Talvez<string>) =>
   iso ? new Date(iso).toLocaleDateString('pt-BR', { day: '2-digit', month: 'long', year: 'numeric' }) : '—';

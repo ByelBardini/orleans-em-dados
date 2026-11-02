@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import {
   data,
   dataCurta,
+  diaEMes,
   emMilhoes,
   milhoes,
   moeda,
@@ -135,5 +136,15 @@ describe('nomeProprio', () => {
 
   it.each([null, undefined, ''])('texto %j volta como veio', (texto) => {
     expect(nomeProprio(texto)).toBe(texto);
+  });
+});
+
+describe('diaEMes', () => {
+  it('corta a data ISO em DD/MM, sem passar por fuso', () => {
+    expect(diaEMes('2026-09-30')).toBe('30/09');
+  });
+
+  it('sem data, travessão', () => {
+    expect(diaEMes(null)).toBe('—');
   });
 });

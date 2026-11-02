@@ -6,7 +6,9 @@ import { seloDeAtraso, type DadosDoSelo } from './selos';
 
 // `explicada`: diverge, mas um padrão nos números aponta a causa provável, ou a diferença
 // já se repetia em outros anos (conhecida, sem causa confirmada). Fica em cinza.
-const ICONES = { confere: '✓', diverge: '!', explicada: 'i', pendente: '…' };
+const ICONES = { confere: '✓', diverge: '!', explicada: 'i', pendente: '…', 'fonte-unica': '–' };
+// Fonte única e pendência não têm caso na seção de discrepâncias.
+const SEM_LINK: ReadonlySet<string> = new Set(['pendente', 'fonte-unica']);
 
 export function useConferencia(ano: number | null) {
   const { dados } = useApi(ano ? `/api/conferencias?ano=${ano}` : null, conferenciaSchema);
@@ -33,7 +35,7 @@ export function Selo({
         {selo.titulo}
       </span>
       {selo.motivo && <span className="selo-motivo">{selo.motivo}</span>}
-      {!compacto && !semLink && (
+      {!compacto && !semLink && !SEM_LINK.has(selo.estado) && (
         <a href="#conferencia" className="selo-link">
           Ver conferência →
         </a>

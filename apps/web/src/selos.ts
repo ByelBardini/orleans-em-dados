@@ -1,13 +1,34 @@
 // A regra dos selos da conferência Betha × TCE-SC, sem DOM.
 // Linguagem: "provável"/"possível" quando a causa não foi comprovada.
 import { INDICADORES, situacaoDaAtualizacao, type Conferencia, type Importacoes } from '@orleans-em-dados/contracts';
-import { data, dataCurta, MESES_LONGOS, moeda, numero } from './format';
+import { data, dataCurta, diaEMes, MESES_LONGOS, moeda, numero } from './format';
 
 export type DadosDoSelo = {
-  estado: 'confere' | 'diverge' | 'explicada' | 'pendente';
+  estado: 'confere' | 'diverge' | 'explicada' | 'pendente' | 'fonte-unica';
   titulo: string;
   motivo?: string | null;
 };
+
+// O nível da conferência de um número. Igualdade entre fontes não é auditoria: o texto diz com o que
+// foi conferido, e nunca "validado". Atraso do TCE-SC é pendência, sem linguagem de erro.
+export const seloConferidoComTce = (ateMes?: number | null): DadosDoSelo => ({
+  estado: 'confere',
+  titulo: `conferido com o TCE-SC${ateMes ? ` até ${MESES_LONGOS[ateMes - 1]}` : ''}`,
+});
+
+export const seloConferidoComBetha = (dataCorte: string | null): DadosDoSelo => ({
+  estado: 'confere',
+  titulo: `conferido com a Betha até ${diaEMes(dataCorte)}`,
+  motivo: 'Valores do TCE-SC.',
+});
+
+export const SELO_FONTE_UNICA: DadosDoSelo = { estado: 'fonte-unica', titulo: 'fonte única, sem conferência' };
+
+export const seloAguardando = (motivo?: string): DadosDoSelo => ({
+  estado: 'pendente',
+  titulo: 'aguardando TCE',
+  ...(motivo ? { motivo } : {}),
+});
 
 const N = Number;
 const centavos = (v: number | null | undefined) => Math.round(N(v ?? 0) * 100);

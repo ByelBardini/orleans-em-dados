@@ -1426,7 +1426,8 @@ tr.expansivel {
   border-color: var(--vermelho);
 }
 
-.selo.pendente {
+.selo.pendente,
+.selo.fonte-unica {
   border-left-color: var(--pontilhado);
   color: var(--apagado);
 }
