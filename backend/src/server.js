@@ -27,7 +27,7 @@ const csv = (res, nome, colunas, linhas) => {
     'Content-Type': 'text/csv; charset=utf-8',
     'Content-Disposition': `attachment; filename="${nome}"`,
   });
-  res.end(`﻿${corpo}\r\n`);
+  res.end(`\uFEFF${corpo}\r\n`);
 };
 
 async function snapshotOu404(res, consulta, ano) {
