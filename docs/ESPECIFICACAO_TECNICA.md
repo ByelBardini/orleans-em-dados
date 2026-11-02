@@ -25,11 +25,13 @@
 
 ### 2.1 Primeira versão
 
-1. **Visão geral:** ano/entidade, receita arrecadada, orçamento previsto/atualizado, despesa empenhada líquida, liquidada e paga; gráficos mensais e distribuição por entidade.
-2. **Receitas:** natureza da receita, rubrica/código, evolução mensal, composição das receitas e orçamento versus realizado; preservar valores negativos (ajustes/reclassificações).
-3. **Despesas:** execução orçamentária por entidade e categoria; consulta de empenhos individuais por órgão, credor, número, histórico e data.
-4. **Conferência das fontes:** Betha x TCE-SC/SICONFI para exercícios encerrados; destacar diferença absoluta e percentual, abrangência, método e data da apuração.
-5. **Metadados e transparência:** fonte, ID da consulta, URL de origem, filtro, exercício, data de coleta, entidade, versão do cálculo e status de validação.
+As páginas de dados só exibem como número principal o que foi conferido entre as fontes, ou o que tem uma fonte só, rotulada como tal (§7.2).
+
+1. **Visão geral:** ano/entidade, receita arrecadada conferida, orçamento previsto/atualizado (fonte única), despesa empenhada líquida, liquidada e paga conferidas; gráficos mensais e distribuição por entidade.
+2. **Receitas:** receita conferida por natureza (rubrica de 14 dígitos quando todos os meses batem; natureza de 8 dígitos com mês divergente), evolução mensal, composição e orçamento versus realizado; preservar valores negativos (ajustes/reclassificações); a conta conferido + em discrepância + aguardando = total da fonte ao lado.
+3. **Despesas:** execução orçamentária conferida por entidade e categoria; consulta dos empenhos casados entre as fontes por órgão, credor, número, histórico e data.
+4. **Discrepâncias:** cada valor retirado, em Betha x TCE-SC, por área e tipo, com o valor de cada fonte, a diferença e o lado que registra mais, a situação do caso (confirmado no portal, em parte, calculado, a rever) e o protocolo, quando houver; o que aguarda o TCE-SC à parte; a comparação por entidade e mês; sem nome de credor nem histórico.
+5. **Metadados e transparência:** fonte, ID da consulta, URL de origem, filtro, exercício, data de coleta, entidade, versão do cálculo e nível da conferência.
 
 ### 2.2 Fora do escopo inicial / próximas etapas
 
@@ -357,20 +359,23 @@ Os arquivos de 2025 `fundo municipal de saude.xlsx` e `samae.xlsx` foram compara
 
 ## 7. Regras de negócio e apresentação
 
-### 7.1 Indicadores e fontes preferidas
+### 7.1 Indicadores, fonte de exibição e conferência
 
-| Indicador                           | Fonte principal                              | Observação                                                     |
-| ----------------------------------- | -------------------------------------------- | -------------------------------------------------------------- |
-| Receita arrecadada por mês/natureza | Betha `57153` (`valorArrecadadoNoMes`)       | Preservar negativos; não somar acumulados                      |
-| Receita orçada atualizada           | Betha `57153` (`valorOrcadoAtualizado`)      | Não comparar diretamente à “prevista” TCE sem alinhar conceito |
-| Empenhos individualizados           | Betha `57140`                                | Mostrar histórico, credor, órgão e número                      |
-| Despesa empenhada líquida           | Betha `57170` (`valorEmpenhadoAtualizado`)   | Considera anulações, diferente da soma dos empenhos originais  |
-| Despesa liquidada/paga orçamentária | Betha `57170`                                | Não substituir pelos campos da `57140`                         |
-| Despesa da Câmara                   | TCE-SC ou transparência própria da Câmara    | Fonte e abrangência explícitas                                 |
-| Despesa municipal com Legislativo   | Betha + Câmara, **após conciliação por ano** | Não assumir união automática para todos os anos                |
-| Comparação de exercício encerrado   | TCE-SC/SICONFI                               | Exibir diferença, explicação/status e posição temporal         |
+| Indicador                                          | Fonte de exibição                                              | Conferida contra                                 | Observação                                                                               |
+| -------------------------------------------------- | -------------------------------------------------------------- | ------------------------------------------------ | ---------------------------------------------------------------------------------------- |
+| Receita arrecadada por mês/natureza                | Betha `57153` (`valorArrecadadoNoMes`), só a parte comum       | TCE-SC por entidade, natureza de 8 dígitos e mês | Preservar negativos; não somar acumulados; a diferença vai para a seção                  |
+| Receita orçada atualizada                          | Betha `57153` (`valorOrcadoAtualizado`)                        | Sem conferência (fonte única)                    | Não comparar diretamente à “prevista” TCE sem alinhar conceito                           |
+| Despesa empenhada, liquidada e paga, ano encerrado | Betha `57170`                                                  | TCE-SC por unidade gestora, nas três etapas      | Linhas de modalidade 71 saem se somam a diferença nas três etapas; senão, a entidade sai |
+| Despesa no ano em curso                            | TCE-SC até a data de corte                                     | Betha `57140`, empenho a empenho                 | Líquido do TCE-SC; empenho depois do corte fica em `aguardando TCE`                      |
+| Empenhos individualizados                          | Identificação e órgão: Betha `57140`; liquidado e pago: TCE-SC | Casamento 1:1 entre as fontes                    | `57140` é valor original, diferente da soma líquida; sem par, vai para a seção           |
+| Órgão/secretaria                                   | Betha `57140`                                                  | Sem conferência (fonte única)                    | O TCE-SC não publica o órgão                                                             |
+| Despesa da Câmara                                  | TCE-SC                                                         | Sem conferência (fonte única)                    | Sempre à parte; não soma com as entidades                                                |
+| Despesa municipal com Legislativo                  | Não exibida como soma                                          | —                                                | Não assumir união automática para todos os anos                                          |
+| Comparação entre as fontes                         | Seção Discrepâncias                                            | Betha x TCE-SC                                   | Exibir valores, diferença com o lado que registra mais, situação e posição temporal      |
 
 ### 7.2 Status de confiabilidade
+
+Status da coleta, que não muda com a conferência:
 
 - `coletado`: registros armazenados; ainda não comparados.
 - `integridade_validada`: contagem, IDs e filtros consistentes.
@@ -379,7 +384,16 @@ Os arquivos de 2025 `fundo municipal de saude.xlsx` e `samae.xlsx` foram compara
 - `comparacao_externa_com_divergencia`: diferença numérica localizada; **não significa erro**.
 - `comparacao_externa_conciliada`: diferenças explicadas e documentação preservada.
 
-Não chamar “validado” sem especificar **o nível** (integridade, totalizador, comparação externa). Exercício encerrado não significa imutável: aceitar retificações.
+Nível que o público vê em cada número, calculado na consulta:
+
+- `conferido com o TCE-SC`: o valor que as duas fontes registram, ao centavo.
+- `conferido com a Betha até DD/MM`: ano em curso; valores do TCE-SC nos empenhos com par na Betha até o corte.
+- `fonte única, sem conferência`: orçamento, órgão e Câmara.
+- `aguardando TCE`: mês que o TCE-SC ainda não recebeu; é pendência, não diferença.
+
+**Regra de exibição:** o painel só exibe como número principal o conferido, ou a fonte única rotulada. O que difere vai para a seção Discrepâncias, e a conta conferido + em discrepância = total da fonte fica ao lado. Igualdade entre as fontes não é auditoria nem homologação contábil.
+
+Não chamar “validado” sem especificar **o nível** (integridade, totalizador, comparação externa); na interface, o termo é "conferido com...". Exercício encerrado não significa imutável: aceitar retificações.
 
 ### 7.3 UX e transparência
 

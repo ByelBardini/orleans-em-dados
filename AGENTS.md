@@ -57,4 +57,5 @@ Leia o hub da área antes de abrir fonte. O driver do `/testar` indica qual (`le
 - Rubrica e natureza são texto (zeros à esquerda).
 - Não somar visões diferentes da mesma execução (57140 × 57170, receita × despesa).
 - Diferença entre fontes nunca é rotulada como irregularidade.
+- O painel só exibe como número principal o conferido ou a fonte única rotulada; o resto vai para a seção Discrepâncias. Na interface, "conferido com...", nunca "validado".
 - Credor pessoa física: nada de dado real em fixture, log ou commit; `data/`, `.env`, `*.har` e planilhas ficam fora do git.

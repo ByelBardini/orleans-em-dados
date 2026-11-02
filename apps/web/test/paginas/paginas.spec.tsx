@@ -6,13 +6,7 @@ import Metodologia from '../../src/paginas/Metodologia';
 import Receitas from '../../src/paginas/Receitas';
 import VisaoGeral from '../../src/paginas/VisaoGeral';
 import { FetchFake } from '../support/fetch-fake';
-import {
-  ANO,
-  conferenciaGravada,
-  FILTROS,
-  respostaGravada,
-  ROTAS,
-} from '../support/respostas';
+import { ANO, conferenciaGravada, FILTROS, respostaGravada, ROTAS } from '../support/respostas';
 
 const props = { ano: ANO, entidade: '', filtros: FILTROS };
 const ANO_CORRENTE = new Date().getUTCFullYear();
