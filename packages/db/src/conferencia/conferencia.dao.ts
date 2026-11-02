@@ -14,6 +14,7 @@ import type {
   EmpenhosAguardando,
   EmpenhosPorEntidade,
   Limites,
+  LinhaDeReceita,
   LinhaNatureza,
   Modalidade71,
   ParcelaDoMes,
@@ -196,6 +197,16 @@ const CONSULTAS = {
      AND o.valor_arrecadado_mes = a.valor_arrecadado_mes AND left(o.rubrica, 8) <> left(a.rubrica, 8)
     WHERE a.coleta_id = ${coleta('receitas')} AND a.valor_arrecadado_mes >= 1000 AND a.mes <= $2`,
 
+  // As linhas da 57153 com o mesmo valor em outra natureza do mês e da entidade, de R$ 1,00 para cima:
+  // há repetições pequenas reais, e centavos coincidem por acaso. O casamento 1:1 é da regra.
+  receitaLinhasRepetidas: `
+    SELECT a.id_externo AS id, a.entidade_codigo ent, ${NAT_BETHA.replace('rubrica', 'a.rubrica')} nat, a.mes, a.valor_arrecadado_mes v
+    FROM receitas a
+    WHERE a.coleta_id = ${coleta('receitas')} AND a.valor_arrecadado_mes >= 1 AND a.mes <= $2
+      AND EXISTS (SELECT 1 FROM receitas o
+                  WHERE o.coleta_id = a.coleta_id AND o.entidade_codigo = a.entidade_codigo AND o.mes = a.mes
+                    AND o.valor_arrecadado_mes = a.valor_arrecadado_mes AND left(o.rubrica, 8) <> left(a.rubrica, 8))`,
+
   // Coerência interna da 57153: o arrecadado no mês deve ser a variação do acumulado
   // da mesma rubrica. Quando não é, a consulta mantém um lançamento que o próprio
   // acumulado desconsidera (estorno ou redatação não refletidos na coluna mensal).
@@ -322,16 +333,16 @@ export async function lerDados(ano: number, mes: number | null, dataLimite: stri
 }
 
 export async function lerReceitaConferida(ano: number, mes: number | null) {
-  const [cruzamentos, rubricas, [totais], repetidas, incoerentes, repetidasMeses] = await Promise.all([
+  const [cruzamentos, rubricas, [totais], linhasRepetidas, incoerentes, repetidasMeses] = await Promise.all([
     consultar<CruzamentoReceita>(CONSULTAS.receitaCruzamentos, [ano]),
     consultar<RubricaDaReceita>(CONSULTAS.receitaRubricas, [ano, mes]),
     consultar<TotaisDasFontes>(CONSULTAS.receitaTotais, [ano]),
-    consultar<ReceitaRepetida>(CONSULTAS.receitaRepetida, [ano, mes]),
+    consultar<LinhaDeReceita>(CONSULTAS.receitaLinhasRepetidas, [ano, mes]),
     consultar<ReceitaIncoerente>(CONSULTAS.receitaIncoerente, [ano, mes]),
     consultar<ReceitaRepetidaMeses>(CONSULTAS.receitaRepetidaMeses, [ano, mes]),
   ]);
   if (!totais) throw new Error(`Consulta de totais da receita sem linha para ${ano}`);
-  return { cruzamentos, rubricas, totais, pistas: { repetidas, incoerentes, repetidasMeses } };
+  return { cruzamentos, rubricas, totais, pistas: { linhasRepetidas, incoerentes, repetidasMeses } };
 }
 
 export async function lerDespesaConferida(ano: number, dataCorte: string | null) {

@@ -20,6 +20,7 @@ import {
   type Discrepancia,
   type EmpenhoParaClassificar,
   type EmpenhoSemPar,
+  type LinhaDeReceita,
   type LinhaNatureza,
   type Modalidade71,
   type PistasDaReceita,
@@ -597,7 +598,16 @@ const cruzamento = (campos: Partial<CruzamentoReceita>): CruzamentoReceita => ({
   ...campos,
 });
 
-const SEM_PISTAS: PistasDaReceita = { repetidas: [], incoerentes: [], repetidasMeses: [] };
+const SEM_PISTAS: PistasDaReceita = { linhasRepetidas: [], incoerentes: [], repetidasMeses: [] };
+
+const linhaIgual = (id: string, nat: string, v: number, campos: Partial<LinhaDeReceita> = {}): LinhaDeReceita => ({
+  id,
+  ent: '728',
+  nat,
+  mes: 1,
+  v,
+  ...campos,
+});
 
 describe('separarReceita', () => {
   it('cruzamento igual é todo conferido e fica sem tipo', () => {
@@ -644,7 +654,7 @@ describe('separarReceita', () => {
   it('mesmo valor lançado em outra rubrica do mês é duas_rubricas', () => {
     const { linhas } = separarReceita(
       [cruzamento({ betha: 5000, tce: null })],
-      { ...SEM_PISTAS, repetidas: [{ ent: '728', nat: '11125001', outra: '11125002', mes: 1, v: 5000 }] },
+      { ...SEM_PISTAS, linhasRepetidas: [linhaIgual('a', '11125001', 5000), linhaIgual('b', '11125002', 5000)] },
       12,
     );
     expect(linhas).toMatchObject([{ conferido: 0, diferencaBetha: 5000, tipo: 'duas_rubricas' }]);
@@ -1170,6 +1180,177 @@ describe('diferença explicada só em parte pelo acumulado', () => {
   });
 });
 
+describe('repetição linha a linha entre rubricas', () => {
+  const PROVISORIA = '13210300';
+  const DEFINITIVA = '13210111';
+  const sobrando = (betha: number, tce: number | null = null) => cruzamento({ natureza: PROVISORIA, betha, tce });
+  const definitiva = cruzamento({ natureza: DEFINITIVA, betha: 700, tce: 700 });
+  const provisoria = (id: string, v: number, campos: Partial<LinhaDeReceita> = {}) =>
+    linhaIgual(`p${id}`, PROVISORIA, v, campos);
+  const naDefinitiva = (id: string, v: number, campos: Partial<LinhaDeReceita> = {}) =>
+    linhaIgual(`d${id}`, DEFINITIVA, v, campos);
+  const partes = (cruzamentos: CruzamentoReceita[], linhasRepetidas: LinhaDeReceita[]) =>
+    tiposDe(receitaConferida(cruzamentos, { linhasRepetidas }).discrepancias.filter((d) => d.natureza === PROVISORIA));
+
+  it('três linhas iguais a três da outra rubrica, que somam a diferença, são duas_rubricas inteira', () => {
+    const iguais = [
+      provisoria('1', 300),
+      provisoria('2', 200),
+      provisoria('3', 100),
+      naDefinitiva('1', 300),
+      naDefinitiva('2', 200),
+      naDefinitiva('3', 100),
+    ];
+    expect(partes([sobrando(600), definitiva], iguais)).toEqual([['duas_rubricas', 600]]);
+  });
+
+  it('o que não tem linha igual fica no resto sem_causa, e as partes somam a natureza', () => {
+    // Real: 13210300 da Prefeitura em 2026, com janeiro casando e fevereiro sem par.
+    const { discrepancias } = receitaConferida(
+      [
+        cruzamento({ natureza: PROVISORIA, mes: 1, betha: 372.08, tce: null }),
+        definitiva,
+        cruzamento({ natureza: PROVISORIA, mes: 2, betha: 7.92, tce: null }),
+      ],
+      { linhasRepetidas: [provisoria('1', 300), naDefinitiva('1', 300)] },
+    );
+    const daNatureza = discrepancias.filter((d) => d.natureza === PROVISORIA);
+    expect(tiposDe(daNatureza)).toEqual([
+      ['duas_rubricas', 300],
+      ['sem_causa', 80],
+    ]);
+    expect(daNatureza.map((d) => d.diferencaDaNatureza)).toEqual([380, 380]);
+    expect(daNatureza.map((d) => [d.diferencaBetha, d.diferencaTce])).toEqual([
+      [300, 0],
+      [80, 0],
+    ]);
+  });
+
+  it('a mesma linha da outra rubrica não casa duas vezes', () => {
+    const iguais = [provisoria('1', 100), provisoria('2', 100), naDefinitiva('1', 100)];
+    expect(partes([sobrando(200), definitiva], iguais)).toEqual([
+      ['duas_rubricas', 100],
+      ['sem_causa', 100],
+    ]);
+  });
+
+  it('duas naturezas sobrando não dividem a mesma linha', () => {
+    const { discrepancias } = receitaConferida(
+      [
+        cruzamento({ natureza: '13210300', betha: 100, tce: null }),
+        cruzamento({ natureza: '13110200', betha: 100, tce: null }),
+        cruzamento({ natureza: DEFINITIVA, betha: 100, tce: 100 }),
+      ],
+      {
+        linhasRepetidas: [
+          linhaIgual('a', '13210300', 100),
+          linhaIgual('b', '13110200', 100),
+          linhaIgual('c', DEFINITIVA, 100),
+        ],
+      },
+    );
+    expect(discrepancias.map((d) => [d.natureza, d.tipo]).sort()).toEqual([
+      ['13110200', 'duas_rubricas'],
+      ['13210300', 'sem_causa'],
+    ]);
+  });
+
+  it('o par preferido é o da natureza que bate com o TCE, e não outra que também sobra', () => {
+    const { discrepancias } = receitaConferida(
+      [
+        cruzamento({ natureza: '13210300', betha: 100, tce: null }),
+        cruzamento({ natureza: '13110200', betha: 100, tce: null }),
+        cruzamento({ natureza: DEFINITIVA, betha: 200, tce: 200 }),
+      ],
+      {
+        linhasRepetidas: [
+          linhaIgual('a', '13210300', 100),
+          linhaIgual('b', '13110200', 100),
+          linhaIgual('c', DEFINITIVA, 100),
+          linhaIgual('d', DEFINITIVA, 100),
+        ],
+      },
+    );
+    expect(discrepancias.map((d) => d.tipo)).toEqual(['duas_rubricas', 'duas_rubricas']);
+  });
+
+  it('linha maior que a diferença da natureza não conta', () => {
+    const iguais = [provisoria('1', 1000), naDefinitiva('1', 1000)];
+    expect(partes([sobrando(1000, 900), definitiva], iguais)).toEqual([['sem_causa', 100]]);
+  });
+
+  it('linha que cabe no mês, mas não na diferença do ano, não conta', () => {
+    // Janeiro: 100 a mais na Betha. Fevereiro: 50 a mais no TCE. No ano, sobram 50.
+    const cruzamentos = [
+      cruzamento({ natureza: PROVISORIA, mes: 1, betha: 100, tce: null }),
+      cruzamento({ natureza: PROVISORIA, mes: 2, betha: null, tce: 50 }),
+      definitiva,
+    ];
+    expect(partes(cruzamentos, [provisoria('1', 100), naDefinitiva('1', 100)])).toEqual([['sem_causa', 50]]);
+  });
+
+  it('a parte em duas rubricas nunca passa da diferença: a linha que não cabe fica de fora', () => {
+    const iguais = [provisoria('1', 100), provisoria('2', 100), naDefinitiva('1', 100), naDefinitiva('2', 100)];
+    expect(partes([sobrando(350, 200), definitiva], iguais)).toEqual([
+      ['duas_rubricas', 100],
+      ['sem_causa', 50],
+    ]);
+  });
+
+  it('linha de um mês em que a natureza bate com o TCE não conta', () => {
+    const iguais = [provisoria('1', 100, { mes: 1 }), naDefinitiva('1', 100, { mes: 1 })];
+    const cruzamentos = [
+      cruzamento({ natureza: PROVISORIA, mes: 1, betha: 100, tce: 100 }),
+      cruzamento({ natureza: PROVISORIA, mes: 2, betha: 100, tce: null }),
+      definitiva,
+    ];
+    expect(partes(cruzamentos, iguais)).toEqual([['sem_causa', 100]]);
+  });
+
+  it('linha igual na mesma natureza não conta', () => {
+    const iguais = [provisoria('1', 100), provisoria('2', 100)];
+    expect(partes([sobrando(200), definitiva], iguais)).toEqual([['sem_causa', 200]]);
+  });
+
+  it.each([
+    ['em outra entidade', { ent: '319' }],
+    ['em outro mês', { mes: 2 }],
+  ])('linha igual %s não conta', (_, campos) => {
+    const iguais = [provisoria('1', 100), naDefinitiva('1', 100, campos)];
+    expect(partes([sobrando(100), definitiva], iguais)).toEqual([['sem_causa', 100]]);
+  });
+
+  it('natureza em que o TCE é maior não casa linhas', () => {
+    const iguais = [provisoria('1', 50), naDefinitiva('1', 50)];
+    expect(partes([sobrando(100, 150), definitiva], iguais)).toEqual([['sem_causa', -50]]);
+  });
+
+  it('explicação inteira vence a parcial: mesmo valor em dois meses, antes das linhas iguais', () => {
+    const { discrepancias } = receitaConferida([sobrando(100), definitiva], {
+      linhasRepetidas: [provisoria('1', 40), naDefinitiva('1', 40)],
+      repetidasMeses: [{ ent: '728', nat: PROVISORIA, mes: 1, outroMes: 2, v: 100 }],
+    });
+    expect(tiposDe(discrepancias)).toEqual([['mes_repetido', 100]]);
+  });
+
+  it('a nota de uma linha diz o mês, o valor e a rubrica, e que a outra bate com o TCE', () => {
+    const { discrepancias } = receitaConferida([sobrando(100), definitiva], {
+      linhasRepetidas: [provisoria('1', 100), naDefinitiva('1', 100)],
+    });
+    expect(discrepancias[0]?.nota).toBe(
+      `Em janeiro, o mesmo valor (R$${NBSP}100,00) também foi lançado na rubrica 13210111, que bate com o TCE: possível lançamento em duplicidade na Betha.`,
+    );
+  });
+
+  it('a nota da natureza dividida diz quantas linhas, quanto e o que resta, nas duas partes', () => {
+    const { discrepancias } = receitaConferida([sobrando(380), definitiva], {
+      linhasRepetidas: [provisoria('1', 200), provisoria('2', 100), naDefinitiva('1', 200), naDefinitiva('2', 100)],
+    });
+    const esperada = `2 linhas de janeiro (R$${NBSP}300,00) têm o mesmo valor, no mesmo mês, na rubrica 13210111, que bate com o TCE: possível lançamento em duplicidade na Betha. Restam R$${NBSP}80,00 sem padrão.`;
+    expect(discrepancias.map((d) => d.nota)).toEqual([esperada, esperada]);
+  });
+});
+
 describe('tipos de padrão conhecido', () => {
   const EM_DOIS_MESES = { repetidasMeses: [{ ent: '728', nat: '11125001', mes: 1, outroMes: 2, v: 50 }] };
 
@@ -1226,7 +1407,7 @@ describe('tipos de padrão conhecido', () => {
       cruzamento({ natureza: '11125001', betha: 150, tce: 100 }),
       cruzamento({ natureza: '17115101', betha: 100, tce: 150 }),
     ];
-    const repetidas = [{ ent: '728', nat: '11125001', outra: '11125002', mes: 1, v: 50 }];
+    const linhasRepetidas = [linhaIgual('a', '11125001', 50), linhaIgual('b', '11125002', 50)];
     const daPrimeira = (pistas: Partial<PistasDaReceita>) =>
       receitaConferida(NATUREZAS, pistas).discrepancias.find((d) => d.natureza === '11125001')?.tipo;
 
@@ -1235,11 +1416,11 @@ describe('tipos de padrão conhecido', () => {
     });
 
     it('duas rubricas vence dois meses', () => {
-      expect(daPrimeira({ ...EM_DOIS_MESES, repetidas })).toBe('duas_rubricas');
+      expect(daPrimeira({ ...EM_DOIS_MESES, linhasRepetidas })).toBe('duas_rubricas');
     });
 
     it('o acumulado vence duas rubricas', () => {
-      expect(daPrimeira({ repetidas, ...excesso(50) })).toBe('fora_do_acumulado');
+      expect(daPrimeira({ linhasRepetidas, ...excesso(50) })).toBe('fora_do_acumulado');
     });
   });
 
