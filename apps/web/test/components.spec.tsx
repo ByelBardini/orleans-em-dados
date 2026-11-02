@@ -228,9 +228,10 @@ describe('Fonte', () => {
     );
   });
 
-  it('diz o nível de validação por extenso', () => {
+  it('o nível da conferência vem por extenso, sob o rótulo "Conferência"', () => {
     render(<Fonte meta={META} />);
-    expect(screen.getByText('Somatório conciliado com o totalizador da fonte')).toBeInTheDocument();
+    const nivel = screen.getByText('Somatório conciliado com o totalizador da fonte');
+    expect(nivel.previousElementSibling).toHaveTextContent(/^Conferência$/);
   });
 
   it('status sem texto próprio aparece como veio', () => {

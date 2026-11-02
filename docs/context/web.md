@@ -20,7 +20,7 @@ Dashboard público em React 19 + Vite 6, em TSX. Vive em `apps/web/src/` (pacote
 
 ## Componentes/Módulos
 
-- `Estado`, `Numero`, `Numeros`, `Mi`, `ListaPontos`, `BarrasMensais`, `LinhaAcumulada`, `BarraDividida`, `SeletorTema`, `Alternador`, `Filtros`, `Fonte` (`components.tsx`); `escala(maximo, linhas)` calcula a régua dos gráficos.
+- `Estado`, `Numero`, `Numeros`, `Mi`, `ListaPontos`, `BarrasMensais`, `LinhaAcumulada`, `BarraDividida`, `SeletorTema`, `Alternador`, `Filtros`, `Fonte` (`components.tsx`, com o rótulo "Conferência", nunca "Validação"); `escala(maximo, linhas)` calcula a régua dos gráficos.
 
 ## Regras de negócio
 
@@ -33,7 +33,7 @@ Dashboard público em React 19 + Vite 6, em TSX. Vive em `apps/web/src/` (pacote
 - Situação do empenho na lista: a mesma regra do filtro da API (`sem` é "Sem liquidação"); saldo nulo sai com travessão, sem virar zero.
 - `#discrepancias` é alias da aba Conferência até a Fase 11; `#conferencia` continua funcionando.
 - A aba Conferência destaca só o que está em `semExplicacao`. O que tem causa provável ou é recorrente fica em cinza, em "Já conhecidas", e os totais por entidade e mês ficam neutros.
-- Texto proibido nas páginas de dados: "validado", "irregular", "fraude", "erro", "fantasma". Os specs buscam no container.
+- Texto proibido nas páginas de dados: "validado", "validação", "irregular", "fraude", "erro", "fantasma". Os specs buscam no container.
 
 ## Testes
 

@@ -449,7 +449,7 @@ const STATUS: Record<string, string> = {
   coletado: 'Coletado, ainda não comparado',
 };
 
-// Metadados exibidos em toda seção: fonte, consulta, filtro, data de coleta e nível de validação.
+// Metadados exibidos em toda seção: fonte, consulta, filtro, data de coleta e nível da conferência.
 export function Fonte({ meta }: { meta: Meta | null | undefined }) {
   if (!meta) return null;
   return (
@@ -472,7 +472,7 @@ export function Fonte({ meta }: { meta: Meta | null | undefined }) {
         <dd>
           {numero(meta.capturados)} de {numero(meta.totalHits)} ({numero(meta.idsUnicos)} IDs únicos)
         </dd>
-        <dt>Validação</dt>
+        <dt>Conferência</dt>
         <dd>{STATUS[meta.status] ?? meta.status}</dd>
         {meta.conferencia.map((c) => (
           <div key={c.campo} className="fonte-conferencia">
