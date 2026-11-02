@@ -1,0 +1,125 @@
+{
+  "status": 200,
+  "tipo": "application/json; charset=utf-8",
+  "disposicao": null,
+  "corpo": {
+    "meta": {
+      "coletaId": 2,
+      "fonte": "Portal da Transparência Betha — Orleans/SC",
+      "consultaId": 57140,
+      "consultaNome": "Execução Detalhada de Despesas",
+      "urlOrigem": "https://transparencia.betha.cloud/#/mJRAZlfGu2RI9KNBWj49aw==/consulta/57140",
+      "ano": 2025,
+      "filtro": {
+        "anoExercicio": [
+          "2025"
+        ]
+      },
+      "origem": "arquivo",
+      "iniciadoEm": "2025-03-01T12:00:00.000Z",
+      "coletadoEm": "2025-03-01T12:00:00.000Z",
+      "totalHits": 6,
+      "capturados": 6,
+      "idsUnicos": 6,
+      "camposAusentes": {},
+      "status": "totalizador_conciliado",
+      "exemplo": false,
+      "conferencia": []
+    },
+    "conferencia": {
+      "disponivel": true,
+      "parcial": true,
+      "dataCorte": "2025-02-05"
+    },
+    "totais": {
+      "quantidade": 1,
+      "empenhado": 15000,
+      "empenhadoLiquido": 15000,
+      "liquidado": 0,
+      "pago": 0,
+      "semValoresDeExecucao": 0,
+      "semValoresDeExecucaoValor": 0,
+      "saldoAPagar": 0,
+      "comSaldoAPagar": 0,
+      "credores": 1,
+      "excluidos": 0,
+      "aguardandoTce": 0,
+      "emDiscrepancia": 0
+    },
+    "porMes": [
+      {
+        "chave": 1,
+        "quantidade": 1,
+        "empenhado": 15000,
+        "empenhadoLiquido": 15000,
+        "liquidado": 0,
+        "pago": 0
+      }
+    ],
+    "porEntidade": [
+      {
+        "chave": "728",
+        "entidade": {
+          "nome": "Prefeitura Municipal",
+          "sigla": "Prefeitura",
+          "status": "inferido"
+        },
+        "quantidade": 3,
+        "empenhado": 173000,
+        "empenhadoLiquido": 173000,
+        "liquidado": 113000,
+        "pago": 93000
+      },
+      {
+        "chave": "319",
+        "entidade": {
+          "nome": "Fundo Municipal de Saúde",
+          "sigla": "FMS",
+          "status": "inferido"
+        },
+        "quantidade": 1,
+        "empenhado": 15000,
+        "empenhadoLiquido": 15000,
+        "liquidado": 0,
+        "pago": 0
+      }
+    ],
+    "porOrgao": [
+      {
+        "chave": "FUNDO MUNICIPAL DE SADE",
+        "nome": "FUNDO MUNICIPAL DE SAÚDE",
+        "quantidade": 1,
+        "empenhado": 15000,
+        "empenhadoLiquido": 15000,
+        "liquidado": 0,
+        "pago": 0
+      }
+    ],
+    "porCredor": [
+      {
+        "chave": "LABORATORIO EXEMPLO LTDA",
+        "nome": "LABORATORIO EXEMPLO LTDA",
+        "orgaoPrincipal": "FUNDO MUNICIPAL DE SAÚDE",
+        "quantidade": 1,
+        "empenhado": 15000,
+        "empenhadoLiquido": 15000,
+        "liquidado": 0,
+        "pago": 0
+      }
+    ],
+    "maiores": [
+      {
+        "id": "211:319:2001",
+        "entidade": "FMS",
+        "numero": 5,
+        "data": "2025-01-20",
+        "orgao": "FUNDO MUNICIPAL DE SAÚDE",
+        "credor": "LABORATORIO EXEMPLO LTDA",
+        "historico": "Exames (exemplo)",
+        "empenhado": 15000,
+        "empenhadoLiquido": 15000,
+        "pago": 0
+      }
+    ]
+  }
+}

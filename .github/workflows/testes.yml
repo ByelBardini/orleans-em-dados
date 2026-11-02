@@ -1,0 +1,106 @@
+# Cada fragmento roda em paralelo e só quando o que ele cobre mudou; os mesmos comandos rodam local.
+name: Testes
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+# Um push novo cancela a rodada anterior do mesmo PR.
+concurrency:
+  group: testes-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  pull-requests: read
+
+jobs:
+  mudancas:
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    outputs:
+      servidor: ${{ steps.filtro.outputs.servidor }}
+      web: ${{ steps.filtro.outputs.web }}
+    steps:
+      - uses: actions/checkout@v7
+      - uses: dorny/paths-filter@v4
+        id: filtro
+        with:
+          filters: |
+            comum: &comum
+              - .github/**
+              - package.json
+              - pnpm-lock.yaml
+              - pnpm-workspace.yaml
+              - tsconfig.base.json
+              - vitest.config.ts
+            servidor:
+              - *comum
+              - apps/api/**
+              - apps/worker/**
+              - packages/**
+              - examples/**
+            web:
+              - *comum
+              - apps/web/**
+              - packages/contracts/**
+
+  estatico:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v7
+      - uses: ./.github/actions/preparar
+      - run: pnpm lint
+      - run: pnpm format:check
+      - run: pnpm typecheck
+
+  unit-servidor:
+    needs: mudancas
+    if: needs.mudancas.outputs.servidor == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v7
+      - uses: ./.github/actions/preparar
+      - run: pnpm test:servidor
+
+  unit-web:
+    needs: mudancas
+    if: needs.mudancas.outputs.web == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v7
+      - uses: ./.github/actions/preparar
+      - run: pnpm test:web
+
+  # Um Postgres descartável por fragmento: os specs de integração dividem o banco e rodam em série.
+  integracao:
+    needs: mudancas
+    if: needs.mudancas.outputs.servidor == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    strategy:
+      fail-fast: false
+      matrix:
+        pasta: [apps, packages]
+    services:
+      postgres:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_USER: orleans
+          POSTGRES_PASSWORD: orleans
+          POSTGRES_DB: orleans_teste
+        ports:
+          - 5434:5432
+        options: >-
+          --health-cmd "pg_isready -U orleans -d orleans_teste"
+          --health-interval 2s
+          --health-timeout 3s
+          --health-retries 20
+    steps:
+      - uses: actions/checkout@v7
+      - uses: ./.github/actions/preparar
+      - run: pnpm test:integracao ${{ matrix.pasta }}/

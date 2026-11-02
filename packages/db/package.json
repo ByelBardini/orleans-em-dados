@@ -1,0 +1,23 @@
+{
+  "name": "@orleans-em-dados/db",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./conferencias": "./src/conferencia/conferencia.service.ts"
+  },
+  "scripts": {
+    "migrar": "tsx --env-file-if-exists=../../.env src/migrar.ts",
+    "gerar": "drizzle-kit generate",
+    "typecheck": "tsc"
+  },
+  "dependencies": {
+    "drizzle-orm": "^0.45.4",
+    "pg": "^8.16.0"
+  },
+  "devDependencies": {
+    "@types/pg": "^8.23.1",
+    "drizzle-kit": "^0.31.11"
+  }
+}

@@ -9,7 +9,7 @@
 
 **Decisão arquitetural:** usar o **Portal da Transparência Betha** como fonte principal dos dados publicados pelo município, preservando registros e informações das entidades; usar **TCE-SC/e-Sfinge, SICONFI (DCA/RREO/RGF)** como fontes de comparação, especialmente para exercícios encerrados. Onde o portal Betha consultado não abranger o Legislativo, utilizar fonte específica da Câmara/TCE-SC, com a origem visível.
 
-**Regra fundamental:** não somar consultas que representam diferentes *visões* da mesma despesa ou receita. Exemplo: empenhos detalhados, despesas por credor e despesas por programa podem se referir à mesma execução orçamentária. A consulta de empenhos originais não substitui a despesa líquida de anulações.
+**Regra fundamental:** não somar consultas que representam diferentes _visões_ da mesma despesa ou receita. Exemplo: empenhos detalhados, despesas por credor e despesas por programa podem se referir à mesma execução orçamentária. A consulta de empenhos originais não substitui a despesa líquida de anulações.
 
 **Principais descobertas validadas em 2025:**
 
@@ -25,11 +25,13 @@
 
 ### 2.1 Primeira versão
 
-1. **Visão geral:** ano/entidade, receita arrecadada, orçamento previsto/atualizado, despesa empenhada líquida, liquidada e paga; gráficos mensais e distribuição por entidade.
-2. **Receitas:** natureza da receita, rubrica/código, evolução mensal, composição das receitas e orçamento versus realizado; preservar valores negativos (ajustes/reclassificações).
-3. **Despesas:** execução orçamentária por entidade e categoria; consulta de empenhos individuais por órgão, credor, número, histórico e data.
-4. **Conferência das fontes:** Betha x TCE-SC/SICONFI para exercícios encerrados; destacar diferença absoluta e percentual, abrangência, método e data da apuração.
-5. **Metadados e transparência:** fonte, ID da consulta, URL de origem, filtro, exercício, data de coleta, entidade, versão do cálculo e status de validação.
+As páginas de dados só exibem como número principal o que foi conferido entre as fontes, ou o que tem uma fonte só, rotulada como tal (§7.2).
+
+1. **Visão geral:** ano/entidade, receita arrecadada conferida, orçamento previsto/atualizado (fonte única), despesa empenhada líquida, liquidada e paga conferidas; gráficos mensais e distribuição por entidade.
+2. **Receitas:** receita conferida por natureza (rubrica de 14 dígitos quando todos os meses batem; natureza de 8 dígitos com mês divergente), evolução mensal, composição e orçamento versus realizado; preservar valores negativos (ajustes/reclassificações); a conta conferido + em discrepância + aguardando = total da fonte ao lado.
+3. **Despesas:** execução orçamentária conferida por entidade e categoria; consulta dos empenhos casados entre as fontes por órgão, credor, número, histórico e data.
+4. **Discrepâncias:** cada valor retirado, em Betha x TCE-SC, por área e tipo, com o valor de cada fonte, a diferença e o lado que registra mais, a situação do caso (confirmado no portal, em parte, calculado, a rever), com a explicação de cada uma; o que aguarda o TCE-SC à parte; a comparação por entidade e mês; sem nome de credor nem histórico.
+5. **Metadados e transparência:** fonte, ID da consulta, URL de origem, filtro, exercício, data de coleta, entidade, versão do cálculo e nível da conferência.
 
 ### 2.2 Fora do escopo inicial / próximas etapas
 
@@ -37,30 +39,30 @@ Saúde e educação com indicadores legais, RCL e despesa de pessoal, dívida/re
 
 ## 3. Inventário de fontes
 
-| Fonte | Papel no projeto | Endereço |
-|---|---|---|
-| Betha — Transparência de Orleans | **Dados operacionais principais** de Executivo, fundos e autarquias | https://transparencia.betha.cloud/#/mJRAZlfGu2RI9KNBWj49aw==/consulta/57140 |
-| API de consultas Betha | Dados estruturados e totalizadores do portal; API interna observada, estabilidade a confirmar | `https://api.transparencia.betha.cloud` |
-| TCE-SC / Farol / e-Sfinge | Conferência anual, tabelas por unidade gestora, incluindo Câmara | https://servicos.tcesc.tc.br/farol_externo/ |
-| SICONFI / Tesouro Nacional | DCA, RREO e RGF; auditoria e séries padronizadas | https://www.siconfi.tesouro.gov.br/ |
-| API SICONFI | Possível ingestão automática de demonstrativos oficiais | https://apidatalake.tesouro.gov.br/docs/siconfi/ |
-| IBGE — Localidades, Agregados, SIDRA | Indicadores demográficos e socioeconômicos futuros | https://servicodados.ibge.gov.br/api/docs |
+| Fonte                                | Papel no projeto                                                                              | Endereço                                                                    |
+| ------------------------------------ | --------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------- |
+| Betha — Transparência de Orleans     | **Dados operacionais principais** de Executivo, fundos e autarquias                           | https://transparencia.betha.cloud/#/mJRAZlfGu2RI9KNBWj49aw==/consulta/57140 |
+| API de consultas Betha               | Dados estruturados e totalizadores do portal; API interna observada, estabilidade a confirmar | `https://api.transparencia.betha.cloud`                                     |
+| TCE-SC / Farol / e-Sfinge            | Conferência anual, tabelas por unidade gestora, incluindo Câmara                              | https://servicos.tcesc.tc.br/farol_externo/                                 |
+| SICONFI / Tesouro Nacional           | DCA, RREO e RGF; auditoria e séries padronizadas                                              | https://www.siconfi.tesouro.gov.br/                                         |
+| API SICONFI                          | Possível ingestão automática de demonstrativos oficiais                                       | https://apidatalake.tesouro.gov.br/docs/siconfi/                            |
+| IBGE — Localidades, Agregados, SIDRA | Indicadores demográficos e socioeconômicos futuros                                            | https://servicodados.ibge.gov.br/api/docs                                   |
 
 **Atenção à abrangência:** “dados de Orleans” não implica automaticamente “Prefeitura + fundos + autarquias + Câmara”. A consulta Betha analisada trouxe quatro entidades; o painel de despesas do TCE-SC apresentou cinco unidades gestoras. Documentar o escopo de cada valor.
 
 ### 3.1 Catálogo Betha relevante
 
-| ID | Nome/objetivo | Uso previsto |
-|---|---|---|
-| `57140` | Execução Detalhada de Despesas | Empenhos individuais |
-| `57170` | Despesas Orçamentárias | Valor empenhado atualizado, liquidado atualizado, pago atualizado |
-| `57171` | Despesas por Credor | Visão por credor; **não adicionar aos empenhos** |
-| `57172` | Despesas por Programas e Ações | Análise funcional/temática |
-| `57178` | Despesas com Pessoal | Recorte de pessoal, não total geral |
-| `57153` | Receitas Orçamentárias | Valores mensais e orçamento |
-| `57133` | Receita Prevista × Realizada | Visão comparativa |
-| `57154` | Receitas Orçamentárias Diárias | Investigar lançamentos individualmente |
-| `57150` | Receitas Tributárias Arrecadadas | Recorte tributário |
+| ID      | Nome/objetivo                    | Uso previsto                                                      |
+| ------- | -------------------------------- | ----------------------------------------------------------------- |
+| `57140` | Execução Detalhada de Despesas   | Empenhos individuais                                              |
+| `57170` | Despesas Orçamentárias           | Valor empenhado atualizado, liquidado atualizado, pago atualizado |
+| `57171` | Despesas por Credor              | Visão por credor; **não adicionar aos empenhos**                  |
+| `57172` | Despesas por Programas e Ações   | Análise funcional/temática                                        |
+| `57178` | Despesas com Pessoal             | Recorte de pessoal, não total geral                               |
+| `57153` | Receitas Orçamentárias           | Valores mensais e orçamento                                       |
+| `57133` | Receita Prevista × Realizada     | Visão comparativa                                                 |
+| `57154` | Receitas Orçamentárias Diárias   | Investigar lançamentos individualmente                            |
+| `57150` | Receitas Tributárias Arrecadadas | Recorte tributário                                                |
 
 Os IDs foram descobertos no menu/configuração pública do portal e observados em requisições reais. A API pode mudar: **não considerar contratos oficiais de integração sem confirmação da Betha**.
 
@@ -176,15 +178,14 @@ async function novoTokenAnonimo() {
     redirect_uri: 'https://transparencia.betha.cloud/auth-callback.html',
     scope: 'transparencia.public',
     bth_ignore_origin: 'true',
-    access_mode: 'anonymous'
+    access_mode: 'anonymous',
   });
   const r = await fetch(u, { redirect: 'manual', signal: AbortSignal.timeout(30000) });
   if (r.status !== 303) throw new Error(`OAuth: HTTP ${r.status}`);
   const loc = r.headers.get('location');
   if (!loc) throw new Error('OAuth sem Location');
   const redirect = new URL(loc);
-  if (redirect.origin !== 'https://transparencia.betha.cloud' ||
-      redirect.pathname !== '/auth-callback.html') {
+  if (redirect.origin !== 'https://transparencia.betha.cloud' || redirect.pathname !== '/auth-callback.html') {
     throw new Error('Destino OAuth não esperado');
   }
   const hash = new URLSearchParams(redirect.hash.slice(1));
@@ -198,8 +199,11 @@ async function novoTokenAnonimo() {
 
 async function consultarPrimeiraPagina(token, consulta, filtro, limit = 20) {
   const qs = new URLSearchParams({
-    sortBy: 'null', sortDirection: 'null', offset: '0',
-    limit: String(limit), hiperlink: 'false'
+    sortBy: 'null',
+    sortDirection: 'null',
+    offset: '0',
+    limit: String(limit),
+    hiperlink: 'false',
   });
   const r = await fetch(`${API}/transparencia/api/busca-textual/${consulta}?${qs}`, {
     method: 'POST',
@@ -207,10 +211,10 @@ async function consultarPrimeiraPagina(token, consulta, filtro, limit = 20) {
       Authorization: `Bearer ${token}`,
       'app-context': CONTEXT,
       'Content-Type': 'application/json;charset=UTF-8',
-      Accept: 'application/json'
+      Accept: 'application/json',
     },
     body: JSON.stringify(filtro),
-    signal: AbortSignal.timeout(30000)
+    signal: AbortSignal.timeout(30000),
   });
   if (!r.ok) throw new Error(`Betha: HTTP ${r.status}`);
   return r.json();
@@ -231,27 +235,27 @@ O exemplo cobre uma página e **não** é o job de ingestão completo. Para prod
 
 Principais campos de `sourceAsMap`:
 
-| Campo | Semântica |
-|---|---|
-| `numeroEmpenho` | Número local do empenho; não assumir unicidade global |
-| `dataEmpenho` | Data de emissão do empenho |
-| `descricaoOrgao` | Órgão/secretaria (variações e erros de caracteres observados) |
-| `credor.nomeCredor` | Credor |
-| `historicoEmpenho` | Descrição textual |
-| `valorEmpenho` | Valor do empenho no formato dessa consulta |
-| `valorLiquidadoEmpenho` | Total liquidado do empenho descontadas anulações de liquidação (descrição Betha) |
-| `valorPagoEmpenho` | Total pago do empenho descontadas anulações de pagamento (descrição Betha) |
-| `saldoAPagar` | Campo informado quando presente; não inferir contabilmente a partir de outros campos |
+| Campo                   | Semântica                                                                            |
+| ----------------------- | ------------------------------------------------------------------------------------ |
+| `numeroEmpenho`         | Número local do empenho; não assumir unicidade global                                |
+| `dataEmpenho`           | Data de emissão do empenho                                                           |
+| `descricaoOrgao`        | Órgão/secretaria (variações e erros de caracteres observados)                        |
+| `credor.nomeCredor`     | Credor                                                                               |
+| `historicoEmpenho`      | Descrição textual                                                                    |
+| `valorEmpenho`          | Valor do empenho no formato dessa consulta                                           |
+| `valorLiquidadoEmpenho` | Total liquidado do empenho descontadas anulações de liquidação (descrição Betha)     |
+| `valorPagoEmpenho`      | Total pago do empenho descontadas anulações de pagamento (descrição Betha)           |
+| `saldoAPagar`           | Campo informado quando presente; não inferir contabilmente a partir de outros campos |
 
 **Campos ausentes:** 278 registros não traziam `valorLiquidadoEmpenho`, `valorPagoEmpenho` nem `saldoAPagar`. Preservar `NULL` e reportar a taxa de ausência. Na soma compatível com o totalizador, somaram-se apenas valores presentes; não interpretar ausência como evidência de zero.
 
 #### Resultado e conferência com totalizadores da própria Betha
 
-| Campo | Soma extraída | Totalizador `57140` | Diferença |
-|---|---:|---:|---:|
-| `valorEmpenho` | R$ 160.833.350,29 | R$ 160.833.350,29 | R$ 0,00 |
-| `valorLiquidadoEmpenho` | R$ 142.524.230,52 | R$ 142.524.230,52 | R$ 0,00 |
-| `valorPagoEmpenho` | R$ 142.524.230,52 | R$ 142.524.230,52 | R$ 0,00 |
+| Campo                   |     Soma extraída | Totalizador `57140` | Diferença |
+| ----------------------- | ----------------: | ------------------: | --------: |
+| `valorEmpenho`          | R$ 160.833.350,29 |   R$ 160.833.350,29 |   R$ 0,00 |
+| `valorLiquidadoEmpenho` | R$ 142.524.230,52 |   R$ 142.524.230,52 |   R$ 0,00 |
+| `valorPagoEmpenho`      | R$ 142.524.230,52 |   R$ 142.524.230,52 |   R$ 0,00 |
 
 **Não usar R$ 160,83 milhões como despesa empenhada líquida anual:** o indicador de orçamento executado deve preferir `57170` (`valorEmpenhadoAtualizado`) e declarar abrangência. A igualdade de valores liquidados e pagos em `57140` foi reproduzida pelo totalizador, mas merece ressalva por não refletir necessariamente toda a realidade de pagamentos da contabilidade.
 
@@ -259,12 +263,12 @@ Principais campos de `sourceAsMap`:
 
 Valores filtrados para 2025 e individualizados por entidade no portal:
 
-| Entidade | Empenhado atualizado | Liquidado atualizado | Pago atualizado |
-|---|---:|---:|---:|
-| Prefeitura | R$ 96.456.944,43 | R$ 91.608.142,40 | R$ 91.608.142,40 |
-| Fundo Municipal de Saúde | R$ 44.499.944,22 | R$ 42.389.952,53 | R$ 42.389.952,53 |
-| SAMAE | R$ 12.192.810,66 | R$ 11.517.145,30 | R$ 11.133.139,14 |
-| Fundação Ambiental | R$ 794.559,11 | R$ 794.559,11 | R$ 794.559,11 |
+| Entidade                      |  Empenhado atualizado |  Liquidado atualizado |       Pago atualizado |
+| ----------------------------- | --------------------: | --------------------: | --------------------: |
+| Prefeitura                    |      R$ 96.456.944,43 |      R$ 91.608.142,40 |      R$ 91.608.142,40 |
+| Fundo Municipal de Saúde      |      R$ 44.499.944,22 |      R$ 42.389.952,53 |      R$ 42.389.952,53 |
+| SAMAE                         |      R$ 12.192.810,66 |      R$ 11.517.145,30 |      R$ 11.133.139,14 |
+| Fundação Ambiental            |         R$ 794.559,11 |         R$ 794.559,11 |         R$ 794.559,11 |
 | **Total Betha (4 entidades)** | **R$ 153.944.258,42** | **R$ 146.309.799,34** | **R$ 145.925.793,18** |
 
 Descrição Betha: `valorEmpenhadoAtualizado` considera empenhos e suas anulações; `valorLiquidadoAtualizado`, liquidações e anulações; `valorPagoAtualizado`, pagamentos e anulações.
@@ -275,11 +279,11 @@ O painel de despesas do TCE-SC de 2025 apresentou **5 unidades gestoras**, inclu
 
 **Câmara Municipal de Orleans: R$ 2.981.800,76 empenhado, R$ 2.981.800,76 liquidado, R$ 2.981.800,76 pago.**
 
-| Etapa | Betha (4 entidades) | Câmara (TCE-SC) | Consolidado reconciliado / TCE-SC |
-|---|---:|---:|---:|
-| Empenhado | R$ 153.944.258,42 | R$ 2.981.800,76 | **R$ 156.926.059,18** |
-| Liquidado | R$ 146.309.799,34 | R$ 2.981.800,76 | **R$ 149.291.600,10** |
-| Pago | R$ 145.925.793,18 | R$ 2.981.800,76 | **R$ 148.907.593,94** |
+| Etapa     | Betha (4 entidades) | Câmara (TCE-SC) | Consolidado reconciliado / TCE-SC |
+| --------- | ------------------: | --------------: | --------------------------------: |
+| Empenhado |   R$ 153.944.258,42 | R$ 2.981.800,76 |             **R$ 156.926.059,18** |
+| Liquidado |   R$ 146.309.799,34 | R$ 2.981.800,76 |             **R$ 149.291.600,10** |
+| Pago      |   R$ 145.925.793,18 | R$ 2.981.800,76 |             **R$ 148.907.593,94** |
 
 Os três totais resultantes coincidem **exatamente** com o painel de despesas do TCE-SC e valores da DCA apresentados na investigação. Esta conciliação é específica de **2025** e não deve ser generalizada para qualquer ano sem novo teste.
 
@@ -291,10 +295,10 @@ Os três totais resultantes coincidem **exatamente** com o painel de despesas do
 
 **Filtro correto:** `{"ano":["2025"]}`; **1.469 registros**; **1.469 IDs únicos**; **nenhum campo faltante** para `valorOrcadoAtualizado` ou `valorArrecadadoNoMes`. Existem registros negativos de arrecadação mensal; foram observados **7** no levantamento, preservados na soma.
 
-| Campo | Soma extraída | Totalizador Betha | Diferença |
-|---|---:|---:|---:|
-| `valorOrcadoAtualizado` | R$ 149.083.697,04 | R$ 149.083.697,04 | R$ 0,00 |
-| `valorArrecadadoNoMes` | R$ 171.092.955,92 | R$ 171.092.955,92 | R$ 0,00 |
+| Campo                   |     Soma extraída | Totalizador Betha | Diferença |
+| ----------------------- | ----------------: | ----------------: | --------: |
+| `valorOrcadoAtualizado` | R$ 149.083.697,04 | R$ 149.083.697,04 |   R$ 0,00 |
+| `valorArrecadadoNoMes`  | R$ 171.092.955,92 | R$ 171.092.955,92 |   R$ 0,00 |
 
 Outros campos: `rubricaNatureza` (tratar como string), `descricaoNatureza`, `valorOrcado`, `valorOrcadoDeducoes`, `valorLancadoNoMes`, `valorArrecadadoAteMes` (acumulado), `percentualRealizado`.
 
@@ -302,13 +306,13 @@ Outros campos: `rubricaNatureza` (tratar como string), `descricaoNatureza`, `val
 
 ### 6.2 Receita Betha por entidade, confirmada por filtros
 
-| Entidade | Orçamento atualizado | Arrecadação |
-|---|---:|---:|
-| Prefeitura | R$ 116.270.133,66 | R$ 134.471.455,26 |
-| Fundo Municipal de Saúde | R$ 17.029.000,00 | R$ 25.280.415,83 |
-| SAMAE | R$ 15.665.563,38 | R$ 11.219.933,18 |
-| Fundação Ambiental | R$ 119.000,00 | R$ 121.151,65 |
-| **Total** | **R$ 149.083.697,04** | **R$ 171.092.955,92** |
+| Entidade                 |  Orçamento atualizado |           Arrecadação |
+| ------------------------ | --------------------: | --------------------: |
+| Prefeitura               |     R$ 116.270.133,66 |     R$ 134.471.455,26 |
+| Fundo Municipal de Saúde |      R$ 17.029.000,00 |      R$ 25.280.415,83 |
+| SAMAE                    |      R$ 15.665.563,38 |      R$ 11.219.933,18 |
+| Fundação Ambiental       |         R$ 119.000,00 |         R$ 121.151,65 |
+| **Total**                | **R$ 149.083.697,04** | **R$ 171.092.955,92** |
 
 O portal ofereceu opções com nomes duplicados para Fundo de Saúde e Fundação Ambiental; uma opção de cada retornou zero. **Não assumir que são pessoas jurídicas distintas**: mapear por ID oficial da entidade e conferir o cadastro. A grafia da Fundação Ambiental também apareceu corrompida em algumas consultas.
 
@@ -316,13 +320,13 @@ O portal ofereceu opções com nomes duplicados para Fundo de Saúde e Fundaçã
 
 O painel de planejamento/execução do TCE-SC exibiu receita realizada **R$ 170.915.184,25** e receita prevista **R$ 137.628.308,90**. A comparação de receita prevista com `valorOrcadoAtualizado` Betha **não é equivalente até verificar o critério (inicial x atualizada)**.
 
-| Entidade | Betha: arrecadado | TCE-SC: arrecadado líquido | Betha − TCE-SC |
-|---|---:|---:|---:|
-| Prefeitura | R$ 134.471.455,26 | R$ 134.468.170,70* | +R$ 3.284,56 |
-| Fundo Municipal de Saúde | R$ 25.280.415,83 | R$ 24.710.279,03 | +R$ 570.136,80 |
-| SAMAE | R$ 11.219.933,18 | R$ 11.615.582,87 | −R$ 395.649,69 |
-| Fundação Ambiental | R$ 121.151,65 | R$ 121.151,65 | R$ 0,00 |
-| **Total** | **R$ 171.092.955,92** | **R$ 170.915.184,25** | **+R$ 177.771,67** |
+| Entidade                 |     Betha: arrecadado | TCE-SC: arrecadado líquido |     Betha − TCE-SC |
+| ------------------------ | --------------------: | -------------------------: | -----------------: |
+| Prefeitura               |     R$ 134.471.455,26 |         R$ 134.468.170,70* |       +R$ 3.284,56 |
+| Fundo Municipal de Saúde |      R$ 25.280.415,83 |           R$ 24.710.279,03 |     +R$ 570.136,80 |
+| SAMAE                    |      R$ 11.219.933,18 |           R$ 11.615.582,87 |     −R$ 395.649,69 |
+| Fundação Ambiental       |         R$ 121.151,65 |              R$ 121.151,65 |            R$ 0,00 |
+| **Total**                | **R$ 171.092.955,92** |      **R$ 170.915.184,25** | **+R$ 177.771,67** |
 
 \* Prefeitura TCE-SC **inferida por diferença dos totais**, não obtida em totalizador individual de centavos; validar diretamente em exportação antes de marcar como fechada por entidade.
 
@@ -334,20 +338,20 @@ Os arquivos de 2025 `fundo municipal de saude.xlsx` e `samae.xlsx` foram compara
 
 **Fundo Municipal de Saúde:**
 
-| Natureza agrupada | Betha | TCE-SC | Betha − TCE-SC |
-|---|---:|---:|---:|
-| `17135011` — SUS, Atenção Primária | R$ 13.635.187,54 | R$ 13.315.050,74 | +R$ 320.136,80 |
-| `24145001` — Convênios da União/SUS | R$ 2.276.110,00 | R$ 2.026.110,00 | +R$ 250.000,00 |
-| **Soma diferenças** | | | **+R$ 570.136,80** |
+| Natureza agrupada                   |            Betha |           TCE-SC |     Betha − TCE-SC |
+| ----------------------------------- | ---------------: | ---------------: | -----------------: |
+| `17135011` — SUS, Atenção Primária  | R$ 13.635.187,54 | R$ 13.315.050,74 |     +R$ 320.136,80 |
+| `24145001` — Convênios da União/SUS |  R$ 2.276.110,00 |  R$ 2.026.110,00 |     +R$ 250.000,00 |
+| **Soma diferenças**                 |                  |                  | **+R$ 570.136,80** |
 
 **SAMAE:**
 
-| Natureza agrupada | Betha | TCE-SC | Betha − TCE-SC |
-|---|---:|---:|---:|
-| `11130311` — IRRF sobre trabalho | R$ 0,00 no conjunto atribuído ao SAMAE | R$ 428.717,37 | −R$ 428.717,37 |
-| `22130101` — Alienação de bens móveis | R$ 65.800,00 | R$ 32.900,00 | +R$ 32.900,00 |
-| `16110101` — Serviços administrativos e comerciais | R$ 10.830.832,59 | R$ 10.830.664,91 | +R$ 167,68 |
-| **Soma diferenças** | | | **−R$ 395.649,69** |
+| Natureza agrupada                                  |                                  Betha |           TCE-SC |     Betha − TCE-SC |
+| -------------------------------------------------- | -------------------------------------: | ---------------: | -----------------: |
+| `11130311` — IRRF sobre trabalho                   | R$ 0,00 no conjunto atribuído ao SAMAE |    R$ 428.717,37 |     −R$ 428.717,37 |
+| `22130101` — Alienação de bens móveis              |                           R$ 65.800,00 |     R$ 32.900,00 |      +R$ 32.900,00 |
+| `16110101` — Serviços administrativos e comerciais |                       R$ 10.830.832,59 | R$ 10.830.664,91 |         +R$ 167,68 |
+| **Soma diferenças**                                |                                        |                  | **−R$ 395.649,69** |
 
 **Hipóteses NÃO confirmadas:** lançamento duplicado, receita retificada após fechamento, retenção de IRRF registrada em outra entidade, diferença de critério entre arrecadação e arrecadação líquida, reclassificação por rubrica. Não usar linguagem de irregularidade sem prova.
 
@@ -355,20 +359,23 @@ Os arquivos de 2025 `fundo municipal de saude.xlsx` e `samae.xlsx` foram compara
 
 ## 7. Regras de negócio e apresentação
 
-### 7.1 Indicadores e fontes preferidas
+### 7.1 Indicadores, fonte de exibição e conferência
 
-| Indicador | Fonte principal | Observação |
-|---|---|---|
-| Receita arrecadada por mês/natureza | Betha `57153` (`valorArrecadadoNoMes`) | Preservar negativos; não somar acumulados |
-| Receita orçada atualizada | Betha `57153` (`valorOrcadoAtualizado`) | Não comparar diretamente à “prevista” TCE sem alinhar conceito |
-| Empenhos individualizados | Betha `57140` | Mostrar histórico, credor, órgão e número |
-| Despesa empenhada líquida | Betha `57170` (`valorEmpenhadoAtualizado`) | Considera anulações, diferente da soma dos empenhos originais |
-| Despesa liquidada/paga orçamentária | Betha `57170` | Não substituir pelos campos da `57140` |
-| Despesa da Câmara | TCE-SC ou transparência própria da Câmara | Fonte e abrangência explícitas |
-| Despesa municipal com Legislativo | Betha + Câmara, **após conciliação por ano** | Não assumir união automática para todos os anos |
-| Comparação de exercício encerrado | TCE-SC/SICONFI | Exibir diferença, explicação/status e posição temporal |
+| Indicador                                          | Fonte de exibição                                              | Conferida contra                                 | Observação                                                                               |
+| -------------------------------------------------- | -------------------------------------------------------------- | ------------------------------------------------ | ---------------------------------------------------------------------------------------- |
+| Receita arrecadada por mês/natureza                | Betha `57153` (`valorArrecadadoNoMes`), só a parte comum       | TCE-SC por entidade, natureza de 8 dígitos e mês | Preservar negativos; não somar acumulados; a diferença vai para a seção                  |
+| Receita orçada atualizada                          | Betha `57153` (`valorOrcadoAtualizado`)                        | Sem conferência (fonte única)                    | Não comparar diretamente à “prevista” TCE sem alinhar conceito                           |
+| Despesa empenhada, liquidada e paga, ano encerrado | Betha `57170`                                                  | TCE-SC por unidade gestora, nas três etapas      | Linhas de modalidade 71 saem se somam a diferença nas três etapas; senão, a entidade sai |
+| Despesa no ano em curso                            | TCE-SC até a data de corte                                     | Betha `57140`, empenho a empenho                 | Líquido do TCE-SC; empenho depois do corte fica em `aguardando TCE`                      |
+| Empenhos individualizados                          | Identificação e órgão: Betha `57140`; liquidado e pago: TCE-SC | Casamento 1:1 entre as fontes                    | `57140` é valor original, diferente da soma líquida; sem par, vai para a seção           |
+| Órgão/secretaria                                   | Betha `57140`                                                  | Sem conferência (fonte única)                    | O TCE-SC não publica o órgão                                                             |
+| Despesa da Câmara                                  | TCE-SC                                                         | Sem conferência (fonte única)                    | Sempre à parte; não soma com as entidades                                                |
+| Despesa municipal com Legislativo                  | Não exibida como soma                                          | —                                                | Não assumir união automática para todos os anos                                          |
+| Comparação entre as fontes                         | Seção Discrepâncias                                            | Betha x TCE-SC                                   | Exibir valores, diferença com o lado que registra mais, situação e posição temporal      |
 
 ### 7.2 Status de confiabilidade
+
+Status da coleta, que não muda com a conferência:
 
 - `coletado`: registros armazenados; ainda não comparados.
 - `integridade_validada`: contagem, IDs e filtros consistentes.
@@ -377,12 +384,21 @@ Os arquivos de 2025 `fundo municipal de saude.xlsx` e `samae.xlsx` foram compara
 - `comparacao_externa_com_divergencia`: diferença numérica localizada; **não significa erro**.
 - `comparacao_externa_conciliada`: diferenças explicadas e documentação preservada.
 
-Não chamar “validado” sem especificar **o nível** (integridade, totalizador, comparação externa). Exercício encerrado não significa imutável: aceitar retificações.
+Nível que o público vê em cada número, calculado na consulta:
+
+- `conferido com o TCE-SC`: o valor que as duas fontes registram, ao centavo.
+- `conferido com a Betha até DD/MM`: ano em curso; valores do TCE-SC nos empenhos com par na Betha até o corte.
+- `fonte única, sem conferência`: orçamento, órgão e Câmara.
+- `aguardando TCE`: mês que o TCE-SC ainda não recebeu; é pendência, não diferença.
+
+**Regra de exibição:** o painel só exibe como número principal o conferido, ou a fonte única rotulada. O que difere vai para a seção Discrepâncias, e a conta conferido + em discrepância = total da fonte fica ao lado. Igualdade entre as fontes não é auditoria nem homologação contábil.
+
+Não chamar “validado” sem especificar **o nível** (integridade, totalizador, comparação externa); na interface, o termo é "conferido com...". Exercício encerrado não significa imutável: aceitar retificações.
 
 ### 7.3 UX e transparência
 
 - Filtros por **exercício, entidade, competência, órgão, natureza/credor** conforme dados disponíveis.
-- Valor com rótulo exato (*empenhado atualizado*, *liquidado atualizado*, *arrecadado no mês*, etc.).
+- Valor com rótulo exato (_empenhado atualizado_, _liquidado atualizado_, _arrecadado no mês_, etc.).
 - Exibir “última extração”, “período de referência” e “fonte oficial” em cada seção.
 - Na comparação externa, explicitar que uma diferença pode decorrer de critério, abrangência ou atualização.
 - Permitir abrir a consulta original; divulgar metodologia e limitações.
@@ -392,18 +408,18 @@ Não chamar “validado” sem especificar **o nível** (integridade, totalizado
 
 Separar conteúdo **bruto imutável por execução** de conteúdo **normalizado/materializado**. Sugestão de tabelas:
 
-| Tabela | Chave/atributos principais | Finalidade |
-|---|---|---|
-| `fontes` | `id`, `nome`, `url`, `tipo` | Catálogo das origens |
-| `entidades` | `id`, `nome_canonico`, `codigo_betha`, `codigo_tce`, `tipo`, `poder` | Cruzamento Prefeitura/FMS/SAMAE/Fundação/Câmara |
-| `consultas` | `fonte_id`, `consulta_id`, `nome`, `filtro_schema`, `versao` | Metadados dos endpoints |
-| `coletas` | `id`, `consulta_id`, `ano`, `filtros_json`, `started_at`, `finished_at`, `status`, `total_hits`, `capturados`, `hash`, `erro` | Auditoria de jobs |
-| `registros_brutos` | `coleta_id`, `id_externo`, `payload_jsonb`, `payload_hash` | Resposta original, sem perdas |
-| `empenhos` | `id_externo`, `ano`, `entidade_id`, `numero`, `data`, `orgao`, `credor`, `historico`, `valor_empenho`, `valor_liquidado`, `valor_pago`, `saldo` | Pesquisa detalhada |
-| `receitas_mensais` | `id_externo`, `ano`, `entidade_id`, `rubrica`, `mes`, `orcado_atualizado`, `arrecadado_mes`, `arrecadado_ate_mes` | Agregações mensais |
-| `totais_fonte` | `coleta_id`, `campo`, `valor`, `metodologia` | Totalizadores e demonstrativos externos |
-| `conciliacoes` | `ano`, `indicador`, `abrangencia`, `fonte_a`, `fonte_b`, `valor_a`, `valor_b`, `diferenca`, `status`, `nota` | Evidência de auditoria |
-| `mapeamentos_rubrica` | `fonte`, `codigo_original`, `codigo_canonico`, `vigencia` | Padronização controlada por exercício |
+| Tabela                | Chave/atributos principais                                                                                                                      | Finalidade                                      |
+| --------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------- |
+| `fontes`              | `id`, `nome`, `url`, `tipo`                                                                                                                     | Catálogo das origens                            |
+| `entidades`           | `id`, `nome_canonico`, `codigo_betha`, `codigo_tce`, `tipo`, `poder`                                                                            | Cruzamento Prefeitura/FMS/SAMAE/Fundação/Câmara |
+| `consultas`           | `fonte_id`, `consulta_id`, `nome`, `filtro_schema`, `versao`                                                                                    | Metadados dos endpoints                         |
+| `coletas`             | `id`, `consulta_id`, `ano`, `filtros_json`, `started_at`, `finished_at`, `status`, `total_hits`, `capturados`, `hash`, `erro`                   | Auditoria de jobs                               |
+| `registros_brutos`    | `coleta_id`, `id_externo`, `payload_jsonb`, `payload_hash`                                                                                      | Resposta original, sem perdas                   |
+| `empenhos`            | `id_externo`, `ano`, `entidade_id`, `numero`, `data`, `orgao`, `credor`, `historico`, `valor_empenho`, `valor_liquidado`, `valor_pago`, `saldo` | Pesquisa detalhada                              |
+| `receitas_mensais`    | `id_externo`, `ano`, `entidade_id`, `rubrica`, `mes`, `orcado_atualizado`, `arrecadado_mes`, `arrecadado_ate_mes`                               | Agregações mensais                              |
+| `totais_fonte`        | `coleta_id`, `campo`, `valor`, `metodologia`                                                                                                    | Totalizadores e demonstrativos externos         |
+| `conciliacoes`        | `ano`, `indicador`, `abrangencia`, `fonte_a`, `fonte_b`, `valor_a`, `valor_b`, `diferenca`, `status`, `nota`                                    | Evidência de auditoria                          |
+| `mapeamentos_rubrica` | `fonte`, `codigo_original`, `codigo_canonico`, `vigencia`                                                                                       | Padronização controlada por exercício           |
 
 **Recomendações:** `NUMERIC(18,2)` no PostgreSQL, não `FLOAT` monetário; chaves compostas por fonte + ano + ID externo quando necessário; `JSONB` bruto para permitir reprocessamento; não sobrescrever históricos sem guardar a execução anterior. A parte intermediária de IDs Betha (`728`, `319`, `2473`, `320`) deve ser **confirmada** como código de entidade antes de fixar um mapeamento.
 

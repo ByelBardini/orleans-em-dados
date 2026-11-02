@@ -1,0 +1,10 @@
+pnpm-lock.yaml
+node_modules
+dist
+.vite
+coverage
+data
+docs/screens
+.claude/skills/*/fixtures
+apps/api/test/paridade/respostas
+packages/db/drizzle
