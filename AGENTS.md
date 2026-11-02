@@ -44,6 +44,7 @@ Leia o hub da área antes de abrir fonte. O driver do `/testar` indica qual (`le
 - `pnpm test` roda os unit de todos os workspaces, sem banco; `pnpm exec vitest run <spec>` isola um spec; `--project @orleans-em-dados/<workspace>` filtra pelo `name` do pacote.
 - `pnpm test:integracao` roda `*/test/integration/` no projeto `integracao`, contra o Postgres descartável (`pnpm db:teste` sobe na porta 5434, `pnpm db:teste:parar` derruba). O esquema é recriado a cada rodada; a porta 5433 (`pnpm db:subir`, coletas reais) é recusada.
 - Antes de fechar: `pnpm test && pnpm lint`. Todo teste nasce pelo `/testar`.
+- CI (`.github/workflows/testes.yml`, em PR e push na `main`): fragmentos em paralelo, cada um só quando o que cobre mudou. `estatico` (lint, formato, tipos; sempre), `unit-servidor` (`pnpm test:servidor`), `unit-web` (`pnpm test:web`) e `integracao` (`pnpm test:integracao apps/` e `packages/`, um Postgres por fragmento). Dependência nova entre áreas pede ajuste nos filtros do job `mudancas`.
 
 ## Comandos
 
