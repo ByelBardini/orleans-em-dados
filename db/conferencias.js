@@ -21,10 +21,13 @@ const MES_BETHA = '(mes IS NULL OR mes <= $2)';
 const ATE_DATA = '($2::date IS NULL OR data_empenho <= $2::date)';
 
 // Casamento 1:1 por (entidade, número, data, valor original) e ordem de
-// ocorrência: a Betha repete registros com a mesma chave.
+// ocorrência: a Betha repete registros com a mesma chave. Entre repetidos, o
+// primeiro é o que tem execução e o ID mais recente; as cópias antigas da 57140
+// vêm sem os campos de liquidação e com ID menor, e ficam como "só na Betha".
 const EMPENHOS_CASADOS = `
     WITH b AS (SELECT entidade_codigo ent, numero, data_empenho, valor_empenho v, valor_liquidado l, valor_pago p, id_externo,
-                      row_number() OVER (PARTITION BY entidade_codigo, numero, data_empenho, valor_empenho ORDER BY id_externo) ocorrencia
+                      row_number() OVER (PARTITION BY entidade_codigo, numero, data_empenho, valor_empenho
+                                         ORDER BY saldo_a_pagar IS NULL, split_part(id_externo, ':', 3)::bigint DESC) ocorrencia
                FROM empenhos WHERE coleta_id = ${coleta('empenhos')} AND ${ATE_DATA}),
          t AS (SELECT u.entidade_betha ent, u.sigla, numero, data_empenho, valor_original v, valor_liquidado l, valor_pago p, id_externo,
                       row_number() OVER (PARTITION BY codigo_ug, numero, data_empenho, valor_original ORDER BY id_externo) ocorrencia
@@ -124,6 +127,17 @@ const CONSULTAS = {
      AND o.valor_arrecadado_mes = a.valor_arrecadado_mes AND left(o.rubrica, 8) <> left(a.rubrica, 8)
     WHERE a.coleta_id = ${coleta('receitas')} AND a.valor_arrecadado_mes >= 1000 AND a.mes <= $2`,
 
+  // Coerência interna da 57153: o arrecadado no mês deve ser a variação do acumulado
+  // da mesma rubrica. Quando não é, a consulta mantém um lançamento que o próprio
+  // acumulado desconsidera (estorno ou redatação não refletidos na coluna mensal).
+  receitaIncoerente: `
+    WITH r AS (SELECT entidade_codigo ent, ${NAT_BETHA} nat, mes, valor_arrecadado_mes m,
+                      valor_arrecadado_ate_mes - coalesce(lag(valor_arrecadado_ate_mes)
+                        OVER (PARTITION BY id_rubrica_betha ORDER BY mes), 0) variacao
+               FROM receitas WHERE coleta_id = ${coleta('receitas')} AND mes IS NOT NULL)
+    SELECT ent, nat, mes, m - variacao AS excesso FROM r
+    WHERE m <> variacao AND mes <= $2 ORDER BY ent, nat, mes`,
+
   // Câmara: só existe no TCE.
   camara: `
     SELECT count(*)::int AS empenhos, sum(valor_empenhado) AS empenhado, sum(valor_liquidado) AS liquidado,
@@ -146,7 +160,9 @@ const fmt = (v) => v.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL
 // Classifica cada natureza divergente e aponta padrões verificáveis nos próprios números.
 const MESES = ['janeiro', 'fevereiro', 'março', 'abril', 'maio', 'junho', 'julho', 'agosto', 'setembro', 'outubro', 'novembro', 'dezembro'];
 
-function anotarNaturezas(linhas, repetidas) {
+const centavos = (v) => Math.round(v * 100);
+
+function anotarNaturezas(linhas, repetidas, incoerentes) {
   return linhas
     .filter((r) => r.diferenca !== 0)
     .map((r) => {
@@ -154,8 +170,17 @@ function anotarNaturezas(linhas, repetidas) {
       const mesmaEntidade = linhas.filter((o) => o.ent === r.ent && o.natureza !== r.natureza);
       const duplicada = r.diferenca > 0 && repetidas.find((d) => d.ent === r.ent && d.nat === r.natureza && igual(d.v, r.diferenca));
       const compensa = mesmaEntidade.find((o) => o.diferenca !== 0 && igual(o.diferenca, -r.diferenca));
+      const incoerencias = incoerentes.filter((i) => i.ent === r.ent && i.nat === r.natureza);
+      const excesso = incoerencias.reduce((s, i) => s + centavos(i.excesso), 0) / 100;
       let nota;
-      if (duplicada) {
+      if (excesso !== 0) {
+        const porMes = new Map();
+        for (const i of incoerencias) porMes.set(i.mes, (porMes.get(i.mes) ?? 0) + centavos(i.excesso));
+        const meses = [...porMes].map(([m, v]) => `${MESES[m - 1]} (${fmt(v / 100)})`).join(', ');
+        const resto = centavos(r.diferenca) - centavos(excesso);
+        nota = `Na própria Betha, o arrecadado no mês não fecha com o acumulado da rubrica em ${meses}: lançamento que a consulta mantém e o acumulado desconsidera. `;
+        nota += resto === 0 ? 'Explica toda a diferença.' : `Explica ${fmt(excesso)}; restam ${fmt(resto / 100)}.`;
+      } else if (duplicada) {
         const outraBate = linhas.some((o) => o.ent === r.ent && o.natureza === duplicada.outra && o.diferenca === 0);
         nota = `Em ${MESES[duplicada.mes - 1]}, o mesmo valor (${fmt(duplicada.v)}) também foi lançado na rubrica ${duplicada.outra}${outraBate ? ', que bate com o TCE' : ''}: possível lançamento em duplicidade na Betha.`;
       } else if (compensa) {
@@ -168,7 +193,7 @@ function anotarNaturezas(linhas, repetidas) {
         nota = r.diferenca > 0 ? 'A Betha registra mais que o TCE nesta rubrica.' : 'O TCE registra mais que a Betha nesta rubrica.';
       }
       const { ent, ...resto } = r;
-      return { ...resto, codigoEntidade: ent, tipo, nota };
+      return { ...resto, codigoEntidade: ent, tipo, incoerenciaBetha: excesso, nota };
     });
 }
 
@@ -192,12 +217,13 @@ export async function conferencia(ano) {
   const mes = limites.mesReceita;
   const dataLimite = parcial ? limites.dataEmpenho : null;
 
-  const [despesa, receitaEnt, receitaMes, naturezas, repetidas, empenhos, semPar, [camara]] = await Promise.all([
+  const [despesa, receitaEnt, receitaMes, naturezas, repetidas, incoerentes, empenhos, semPar, [camara]] = await Promise.all([
     consultar(CONSULTAS.despesaPorEntidade, [ano]),
     consultar(CONSULTAS.receitaPorEntidade, [ano, mes]),
     consultar(CONSULTAS.receitaPorMes, [ano, mes]),
     consultar(CONSULTAS.receitaPorNatureza, [ano, mes]),
     consultar(CONSULTAS.receitaRepetida, [ano, mes]),
+    consultar(CONSULTAS.receitaIncoerente, [ano, mes]),
     consultar(CONSULTAS.empenhos, [ano, dataLimite]),
     consultar(CONSULTAS.empenhosSemPar, [ano, dataLimite]),
     consultar(CONSULTAS.camara, [ano]),
@@ -219,9 +245,13 @@ export async function conferencia(ano) {
     coletas,
     camara,
     despesaPorEntidade,
-    receitaPorEntidade: receitaEnt,
+    receitaPorEntidade: receitaEnt.map((r) => ({
+      ...r,
+      incoerenciaBetha: incoerentes.filter((i) => i.ent === r.codigoEntidade).reduce((s, i) => s + centavos(i.excesso), 0) / 100,
+    })),
     receitaPorMes: receitaMes,
-    receitaPorNatureza: anotarNaturezas(naturezas, repetidas),
+    receitaPorNatureza: anotarNaturezas(naturezas, repetidas, incoerentes),
+    receitaIncoerente: incoerentes,
     empenhos,
     empenhosSemPar: semPar.map(anotarEmpenho),
     resumo: {
@@ -230,6 +260,7 @@ export async function conferencia(ano) {
       receitaBetha: receitaEnt.reduce((s, r) => s + Math.round((r.betha ?? 0) * 100), 0) / 100,
       receitaTce: receitaEnt.reduce((s, r) => s + Math.round((r.tce ?? 0) * 100), 0) / 100,
       receitaDiferenca: receitaEnt.reduce((s, r) => s + Math.round(r.diferenca * 100), 0) / 100,
+      receitaIncoerenteBetha: incoerentes.reduce((s, i) => s + centavos(i.excesso), 0) / 100,
       naturezasComparadas: naturezas.length,
       naturezasIguais: naturezas.filter((r) => r.diferenca === 0).length,
       empenhosBetha: totalEmp('betha'),

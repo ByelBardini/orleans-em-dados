@@ -81,8 +81,11 @@ Nenhuma das hipóteses abaixo está comprovada contabilmente. São divergências
 com a pista mais provável.
 
 1. **Empenhos duplicados no SAMAE (Betha 57140).** Em 2025, 19 registros com IDs antigos
-   (`211:2473:2349xxxx`) e sem liquidação repetem empenhos que o próprio SAMAE renumerou: o
-   antigo nº 334 é o atual nº 335, e assim por diante. O total exibido hoje no dashboard para o
+   (`211:2473:2349xxxx`–`2357xxxx`) e sem os campos de liquidação repetem empenhos atuais com o
+   mesmo credor, histórico e valor: parte foi renumerada (o antigo nº 334 é o atual nº 335) e parte
+   ficou em dobro com o mesmo número. Só o nº 340 (R$ 20.000, 01/04/2025) não tem par em lugar
+   nenhum. Entre registros repetidos, o casamento escolhe o que tem execução e ID mais recente,
+   para que a lista de suspeitos aponte as cópias antigas e não os empenhos reais. O total exibido hoje no dashboard para o
    SAMAE fica **R$ 36.742,61 maior** do que o real. A Betha 57170 e o TCE concordam entre si e
    não têm esses registros. Em 2024 o padrão se repete em escala maior, e ali até a 57170 do SAMAE difere do TCE.
 2. **FPM contado duas vezes em 2024 (Betha 57153).** O mesmo valor, R$ 1.135.545,25, aparece em
@@ -93,9 +96,18 @@ com a pista mais provável.
    R$ 429 mil (2025) e R$ 415 mil (2026) na natureza `11130311` do SAMAE. A Betha mostra zero ou
    menos que isso. Provavelmente a retenção é registrada contabilmente, mas não aparece na
    consulta do portal.
-4. **Diferenças pontuais de classificação:** convênios da saúde (R$ 250.000 em 2025), SUS
-   Atenção Primária (R$ 320.136,80 em 2025) e uma reclassificação de R$ 15.312,12 na Prefeitura
-   entre duas rubricas, que se compensa.
+4. **Linhas mensais que o próprio acumulado da Betha desconsidera (2025).** Em 10 linhas da
+   57153, o "arrecadado no mês" não é a variação do "arrecadado até o mês" da mesma rubrica: a
+   consulta manteve um lançamento estornado ou redatado. Isso explica o convênio da saúde
+   (R$ 250.000), R$ 306.503,90 dos R$ 320.136,80 do SUS Atenção Primária, a alienação do SAMAE
+   (R$ 32.900, repetida em agosto), os R$ 3.284,56 da Prefeitura e a reclassificação de
+   R$ 15.312,12 contada duas vezes. Pelo acumulado, a Prefeitura de 2025 bate com o TCE e o FMS
+   fica em R$ 13.632,90. O `conferir` passou a detectar isso (`receitaIncoerente`) e anota a
+   rubrica. Em 2024 e 2026 não há nenhuma.
+5. **Rubricas provisórias duplicadas em 2026 (Betha 57153).** As rubricas 13210300 e 13110200
+   ("NÃO USAR") repetem os rendimentos de janeiro já lançados em 13210111 e 13110212, que batem
+   com o TCE. Junto com o convênio de R$ 895.500 de maio, lançado em 24149901 e de novo em
+   24195101, explicam toda a diferença da Prefeitura, do FMS e da Fundação em 2026 até setembro.
 
 Os itens 1 e 2 afetam números que o dashboard já publica. Sem o TCE, não haveria como
 percebê-los.
