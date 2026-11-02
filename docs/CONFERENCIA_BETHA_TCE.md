@@ -121,10 +121,10 @@ O que foi olhado no portal, caso a caso. O registro versionado é
 | 2025 | SAMAE      | `22130101`, fora do acumulado     |    R$ 32.900,00 | Lançamento que o acumulado da rubrica desconsidera                | Confirmado                                |
 | 2025 | SAMAE      | Empenho nº 340 (01/04)            |    R$ 20.000,00 | Registro sem execução, sem correspondente no TCE-SC               | Confirmado                                |
 | 2025 | SAMAE      | Empenho nº 342, registro repetido |        R$ 48,72 | Dois registros do mesmo empenho                                   | Confirmado                                |
-| 2025 | SAMAE      | `11130311`, só no TCE-SC          |   R$ 428.717,37 | A natureza não aparece nas receitas do portal                     | Confirmado; protocolo e-SIC 000/0000      |
+| 2025 | SAMAE      | `11130311`, só no TCE-SC          |   R$ 428.717,37 | A natureza não aparece nas receitas do portal                     | Confirmado                                |
 | 2026 | Prefeitura | `24149901`, mesmo valor           |   R$ 895.500,00 | O mesmo valor em duas rubricas de maio                            | Confirmado                                |
 | 2026 | Prefeitura | `13210300`, mesmo valor           |    só o exemplo | Um exemplo de R$ 66.113,49 em duas rubricas; o restante é cálculo | Confirmado em parte                       |
-| 2026 | SAMAE      | `11130311`, só no TCE-SC          |   R$ 414.748,48 | A natureza não aparece nas receitas do portal                     | Confirmado; protocolo e-SIC 000/0000      |
+| 2026 | SAMAE      | `11130311`, só no TCE-SC          |   R$ 414.748,48 | A natureza não aparece nas receitas do portal                     | Confirmado                                |
 
 ### Correções ao que este relatório dizia
 
@@ -151,8 +151,7 @@ liquidações de três empenhos do SAMAE que somam exatamente esse valor:
 | 1107    |    R$ 727,41 |
 | Soma    | R$ 96.242,40 |
 
-O portal não mostra esse valor como receita, nem na 57153 nem em Receitas Diárias. O pedido e-SIC 000/0000 pergunta
-como a retenção foi contabilizada.
+O portal não mostra esse valor como receita, nem na 57153 nem em Receitas Diárias.
 
 **O que não foi provado:** a soma, feita para dezembro de 2025, identifica o valor pela coincidência. O rótulo da
 retenção no portal não confirma que ela é IRRF, e o Balanço Orçamentário não foi usado para confirmar o tratamento.
@@ -204,8 +203,7 @@ A tabela completa está no §7.1 da [especificação](ESPECIFICACAO_TECNICA.md).
 
 1. Persistir cada conferência (tabela `comparacoes_fontes`) para ter histórico das diferenças.
 2. Agendar: Betha diária ou semanal; TCE semanal, após a recarga do app.
-3. Aguardar a resposta do e-SIC 000/0000. Se o portal corrigir, recoletar a 57153 de 2025 e 2026 e reconferir.
-4. Opcional: enviar à Prefeitura e ao SAMAE os demais casos confirmados, em linguagem neutra.
+3. Se o portal mudar, recoletar a 57153 de 2025 e 2026 e reconferir.
 
 ## Limites
 

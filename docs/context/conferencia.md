@@ -20,7 +20,7 @@ Compara as coletas publicadas das duas fontes num exercício. A regra mora em `p
 - `montarConferencia(ano, dados, agora)` — junta tudo e calcula o `resumo` em centavos.
 - `conferirDespesaEncerrada(linha, modalidade71)` — o valor conferido de uma entidade em exercício completo, ou a discrepância que a tira da soma.
 - `montarDespesaConferida(parcial, limites, dados)` — aplica a regra do exercício (encerrado ou em curso) por entidade, deixa a Câmara à parte e soma só as conferidas.
-- `cruzarConferenciasManuais(ano, discrepancias, registros?)` — dá a cada discrepância `situacao`, e `data`, `evidencia` e `protocolo` quando há registro, e devolve os `avisos`. `validarConferenciaManual(registro)` — recusa o que não pode ser versionado; o erro nunca repete o valor.
+- `cruzarConferenciasManuais(ano, discrepancias, registros?)` — dá a cada discrepância `situacao`, e `data` e `evidencia` quando há registro, e devolve os `avisos`. `validarConferenciaManual(registro)` — recusa o que não pode ser versionado; o erro nunca repete o valor.
 - `ordenarDiscrepancias(lista)` — por tipo, com `aguardando_tce` por último; dentro do tipo, o maior valor primeiro.
 - `separarValores(betha, tce)` — a parte comum a um cruzamento e o que sobra de cada lado, em centavos.
 - `montarReceitaConferida(ano, mesLimite, dados)` — agrega a separação em `porMes`, `porEntidade`, `porOrigem` (chave `origem`, os dois primeiros dígitos; o nome da origem é da API), `recortes` (`porMes` e `porOrigem` de cada entidade, que não dá para derivar do total), a tabela mista `naturezas` e os `totais`, e lista as `discrepancias`.
@@ -60,13 +60,13 @@ Compara as coletas publicadas das duas fontes num exercício. A regra mora em `p
   - `receita`: `recortes` por `codigoEntidade`, `porMes[]` (`mes`, `betha`, `tce`, `conferido`, `diferencaBetha`, `diferencaTce`, `aguardandoTce`), `porEntidade[]` (`codigoEntidade`, `entidade`, partes, `aguardandoTce`, `totalBetha`, `totalTce`), `porOrigem[]` (`origem`, partes, `aguardandoTce`), `naturezas[]` (tipo `LinhaNaturezaConferida`), `totais` (partes, `aguardandoTce`, `totalBetha`, `totalTce`);
   - `despesa`: `porEntidade[]` (tipo `DespesaConferida`), `camara`, `totais` (`empenhado`, `liquidado`, `pago`, `aguardandoTce`, `entidadesConferidas`, `entidadesFora`);
   - `avisos[]`: interno, para quem mantém os registros manuais. A rota pública não devolve;
-  - `discrepancias[]`: tipo `DiscrepanciaConferida` (`Discrepancia` + `situacao`, `data`, `evidencia`, `protocolo`), com `area` (`receita`, `despesa` ou `empenho`). Na despesa, `betha`, `tce` e `diferenca` são do empenhado; as três etapas ficam em `etapas`. No empenho, `fonte`, `numero`, `dataEmpenho` e `id`, com o valor no lado da fonte; `data` é sempre a da conferência manual. A área `empenho` é outra visão da mesma execução: não some com `despesa`.
+  - `discrepancias[]`: tipo `DiscrepanciaConferida` (`Discrepancia` + `situacao`, `data`, `evidencia`), com `area` (`receita`, `despesa` ou `empenho`). Na despesa, `betha`, `tce` e `diferenca` são do empenhado; as três etapas ficam em `etapas`. No empenho, `fonte`, `numero`, `dataEmpenho` e `id`, com o valor no lado da fonte; `data` é sempre a da conferência manual. A área `empenho` é outra visão da mesma execução: não some com `despesa`.
 
 ## Como registrar um caso conferido à mão
 
 1. Acrescente um item em `CONFERENCIAS_MANUAIS` (`conferencias-manuais.ts`), com `{ ano, entidade, tipo, chave, valor, evidencia }`. `situacao` e `data` vêm de `NO_PORTAL`; caso de outra data leva a própria `data`.
 2. `chave` é a natureza ou o número do empenho. `null` cobre todas as discrepâncias do tipo na entidade, pela soma: é o caso de `despesa_duplicada` e de um grupo de empenhos. `valor` é em módulo; `null` confirma sem total, como uma conferência parcial.
-3. `protocolo` é só o número (`e-SIC 000/0000`). Código de acompanhamento nunca: a validação recusa, e o import do módulo falha. Nada de nome de pessoa ou de credor na `evidencia`: ela sai na seção pública. A validação também recusa termo que afirma causa ("fantasma", "erro", "irregular", "fraude").
+3. Pedido aberto no município nunca entra: o registro não tem campo para ele, e a validação recusa `evidencia` que cite protocolo, e-SIC, pedido de informação ou código de acompanhamento; o import do módulo falha. Nada de nome de pessoa ou de credor na `evidencia`: ela sai na seção pública. A validação também recusa termo que afirma causa ("fantasma", "erro", "irregular", "fraude").
 4. Rode o spec, e confira em `dadosConferidos(ano).avisos` que o registro achou a discrepância.
 5. Acrescente o caso à tabela "Conferido à mão" de `docs/CONFERENCIA_BETHA_TCE.md`, com o que o portal mostra e o que não foi provado.
 
