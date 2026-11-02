@@ -739,3 +739,51 @@ describe('Discrepancias: no App', () => {
     expect(screen.getByRole('link', { name: 'Onde as fontes divergem' })).toHaveAttribute('href', '#discrepancias');
   });
 });
+
+describe('caso de rubricas que se compensam', () => {
+  const compensado = caso({
+    natureza: null,
+    descricao: null,
+    betha: null,
+    tce: null,
+    diferenca: 0,
+    valor: 15312.12,
+    meses: [{ mes: 4, betha: null, tce: null, diferenca: 0 }],
+    compensacao: {
+      aMenos: { natureza: '17295101', betha: 180674.65, tce: 195986.77 },
+      aMais: { natureza: '24299901', betha: 5047727.72, tce: 5032415.6 },
+    },
+    nota: 'Nota da reclassificação (exemplo).',
+  });
+
+  const abrirCaso = async () => {
+    await abrir({
+      secao: discrepancias({ grupos: [grupo('reclassificacao', 'Valor em outra rubrica', 15312.12, [compensado])] }),
+    });
+    return linhaDo('Valor em outra rubrica');
+  };
+
+  it('mostra as duas rubricas numa linha só, sem descrição de sub-rubrica', async () => {
+    const linha = await abrirCaso();
+    expect(linha).toHaveTextContent('17295101 e 24299901');
+    expect(within(grupoNaTela('Valor em outra rubrica')).getAllByRole('row')).toHaveLength(2);
+    expect(linha.querySelector('.historico')).toBeNull();
+  });
+
+  it('cada coluna traz o valor de cada rubrica na fonte', async () => {
+    const linha = await abrirCaso();
+    const coluna = (rotulo: string) => linha.querySelector(`td[data-rotulo="${rotulo}"]`);
+    expect(coluna('Betha')).toHaveTextContent(`17295101: R$${NBSP}180.674,65`);
+    expect(coluna('Betha')).toHaveTextContent(`24299901: R$${NBSP}5.047.727,72`);
+    expect(coluna('TCE-SC')).toHaveTextContent(`17295101: R$${NBSP}195.986,77`);
+    expect(coluna('TCE-SC')).toHaveTextContent(`24299901: R$${NBSP}5.032.415,60`);
+  });
+
+  it('a diferença diz que é entre rubricas e sem efeito no total, sem falar em meses diferentes', async () => {
+    const linha = await abrirCaso();
+    const celula = linha.querySelector('td[data-rotulo="Diferença"]');
+    expect(celula).toHaveTextContent(`R$${NBSP}15.312,12 entre rubricas`);
+    expect(celula).toHaveTextContent('sem efeito no total');
+    expect(celula).not.toHaveTextContent('meses diferentes');
+  });
+});
