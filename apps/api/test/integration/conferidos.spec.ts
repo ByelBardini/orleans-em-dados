@@ -532,7 +532,7 @@ describe('situação do empenho', () => {
 
     it.each([
       ['pago', 'liquidado maior que zero e saldo zero', [10, 13]],
-      ['apagar', 'saldo maior que zero', [11]],
+      ['apagar', 'liquidado e saldo maiores que zero', [11]],
       ['sem', 'liquidado zero', [5]],
     ])('situacao=%s traz quem tem %s', async (situacao, _regra, esperados) => {
       expect(await numerosDa(situacao)).toEqual(esperados);
@@ -560,6 +560,9 @@ describe('situação do empenho', () => {
             100,
             null,
           ),
+          // Regressão: sem liquidação e com saldo, caía em `apagar` e em `sem` ao mesmo tempo (02/11/2026).
+          empenho('728:6', 6, '2025-01-15', SETOR, 'CREDOR F EXEMPLO LTDA', 'Saldo sem liq. (exemplo)', 100, 0, 0, 70),
+          empenho('728:7', 7, '2025-01-16', SETOR, 'CREDOR G EXEMPLO LTDA', 'Saldo, nulo (exemplo)', 100, null, null, 80),
         ]),
       });
       await pool.query(`UPDATE coletas SET status = 'exemplo'`);
@@ -568,8 +571,8 @@ describe('situação do empenho', () => {
     it.each([
       ['pago', [1]],
       ['apagar', [2]],
-      ['sem', [3, 4]],
-    ])('situacao=%s não trata saldo nulo como zero', async (situacao, esperados) => {
+      ['sem', [3, 4, 6, 7]],
+    ])('situacao=%s não trata saldo nulo como zero, e cada registro cai numa só', async (situacao, esperados) => {
       expect(await numerosDa(situacao)).toEqual(esperados);
     });
   });

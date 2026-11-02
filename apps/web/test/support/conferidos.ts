@@ -309,4 +309,4 @@ export function contaNaTela(conta: HTMLElement) {
 }
 
 /** Termos que a interface não usa: igualdade entre fontes não é auditoria, e diferença não é acusação. */
-export const TEXTO_PROIBIDO = /validad[oa]s?\b|irregular|fraude|\berros?\b|fantasma/i;
+export const TEXTO_PROIBIDO = /validad[oa]s?\b|valida[çc][ãa]o|irregular|fraude|\berros?\b|fantasma/i;
