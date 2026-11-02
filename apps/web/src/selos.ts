@@ -3,7 +3,11 @@
 import { INDICADORES, situacaoDaAtualizacao, type Conferencia, type Importacoes } from '@orleans-em-dados/contracts';
 import { data, dataCurta, MESES_LONGOS, moeda, numero } from './format';
 
-export type DadosDoSelo = { estado: 'confere' | 'diverge' | 'pendente'; titulo: string; motivo?: string | null };
+export type DadosDoSelo = {
+  estado: 'confere' | 'diverge' | 'explicada' | 'pendente';
+  titulo: string;
+  motivo?: string | null;
+};
 
 const N = Number;
 const centavos = (v: number | null | undefined) => Math.round(N(v ?? 0) * 100);
@@ -31,15 +35,34 @@ export function seloReceita(conf: Conferencia | null, entidade: string): DadosDo
     return { estado: 'confere', titulo: `Confere com o TCE-SC${ate}`, motivo: pendencia(conf, 'receitas') };
   }
   const rubricas = doRecorte(conf.receitaPorNatureza, entidade);
-  const [maior] = rubricas;
-  const outras = rubricas.length - 1;
+  const abertas = rubricas.filter((r) => !r.explicada && !r.conhecida);
+  // Sem nenhuma rubrica no recorte, a diferença não tem o que a explique: não vira "explicada".
+  if (rubricas.length && !abertas.length) {
+    const causas = rubricas.flatMap((r) => (r.causa ? [r.causa.toLocaleLowerCase('pt-BR')] : []));
+    return {
+      estado: 'explicada',
+      titulo: `Difere do TCE-SC: ${sinal(dif)}${ate}`,
+      motivo: [
+        `Nenhuma diferença nova: ${[...new Set(causas)].join(', ')}.`,
+        rubricas.some((r) => r.conhecida) && 'A recorrente se repete em outros anos e continua sem causa confirmada.',
+        pendencia(conf, 'receitas'),
+      ]
+        .filter(Boolean)
+        .join(' '),
+    };
+  }
+  const [maior] = abertas;
+  const outras = abertas.length - 1;
+  const jaConhecidas = rubricas.length - abertas.length;
   return {
     estado: 'diverge',
     titulo: `Difere do TCE-SC: ${sinal(dif)}${ate}`,
     motivo: [
       maior &&
-        `Maior diferença: rubrica ${maior.natureza} (${maior.entidade}), ${sinal(maior.diferenca)}. ${maior.nota}`,
-      outras > 0 && `Há mais ${outras} rubrica${outras > 1 ? 's' : ''} com diferença.`,
+        `Maior diferença sem explicação: rubrica ${maior.natureza} (${maior.entidade}), ${sinal(maior.diferenca)}. ${maior.nota}`,
+      outras > 0 && `Há mais ${outras} rubrica${outras > 1 ? 's' : ''} sem explicação.`,
+      jaConhecidas === 1 && 'Outra diferença já é conhecida.',
+      jaConhecidas > 1 && `Outras ${jaConhecidas} diferenças já são conhecidas.`,
       pendencia(conf, 'receitas'),
     ]
       .filter(Boolean)
@@ -64,10 +87,13 @@ export function seloEmpenhos(conf: Conferencia | null, entidade: string): DadosD
       motivo: pendencia(conf, 'empenhos'),
     };
   }
-  const semPar = doRecorte(conf.empenhosSemPar, entidade).filter((e) => e.fonte === 'betha');
+  const semParDoRecorte = doRecorte(conf.empenhosSemPar, entidade);
+  const semPar = semParDoRecorte.filter((e) => e.fonte === 'betha');
   const antigos = semPar.filter((e) => e.numeroNaOutra || e.ocorrencia > 1).length;
+  // Sem a lista dos sem par, nada explica a diferença: lista vazia não vira "explicada".
+  const todosExplicados = semParDoRecorte.length > 0 && semParDoRecorte.every((e) => e.explicada);
   return {
-    estado: 'diverge',
+    estado: todosExplicados ? 'explicada' : 'diverge',
     titulo: soBetha
       ? `${numero(soBetha)} empenhos não constam no TCE-SC (${moeda(soma('valorSoBetha'))})`
       : `${numero(soTce)} empenhos do TCE-SC não aparecem aqui`,
@@ -118,7 +144,8 @@ export function seloDespesa(conf: Conferencia | null, entidade: string): DadosDo
     titulo: `${nome} difere do TCE-SC: ${sinal(valor)}`,
     motivo: [
       `${demais.join('; ')}. Diferença em: ${divergentes.join(', ')}.`,
-      empenhos?.estado === 'diverge' &&
+      empenhos &&
+        empenhos.estado !== 'confere' &&
         `Na comparação empenho a empenho: ${empenhos.titulo.charAt(0).toLocaleLowerCase('pt-BR') + empenhos.titulo.slice(1)}.`,
     ]
       .filter(Boolean)
@@ -136,8 +163,8 @@ export function seloRubrica(
   if (!conf || !d) return null;
   const ate = conf.parcial ? ` até ${mesDaReceita(conf)}` : '';
   return {
-    estado: 'diverge',
-    titulo: `Difere do TCE-SC: ${sinal(d.diferenca)}${ate}`,
+    estado: d.explicada || d.conhecida ? 'explicada' : 'diverge',
+    titulo: `${d.causa ? `${d.causa} · ` : ''}Difere do TCE-SC: ${sinal(d.diferenca)}${ate}`,
     motivo: `Grupo ${d.natureza} (${d.entidade}): Betha ${moeda(d.betha ?? 0)}, TCE ${d.tce === null ? 'não consta' : moeda(d.tce)}. ${d.nota}`,
   };
 }
@@ -146,7 +173,11 @@ export function seloRubrica(
 export function seloEmpenho(conf: Conferencia | null, id: string): DadosDoSelo | null {
   const e = conf?.empenhosSemPar.find((x) => x.fonte === 'betha' && x.id === id);
   if (!e) return null;
-  return { estado: 'diverge', titulo: 'Não consta no TCE-SC', motivo: e.nota };
+  return {
+    estado: e.explicada ? 'explicada' : 'diverge',
+    titulo: e.explicada ? `${e.causa} · não consta no TCE-SC` : 'Não consta no TCE-SC',
+    motivo: e.nota,
+  };
 }
 
 // Dado que passou da periodicidade do indicador: fica ao lado do selo de conferência, não no lugar dele.

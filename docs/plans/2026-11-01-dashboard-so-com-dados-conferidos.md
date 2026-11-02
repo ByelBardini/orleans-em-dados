@@ -1,6 +1,6 @@
 # Plano: dashboard só com dados conferidos e seção de discrepâncias
 
-> **Status:** aprovado em 2026-11-01; implementação não iniciada
+> **Status:** aprovado em 2026-11-01; em execução. Fase 1 implementada na branch `dashboard-so-conferidos`
 > **Data:** 2026-11-01
 > **Pedido original:** o dashboard exibe só dados verificados, e os dados com problema vão para a seção de discrepâncias, separados por tipo.
 > **Na especificação:** §2.1 (itens 1 a 5), §7.1 e §7.2 (fontes e confiabilidade, a atualizar), Etapa C do §9, critérios de aceite do §11 (dupla contagem e comparação com o TCE-SC).
@@ -63,6 +63,15 @@ O pedido troca o modelo. O número principal passa a ser só a parte conferida e
 - **Registro de conferências manuais:** arquivo com situação, evidência e protocolo.
 - **Rota `GET /api/discrepancias`** e a página da seção, com contrato próprio.
 - **Testes de componente:** primeira adoção de Testing Library + jsdom em `apps/web`.
+
+## Ajustes depois da migração para TypeScript
+
+A migração terminou em 02/11/2026, depois de este plano ser escrito. Onde o texto das fases divergir, vale isto:
+
+- `apps/api/src/indicadores.js` e `server.js` viraram módulos Fastify em `apps/api/src/modules/` (`receitas`, `despesas`, `empenhos`, `conferencias`).
+- `apps/web/src/*.jsx` viraram `.tsx`. `selos.jsx` foi dividido em `selos.ts` (regra) e `selo.tsx` (componente).
+- A Fase 9 perde a instalação: Testing Library e jsdom já estão no projeto. Sobra só o teste do selo por nível.
+- Os specs de API e de tela seguem os `.ts`/`.tsx` já existentes (`apps/api/test/integration/paridade.spec.ts`, `apps/web/test/paginas/paginas.spec.tsx`).
 
 ## Pré-requisitos
 

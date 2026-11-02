@@ -4,7 +4,9 @@ import { conferenciaSchema, importacoesSchema } from '@orleans-em-dados/contract
 import { useApi } from './api';
 import { seloDeAtraso, type DadosDoSelo } from './selos';
 
-const ICONES = { confere: '✓', diverge: '!', pendente: '…' };
+// `explicada`: diverge, mas um padrão nos números aponta a causa provável, ou a diferença
+// já se repetia em outros anos (conhecida, sem causa confirmada). Fica em cinza.
+const ICONES = { confere: '✓', diverge: '!', explicada: 'i', pendente: '…' };
 
 export function useConferencia(ano: number | null) {
   const { dados } = useApi(ano ? `/api/conferencias?ano=${ano}` : null, conferenciaSchema);

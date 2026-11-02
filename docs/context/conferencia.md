@@ -10,8 +10,10 @@ Compara as coletas publicadas das duas fontes num exercício. A regra mora em `p
 
 ## Funções e utilitários
 
-- `anotarNaturezas(linhas, repetidas, incoerentes)` — classifica cada natureza divergente (`valor`, `soBetha`, `soTce`) e escreve a nota. Ordem das explicações: incoerência mês × acumulado, duplicidade, compensação entre rubricas, tipo.
-- `anotarEmpenho(e)` — nota do empenho sem par: repetido, renumerado ou sem correspondente.
+- `anotarNaturezas(linhas, repetidas, incoerentes, repetidasMeses)` — classifica cada natureza divergente (`valor`, `soBetha`, `soTce`) e escreve `nota`, `causa` e `explicada`. Ordem das explicações: incoerência mês × acumulado (só é causa se explica toda a diferença), duplicidade em duas rubricas, duplicidade em dois meses, compensação entre rubricas, soma zero no grupo de 6 dígitos, tipo.
+- `completarRubricas(rubricas, parcelas, outrosAnos, ano)` — em rubrica sem causa, cita os meses da diferença e marca `conhecida` quando ela se repete do mesmo lado em outro exercício; conhecida não vira `explicada`.
+- `listarSemExplicacao(despesas, rubricas, empenhos)` — o que sobra em aberto: despesa divergente, rubrica nem explicada nem conhecida, empenho sem causa.
+- `anotarEmpenho(e)` — nota, `causa` e `explicada` do empenho sem par: repetido, renumerado ou sem correspondente.
 - `empenhosForaDaSoma(semPar)` — ids Betha repetidos ou renumerados, que a API tira das somas.
 - `ehParcial(limites)` — o TCE-SC ainda não tem dezembro de receita.
 - `montarConferencia(ano, dados, agora)` — junta tudo e calcula o `resumo` em centavos.
@@ -22,6 +24,7 @@ Compara as coletas publicadas das duas fontes num exercício. A regra mora em `p
 - Sem as cinco coletas publicadas (status diferente de `exemplo`), devolve `{ disponivel: false, faltando }`.
 - No exercício parcial, receita e empenhos são comparados só até onde o TCE-SC já recebeu, e a despesa por entidade não é comparável (a 57170 não tem data). Atraso do TCE-SC é pendência, não divergência.
 - Empenhos casam 1:1 por entidade, número, data e valor original. Entre repetidos na Betha, o que tem execução e id maior é o válido; as cópias antigas da 57140 ficam "só na Betha".
+- Cada mês de `receitaPorMes` traz `parcelas`: a diferença decomposta por rubrica. O total do mês nunca é a causa.
 - Diferença entre fontes é informação, nunca rotulada como irregularidade; as notas dizem "provável"/"possível".
 
 ## Testes

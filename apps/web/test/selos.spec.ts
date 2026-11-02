@@ -23,6 +23,7 @@ const conferencia = (campos: Partial<Conferencia> = {}): Conferencia => ({
   receitaIncoerente: [],
   empenhos: [],
   empenhosSemPar: [],
+  semExplicacao: [],
   resumo: {
     despesaEntidadesComparadas: 0,
     despesaEntidadesIguais: 0,
@@ -35,6 +36,9 @@ const conferencia = (campos: Partial<Conferencia> = {}): Conferencia => ({
     empenhosBetha: 0,
     empenhosTce: 0,
     empenhosCasados: 0,
+    semExplicacao: 0,
+    comCausaProvavel: 0,
+    conhecidas: 0,
   },
   ...campos,
 });
@@ -59,6 +63,8 @@ const natureza = (campos: Partial<LinhaDeNatureza>): LinhaDeNatureza => ({
   tipo: 'valor',
   incoerenciaBetha: 0,
   nota: 'A Betha registra mais que o TCE nesta rubrica.',
+  causa: null,
+  explicada: false,
   ...campos,
 });
 
@@ -105,6 +111,8 @@ const semPar = (campos: Partial<EmpenhoSemPar>): EmpenhoSemPar => ({
   numeroNaOutra: null,
   id: '211:728:1003',
   nota: 'Sem correspondente no TCE.',
+  causa: null,
+  explicada: false,
   ...campos,
 });
 
@@ -143,7 +151,7 @@ describe('seloReceita', () => {
     expect(selo?.estado).toBe('diverge');
     expect(selo?.titulo).toBe(`Difere do TCE-SC: R$${NBSP}50,00 a mais na Betha`);
     expect(selo?.motivo).toBe(
-      `Maior diferença: rubrica 17135011 (FMS), R$${NBSP}50,00 a mais na Betha. A Betha registra mais que o TCE nesta rubrica.`,
+      `Maior diferença sem explicação: rubrica 17135011 (FMS), R$${NBSP}50,00 a mais na Betha. A Betha registra mais que o TCE nesta rubrica.`,
     );
   });
 
@@ -161,8 +169,109 @@ describe('seloReceita', () => {
       receitaPorEntidade: [receita('319', 50)],
       receitaPorNatureza: [natureza({}), natureza({ natureza: '2' }), natureza({ natureza: '3' })],
     });
-    expect(seloReceita(uma, '')?.motivo).toContain('Há mais 1 rubrica com diferença.');
-    expect(seloReceita(duas, '')?.motivo).toContain('Há mais 2 rubricas com diferença.');
+    expect(seloReceita(uma, '')?.motivo).toContain('Há mais 1 rubrica sem explicação.');
+    expect(seloReceita(duas, '')?.motivo).toContain('Há mais 2 rubricas sem explicação.');
+  });
+
+  describe('diferença com causa', () => {
+    const comRubricas = (...rubricas: LinhaDeNatureza[]) =>
+      conferencia({ receitaPorEntidade: [receita('319', 50)], receitaPorNatureza: rubricas });
+
+    it('só rubricas explicadas: explicada, citando as causas em minúsculas e sem repetir', () => {
+      const selo = seloReceita(
+        comRubricas(
+          natureza({ causa: 'Possível duplicidade', explicada: true }),
+          natureza({ natureza: '2', causa: 'Possível duplicidade', explicada: true }),
+          natureza({ natureza: '3', causa: 'Provável reclassificação', explicada: true }),
+        ),
+        '',
+      );
+      expect(selo).toEqual({
+        estado: 'explicada',
+        titulo: `Difere do TCE-SC: R$${NBSP}50,00 a mais na Betha`,
+        motivo: 'Nenhuma diferença nova: possível duplicidade, provável reclassificação.',
+      });
+    });
+
+    it('rubrica em aberto: diverge, citando a maior em aberto e não a primeira da lista', () => {
+      const selo = seloReceita(
+        comRubricas(
+          natureza({ natureza: '1', diferenca: 40, causa: 'Possível duplicidade', explicada: true }),
+          natureza({ natureza: '2', diferenca: 10, nota: 'Sem padrão.' }),
+        ),
+        '',
+      );
+      expect(selo?.estado).toBe('diverge');
+      expect(selo?.motivo).toBe(
+        `Maior diferença sem explicação: rubrica 2 (FMS), R$${NBSP}10,00 a mais na Betha. Sem padrão. Outra diferença já é conhecida.`,
+      );
+    });
+
+    it('com duas rubricas já conhecidas além da aberta, conta no plural', () => {
+      const selo = seloReceita(
+        comRubricas(
+          natureza({ natureza: '1' }),
+          natureza({ natureza: '2', causa: 'Possível duplicidade', explicada: true }),
+          natureza({ natureza: '3', causa: 'Conhecida e recorrente', conhecida: true }),
+        ),
+        '',
+      );
+      expect(selo?.motivo).toContain('Outras 2 diferenças já são conhecidas.');
+    });
+
+    it('rubrica conhecida não conta como aberta, e o motivo avisa que segue sem causa confirmada', () => {
+      const selo = seloReceita(
+        comRubricas(natureza({ causa: 'Conhecida e recorrente', conhecida: true, recorrenteEm: [2024, 2025] })),
+        '',
+      );
+      expect(selo?.estado).toBe('explicada');
+      expect(selo?.motivo).toBe(
+        'Nenhuma diferença nova: conhecida e recorrente. A recorrente se repete em outros anos e continua sem causa confirmada.',
+      );
+    });
+
+    it('só causa provável: não fala em recorrente', () => {
+      const selo = seloReceita(comRubricas(natureza({ causa: 'Possível duplicidade', explicada: true })), '');
+      expect(selo?.motivo).not.toContain('recorrente');
+    });
+
+    it('diferença zero confere, mesmo com rubricas abertas que se anulam', () => {
+      const conf = conferencia({
+        receitaPorEntidade: [receita('319', 0)],
+        receitaPorNatureza: [natureza({ diferenca: 50 }), natureza({ natureza: '2', diferenca: -50 })],
+      });
+      expect(seloReceita(conf, '')?.estado).toBe('confere');
+    });
+
+    it('diferença sem nenhuma rubrica para explicá-la não é explicada', () => {
+      const selo = seloReceita(conferencia({ receitaPorEntidade: [receita('319', 50)] }), '');
+      expect(selo?.estado).toBe('diverge');
+      expect(selo?.motivo).toBe('');
+    });
+
+    it('no recorte, a rubrica aberta de outra entidade não conta', () => {
+      const conf = conferencia({
+        receitaPorEntidade: [receita('319', 50), receita('728', 9)],
+        receitaPorNatureza: [
+          natureza({ causa: 'Possível duplicidade', explicada: true }),
+          natureza({ natureza: '2', entidade: 'Prefeitura', codigoEntidade: '728', diferenca: 9 }),
+        ],
+      });
+      expect(seloReceita(conf, '319')?.estado).toBe('explicada');
+      expect(seloReceita(conf, '728')?.estado).toBe('diverge');
+    });
+
+    it('explicada no ano em curso continua dizendo o que falta conferir', () => {
+      const conf = conferencia({
+        parcial: true,
+        limites: { mesReceita: 2, dataEmpenho: '2025-02-05' },
+        receitaPorEntidade: [receita('319', 50)],
+        receitaPorNatureza: [natureza({ causa: 'Possível duplicidade', explicada: true })],
+      });
+      expect(seloReceita(conf, '')?.motivo).toBe(
+        'Nenhuma diferença nova: possível duplicidade. Meses após fevereiro ainda não conferidos: o TCE-SC recebe os dados com atraso.',
+      );
+    });
   });
 
   it('no exercício parcial, diz até quando conferiu e o que ficou pendente, sem chamar de divergência', () => {
@@ -213,6 +322,39 @@ describe('seloEmpenhos', () => {
     expect(seloEmpenhos(conf, '')?.motivo).toContain('2 deles parecem versões antigas');
   });
 
+  it('todos os sem par explicados: explicada', () => {
+    const conf = conferencia({
+      empenhos: [empenhos({ soBetha: 1, soTce: 1 })],
+      empenhosSemPar: [
+        semPar({ id: 'a', causa: 'Provável renumeração', explicada: true, numeroNaOutra: 112 }),
+        semPar({ id: 'b', fonte: 'tce', causa: 'Provável renumeração', explicada: true, numeroNaOutra: 12 }),
+      ],
+    });
+    expect(seloEmpenhos(conf, '')?.estado).toBe('explicada');
+  });
+
+  it('algum sem par sem causa: diverge, mesmo que seja do lado do TCE-SC', () => {
+    const conf = conferencia({
+      empenhos: [empenhos({ soBetha: 1, soTce: 1 })],
+      empenhosSemPar: [
+        semPar({ id: 'a', causa: 'Registro repetido', explicada: true, ocorrencia: 2 }),
+        semPar({ id: 'b', fonte: 'tce', nota: 'Sem correspondente na Betha.' }),
+      ],
+    });
+    expect(seloEmpenhos(conf, '')?.estado).toBe('diverge');
+  });
+
+  it('no recorte, o sem par sem causa de outra entidade não conta', () => {
+    const conf = conferencia({
+      empenhos: [empenhos({ soBetha: 1 })],
+      empenhosSemPar: [
+        semPar({ id: 'a', causa: 'Registro repetido', explicada: true, ocorrencia: 2 }),
+        semPar({ id: 'b', entidade: 'FMS', codigoEntidade: '319' }),
+      ],
+    });
+    expect(seloEmpenhos(conf, '728')?.estado).toBe('explicada');
+  });
+
   it('com os dois lados, também conta os do TCE-SC', () => {
     const conf = conferencia({ empenhos: [empenhos({ soBetha: 1, soTce: 4, valorSoTce: 9 })] });
     expect(seloEmpenhos(conf, '')?.motivo).toContain(
@@ -260,6 +402,33 @@ describe('seloDespesa', () => {
     });
     expect(seloDespesa(conf, '')?.motivo).toContain('Na comparação empenho a empenho: 3 empenhos do TCE-SC');
   });
+
+  it('empenhos com causa também entram no motivo, e a despesa continua divergindo', () => {
+    const conf = conferencia({
+      despesaPorEntidade: [despesa({ difPago: 1 })],
+      empenhos: [empenhos({ soBetha: 1, valorSoBetha: 7000 })],
+      empenhosSemPar: [semPar({ causa: 'Provável renumeração', explicada: true, numeroNaOutra: 112 })],
+    });
+    const selo = seloDespesa(conf, '');
+    expect(selo?.estado).toBe('diverge');
+    expect(selo?.motivo).toContain(
+      `Na comparação empenho a empenho: 1 empenhos não constam no TCE-SC (R$${NBSP}7.000,00).`,
+    );
+  });
+
+  it('empenhos que conferem não entram no motivo da despesa', () => {
+    const conf = conferencia({ despesaPorEntidade: [despesa({ difPago: 1 })], empenhos: [empenhos({})] });
+    expect(seloDespesa(conf, '')?.motivo).not.toContain('Na comparação empenho a empenho');
+  });
+
+  it('exercício parcial com empenhos explicados herda o estado explicada', () => {
+    const conf = conferencia({
+      parcial: true,
+      empenhos: [empenhos({ soBetha: 1 })],
+      empenhosSemPar: [semPar({ causa: 'Registro repetido', explicada: true, ocorrencia: 2 })],
+    });
+    expect(seloDespesa(conf, '')?.estado).toBe('explicada');
+  });
 });
 
 describe('seloRubrica', () => {
@@ -270,6 +439,25 @@ describe('seloRubrica', () => {
     expect(seloRubrica(conf, '17135011000000', siglas)?.titulo).toBe(
       `Difere do TCE-SC: R$${NBSP}50,00 a mais na Betha`,
     );
+  });
+
+  it('rubrica em aberto diverge', () => {
+    const conf = conferencia({ receitaPorNatureza: [natureza({})] });
+    expect(seloRubrica(conf, '17135011000000', siglas)?.estado).toBe('diverge');
+  });
+
+  it('rubrica com causa provável é explicada, com a causa no título', () => {
+    const conf = conferencia({ receitaPorNatureza: [natureza({ causa: 'Possível duplicidade', explicada: true })] });
+    const selo = seloRubrica(conf, '17135011000000', siglas);
+    expect(selo?.estado).toBe('explicada');
+    expect(selo?.titulo).toBe(`Possível duplicidade · Difere do TCE-SC: R$${NBSP}50,00 a mais na Betha`);
+  });
+
+  it('rubrica conhecida também é explicada', () => {
+    const conf = conferencia({
+      receitaPorNatureza: [natureza({ causa: 'Conhecida e recorrente', explicada: false, conhecida: true })],
+    });
+    expect(seloRubrica(conf, '17135011000000', siglas)?.estado).toBe('explicada');
   });
 
   it('rubrica sem diferença não tem selo', () => {
@@ -298,6 +486,17 @@ describe('seloEmpenho', () => {
       estado: 'diverge',
       titulo: 'Não consta no TCE-SC',
       motivo: 'Provável renumeração.',
+    });
+  });
+
+  it('empenho sem par com causa é explicado, com a causa no título', () => {
+    const conf = conferencia({
+      empenhosSemPar: [semPar({ causa: 'Provável renumeração', explicada: true, nota: 'É o nº 112 no TCE.' })],
+    });
+    expect(seloEmpenho(conf, '211:728:1003')).toEqual({
+      estado: 'explicada',
+      titulo: 'Provável renumeração · não consta no TCE-SC',
+      motivo: 'É o nº 112 no TCE.',
     });
   });
 

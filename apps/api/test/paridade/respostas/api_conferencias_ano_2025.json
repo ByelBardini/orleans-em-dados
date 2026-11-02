@@ -138,13 +138,23 @@
         "mes": 1,
         "betha": 1500000,
         "tce": 1500000,
-        "diferenca": 0
+        "diferenca": 0,
+        "parcelas": []
       },
       {
         "mes": 2,
         "betha": 445000.25,
         "tce": 395000.25,
-        "diferenca": 50000
+        "diferenca": 50000,
+        "parcelas": [
+          {
+            "mes": 2,
+            "ent": "319",
+            "entidade": "FMS",
+            "natureza": "17135011",
+            "diferenca": 50000
+          }
+        ]
       }
     ],
     "receitaPorNatureza": [
@@ -158,7 +168,9 @@
         "codigoEntidade": "319",
         "tipo": "valor",
         "incoerenciaBetha": 50000,
-        "nota": "Na própria Betha, o arrecadado no mês não fecha com o acumulado da rubrica em fevereiro (R$ 50.000,00): lançamento que a consulta mantém e o acumulado desconsidera. Explica toda a diferença."
+        "nota": "Na própria Betha, o arrecadado no mês não fecha com o acumulado da rubrica em fevereiro (R$ 50.000,00): lançamento que a consulta mantém e o acumulado desconsidera. Explica toda a diferença.",
+        "causa": "Lançamento fora do acumulado",
+        "explicada": true
       }
     ],
     "receitaIncoerente": [
@@ -205,7 +217,9 @@
         "ocorrencia": 1,
         "numeroNaOutra": 112,
         "id": "211:728:1003",
-        "nota": "Na outra fonte, o empenho com esta data e valor é o nº 112: provável renumeração."
+        "nota": "Na outra fonte, o empenho com esta data e valor é o nº 112: provável renumeração.",
+        "causa": "Provável renumeração",
+        "explicada": true
       },
       {
         "fonte": "tce",
@@ -218,7 +232,9 @@
         "ocorrencia": 1,
         "numeroNaOutra": 12,
         "id": "5003",
-        "nota": "Na outra fonte, o empenho com esta data e valor é o nº 12: provável renumeração."
+        "nota": "Na outra fonte, o empenho com esta data e valor é o nº 12: provável renumeração.",
+        "causa": "Provável renumeração",
+        "explicada": true
       },
       {
         "fonte": "betha",
@@ -231,9 +247,12 @@
         "ocorrencia": 2,
         "numeroNaOutra": null,
         "id": "211:728:900",
-        "nota": "Registro repetido: mesmo número, data e valor de outro empenho. Não tem liquidação registrada."
+        "nota": "Registro repetido: mesmo número, data e valor de outro empenho. Não tem liquidação registrada.",
+        "causa": "Registro repetido",
+        "explicada": true
       }
     ],
+    "semExplicacao": [],
     "resumo": {
       "despesaEntidadesComparadas": 0,
       "despesaEntidadesIguais": 0,
@@ -245,7 +264,10 @@
       "naturezasIguais": 2,
       "empenhosBetha": 6,
       "empenhosTce": 5,
-      "empenhosCasados": 4
+      "empenhosCasados": 4,
+      "semExplicacao": 0,
+      "comCausaProvavel": 4,
+      "conhecidas": 0
     }
   }
 }

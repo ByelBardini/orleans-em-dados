@@ -1,7 +1,13 @@
 // Conferência Betha × TCE-SC sobre as coletas publicadas de um exercício.
 // Usada pela API (/api/conferencias) e pelo script `pnpm conferir`.
 import { ehParcial, montarConferencia } from './conferencia.bo';
-import { CONSULTAS_NECESSARIAS, lerColetas, lerDados, lerLimites } from './conferencia.dao';
+import {
+  CONSULTAS_NECESSARIAS,
+  lerColetas,
+  lerDados,
+  lerDivergenciasEmOutrosAnos,
+  lerLimites,
+} from './conferencia.dao';
 
 export { empenhosForaDaSoma } from './conferencia.bo';
 
@@ -13,6 +19,9 @@ export async function conferencia(ano: number, agora = new Date()) {
   const limites = await lerLimites(ano);
   // No exercício parcial, compara só até onde o TCE-SC já recebeu dados.
   const dataLimite = ehParcial(limites) ? limites.dataEmpenho : null;
-  const dados = await lerDados(ano, limites.mesReceita, dataLimite);
-  return montarConferencia(ano, { coletas, limites, ...dados }, agora);
+  const [dados, outrosAnos] = await Promise.all([
+    lerDados(ano, limites.mesReceita, dataLimite),
+    lerDivergenciasEmOutrosAnos(ano),
+  ]);
+  return montarConferencia(ano, { coletas, limites, ...dados, outrosAnos }, agora);
 }

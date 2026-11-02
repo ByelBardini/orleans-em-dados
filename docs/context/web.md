@@ -24,6 +24,7 @@ Dashboard público em React 19 + Vite 6, em TSX. Vive em `apps/web/src/` (pacote
 ## Regras de negócio
 
 - Todo número exibido diz fonte e conferência (`Fonte`, `Selo`); a Câmara aparece à parte, com a abrangência explícita.
+- A aba Conferência destaca só o que está em `semExplicacao`. O que tem causa provável ou é recorrente fica em cinza, em "Já conhecidas", e os totais por entidade e mês ficam neutros. O selo tem o estado `explicada` (ícone `i`) para diferença com causa provável.
 - No ano em curso, o atraso do TCE-SC é pendência, não divergência; a linguagem dos selos é "provável"/"possível" quando a causa não foi comprovada.
 
 ## Testes

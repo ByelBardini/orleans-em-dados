@@ -2,7 +2,9 @@ import { describe, expect, it } from 'vitest';
 import {
   anotarEmpenho,
   anotarNaturezas,
+  completarRubricas,
   empenhosForaDaSoma,
+  listarSemExplicacao,
   montarConferencia,
   type DadosDaConferencia,
   type EmpenhoSemPar,
@@ -183,6 +185,9 @@ const dados = (campos: Partial<DadosDaConferencia>): DadosDaConferencia => ({
   naturezas: [],
   repetidas: [],
   incoerentes: [],
+  repetidasMeses: [],
+  mesPorRubrica: [],
+  outrosAnos: new Map(),
   empenhos: [],
   semPar: [],
   camara: { empenhos: 0, empenhado: null, liquidado: null, pago: null, ultimo: null },
@@ -277,5 +282,253 @@ describe('montarConferencia', () => {
     );
     expect(conferencia.receitaPorEntidade[0]?.incoerenciaBetha).toBe(5);
     expect(conferencia.resumo.receitaIncoerenteBetha).toBe(104);
+  });
+});
+
+describe('causa da natureza divergente', () => {
+  it('mesmo valor em duas rubricas do mês é possível duplicidade, com causa', () => {
+    const [linha] = anotarNaturezas(
+      [natureza({ diferenca: 500 })],
+      [{ ent: '728', nat: '11125001', outra: '17115121', mes: 7, v: 500 }],
+      [],
+    );
+    expect(linha).toMatchObject({ causa: 'Possível duplicidade', explicada: true });
+  });
+
+  it('mesmo valor em dois meses da mesma rubrica é possível duplicidade, e a nota cita os meses', () => {
+    const [linha] = anotarNaturezas(
+      [natureza({ diferenca: 500 })],
+      [],
+      [],
+      [{ ent: '728', nat: '11125001', mes: 7, outroMes: 8, v: 500 }],
+    );
+    expect(linha).toMatchObject({ causa: 'Possível duplicidade', explicada: true });
+    expect(linha?.nota).toContain('julho e em agosto');
+  });
+
+  it('mesmo valor em dois meses de outra entidade não explica', () => {
+    const [linha] = anotarNaturezas(
+      [natureza({ diferenca: 500 })],
+      [],
+      [],
+      [{ ent: '319', nat: '11125001', mes: 7, outroMes: 8, v: 500 }],
+    );
+    expect(linha).toMatchObject({ causa: null, explicada: false });
+  });
+
+  it('diferenças que compensam exatamente em outro grupo são provável reclassificação', () => {
+    const linhas = anotarNaturezas(
+      [natureza({ natureza: '17295101', diferenca: -20 }), natureza({ natureza: '24299901', diferenca: 20 })],
+      [],
+      [],
+    );
+    expect(linhas.map((l) => l.causa)).toEqual(['Provável reclassificação', 'Provável reclassificação']);
+  });
+
+  it('grupo de 6 dígitos que soma zero com três rubricas é provável reclassificação', () => {
+    const [primeira] = anotarNaturezas(
+      [
+        natureza({ natureza: '17135011', diferenca: 30 }),
+        natureza({ natureza: '17135021', diferenca: -10 }),
+        natureza({ natureza: '17135031', diferenca: -20 }),
+      ],
+      [],
+      [],
+    );
+    expect(primeira).toMatchObject({ causa: 'Provável reclassificação', explicada: true });
+    expect(primeira?.nota).toContain('No grupo 171350');
+  });
+
+  it('incoerência que explica toda a diferença é causa conhecida', () => {
+    const [linha] = anotarNaturezas(
+      [natureza({ diferenca: 500 })],
+      [],
+      [{ ent: '728', nat: '11125001', mes: 2, excesso: 500 }],
+    );
+    expect(linha).toMatchObject({ causa: 'Lançamento fora do acumulado', explicada: true });
+  });
+
+  it('incoerência que explica só parte deixa a diferença em aberto', () => {
+    const [linha] = anotarNaturezas(
+      [natureza({ diferenca: 500 })],
+      [],
+      [{ ent: '728', nat: '11125001', mes: 2, excesso: 300 }],
+    );
+    expect(linha).toMatchObject({ causa: null, explicada: false });
+  });
+
+  it('diferença sem padrão fica sem causa', () => {
+    const [linha] = anotarNaturezas([natureza({ diferenca: 10 })], [], []);
+    expect(linha).toMatchObject({ causa: null, explicada: false });
+  });
+});
+
+describe('causa do empenho sem par', () => {
+  it.each([
+    ['repetido', { ocorrencia: 2 }, 'Registro repetido', true],
+    ['renumerado', { numeroNaOutra: 112 }, 'Provável renumeração', true],
+    ['sem pista', {}, null, false],
+  ])('empenho %s recebe a causa certa', (_nome, campos, causa, explicada) => {
+    expect(anotarEmpenho(semPar(campos))).toMatchObject({ causa, explicada });
+  });
+});
+
+describe('completarRubricas', () => {
+  const aberta = () => anotarNaturezas([natureza({ diferenca: 10 })], [], []);
+  const parcela = (mes: number, diferenca: number) => ({
+    mes,
+    ent: '728',
+    entidade: 'Prefeitura',
+    natureza: '11125001',
+    diferenca,
+  });
+
+  it('rubrica em aberto diz em quais meses a diferença aparece e de que lado', () => {
+    const [linha] = completarRubricas(aberta(), [parcela(3, 4), parcela(5, 6)], new Map(), 2025);
+    expect(linha?.nota).toContain(`março (R$${NBSP}4,00 a mais na Betha) e maio (R$${NBSP}6,00 a mais na Betha)`);
+  });
+
+  it('diferença em mais de seis meses diz só quantos', () => {
+    const parcelas = [1, 2, 3, 4, 5, 6, 7].map((mes) => parcela(mes, 1));
+    const [linha] = completarRubricas(aberta(), parcelas, new Map(), 2025);
+    expect(linha?.nota).toContain('se repete em 7 meses');
+  });
+
+  it('parcela de outra natureza não entra na nota', () => {
+    const [linha] = completarRubricas(aberta(), [{ ...parcela(3, 4), natureza: '17135011' }], new Map(), 2025);
+    expect(linha?.nota).toBe('A Betha registra mais que o TCE nesta rubrica.');
+  });
+
+  it('mesma rubrica divergindo do mesmo lado em outro ano é conhecida, sem virar explicada', () => {
+    const outros = new Map([['728|11125001', [{ ano: 2024, diferenca: 7, parcial: false }]]]);
+    const [linha] = completarRubricas(aberta(), [], outros, 2025);
+    expect(linha).toMatchObject({
+      conhecida: true,
+      causa: 'Conhecida e recorrente',
+      explicada: false,
+      recorrenteEm: [2024, 2025],
+    });
+    expect(linha?.nota).toContain('Causa ainda não confirmada');
+  });
+
+  it('divergência do lado oposto em outro ano não torna a rubrica conhecida', () => {
+    const outros = new Map([['728|11125001', [{ ano: 2024, diferenca: -7, parcial: false }]]]);
+    const [linha] = completarRubricas(aberta(), [], outros, 2025);
+    expect(linha).toMatchObject({ causa: null, explicada: false });
+    expect(linha?.conhecida).toBeUndefined();
+  });
+
+  it('rubrica já explicada não recebe meses nem recorrência', () => {
+    const explicada = anotarNaturezas(
+      [natureza({ diferenca: 10 })],
+      [],
+      [{ ent: '728', nat: '11125001', mes: 2, excesso: 10 }],
+    );
+    const notaOriginal = explicada[0]?.nota;
+    const outros = new Map([['728|11125001', [{ ano: 2024, diferenca: 7, parcial: false }]]]);
+    const [linha] = completarRubricas(explicada, [parcela(2, 10)], outros, 2025);
+    expect(linha?.nota).toBe(notaOriginal);
+    expect(linha?.conhecida).toBeUndefined();
+  });
+});
+
+describe('listarSemExplicacao', () => {
+  const rubricaAberta = () =>
+    completarRubricas(anotarNaturezas([natureza({ diferenca: 10 })], [], []), [], new Map(), 2025);
+  const despesaComparavel = (difEmpenhado: number) => ({
+    ...despesa({ sigla: 'SAMAE', entidadeBetha: '2473', bethaEmpenhado: 110, tceEmpenhado: 100, difEmpenhado }),
+    comparavel: true,
+  });
+
+  it('entidade com despesa divergente entra na lista', () => {
+    const [item] = listarSemExplicacao([despesaComparavel(10)], [], []);
+    expect(item).toMatchObject({
+      onde: 'despesa',
+      entidade: 'SAMAE',
+      titulo: 'Despesa orçamentária (57170)',
+      diferenca: 10,
+    });
+  });
+
+  it('entidade com despesa igual fica de fora', () => {
+    expect(listarSemExplicacao([despesaComparavel(0)], [], [])).toEqual([]);
+  });
+
+  it('rubrica em aberto entra na lista', () => {
+    expect(listarSemExplicacao([], rubricaAberta(), []).map((i) => i.titulo)).toEqual(['Rubrica 11125001']);
+  });
+
+  it('rubrica conhecida fica de fora', () => {
+    const conhecida = completarRubricas(
+      anotarNaturezas([natureza({ diferenca: 10 })], [], []),
+      [],
+      new Map([['728|11125001', [{ ano: 2024, diferenca: 7, parcial: false }]]]),
+      2025,
+    );
+    expect(listarSemExplicacao([], conhecida, [])).toEqual([]);
+  });
+
+  it('rubrica explicada fica de fora', () => {
+    const explicada = anotarNaturezas(
+      [natureza({ diferenca: 10 })],
+      [],
+      [{ ent: '728', nat: '11125001', mes: 2, excesso: 10 }],
+    );
+    expect(listarSemExplicacao([], explicada, [])).toEqual([]);
+  });
+
+  it('empenho sem pista entra com o valor do lado da fonte, negativo quando é do TCE-SC', () => {
+    const lista = listarSemExplicacao(
+      [],
+      [],
+      [anotarEmpenho(semPar({ valor: 40 })), anotarEmpenho(semPar({ fonte: 'tce', valor: 25, numero: 11, id: '5001' }))],
+    );
+    expect(lista.map((i) => [i.titulo, i.betha, i.tce, i.diferenca])).toEqual([
+      ['Empenho nº 10', 40, null, 40],
+      ['Empenho nº 11', null, 25, -25],
+    ]);
+  });
+
+  it('empenho repetido fica de fora', () => {
+    expect(listarSemExplicacao([], [], [anotarEmpenho(semPar({ ocorrencia: 2 }))])).toEqual([]);
+  });
+});
+
+describe('montarConferencia com as causas', () => {
+  const AGORA = new Date('2026-01-15T10:00:00.000Z');
+
+  it('mês recebe as próprias parcelas e meses sem diferença ficam com lista vazia', () => {
+    const parcela = { mes: 2, ent: '728', entidade: 'Prefeitura', natureza: '11125001', diferenca: 10 };
+    const { receitaPorMes } = montarConferencia(
+      2025,
+      dados({
+        receitaMes: [
+          { mes: 1, betha: 5, tce: 5, diferenca: 0 },
+          { mes: 2, betha: 15, tce: 5, diferenca: 10 },
+        ],
+        mesPorRubrica: [parcela],
+      }),
+      AGORA,
+    );
+    expect(receitaPorMes.map((m) => m.parcelas)).toEqual([[], [parcela]]);
+  });
+
+  it('resumo separa sem explicação, causa provável e conhecidas', () => {
+    const { resumo, semExplicacao } = montarConferencia(
+      2025,
+      dados({
+        naturezas: [
+          natureza({ natureza: '11125001', diferenca: 10 }),
+          natureza({ natureza: '12000000', diferenca: 20 }),
+          natureza({ natureza: '13000000', diferenca: 30 }),
+        ],
+        incoerentes: [{ ent: '728', nat: '12000000', mes: 2, excesso: 20 }],
+        semPar: [semPar({ ocorrencia: 2 })],
+        outrosAnos: new Map([['728|13000000', [{ ano: 2024, diferenca: 1, parcial: false }]]]),
+      }),
+      AGORA,
+    );
+    expect(resumo).toMatchObject({ semExplicacao: 1, comCausaProvavel: 2, conhecidas: 1 });
+    expect(semExplicacao.map((i) => i.titulo)).toEqual(['Rubrica 11125001']);
   });
 });
