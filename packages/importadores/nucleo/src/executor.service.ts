@@ -37,11 +37,11 @@ function errosDeIntegridade(coleta: Coleta): string[] {
 }
 
 // Repetidos não viram duas linhas: a primeira ocorrência é a que fica, como no bruto.
-function normalizarTudo(consulta: ConsultaImportada, coleta: Coleta) {
+export function normalizarTudo(consulta: ConsultaImportada, registros: readonly RegistroBruto[]) {
   const vistos = new Set<string>();
   const linhas: Record<string, unknown>[] = [];
   const erros: string[] = [];
-  for (const registro of coleta.registros) {
+  for (const registro of registros) {
     if (vistos.has(registro.id)) continue;
     vistos.add(registro.id);
     try {
@@ -60,7 +60,7 @@ function montarLote(
   iniciadoEm: Date,
   coletadoEm: Date,
 ): Lote {
-  const { linhas, erros: errosDeNormalizacao } = normalizarTudo(consulta, coleta);
+  const { linhas, erros: errosDeNormalizacao } = normalizarTudo(consulta, coleta.registros);
   const validacao = errosDeNormalizacao.length ? { conferencia: [], erros: [] } : consulta.validar(coleta, linhas);
   const erros = [...errosDeIntegridade(coleta), ...errosDeNormalizacao, ...validacao.erros];
   return {
