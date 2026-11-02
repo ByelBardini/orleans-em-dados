@@ -128,17 +128,31 @@ const fmt = (v: number) => v.toLocaleString('pt-BR', { style: 'currency', curren
 const somaEmCentavos = <T>(lista: readonly T[], valor: (item: T) => number) =>
   lista.reduce((soma, item) => soma + centavos(valor(item)), 0) / 100;
 
-/** O que os lançamentos da própria Betha dizem de uma natureza: quanto o acumulado desconsidera
- *  e se a diferença é o mesmo valor lançado em outra rubrica do mês. */
+/** O que os próprios números dizem de uma natureza: quanto o acumulado desconsidera, se a diferença
+ *  é o mesmo valor em outra rubrica do mês ou em dois meses, e se outra rubrica a compensa. */
 function pistasDaNatureza(
   r: Pick<LinhaNatureza, 'ent' | 'natureza' | 'diferenca'>,
-  repetidas: readonly ReceitaRepetida[],
-  incoerentes: readonly ReceitaIncoerente[],
+  linhas: readonly LinhaNatureza[],
+  { repetidas, incoerentes, repetidasMeses }: PistasDaReceita,
 ) {
   const incoerencias = incoerentes.filter((i) => i.ent === r.ent && i.nat === r.natureza);
-  const duplicada =
-    r.diferenca > 0 ? repetidas.find((d) => d.ent === r.ent && d.nat === r.natureza && igual(d.v, r.diferenca)) : null;
-  return { incoerencias, excesso: somaEmCentavos(incoerencias, (i) => i.excesso), duplicada };
+  const mesmoValor = (d: { ent: string; nat: string; v: number }) =>
+    d.ent === r.ent && d.nat === r.natureza && igual(d.v, r.diferenca);
+  const grupo = r.natureza.slice(0, 6);
+  return {
+    incoerencias,
+    excesso: somaEmCentavos(incoerencias, (i) => i.excesso),
+    duplicada: r.diferenca > 0 ? repetidas.find(mesmoValor) : null,
+    emDoisMeses: r.diferenca > 0 ? repetidasMeses.find(mesmoValor) : null,
+    compensa: linhas.find(
+      (o) => o.ent === r.ent && o.natureza !== r.natureza && o.diferenca !== 0 && igual(o.diferenca, -r.diferenca),
+    ),
+    grupo,
+    // No grupo de 6 dígitos as fontes batem: a diferença é só de classificação entre rubricas.
+    somaGrupo: linhas
+      .filter((o) => o.ent === r.ent && o.natureza.startsWith(grupo))
+      .reduce((soma, o) => soma + centavos(o.diferenca), 0),
+  };
 }
 
 export function anotarNaturezas(
@@ -151,18 +165,15 @@ export function anotarNaturezas(
     .filter((r) => r.diferenca !== 0)
     .map((r) => {
       const tipo = r.betha === null ? ('soTce' as const) : r.tce === null ? ('soBetha' as const) : ('valor' as const);
-      const mesmaEntidade = linhas.filter((o) => o.ent === r.ent && o.natureza !== r.natureza);
-      const { incoerencias, excesso, duplicada } = pistasDaNatureza(r, repetidas, incoerentes);
-      const compensa = mesmaEntidade.find((o) => o.diferenca !== 0 && igual(o.diferenca, -r.diferenca));
-      const emDoisMeses =
-        r.diferenca > 0
-          ? repetidasMeses.find((d) => d.ent === r.ent && d.nat === r.natureza && igual(d.v, r.diferenca))
-          : null;
-      // No grupo de 6 dígitos as fontes batem: a diferença é só de classificação entre rubricas.
-      const grupo = r.natureza.slice(0, 6);
-      const somaGrupo = linhas
-        .filter((o) => o.ent === r.ent && o.natureza.startsWith(grupo))
-        .reduce((soma, o) => soma + centavos(o.diferenca), 0);
+      const { incoerencias, excesso, duplicada, emDoisMeses, compensa, grupo, somaGrupo } = pistasDaNatureza(
+        r,
+        linhas,
+        {
+          repetidas,
+          incoerentes,
+          repetidasMeses,
+        },
+      );
 
       let nota: string;
       let causa: string | null = null;
@@ -390,6 +401,8 @@ export type TipoDiscrepancia =
   | 'duas_rubricas'
   | 'mes_diferente'
   | 'so_tce'
+  | 'reclassificacao'
+  | 'mes_repetido'
   | 'despesa_duplicada'
   | 'aguardando_tce'
   | 'sem_causa';
@@ -423,17 +436,54 @@ export function separarValores(betha: number | null, tce: number | null) {
 const temDiferenca = (l: { diferencaBetha: number; diferencaTce: number }) =>
   l.diferencaBetha !== 0 || l.diferencaTce !== 0;
 
-/** Ordem dos tipos: mês trocado (soma zero no ano), acumulado que explica toda a diferença,
- *  mesmo valor em outra rubrica do mês, natureza que a Betha não tem, e o que sobra. */
-function classificarNatureza(
+type TipoDaNatureza = Exclude<TipoDiscrepancia, 'despesa_duplicada' | 'aguardando_tce'>;
+/** Uma fatia da diferença da natureza. As fatias somam, em centavos, a diferença inteira. */
+type ParteDaNatureza = { tipo: TipoDaNatureza; valor: number };
+
+/** O acumulado explica parte da diferença: só divide se excesso e resto têm o sinal dela. */
+function partesDoAcumulado(diferenca: number, excesso: number): ParteDaNatureza[] {
+  if (igual(excesso, diferenca)) return [{ tipo: 'fora_do_acumulado', valor: diferenca }];
+  const resto = (centavos(diferenca) - centavos(excesso)) / 100;
+  const sinal = Math.sign(diferenca);
+  return Math.sign(excesso) === sinal && Math.sign(resto) === sinal
+    ? [
+        { tipo: 'fora_do_acumulado', valor: excesso },
+        { tipo: 'sem_causa', valor: resto },
+      ]
+    : [{ tipo: 'sem_causa', valor: diferenca }];
+}
+
+/** A ordem das explicações é a de `anotarNaturezas`, depois do mês trocado (soma zero no ano). */
+function partesDaNatureza(
   r: LinhaNatureza,
-  { repetidas, incoerentes }: PistasDaReceita,
-): Exclude<TipoDiscrepancia, 'despesa_duplicada' | 'aguardando_tce'> {
-  if (r.diferenca === 0) return 'mes_diferente';
-  const { excesso, duplicada } = pistasDaNatureza(r, repetidas, incoerentes);
-  if (excesso !== 0) return igual(excesso, r.diferenca) ? 'fora_do_acumulado' : 'sem_causa';
-  if (duplicada) return 'duas_rubricas';
-  return r.betha === null ? 'so_tce' : 'sem_causa';
+  linhas: readonly LinhaNatureza[],
+  pistas: PistasDaReceita,
+): ParteDaNatureza[] {
+  if (r.diferenca === 0) return [{ tipo: 'mes_diferente', valor: 0 }];
+  const { excesso, duplicada, emDoisMeses, compensa, somaGrupo } = pistasDaNatureza(r, linhas, pistas);
+  if (excesso !== 0) return partesDoAcumulado(r.diferenca, excesso);
+  const inteira = (tipo: TipoDaNatureza) => [{ tipo, valor: r.diferenca }];
+  if (duplicada) return inteira('duas_rubricas');
+  if (emDoisMeses) return inteira('mes_repetido');
+  if (compensa || somaGrupo === 0) return inteira('reclassificacao');
+  return inteira(r.betha === null ? 'so_tce' : 'sem_causa');
+}
+
+/** Divide a diferença de cada lado entre as partes: a parte fica do lado que a comporta, e a
+ *  última leva o que sobra. Assim a soma das partes é a diferença da natureza nos dois lados. */
+function ladosDasPartes(partes: readonly ParteDaNatureza[], diferencaBetha: number, diferencaTce: number) {
+  let betha = centavos(diferencaBetha);
+  let tce = centavos(diferencaTce);
+  return partes.map((parte, i) => {
+    if (i === partes.length - 1) return { diferencaBetha: betha / 100, diferencaTce: tce / 100 };
+    const valor = centavos(parte.valor);
+    if (Math.sign(betha) === Math.sign(valor) && Math.abs(betha) >= Math.abs(valor)) {
+      betha -= valor;
+      return { diferencaBetha: valor / 100, diferencaTce: 0 };
+    }
+    tce += valor;
+    return { diferencaBetha: 0, diferencaTce: -valor / 100 };
+  });
 }
 
 const chaveNatureza = (l: { ent: string | null; natureza: string }) => `${l.ent}|${l.natureza}`;
@@ -473,16 +523,18 @@ export function separarReceita(
 ) {
   const aguarda = (c: CruzamentoReceita) => c.mes !== null && c.mes > (mesLimite ?? 0);
   const comparados = cruzamentos.filter((c) => !aguarda(c));
-  const tipos = new Map(
-    [...agrupar(comparados, chaveNatureza)].map(([chave, grupo]) => [
-      chave,
-      classificarNatureza(naturezaDoAno(grupo), pistas),
-    ]),
-  );
+  const naturezas = [...agrupar(comparados, chaveNatureza).values()].map(naturezaDoAno);
+  const partes = new Map(naturezas.map((n) => [chaveNatureza(n), partesDaNatureza(n, naturezas, pistas)]));
+  // A natureza dividida tem um resto em aberto: na linha, fica sem_causa.
+  const tipoDaLinha = (c: CruzamentoReceita) => {
+    const daNatureza = partes.get(chaveNatureza(c)) ?? [];
+    return daNatureza.length === 1 ? (daNatureza[0]?.tipo ?? null) : 'sem_causa';
+  };
   return {
+    partes,
     linhas: comparados.map((c) => {
-      const partes = separarValores(c.betha, c.tce);
-      return { ...c, ...partes, tipo: temDiferenca(partes) ? (tipos.get(chaveNatureza(c)) ?? null) : null };
+      const separado = separarValores(c.betha, c.tce);
+      return { ...c, ...separado, tipo: temDiferenca(separado) ? tipoDaLinha(c) : null };
     }),
     aguardando: cruzamentos.filter(aguarda).map((c) => ({ ...c, mes: c.mes as number, valor: c.betha ?? 0 })),
   };
@@ -506,6 +558,8 @@ export type Discrepancia = {
   diferenca: number;
   diferencaBetha?: number;
   diferencaTce?: number;
+  /** Natureza dividida em partes: a diferença inteira dela. `betha` e `tce` também são da natureza. */
+  diferencaDaNatureza?: number;
   /** Despesa: Betha, TCE e diferença em cada etapa. `betha`, `tce` e `diferenca` são do empenhado. */
   etapas?: Record<
     'empenhado' | 'liquidado' | 'pago',
@@ -597,6 +651,7 @@ function naturezasMistas(
 
 function discrepanciasDaReceita(
   linhas: readonly LinhaSeparada[],
+  partes: ReadonlyMap<string, readonly ParteDaNatureza[]>,
   aguardando: readonly LinhaAguardando[],
   pistas: PistasDaReceita,
   outrosAnos: DivergenciasEmOutrosAnos,
@@ -632,31 +687,31 @@ function discrepanciasDaReceita(
     const { betha, tce, diferenca, descricao } = naturezaDoAno(grupo);
     const { diferencaBetha, diferencaTce } = somaDasPartes(grupo);
     const mes = divergentes.length === 1 && primeira.mes !== null ? primeira.mes : undefined;
-    return [
-      {
-        area: 'receita',
-        tipo: primeira.tipo,
-        entidade: primeira.entidade,
-        codigoEntidade: primeira.ent,
-        natureza: primeira.natureza,
-        descricao,
-        ...(mes === undefined ? {} : { mes }),
-        meses: divergentes.map((l) => ({
-          mes: l.mes,
-          betha: l.betha,
-          tce: l.tce,
-          diferenca: somaEmCentavos([l], (x) => x.diferencaBetha - x.diferencaTce),
-        })),
-        betha,
-        tce,
-        diferenca,
-        diferencaBetha,
-        diferencaTce,
-        nota:
-          notas.get(chaveNatureza(primeira)) ??
-          'A soma do ano é igual nas duas fontes: o valor só está em meses diferentes.',
-      },
-    ];
+    const fatias = partes.get(chaveNatureza(primeira)) ?? [];
+    const lados = ladosDasPartes(fatias, diferencaBetha, diferencaTce);
+    return fatias.map((parte, i): Discrepancia => ({
+      area: 'receita',
+      tipo: parte.tipo,
+      entidade: primeira.entidade,
+      codigoEntidade: primeira.ent,
+      natureza: primeira.natureza,
+      descricao,
+      ...(mes === undefined ? {} : { mes }),
+      meses: divergentes.map((l) => ({
+        mes: l.mes,
+        betha: l.betha,
+        tce: l.tce,
+        diferenca: somaEmCentavos([l], (x) => x.diferencaBetha - x.diferencaTce),
+      })),
+      betha,
+      tce,
+      diferenca: parte.valor,
+      ...lados[i],
+      ...(fatias.length > 1 ? { diferencaDaNatureza: diferenca } : {}),
+      nota:
+        notas.get(chaveNatureza(primeira)) ??
+        'A soma do ano é igual nas duas fontes: o valor só está em meses diferentes.',
+    }));
   });
 
   const pendentes = [...agrupar(aguardando, (l) => `${l.ent}|${l.mes}`).values()].flatMap((grupo): Discrepancia[] => {
@@ -691,7 +746,7 @@ export type DadosDaReceitaConferida = {
 
 export function montarReceitaConferida(ano: number, mesLimite: number | null, dados: DadosDaReceitaConferida) {
   const { cruzamentos, rubricas, totais, pistas, outrosAnos } = dados;
-  const { linhas, aguardando } = separarReceita(cruzamentos, pistas, mesLimite);
+  const { linhas, partes, aguardando } = separarReceita(cruzamentos, pistas, mesLimite);
 
   const meses = [...new Set([...linhas, ...aguardando].map((l) => l.mes))].sort((a, b) => (a ?? 13) - (b ?? 13));
   const entidades = agrupar<CruzamentoReceita>([...linhas, ...aguardando], (l) => l.ent);
@@ -745,7 +800,7 @@ export function montarReceitaConferida(ano: number, mesLimite: number | null, da
         totalTce: totais.totalTce ?? 0,
       },
     },
-    discrepancias: discrepanciasDaReceita(linhas, aguardando, pistas, outrosAnos, ano),
+    discrepancias: discrepanciasDaReceita(linhas, partes, aguardando, pistas, outrosAnos, ano),
   };
 }
 
@@ -958,6 +1013,8 @@ const ORDEM_DOS_TIPOS: readonly TipoDiscrepancia[] = [
   'duas_rubricas',
   'mes_diferente',
   'so_tce',
+  'reclassificacao',
+  'mes_repetido',
   'despesa_duplicada',
   'sem_causa',
   'aguardando_tce',

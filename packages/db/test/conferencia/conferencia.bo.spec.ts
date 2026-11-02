@@ -8,11 +8,14 @@ import {
   listarSemExplicacao,
   montarConferencia,
   montarDespesaConferida,
+  montarReceitaConferida,
+  ordenarDiscrepancias,
   separarReceita,
   separarValores,
   type CruzamentoReceita,
   type DadosDaConferencia,
   type DespesaPorEntidade,
+  type Discrepancia,
   type EmpenhoSemPar,
   type LinhaNatureza,
   type Modalidade71,
@@ -919,5 +922,191 @@ describe('montarDespesaConferida', () => {
     );
     expect(despesa.porEntidade).toMatchObject([{ empenhado: null, conferida: false, tipo: null, aguardandoTce: 500 }]);
     expect(discrepancias.map((d) => d.tipo)).toEqual(['aguardando_tce']);
+  });
+});
+
+const receitaConferida = (cruzamentos: CruzamentoReceita[], pistas: Partial<PistasDaReceita> = {}) =>
+  montarReceitaConferida(2025, 12, {
+    cruzamentos,
+    rubricas: [],
+    totais: { totalBetha: 0, totalTce: 0 },
+    pistas: { ...SEM_PISTAS, ...pistas },
+    outrosAnos: new Map(),
+  });
+
+const excesso = (valor: number, nat = '11125001') => ({
+  incoerentes: [{ ent: '728', nat, mes: 1, excesso: valor }],
+});
+
+const tiposDe = (lista: readonly Discrepancia[]) => lista.map((d) => [d.tipo, d.diferenca]);
+
+describe('diferença explicada só em parte pelo acumulado', () => {
+  // Regressão: FMS 2025, natureza 17135011, ficava inteira como sem_causa (conferência de 01/11/2026).
+  it('vira fora_do_acumulado com o excesso e sem_causa com o resto', () => {
+    const { discrepancias } = receitaConferida(
+      [cruzamento({ betha: 13635187.54, tce: 13315050.74 })],
+      excesso(306503.9),
+    );
+    expect(tiposDe(discrepancias)).toEqual([
+      ['fora_do_acumulado', 306503.9],
+      ['sem_causa', 13632.9],
+    ]);
+  });
+
+  it('as partes dizem o total da natureza, e a soma em centavos bate com ele', () => {
+    const { discrepancias } = receitaConferida(
+      [cruzamento({ betha: 13635187.54, tce: 13315050.74 })],
+      excesso(306503.9),
+    );
+    expect(discrepancias.map((d) => d.diferencaDaNatureza)).toEqual([320136.8, 320136.8]);
+    expect(discrepancias.reduce((soma, d) => soma + Math.round(d.diferenca * 100), 0)).toBe(32013680);
+    expect(discrepancias.map((d) => d.diferencaBetha)).toEqual([306503.9, 13632.9]);
+    expect(discrepancias.map((d) => d.diferencaTce)).toEqual([0, 0]);
+  });
+
+  it('com o TCE maior, a divisão fica do lado do TCE', () => {
+    const { discrepancias } = receitaConferida([cruzamento({ betha: 100, tce: 150 })], excesso(-30));
+    expect(tiposDe(discrepancias)).toEqual([
+      ['fora_do_acumulado', -30],
+      ['sem_causa', -20],
+    ]);
+    expect(discrepancias.map((d) => [d.diferencaBetha, d.diferencaTce])).toEqual([
+      [0, 30],
+      [0, 20],
+    ]);
+  });
+
+  it('a soma das partes de cada lado continua sendo a diferença de cada lado da natureza', () => {
+    // Janeiro: 40 a mais na Betha. Fevereiro: 10 a mais no TCE. Na natureza, +30; o excesso é 20.
+    const { discrepancias, receita } = receitaConferida(
+      [cruzamento({ mes: 1, betha: 140, tce: 100 }), cruzamento({ mes: 2, betha: 100, tce: 110 })],
+      excesso(20),
+    );
+    expect(discrepancias.map((d) => [d.tipo, d.diferencaBetha, d.diferencaTce])).toEqual([
+      ['fora_do_acumulado', 20, 0],
+      ['sem_causa', 20, 10],
+    ]);
+    expect(receita.totais).toMatchObject({ conferido: 200, diferencaBetha: 40, diferencaTce: 10 });
+  });
+
+  it.each([
+    ['maior que a diferença', 70],
+    ['de sinal oposto', -30],
+  ])('excesso %s não divide: fica um único sem_causa com a nota do acumulado', (_, valor) => {
+    const { discrepancias } = receitaConferida([cruzamento({ betha: 150, tce: 100 })], excesso(valor));
+    expect(tiposDe(discrepancias)).toEqual([['sem_causa', 50]]);
+    expect(discrepancias[0]?.diferencaDaNatureza).toBeUndefined();
+    expect(discrepancias[0]?.nota).toContain('restam');
+  });
+
+  it('natureza inteira explicada continua uma discrepância só, sem total à parte', () => {
+    const { discrepancias } = receitaConferida([cruzamento({ betha: 150, tce: 100 })], excesso(50));
+    expect(tiposDe(discrepancias)).toEqual([['fora_do_acumulado', 50]]);
+    expect(discrepancias[0]?.diferencaDaNatureza).toBeUndefined();
+  });
+
+  it('na tabela, a natureza com resto em aberto segue sem_causa', () => {
+    const { receita } = receitaConferida([cruzamento({ betha: 150, tce: 100 })], excesso(30));
+    expect(receita.naturezas[0]?.tipo).toBe('sem_causa');
+  });
+});
+
+describe('tipos de padrão conhecido', () => {
+  const EM_DOIS_MESES = { repetidasMeses: [{ ent: '728', nat: '11125001', mes: 1, outroMes: 2, v: 50 }] };
+
+  it('diferença que compensa outra rubrica de grupo diferente é reclassificacao', () => {
+    const { discrepancias } = receitaConferida([
+      cruzamento({ natureza: '11125001', betha: 150, tce: 100 }),
+      cruzamento({ natureza: '17115101', betha: 100, tce: 150 }),
+    ]);
+    expect(discrepancias.map((d) => [d.natureza, d.tipo])).toEqual([
+      ['11125001', 'reclassificacao'],
+      ['17115101', 'reclassificacao'],
+    ]);
+  });
+
+  it('diferenças que somam zero no grupo de 6 dígitos são reclassificacao', () => {
+    const { discrepancias } = receitaConferida([
+      cruzamento({ natureza: '11125001', betha: 150, tce: 100 }),
+      cruzamento({ natureza: '11125002', betha: 100, tce: 120 }),
+      cruzamento({ natureza: '11125003', betha: 100, tce: 130 }),
+    ]);
+    expect(discrepancias.map((d) => d.tipo)).toEqual(['reclassificacao', 'reclassificacao', 'reclassificacao']);
+  });
+
+  it('natureza só no TCE que compensa outra é reclassificacao, não so_tce', () => {
+    const { discrepancias } = receitaConferida([
+      cruzamento({ natureza: '11125001', betha: null, tce: 50 }),
+      cruzamento({ natureza: '17115101', betha: 50, tce: null }),
+    ]);
+    expect(discrepancias.map((d) => d.tipo)).toEqual(['reclassificacao', 'reclassificacao']);
+  });
+
+  it('o mesmo valor em dois meses da rubrica é mes_repetido', () => {
+    const { discrepancias } = receitaConferida([cruzamento({ betha: 150, tce: 100 })], EM_DOIS_MESES);
+    expect(tiposDe(discrepancias)).toEqual([['mes_repetido', 50]]);
+  });
+
+  it('repetição em dois meses com valor diferente da diferença não classifica', () => {
+    const { discrepancias } = receitaConferida([cruzamento({ betha: 150, tce: 100 })], {
+      repetidasMeses: [{ ent: '728', nat: '11125001', mes: 1, outroMes: 2, v: 49.99 }],
+    });
+    expect(tiposDe(discrepancias)).toEqual([['sem_causa', 50]]);
+  });
+
+  it('diferença sem nenhum padrão é sem_causa', () => {
+    const { discrepancias } = receitaConferida([
+      cruzamento({ natureza: '11125001', betha: 150, tce: 100 }),
+      cruzamento({ natureza: '17115101', betha: 100, tce: 149.99 }),
+    ]);
+    expect(discrepancias.map((d) => d.tipo)).toEqual(['sem_causa', 'sem_causa']);
+  });
+
+  describe('a prioridade é a de anotarNaturezas', () => {
+    const NATUREZAS = [
+      cruzamento({ natureza: '11125001', betha: 150, tce: 100 }),
+      cruzamento({ natureza: '17115101', betha: 100, tce: 150 }),
+    ];
+    const repetidas = [{ ent: '728', nat: '11125001', outra: '11125002', mes: 1, v: 50 }];
+    const daPrimeira = (pistas: Partial<PistasDaReceita>) =>
+      receitaConferida(NATUREZAS, pistas).discrepancias.find((d) => d.natureza === '11125001')?.tipo;
+
+    it('dois meses vence a compensação', () => {
+      expect(daPrimeira(EM_DOIS_MESES)).toBe('mes_repetido');
+    });
+
+    it('duas rubricas vence dois meses', () => {
+      expect(daPrimeira({ ...EM_DOIS_MESES, repetidas })).toBe('duas_rubricas');
+    });
+
+    it('o acumulado vence duas rubricas', () => {
+      expect(daPrimeira({ repetidas, ...excesso(50) })).toBe('fora_do_acumulado');
+    });
+  });
+
+  it('a nota de mes_repetido e a de reclassificacao dizem o padrão', () => {
+    const repetido = receitaConferida([cruzamento({ betha: 150, tce: 100 })], EM_DOIS_MESES).discrepancias[0];
+    expect(repetido?.nota).toContain('aparece em janeiro e em fevereiro');
+    const reclassificada = receitaConferida([
+      cruzamento({ natureza: '11125001', betha: 150, tce: 100 }),
+      cruzamento({ natureza: '17115101', betha: 100, tce: 150 }),
+    ]).discrepancias[0];
+    expect(reclassificada?.nota).toContain('provável reclassificação');
+  });
+
+  it('a tabela usa o tipo novo', () => {
+    const { receita } = receitaConferida([cruzamento({ betha: 150, tce: 100 })], EM_DOIS_MESES);
+    expect(receita.naturezas[0]?.tipo).toBe('mes_repetido');
+  });
+
+  it('os tipos de padrão vêm antes de sem_causa, e a pendência continua por último', () => {
+    const base = { area: 'receita', entidade: 'FMS', codigoEntidade: '319', betha: 0, tce: 0, nota: '' } as const;
+    const ordenada = ordenarDiscrepancias([
+      { ...base, tipo: 'aguardando_tce', diferenca: 900 },
+      { ...base, tipo: 'sem_causa', diferenca: 800 },
+      { ...base, tipo: 'mes_repetido', diferenca: 1 },
+      { ...base, tipo: 'reclassificacao', diferenca: 2 },
+    ]);
+    expect(ordenada.map((d) => d.tipo)).toEqual(['reclassificacao', 'mes_repetido', 'sem_causa', 'aguardando_tce']);
   });
 });

@@ -261,6 +261,40 @@ describe('dadosConferidos: exercício encerrado', () => {
   });
 });
 
+describe('dadosConferidos: natureza explicada em parte pelo acumulado', () => {
+  beforeAll(() =>
+    popularCenario({
+      receitas: snapshot(57153, [
+        receita('319:201', '17135011000000', 'SUS (exemplo)', 1, 300, 300),
+        // O acumulado só sobe 120: 30 ficam fora dele.
+        receita('319:201', '17135011000000', 'SUS (exemplo)', 2, 150, 420),
+      ]),
+      tcescReceitas: snapshot(900001, [
+        receitaTce(FMS_TCE, '1.7.1.3.50.1.1', 'SUS', 'jan', '300.00'),
+        receitaTce(FMS_TCE, '1.7.1.3.50.1.1', 'SUS', 'dez', '100.00'),
+      ]),
+    }),
+  );
+
+  it('vira duas discrepâncias, e a conta com os totais das fontes não muda', async () => {
+    const { discrepancias, receita: r } = await disponiveis(2025);
+    expect(discrepancias.map((d) => [d.tipo, d.natureza, d.diferenca, d.diferencaDaNatureza])).toEqual([
+      ['fora_do_acumulado', '17135011', 30, 50],
+      ['sem_causa', '17135011', 20, 50],
+    ]);
+    expect(r.totais).toMatchObject({
+      conferido: 300,
+      diferencaBetha: 150,
+      diferencaTce: 100,
+      totalBetha: 450,
+      totalTce: 400,
+    });
+    const somaDe = (campo: 'diferencaBetha' | 'diferencaTce') =>
+      discrepancias.reduce((soma, d) => soma + Math.round((d[campo] ?? 0) * 100), 0);
+    expect([somaDe('diferencaBetha'), somaDe('diferencaTce')]).toEqual([15000, 10000]);
+  });
+});
+
 describe('dadosConferidos: ano em curso', () => {
   beforeAll(() =>
     popularCenario({
