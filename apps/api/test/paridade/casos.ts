@@ -45,15 +45,21 @@ export const CASOS = [
   '/api/inexistente',
 ];
 
-const arquivoDo = (caso) => path.join(PASTA, `${caso.slice(1).replace(/[^\w.-]+/g, '_')}.json`);
+const arquivoDo = (caso: string) => path.join(PASTA, `${caso.slice(1).replace(/[^\w.-]+/g, '_')}.json`);
 
 // `geradoEm` da conferência é a hora da chamada; o resto é determinístico.
-function semHoraDaChamada(corpo) {
+function semHoraDaChamada(corpo: unknown) {
   if (corpo && typeof corpo === 'object' && 'geradoEm' in corpo) return { ...corpo, geradoEm: '<hora da chamada>' };
   return corpo;
 }
 
-export async function pedir(base, caso, opcoes) {
+// O corpo é comparado com a resposta gravada: a forma dele é da resposta, não do teste.
+export async function pedir(
+  base: string,
+  caso: string,
+  opcoes?: RequestInit,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+): Promise<{ status: number; tipo: string | null; disposicao: string | null; corpo: any }> {
   const resposta = await fetch(`${base}${caso}`, opcoes);
   // Sem tirar o BOM do CSV: ele é parte do contrato.
   const texto = new TextDecoder('utf-8', { ignoreBOM: true }).decode(await resposta.arrayBuffer());
@@ -66,12 +72,12 @@ export async function pedir(base, caso, opcoes) {
   };
 }
 
-export function gravarResposta(caso, resposta) {
+export function gravarResposta(caso: string, resposta: unknown) {
   mkdirSync(PASTA, { recursive: true });
   writeFileSync(arquivoDo(caso), `${JSON.stringify(resposta, null, 2)}\n`);
 }
 
-export function respostaGravada(caso) {
+export function respostaGravada(caso: string) {
   const arquivo = arquivoDo(caso);
   if (!existsSync(arquivo)) throw new Error(`Sem resposta gravada para ${caso} (${path.basename(arquivo)})`);
   return JSON.parse(readFileSync(arquivo, 'utf8'));
