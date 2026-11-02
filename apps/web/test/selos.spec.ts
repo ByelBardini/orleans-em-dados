@@ -1,6 +1,16 @@
 import type { Conferencia } from '@orleans-em-dados/contracts';
 import { describe, expect, it } from 'vitest';
-import { seloDespesa, seloEmpenho, seloEmpenhos, seloReceita, seloRubrica } from '../src/selos';
+import {
+  seloAguardando,
+  seloConferidoComBetha,
+  seloConferidoComTce,
+  SELO_FONTE_UNICA,
+  seloDespesa,
+  seloEmpenho,
+  seloEmpenhos,
+  seloReceita,
+  seloRubrica,
+} from '../src/selos';
 
 const NBSP = ' ';
 
@@ -519,5 +529,46 @@ describe('linguagem da conferência', () => {
     });
     const texto = JSON.stringify([seloReceita(conf, ''), seloEmpenhos(conf, ''), seloDespesa(conf, '')]);
     expect(texto).not.toMatch(/irregular|erro|fraude/i);
+  });
+});
+
+describe('selo do nível da conferência', () => {
+  it('exercício encerrado: conferido com o TCE-SC, sem data', () => {
+    expect(seloConferidoComTce()).toEqual({ estado: 'confere', titulo: 'conferido com o TCE-SC' });
+  });
+
+  it('exercício parcial: conferido com o TCE-SC até o mês, por extenso', () => {
+    expect(seloConferidoComTce(9).titulo).toBe('conferido com o TCE-SC até setembro');
+  });
+
+  it('despesa em curso: conferido com a Betha até DD/MM, com a fonte TCE-SC no motivo', () => {
+    expect(seloConferidoComBetha('2026-09-30')).toEqual({
+      estado: 'confere',
+      titulo: 'conferido com a Betha até 30/09',
+      motivo: 'Valores do TCE-SC.',
+    });
+  });
+
+  it('fonte única tem estado próprio, sem parecer conferido', () => {
+    expect(SELO_FONTE_UNICA).toEqual({ estado: 'fonte-unica', titulo: 'fonte única, sem conferência' });
+  });
+
+  it('aguardando é pendência, com o motivo dado por quem chama', () => {
+    expect(seloAguardando('Outubro ainda não chegou ao TCE-SC.')).toEqual({
+      estado: 'pendente',
+      titulo: 'aguardando TCE',
+      motivo: 'Outubro ainda não chegou ao TCE-SC.',
+    });
+  });
+
+  it('nenhum selo de nível usa termo proibido', () => {
+    const texto = JSON.stringify([
+      seloConferidoComTce(),
+      seloConferidoComTce(9),
+      seloConferidoComBetha('2026-09-30'),
+      SELO_FONTE_UNICA,
+      seloAguardando(),
+    ]);
+    expect(texto).not.toMatch(/validad|irregular|fraude|\berros?\b|fantasma/i);
   });
 });

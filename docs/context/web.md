@@ -15,6 +15,7 @@ Dashboard público em React 19 + Vite 6, em TSX. Vive em `apps/web/src/` (pacote
 - `getJSON(caminho, schema)`, `useApi(caminho, schema)` (`api.ts`) — busca JSON e valida pelo schema de `packages/contracts`: resposta fora do contrato vira erro na tela, não número errado. Erro do servidor vira a mensagem `erro` do corpo; `useApi(null, …)` não busca. Ao trocar de caminho, mantém os dados anteriores enquanto carrega e descarta resposta antiga.
 - `format.ts` — `moeda` (travessão para nulo, sinal preservado), `moedaCompacta`, `numero`, `decimal`, `percentual` (sem casas forçadas), `pct` (casas fixas, padrão 1), `milhoes`/`emMilhoes`/`porExtenso`, `data`/`dataHora`/`dataCurta`, `MESES`, `MESES_LONGOS`, `nomeProprio` (caixa alta da Betha → nome próprio, mantendo siglas).
 - `referencias.ts` — `populacao(ano)` (IBGE, ano anterior mais próximo), `ORIGEM_CIDADAO`, `ORIGENS_DE_FORA`, `GLOSSARIO`, `sujeito(entidade)`.
+- `seloConferidoComTce(ateMes?)`, `seloConferidoComBetha(dataCorte)`, `SELO_FONTE_UNICA`, `seloAguardando(motivo?)` (`selos.ts`) — o selo do nível da conferência; nenhum usa "validado". Fonte única e aguardando saem sem link.
 - `seloReceita`, `seloEmpenhos`, `seloDespesa`, `seloRubrica`, `seloEmpenho`, `seloDeAtraso` (`selos.ts`) — selo `confere` | `diverge` | `pendente` com título e motivo; nulo quando não se aplica.
 
 ## Componentes/Módulos
