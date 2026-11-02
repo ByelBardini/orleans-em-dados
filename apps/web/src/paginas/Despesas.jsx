@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { useApi } from '../api.js';
+import { useApi } from '../api';
 import {
   BarraDividida,
   BarrasMensais,

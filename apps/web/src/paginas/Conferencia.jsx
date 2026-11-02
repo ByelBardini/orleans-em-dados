@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useApi } from '../api.js';
+import { useApi } from '../api';
 import { Estado, Filtros, Mi, Numero, Numeros } from '../components.jsx';
 import { data, dataHora, emMilhoes, MESES, MESES_LONGOS, moeda, numero, pct } from '../format.js';
 

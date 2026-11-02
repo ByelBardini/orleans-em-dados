@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useApi } from './api.js';
+import { useApi } from './api';
 import { Estado, SeletorTema } from './components.jsx';
 import { dataCurta } from './format.js';
 import Conferencia from './paginas/Conferencia.jsx';

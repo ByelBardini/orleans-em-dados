@@ -1,4 +1,4 @@
-import { useApi } from '../api.js';
+import { useApi } from '../api';
 import { BarrasMensais, Estado, Filtros, Fonte, ListaPontos, Mi, Numero, Numeros } from '../components.jsx';
 import {
   data,

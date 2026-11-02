@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { useApi } from '../api.js';
+import { useApi } from '../api';
 import {
   BarraDividida,
   Estado,

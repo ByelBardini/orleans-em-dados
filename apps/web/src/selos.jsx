@@ -2,7 +2,7 @@
 // A conferência vem de /api/conferencias; sem as duas fontes publicadas, não há selo.
 // Linguagem: "provável"/"possível" quando a causa não foi comprovada.
 
-import { useApi } from './api.js';
+import { useApi } from './api';
 import { data, MESES_LONGOS, moeda, numero } from './format.js';
 
 const N = Number;
