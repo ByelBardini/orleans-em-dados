@@ -103,6 +103,9 @@ importers:
       '@orleans-em-dados/importador-nucleo':
         specifier: workspace:*
         version: link:nucleo
+      '@orleans-em-dados/importador-tcesc':
+        specifier: workspace:*
+        version: link:tcesc
 
   packages/importadores/betha:
     dependencies:
@@ -127,6 +130,18 @@ importers:
       drizzle-orm:
         specifier: ^0.45.4
         version: 0.45.4(@types/pg@8.23.1)(pg@8.23.1)
+
+  packages/importadores/tcesc:
+    dependencies:
+      '@orleans-em-dados/contracts':
+        specifier: workspace:*
+        version: link:../../contracts
+      '@orleans-em-dados/db':
+        specifier: workspace:*
+        version: link:../../db
+      '@orleans-em-dados/importador-nucleo':
+        specifier: workspace:*
+        version: link:../nucleo
 
 packages:
 

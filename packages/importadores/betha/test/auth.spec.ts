@@ -105,6 +105,7 @@ describe('BethaAuthClient', () => {
     const { cliente, transporte } = preparar();
     transporte.responder(json({ token: 'segredo' }, 500));
 
-    await expect(cliente.getToken()).rejects.not.toThrow('segredo');
+    const erro = await cliente.getToken().catch((e: Error) => e);
+    expect(String(erro)).toBe('Error: OAuth: HTTP 500');
   });
 });
