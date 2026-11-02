@@ -3,35 +3,37 @@
   "tipo": "application/json; charset=utf-8",
   "disposicao": null,
   "corpo": {
-    "total": 6,
+    "total": 4,
     "offset": 2,
     "limit": 2,
     "itens": [
       {
-        "id": "211:728:1003",
+        "id": "211:728:1002",
         "entidade": "Prefeitura",
-        "numero": 12,
-        "data": "2025-02-01",
+        "numero": 11,
+        "data": "2025-01-15",
         "orgao": "SECRETARIA MUNICIPAL DE OBRAS",
         "credor": "CONSTRUTORA FICTICIA S.A.",
-        "historico": "Drenagem\nsegunda linha (exemplo)",
-        "empenhado": 7000,
-        "liquidado": 7000,
-        "pago": 7000,
-        "saldoAPagar": 0
+        "historico": "Pavimentação; trecho \"A\" (exemplo)",
+        "empenhado": 120000,
+        "empenhadoLiquido": 120000,
+        "pago": 40000,
+        "liquidado": 60000,
+        "saldoAPagar": 20000
       },
       {
-        "id": "211:319:2001",
-        "entidade": "FMS",
-        "numero": 5,
-        "data": "2025-01-20",
-        "orgao": "FUNDO MUNICIPAL DE SAÚDE",
-        "credor": "LABORATORIO EXEMPLO LTDA",
-        "historico": "Exames (exemplo)",
-        "empenhado": 15000,
-        "liquidado": null,
-        "pago": null,
-        "saldoAPagar": 15000
+        "id": "211:728:1001",
+        "entidade": "Prefeitura",
+        "numero": 10,
+        "data": "2025-01-10",
+        "orgao": "SECRETARIA MUNICIPAL DE EDUCAÇÃO",
+        "credor": "MERENDA EXEMPLO LTDA",
+        "historico": "Merenda escolar (exemplo)",
+        "empenhado": 50000,
+        "empenhadoLiquido": 50000,
+        "pago": 50000,
+        "liquidado": 50000,
+        "saldoAPagar": 0
       }
     ]
   }

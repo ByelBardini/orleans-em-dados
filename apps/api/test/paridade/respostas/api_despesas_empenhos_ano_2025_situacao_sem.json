@@ -3,36 +3,9 @@
   "tipo": "application/json; charset=utf-8",
   "disposicao": null,
   "corpo": {
-    "total": 2,
+    "total": 0,
     "offset": 0,
     "limit": 50,
-    "itens": [
-      {
-        "id": "211:728:900",
-        "entidade": "Prefeitura",
-        "numero": 13,
-        "data": "2025-02-05",
-        "orgao": "SECRETARIA MUNICIPAL DE EDUCAÇÃO",
-        "credor": "PAPELARIA MODELO ME",
-        "historico": "Material escolar (exemplo)",
-        "empenhado": 3000,
-        "liquidado": null,
-        "pago": null,
-        "saldoAPagar": null
-      },
-      {
-        "id": "211:319:2001",
-        "entidade": "FMS",
-        "numero": 5,
-        "data": "2025-01-20",
-        "orgao": "FUNDO MUNICIPAL DE SAÚDE",
-        "credor": "LABORATORIO EXEMPLO LTDA",
-        "historico": "Exames (exemplo)",
-        "empenhado": 15000,
-        "liquidado": null,
-        "pago": null,
-        "saldoAPagar": 15000
-      }
-    ]
+    "itens": []
   }
 }

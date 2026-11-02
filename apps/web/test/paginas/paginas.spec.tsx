@@ -217,7 +217,7 @@ describe('Receitas', () => {
 
     render(<Receitas {...props} />);
 
-    const linha = (await screen.findByText('Transferência SUS (exemplo)')).closest('tr') as HTMLElement;
+    const linha = (await screen.findByText('Transferência SUS')).closest('tr') as HTMLElement;
     expect(within(linha).getByText(/Difere do TCE-SC/)).toBeInTheDocument();
   });
 
@@ -289,8 +289,15 @@ describe('Despesas', () => {
     expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('De cada R$ 100 reservados para despesas');
   });
 
+  // A resposta gravada já vem com a execução do TCE-SC: o liquidado nulo é escrito aqui.
   it('a lista mostra a situação de cada empenho, sem tratar falta de informação como zero', async () => {
-    await carregar();
+    const semExecucao = {
+      ...BUSCA,
+      itens: BUSCA.itens.map((e: { numero: number }) =>
+        e.numero === 5 ? { ...e, liquidado: null, pago: null, saldoAPagar: null } : e,
+      ),
+    };
+    await carregar(apiCompleta().responder(ROTAS.busca(), semExecucao).instalar());
 
     const semLiquidacao = within(screen.getByRole('table'))
       .getByText(/^Exames/)
@@ -298,8 +305,19 @@ describe('Despesas', () => {
     expect(within(semLiquidacao).getByText('Sem informação')).toBeInTheDocument();
   });
 
+  // A lista da API não traz mais o renumerado; o selo da tela sai na Fase 10, e até lá continua provado.
   it('empenho que não consta no TCE-SC traz o selo na linha', async () => {
-    await carregar();
+    const renumerado = {
+      ...BUSCA.itens[0],
+      id: '211:728:1003',
+      numero: 12,
+      historico: 'Drenagem (exemplo)',
+    };
+    await carregar(
+      apiCompleta()
+        .responder(ROTAS.busca(), { ...BUSCA, itens: [renumerado] })
+        .instalar(),
+    );
 
     const linha = within(screen.getByRole('table'))
       .getByText(/^Drenagem/)

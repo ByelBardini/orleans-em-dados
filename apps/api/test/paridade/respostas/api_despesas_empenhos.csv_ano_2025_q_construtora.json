@@ -2,5 +2,5 @@
   "status": 200,
   "tipo": "text/csv; charset=utf-8",
   "disposicao": "attachment; filename=\"empenhos-2025.csv\"",
-  "corpo": "﻿Número;Data;Entidade;Órgão;Credor;Histórico;Empenhado;Liquidado;Pago;Saldo a pagar\r\n12;2025-02-01;Prefeitura;SECRETARIA MUNICIPAL DE OBRAS;CONSTRUTORA FICTICIA S.A.;\"Drenagem\nsegunda linha (exemplo)\";7000;7000;7000;0\r\n11;2025-01-15;Prefeitura;SECRETARIA MUNICIPAL DE OBRAS;CONSTRUTORA FICTICIA S.A.;\"Pavimentação; trecho \"\"A\"\" (exemplo)\";120000;60000;40000;80000\r\n"
+  "corpo": "﻿Número;Data;Entidade;Órgão;Credor;Histórico;Empenhado;Liquidado;Pago;Saldo a pagar;Empenhado líquido\r\n11;2025-01-15;Prefeitura;SECRETARIA MUNICIPAL DE OBRAS;CONSTRUTORA FICTICIA S.A.;\"Pavimentação; trecho \"\"A\"\" (exemplo)\";120000;60000;40000;20000;120000\r\n"
 }

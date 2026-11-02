@@ -26,11 +26,29 @@
       "exemplo": false,
       "conferencia": []
     },
+    "fonteUnica": [
+      "orcadoAtualizado",
+      "orcadoDeducoes"
+    ],
+    "conferencia": {
+      "disponivel": true,
+      "parcial": true,
+      "limites": {
+        "mesReceita": 2,
+        "dataEmpenho": "2025-02-05"
+      },
+      "conferido": 350000,
+      "diferencaBetha": 50000,
+      "diferencaTce": 0,
+      "aguardandoTce": 0,
+      "totalBetha": 400000,
+      "totalTce": 350000
+    },
     "totais": {
       "quantidade": 2,
       "orcadoAtualizado": 2400000,
       "orcadoDeducoes": 0,
-      "arrecadadoNoMes": 400000,
+      "arrecadadoNoMes": 350000,
       "negativos": 0,
       "rubricas": 1
     },
@@ -43,7 +61,7 @@
       {
         "chave": 2,
         "quantidade": 1,
-        "arrecadadoNoMes": 200000
+        "arrecadadoNoMes": 150000
       }
     ],
     "porEntidade": [
@@ -67,7 +85,7 @@
         },
         "quantidade": 2,
         "orcadoAtualizado": 2400000,
-        "arrecadadoNoMes": 400000
+        "arrecadadoNoMes": 350000
       }
     ],
     "porOrigem": [
@@ -75,19 +93,20 @@
         "chave": "17",
         "quantidade": 2,
         "orcadoAtualizado": 2400000,
-        "arrecadadoNoMes": 400000,
+        "arrecadadoNoMes": 350000,
         "descricao": "Transferências correntes"
       }
     ],
     "naturezas": [
       {
-        "chave": "319|17135011000000",
-        "rubrica": "17135011000000",
-        "descricao": "Transferência SUS (exemplo)",
+        "chave": "319|17135011",
+        "rubrica": "17135011",
+        "nivel": 8,
+        "descricao": "Transferência SUS",
         "entidade": "FMS",
         "quantidade": 2,
         "orcadoAtualizado": 2400000,
-        "arrecadadoNoMes": 400000
+        "arrecadadoNoMes": 350000
       }
     ]
   }

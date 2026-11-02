@@ -26,11 +26,25 @@
       "exemplo": false,
       "conferencia": []
     },
+    "fonteUnica": [
+      "orcadoAtualizado"
+    ],
+    "conferencia": {
+      "disponivel": true,
+      "parcial": true,
+      "limites": {
+        "mesReceita": 2,
+        "dataEmpenho": "2025-02-05"
+      },
+      "aguardandoTce": 0,
+      "entidadesConferidas": 2,
+      "entidadesFora": 0
+    },
     "totais": {
       "orcadoAtualizado": 1300000,
-      "empenhado": 180000,
-      "liquidado": 120000,
-      "pago": 100000
+      "empenhado": 173000,
+      "liquidado": 113000,
+      "pago": 93000
     },
     "porEntidade": [
       {
@@ -40,10 +54,13 @@
           "sigla": "Prefeitura",
           "status": "inferido"
         },
-        "fonte": "betha",
-        "empenhado": 180000,
-        "liquidado": 120000,
-        "pago": 100000
+        "fonte": "tce",
+        "conferida": true,
+        "dataCorte": "2025-02-05",
+        "aguardandoTce": 0,
+        "empenhado": 173000,
+        "liquidado": 113000,
+        "pago": 93000
       },
       {
         "chave": "319",
@@ -52,7 +69,10 @@
           "sigla": "FMS",
           "status": "inferido"
         },
-        "fonte": "betha",
+        "fonte": "tce",
+        "conferida": true,
+        "dataCorte": "2025-02-05",
+        "aguardandoTce": 0,
         "empenhado": 15000,
         "liquidado": 0,
         "pago": 0

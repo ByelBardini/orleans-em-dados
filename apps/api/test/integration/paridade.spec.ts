@@ -45,22 +45,23 @@ describe('contrato', () => {
     expect(corpo).toEqual({ erro: 'Sem dados de receitas para 2019' });
   });
 
-  it('receita total preserva o ajuste negativo ao somar', async () => {
+  it('receita conferida preserva o ajuste negativo ao somar', async () => {
     const { corpo } = await pedir(base, '/api/receitas?ano=2025');
-    // 300000 + 250000,50 + 1000000 − 5000,25 + 200000 + 200000
-    expect(corpo.totais.arrecadadoNoMes).toBe(1945000.25);
+    // 300000 + 250000,50 + 1000000 − 5000,25 + 200000 + 150000: em fevereiro, o FMS tem 50 mil a mais que o TCE-SC
+    expect(corpo.totais.arrecadadoNoMes).toBe(1895000.25);
   });
 
-  it('cópia antiga e empenho renumerado saem da soma dos empenhos da Betha', async () => {
+  it('cópia antiga e empenho renumerado ficam fora do conjunto casado', async () => {
     const { corpo } = await pedir(base, '/api/despesas/empenhos/resumo?ano=2025');
     expect(corpo.totais.excluidos).toBe(2);
     // 50000 + 120000 + 3000 + 15000; ficam de fora o 12 (7000) e a cópia do 13 (3000)
     expect(corpo.totais.empenhado).toBe(188000);
   });
 
-  it('despesa total traz a Câmara à parte, pelo TCE-SC', async () => {
+  it('despesa conferida traz a Câmara à parte, pelo TCE-SC', async () => {
     const { corpo } = await pedir(base, '/api/despesas/resumo?ano=2025');
-    expect(corpo.totais.empenhado).toBe(195000);
+    // Ano em curso: líquido do TCE-SC nos casados. 50000 + 120000 + 3000 + 15000; o 12 não casa com o 112
+    expect(corpo.totais.empenhado).toBe(188000);
     expect(corpo.camara).toMatchObject({ sigla: 'Câmara', empenhado: 25000 });
   });
 
@@ -74,8 +75,11 @@ describe('contrato', () => {
     expect(tipo).toBe('text/csv; charset=utf-8');
     expect(disposicao).toBe('attachment; filename="empenhos-2025.csv"');
     expect(corpo.charCodeAt(0)).toBe(0xfeff);
-    expect(corpo).toContain('Número;Data;Entidade;Órgão;Credor;Histórico;Empenhado;Liquidado;Pago;Saldo a pagar\r\n');
-    expect(corpo).toContain('"Pavimentação; trecho ""A"" (exemplo)";120000;60000;40000;80000\r\n');
+    expect(corpo).toContain(
+      'Número;Data;Entidade;Órgão;Credor;Histórico;Empenhado;Liquidado;Pago;Saldo a pagar;Empenhado líquido\r\n',
+    );
+    // Saldo do TCE-SC: 60000 − 40000.
+    expect(corpo).toContain('"Pavimentação; trecho ""A"" (exemplo)";120000;60000;40000;20000;120000\r\n');
   });
 
   it('conferência indisponível lista o que falta', async () => {

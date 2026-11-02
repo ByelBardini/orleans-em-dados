@@ -16,9 +16,10 @@
         "credor": "LABORATORIO EXEMPLO LTDA",
         "historico": "Exames (exemplo)",
         "empenhado": 15000,
-        "liquidado": null,
-        "pago": null,
-        "saldoAPagar": 15000
+        "empenhadoLiquido": 15000,
+        "pago": 0,
+        "liquidado": 0,
+        "saldoAPagar": 0
       }
     ]
   }

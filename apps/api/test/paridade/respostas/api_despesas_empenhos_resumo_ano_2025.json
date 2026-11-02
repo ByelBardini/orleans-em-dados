@@ -26,15 +26,21 @@
       "exemplo": false,
       "conferencia": []
     },
+    "conferencia": {
+      "disponivel": true,
+      "parcial": true,
+      "dataCorte": "2025-02-05"
+    },
     "totais": {
       "quantidade": 4,
       "empenhado": 188000,
+      "empenhadoLiquido": 188000,
       "liquidado": 113000,
       "pago": 93000,
-      "semValoresDeExecucao": 1,
-      "semValoresDeExecucaoValor": 15000,
-      "saldoAPagar": 95000,
-      "comSaldoAPagar": 2,
+      "semValoresDeExecucao": 0,
+      "semValoresDeExecucaoValor": 0,
+      "saldoAPagar": 20000,
+      "comSaldoAPagar": 1,
       "credores": 4,
       "excluidos": 2
     },
@@ -43,6 +49,7 @@
         "chave": 1,
         "quantidade": 3,
         "empenhado": 185000,
+        "empenhadoLiquido": 185000,
         "liquidado": 110000,
         "pago": 90000
       },
@@ -50,6 +57,7 @@
         "chave": 2,
         "quantidade": 1,
         "empenhado": 3000,
+        "empenhadoLiquido": 3000,
         "liquidado": 3000,
         "pago": 3000
       }
@@ -64,6 +72,7 @@
         },
         "quantidade": 3,
         "empenhado": 173000,
+        "empenhadoLiquido": 173000,
         "liquidado": 113000,
         "pago": 93000
       },
@@ -76,8 +85,9 @@
         },
         "quantidade": 1,
         "empenhado": 15000,
-        "liquidado": null,
-        "pago": null
+        "empenhadoLiquido": 15000,
+        "liquidado": 0,
+        "pago": 0
       }
     ],
     "porOrgao": [
@@ -86,6 +96,7 @@
         "nome": "SECRETARIA MUNICIPAL DE OBRAS",
         "quantidade": 1,
         "empenhado": 120000,
+        "empenhadoLiquido": 120000,
         "liquidado": 60000,
         "pago": 40000
       },
@@ -94,6 +105,7 @@
         "nome": "SECRETARIA MUNICIPAL DE EDUCAÇÃO",
         "quantidade": 2,
         "empenhado": 53000,
+        "empenhadoLiquido": 53000,
         "liquidado": 53000,
         "pago": 53000
       },
@@ -102,8 +114,9 @@
         "nome": "FUNDO MUNICIPAL DE SAÚDE",
         "quantidade": 1,
         "empenhado": 15000,
-        "liquidado": null,
-        "pago": null
+        "empenhadoLiquido": 15000,
+        "liquidado": 0,
+        "pago": 0
       }
     ],
     "porCredor": [
@@ -113,6 +126,7 @@
         "orgaoPrincipal": "SECRETARIA MUNICIPAL DE OBRAS",
         "quantidade": 1,
         "empenhado": 120000,
+        "empenhadoLiquido": 120000,
         "liquidado": 60000,
         "pago": 40000
       },
@@ -122,6 +136,7 @@
         "orgaoPrincipal": "SECRETARIA MUNICIPAL DE EDUCAÇÃO",
         "quantidade": 1,
         "empenhado": 50000,
+        "empenhadoLiquido": 50000,
         "liquidado": 50000,
         "pago": 50000
       },
@@ -131,8 +146,9 @@
         "orgaoPrincipal": "FUNDO MUNICIPAL DE SAÚDE",
         "quantidade": 1,
         "empenhado": 15000,
-        "liquidado": null,
-        "pago": null
+        "empenhadoLiquido": 15000,
+        "liquidado": 0,
+        "pago": 0
       },
       {
         "chave": "PAPELARIA MODELO ME",
@@ -140,6 +156,7 @@
         "orgaoPrincipal": "SECRETARIA MUNICIPAL DE EDUCAÇÃO",
         "quantidade": 1,
         "empenhado": 3000,
+        "empenhadoLiquido": 3000,
         "liquidado": 3000,
         "pago": 3000
       }
@@ -154,6 +171,7 @@
         "credor": "CONSTRUTORA FICTICIA S.A.",
         "historico": "Pavimentação; trecho \"A\" (exemplo)",
         "empenhado": 120000,
+        "empenhadoLiquido": 120000,
         "pago": 40000
       },
       {
@@ -165,6 +183,7 @@
         "credor": "MERENDA EXEMPLO LTDA",
         "historico": "Merenda escolar (exemplo)",
         "empenhado": 50000,
+        "empenhadoLiquido": 50000,
         "pago": 50000
       },
       {
@@ -176,7 +195,8 @@
         "credor": "LABORATORIO EXEMPLO LTDA",
         "historico": "Exames (exemplo)",
         "empenhado": 15000,
-        "pago": null
+        "empenhadoLiquido": 15000,
+        "pago": 0
       },
       {
         "id": "211:728:1004",
@@ -187,6 +207,7 @@
         "credor": "PAPELARIA MODELO ME",
         "historico": "Material escolar (exemplo)",
         "empenhado": 3000,
+        "empenhadoLiquido": 3000,
         "pago": 3000
       }
     ]

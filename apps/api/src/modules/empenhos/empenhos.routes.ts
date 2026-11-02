@@ -1,11 +1,10 @@
 import { empenhosBuscaSchema, empenhosResumoSchema } from '@orleans-em-dados/contracts';
-import { conferencia } from '@orleans-em-dados/db/conferencias';
 import type { FastifyInstance, FastifyRequest } from 'fastify';
 import { parametro, responder, responderCsv, texto } from '../../lib/borda';
 import { gerarCsv } from '../../lib/csv';
 import { coletaOu404 } from '../coletas/coletas.routes';
 import { buscarEmpenhos, resumoEmpenhos, todosEmpenhos } from './empenhos.dao';
-import { criarExclusoes } from './exclusoes.service';
+import { conjuntoDoAno } from './empenhos.service';
 
 const COLUNAS = [
   ['numero', 'Número'],
@@ -18,6 +17,7 @@ const COLUNAS = [
   ['liquidado', 'Liquidado'],
   ['pago', 'Pago'],
   ['saldoAPagar', 'Saldo a pagar'],
+  ['empenhadoLiquido', 'Empenhado líquido'],
 ] as const;
 
 const filtros = (request: FastifyRequest) => ({
@@ -27,24 +27,22 @@ const filtros = (request: FastifyRequest) => ({
   situacao: texto(request, 'situacao'),
 });
 
-export async function rotasDeEmpenhos(app: FastifyInstance) {
-  const empenhosExcluidos = criarExclusoes(conferencia);
+const anoDo = (request: FastifyRequest) => Number(parametro(request, 'ano'));
 
+export async function rotasDeEmpenhos(app: FastifyInstance) {
   app.get('/api/despesas/empenhos/resumo', async (request, reply) => {
     const coleta = await coletaOu404(request, reply, 'empenhos');
     if (!coleta) return reply;
-    const excluir = await empenhosExcluidos(Number(parametro(request, 'ano')));
-    return responder(
-      reply,
-      empenhosResumoSchema,
-      await resumoEmpenhos(coleta, { entidade: texto(request, 'entidade'), excluir }),
-    );
+    const { conjunto, conferencia } = await conjuntoDoAno(coleta, anoDo(request));
+    const resumo = await resumoEmpenhos(coleta, conjunto, { entidade: texto(request, 'entidade') });
+    return responder(reply, empenhosResumoSchema, { ...resumo, conferencia });
   });
 
   app.get('/api/despesas/empenhos', async (request, reply) => {
     const coleta = await coletaOu404(request, reply, 'empenhos');
     if (!coleta) return reply;
-    const busca = await buscarEmpenhos(coleta, {
+    const { conjunto } = await conjuntoDoAno(coleta, anoDo(request));
+    const busca = await buscarEmpenhos(coleta, conjunto, {
       ...filtros(request),
       offset: Math.max(0, Number(parametro(request, 'offset')) || 0),
       limit: Math.min(200, Math.max(1, Number(parametro(request, 'limit')) || 50)),
@@ -55,7 +53,8 @@ export async function rotasDeEmpenhos(app: FastifyInstance) {
   app.get('/api/despesas/empenhos.csv', async (request, reply) => {
     const coleta = await coletaOu404(request, reply, 'empenhos');
     if (!coleta) return reply;
-    const linhas = await todosEmpenhos(coleta, filtros(request));
+    const { conjunto } = await conjuntoDoAno(coleta, anoDo(request));
+    const linhas = await todosEmpenhos(coleta, conjunto, filtros(request));
     return responderCsv(reply, `empenhos-${parametro(request, 'ano')}.csv`, gerarCsv(COLUNAS, linhas));
   });
 }
