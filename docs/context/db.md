@@ -19,6 +19,7 @@ Esquema PostgreSQL, migrações e conexão. Vive em `packages/db/` (pacote `@orl
 - `coletas` — uma por execução de coleta (consulta × ano), com `status` `totalizador_conciliado` | `rejeitado` | `exemplo`, contagens, `erros` e `hash_payload`.
 - `totais_fonte` — totalizador da fonte × soma calculada, por campo.
 - `registros_brutos` — payload original de cada registro (`JSONB`), por coleta.
+- `execucoes` — cada execução de importador × ano: status, contagens, erro, `detalhes` por consulta.
 - `publicacoes` — ponteiro (consulta, ano) → coleta exibida. Trocar o ponteiro é publicar.
 - Normalizadas, por coleta: `receitas` (57153), `empenhos` (57140), `despesas` (57170), `tcesc_receitas` (900001), `tcesc_empenhos` (900002). Views `*_publicadas` juntam com `publicacoes`.
 

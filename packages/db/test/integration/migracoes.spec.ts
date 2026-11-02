@@ -2,6 +2,7 @@ import { readdirSync, readFileSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { generateDrizzleJson, generateMigration } from 'drizzle-kit/api';
+import { readMigrationFiles } from 'drizzle-orm/migrator';
 import pg from 'pg';
 import { afterAll, describe, expect, it } from 'vitest';
 import { pool, transacao } from '../../src/index';
@@ -9,7 +10,11 @@ import { migrar } from '../../src/migrar';
 import * as schema from '../../src/schema';
 import { conectar, criarBancoTemporario } from '../support/banco';
 
-const LEGADAS = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../migrations');
+const AQUI = path.dirname(fileURLToPath(import.meta.url));
+const LEGADAS = path.resolve(AQUI, '../../migrations');
+const MIGRACOES = readMigrationFiles({ migrationsFolder: path.resolve(AQUI, '../../drizzle') }).length;
+// Tabelas que nasceram depois das migrações SQL originais.
+const NOVAS = "('execucoes')";
 
 async function comCliente<T>(url: string, fn: (c: pg.Client) => Promise<T>): Promise<T> {
   const cliente = await conectar(url);
@@ -35,23 +40,25 @@ async function montarLegado(url: string, arquivos = readdirSync(LEGADAS).sort())
 }
 
 // O que o catálogo diz do esquema público: tabelas, colunas, restrições e índices.
-async function catalogo(url: string, opcoes: { views?: boolean } = {}) {
+async function catalogo(url: string, opcoes: { views?: boolean; soOriginais?: boolean } = {}) {
+  const fora = opcoes.soOriginais ? NOVAS : "('')";
   return comCliente(url, async (c) => {
     const colunas = await c.query(`
       SELECT table_name, column_name, data_type, numeric_precision, numeric_scale, is_nullable, column_default
       FROM information_schema.columns
-      WHERE table_schema = 'public' AND table_name <> 'migracoes'
+      WHERE table_schema = 'public' AND table_name <> 'migracoes' AND table_name NOT IN ${fora}
         AND table_name IN (SELECT table_name FROM information_schema.tables
                            WHERE table_schema = 'public' AND table_type = 'BASE TABLE')
       ORDER BY table_name, column_name`);
     const restricoes = await c.query(`
       SELECT conrelid::regclass::text AS tabela, conname AS nome, pg_get_constraintdef(oid) AS definicao
       FROM pg_constraint
-      WHERE connamespace = 'public'::regnamespace AND conrelid::regclass::text <> 'migracoes' AND contype <> 'n'
+      WHERE connamespace = 'public'::regnamespace AND conrelid::regclass::text <> 'migracoes'
+        AND conrelid::regclass::text NOT IN ${fora} AND contype <> 'n'
       ORDER BY 1, 2`);
     const indices = await c.query(`
       SELECT tablename, indexname, indexdef FROM pg_indexes
-      WHERE schemaname = 'public' AND tablename <> 'migracoes' ORDER BY 1, 2`);
+      WHERE schemaname = 'public' AND tablename <> 'migracoes' AND tablename NOT IN ${fora} ORDER BY 1, 2`);
     const views = await c.query(`
       SELECT viewname FROM pg_views WHERE schemaname = 'public' ORDER BY 1`);
     return {
@@ -69,14 +76,15 @@ const contagem = (url: string, tabela: string) =>
 afterAll(() => pool.end());
 
 describe('migrar', () => {
-  it('banco vazio migrado fica igual ao criado pelas migrações SQL originais, com views', async () => {
+  it('nas tabelas originais, banco vazio migrado fica igual ao criado pelos SQLs originais, com views', async () => {
     const novo = await criarBancoTemporario('orleans_mig_novo');
     const legado = await criarBancoTemporario('orleans_mig_legado');
     await montarLegado(legado);
 
     await migrar(novo);
 
-    expect(await catalogo(novo, { views: true })).toEqual(await catalogo(legado, { views: true }));
+    const opcoes = { views: true, soOriginais: true };
+    expect(await catalogo(novo, opcoes)).toEqual(await catalogo(legado, opcoes));
   });
 
   it('banco vazio migrado traz o catálogo de fontes, consultas e entidades', async () => {
@@ -103,17 +111,18 @@ describe('migrar', () => {
     expect(await catalogo(gerado)).toEqual(await catalogo(migrado));
   });
 
-  it('banco que já tem as migrações originais recebe a baseline sem DDL e sem perder dado', async () => {
+  it('banco que já tem as migrações originais não refaz a baseline e não perde dado', async () => {
     const url = await criarBancoTemporario('orleans_mig_existente');
     await montarLegado(url);
     await comCliente(url, (c) => c.query(`INSERT INTO fontes (id, nome, url) VALUES ('nova', 'Fonte', 'https://x')`));
-    const antes = await catalogo(url, { views: true });
+    const opcoes = { views: true, soOriginais: true };
+    const antes = await catalogo(url, opcoes);
 
     await migrar(url);
 
-    expect(await catalogo(url, { views: true })).toEqual(antes);
+    expect(await catalogo(url, opcoes)).toEqual(antes);
     expect(await contagem(url, `fontes WHERE id = 'nova'`)).toBe(1);
-    expect(await contagem(url, 'drizzle.__drizzle_migrations')).toBe(1);
+    expect(await contagem(url, 'drizzle.__drizzle_migrations')).toBe(MIGRACOES);
   });
 
   it('migrar duas vezes não faz nada na segunda', async () => {
@@ -124,7 +133,7 @@ describe('migrar', () => {
     await migrar(url);
 
     expect(await contagem(url, `fontes WHERE id = 'nova'`)).toBe(1);
-    expect(await contagem(url, 'drizzle.__drizzle_migrations')).toBe(1);
+    expect(await contagem(url, 'drizzle.__drizzle_migrations')).toBe(MIGRACOES);
   });
 
   it('banco com só parte das migrações originais é recusado citando o que falta', async () => {

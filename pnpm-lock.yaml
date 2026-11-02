@@ -98,6 +98,18 @@ importers:
         specifier: workspace:*
         version: link:../db
 
+  packages/importadores/nucleo:
+    dependencies:
+      '@orleans-em-dados/contracts':
+        specifier: workspace:*
+        version: link:../../contracts
+      '@orleans-em-dados/db':
+        specifier: workspace:*
+        version: link:../../db
+      drizzle-orm:
+        specifier: ^0.45.4
+        version: 0.45.4(@types/pg@8.23.1)(pg@8.23.1)
+
 packages:
 
   '@babel/code-frame@7.29.7':

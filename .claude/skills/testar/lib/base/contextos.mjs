@@ -20,7 +20,8 @@ export function contextosDoAlvo(ambiente) {
     .slice(0, -1)
     .concat(ehPasta(ambiente.alvo) ? relativo.split('/').slice(-1) : []);
   const areas = pastas.filter((segmento) => segmento && !SEGMENTOS_ESTRUTURAIS.has(segmento));
-  const candidatos = [`${hub}.md`, ...areas.flatMap((area) => [`${area}.md`, `${hub}/${area}.md`])];
+  const pai = path.basename(path.dirname(ambiente.app.raiz));
+  const candidatos = [`${pai}.md`, `${hub}.md`, ...areas.flatMap((area) => [`${area}.md`, `${hub}/${area}.md`])];
   const docs = path.join(ambiente.repo, 'docs', 'context');
   return [...new Set(candidatos)]
     .filter((candidato) => fs.existsSync(path.join(docs, candidato)))

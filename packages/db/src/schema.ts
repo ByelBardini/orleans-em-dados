@@ -289,3 +289,24 @@ export const tcescEmpenhos = pgTable(
     index('tcesc_empenhos_coleta_id_codigo_ug_numero_idx').on(t.coletaId, t.codigoUg, t.numero),
   ],
 );
+
+// Cada execução de um importador num exercício; o detalhe por consulta vai em `detalhes`.
+export const execucoes = pgTable(
+  'execucoes',
+  {
+    id: bigserial('id', { mode: 'number' }).primaryKey(),
+    importador: text('importador').notNull(),
+    ano: smallint('ano').notNull(),
+    iniciadoEm: timestamp('iniciado_em', { withTimezone: true }).notNull(),
+    finalizadoEm: timestamp('finalizado_em', { withTimezone: true }),
+    status: text('status').notNull().default('em_andamento'),
+    linhasLidas: integer('linhas_lidas').notNull().default(0),
+    linhasGravadas: integer('linhas_gravadas').notNull().default(0),
+    erro: text('erro'),
+    detalhes: jsonb('detalhes').notNull().default([]),
+  },
+  (t) => [
+    check('execucoes_status_check', sql`${t.status} IN ('em_andamento', 'sucesso', 'rejeitada', 'falhou')`),
+    index('execucoes_importador_ano_iniciado_em_idx').on(t.importador, t.ano, t.iniciadoEm.desc().nullsFirst()),
+  ],
+);
