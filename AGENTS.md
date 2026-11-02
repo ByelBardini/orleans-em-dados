@@ -12,14 +12,14 @@ Dashboard público, rastreável, com dados de receitas e despesas do município 
 
 ## Layout do repositório
 
-- `packages/db/` — conexão, migrações SQL e a conferência Betha × TCE-SC.
+- `packages/db/` — esquema Drizzle, migrações (`drizzle/`), conexão e a conferência Betha × TCE-SC.
 - `packages/contracts/` — valores do domínio e schemas Zod compartilhados.
 - `packages/importadores/` — coletores Betha e TCE-SC, gravação e publicação das coletas, CLIs.
 - `apps/api/src/` — API REST que lê só as coletas publicadas.
 - `apps/web/src/` — dashboard.
 - `docs/` — especificação, metodologia, fontes, dicionário de dados; `docs/context/` (contexto para agentes), `docs/plans/` (planos), `docs/screens/` (mockups HTML).
 - `examples/` — snapshots fictícios no formato dos reais. `data/` — snapshots reais opcionais, fora do git.
-- `packages/db/` e `packages/importadores/` não têm `src/`: as fontes ficam na raiz do workspace.
+- `packages/importadores/` ainda não tem `src/`: as fontes ficam na raiz do workspace.
 
 ## Contexto por área (`docs/context/`)
 
@@ -35,7 +35,7 @@ Leia o hub da área antes de abrir fonte. O driver do `/testar` indica qual (`le
 
 ## Testes
 
-- Specs em `<workspace>/test/` espelhando a raiz das fontes (`src/` no api e no web, a raiz no db e nos importadores); integração em `<workspace>/test/integration/`.
+- Specs em `<workspace>/test/` espelhando a raiz das fontes (`src/`, ou a raiz em `packages/importadores/`); integração em `<workspace>/test/integration/`.
 - `describe`/`it`/`expect` importados de `vitest` (sem globals); import relativo com extensão.
 - `pnpm test` roda os unit de todos os workspaces, sem banco; `pnpm exec vitest run <spec>` isola um spec; `--project @orleans-em-dados/<workspace>` filtra pelo `name` do pacote.
 - `pnpm test:integracao` roda `*/test/integration/` no projeto `integracao`, contra o Postgres descartável (`pnpm db:teste` sobe na porta 5434, `pnpm db:teste:parar` derruba). O esquema é recriado a cada rodada; a porta 5433 (`pnpm db:subir`, coletas reais) é recusada.
