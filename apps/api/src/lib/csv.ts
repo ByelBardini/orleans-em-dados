@@ -15,5 +15,5 @@ export function gerarCsv(colunas: readonly ColunaCsv[], linhas: readonly object[
   ]
     .map((valores) => valores.map(celula).join(';'))
     .join('\r\n');
-  return `﻿${corpo}\r\n`;
+  return `\uFEFF${corpo}\r\n`;
 }
