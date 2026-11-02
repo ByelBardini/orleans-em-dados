@@ -57,9 +57,6 @@ O núcleo já confere contagem e ids únicos; `validar` cuida do que é da fonte
 
 ## Armadilhas
 
-- Paginação da Betha sem ordenação é instável (em 2026 a 57153 devolveu 1.294 registros com 1.017 ids únicos): o cliente ordena por `id`, e `coletar.js` ainda repete a leitura inteira até 3 vezes antes de entregar uma coleta inconsistente.
-- O Qlik devolve `double` (`170915184.25000012`): o coletor converte para centavos e recusa o que não cai sobre um centavo inteiro. Nulo no Qlik é `qIsNull` ou `qText '-'`.
-- Selecionar no Qlik por texto não restringe o recorte neste servidor: a seleção é pelo `qElemNumber` lido na sessão.
 - Endpoints da Betha e apps do TCE-SC não são APIs documentadas: ids, campos e filtros podem mudar.
 - `pnpm` repassa `--` literalmente: é `pnpm coletar --ano 2025`, não `pnpm coletar -- --ano 2025` (o `parseArgs` leria o resto como posicional).
 - `credor` pode ser pessoa física: fixture de teste e log nunca levam nome real.

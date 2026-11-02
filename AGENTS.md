@@ -14,7 +14,7 @@ Dashboard público, rastreável, com dados de receitas e despesas do município 
 
 - `packages/db/` — esquema Drizzle, migrações (`drizzle/`), conexão e a conferência Betha × TCE-SC.
 - `packages/contracts/` — valores do domínio e schemas Zod compartilhados.
-- `packages/importadores/nucleo`, `betha/` — contrato e executor dos importadores, e o importador da Betha.
+- `packages/importadores/nucleo`, `betha/`, `tcesc/` — contrato e executor dos importadores, e um importador por fonte.
 - `packages/importadores/` — coletores Betha e TCE-SC, gravação e publicação das coletas, CLIs.
 - `apps/api/src/` — API REST que lê só as coletas publicadas.
 - `apps/web/src/` — dashboard.
@@ -32,6 +32,7 @@ Leia o hub da área antes de abrir fonte. O driver do `/testar` indica qual (`le
 | Conferência  | [`conferencia.md`](docs/context/conferencia.md)   | regras da conferência Betha × TCE-SC                  |
 | Importadores | [`importadores.md`](docs/context/importadores.md) | contrato do importador, executor, execuções           |
 | Betha        | [`betha.md`](docs/context/betha.md)               | consultas, cliente, paginação e normalização da Betha |
+| TCE-SC       | [`tcesc.md`](docs/context/tcesc.md)               | sessão Qlik, cubos e normalização do Farol TCE-SC     |
 | Contratos    | [`contracts.md`](docs/context/contracts.md)       | dinheiro, exercício, rubrica e schemas das respostas  |
 | API          | [`api.md`](docs/context/api.md)                   | rotas, parâmetros, CSV                                |
 | Dashboard    | [`web.md`](docs/context/web.md)                   | páginas, componentes, formatação, selos               |
