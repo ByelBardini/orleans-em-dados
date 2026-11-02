@@ -1,0 +1,36 @@
+{
+  "status": 200,
+  "tipo": "application/json; charset=utf-8",
+  "disposicao": null,
+  "corpo": {
+    "anos": [
+      2025
+    ],
+    "exemplo": false,
+    "atualizadoEm": {
+      "2025": "2025-03-01T12:00:00.000Z"
+    },
+    "entidades": [
+      {
+        "codigo": "728",
+        "nome": "Prefeitura Municipal",
+        "sigla": "Prefeitura"
+      },
+      {
+        "codigo": "320",
+        "nome": "Fundação Ambiental Municipal de Orleans",
+        "sigla": "Fundação Ambiental"
+      },
+      {
+        "codigo": "319",
+        "nome": "Fundo Municipal de Saúde",
+        "sigla": "FMS"
+      },
+      {
+        "codigo": "2473",
+        "nome": "SAMAE — Serviço Autônomo Municipal de Água e Esgoto",
+        "sigla": "SAMAE"
+      }
+    ]
+  }
+}

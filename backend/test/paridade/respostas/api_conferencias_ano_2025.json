@@ -1,0 +1,251 @@
+{
+  "status": 200,
+  "tipo": "application/json; charset=utf-8",
+  "disposicao": null,
+  "corpo": {
+    "ano": 2025,
+    "disponivel": true,
+    "geradoEm": "<hora da chamada>",
+    "parcial": true,
+    "limites": {
+      "mesReceita": 2,
+      "dataEmpenho": "2025-02-05"
+    },
+    "coletas": [
+      {
+        "chave": "despesas",
+        "fonte": "betha",
+        "nome": "Despesas Orçamentárias",
+        "coleta": "3",
+        "coletadoEm": "2025-03-01T12:00:00.000Z",
+        "linhas": 3,
+        "recargaTce": null
+      },
+      {
+        "chave": "empenhos",
+        "fonte": "betha",
+        "nome": "Execução Detalhada de Despesas",
+        "coleta": "2",
+        "coletadoEm": "2025-03-01T12:00:00.000Z",
+        "linhas": 6,
+        "recargaTce": null
+      },
+      {
+        "chave": "receitas",
+        "fonte": "betha",
+        "nome": "Receitas Orçamentárias",
+        "coleta": "1",
+        "coletadoEm": "2025-03-01T12:00:00.000Z",
+        "linhas": 6,
+        "recargaTce": null
+      },
+      {
+        "chave": "tcesc_empenhos",
+        "fonte": "tcesc",
+        "nome": "Despesas Municipais — empenhos do exercício",
+        "coleta": "5",
+        "coletadoEm": "2025-03-01T12:00:00.000Z",
+        "linhas": 6,
+        "recargaTce": "2025-03-01T06:00:00.000Z"
+      },
+      {
+        "chave": "tcesc_receitas",
+        "fonte": "tcesc",
+        "nome": "Receitas Municipais — arrecadação por natureza e mês",
+        "coleta": "4",
+        "coletadoEm": "2025-03-01T12:00:00.000Z",
+        "linhas": 6,
+        "recargaTce": "2025-03-01T06:00:00.000Z"
+      }
+    ],
+    "camara": {
+      "empenhos": 1,
+      "empenhado": 25000,
+      "liquidado": 25000,
+      "pago": 20000,
+      "ultimo": "2025-01-05"
+    },
+    "despesaPorEntidade": [
+      {
+        "sigla": "Prefeitura",
+        "nome": "Prefeitura Municipal de Orleans",
+        "poder": "Executivo",
+        "entidadeBetha": "728",
+        "bethaEmpenhado": 180000,
+        "tceEmpenhado": 180000,
+        "difEmpenhado": 0,
+        "bethaLiquidado": 120000,
+        "tceLiquidado": 120000,
+        "difLiquidado": 0,
+        "bethaPago": 100000,
+        "tcePago": 100000,
+        "difPago": 0,
+        "comparavel": false
+      },
+      {
+        "sigla": "FMS",
+        "nome": "Fundo Municipal de Saúde de Orleans",
+        "poder": "Executivo",
+        "entidadeBetha": "319",
+        "bethaEmpenhado": 15000,
+        "tceEmpenhado": 15000,
+        "difEmpenhado": 0,
+        "bethaLiquidado": 0,
+        "tceLiquidado": 0,
+        "difLiquidado": 0,
+        "bethaPago": 0,
+        "tcePago": 0,
+        "difPago": 0,
+        "comparavel": false
+      },
+      {
+        "sigla": "Câmara",
+        "nome": "Câmara Municipal de Orleans",
+        "poder": "Legislativo",
+        "entidadeBetha": null,
+        "bethaEmpenhado": null,
+        "tceEmpenhado": 25000,
+        "difEmpenhado": null,
+        "bethaLiquidado": null,
+        "tceLiquidado": 25000,
+        "difLiquidado": null,
+        "bethaPago": null,
+        "tcePago": 20000,
+        "difPago": null,
+        "comparavel": false
+      }
+    ],
+    "receitaPorEntidade": [
+      {
+        "sigla": "Prefeitura",
+        "codigoEntidade": "728",
+        "betha": 1545000.25,
+        "tce": 1545000.25,
+        "diferenca": 0,
+        "incoerenciaBetha": 0
+      },
+      {
+        "sigla": "FMS",
+        "codigoEntidade": "319",
+        "betha": 400000,
+        "tce": 350000,
+        "diferenca": 50000,
+        "incoerenciaBetha": 50000
+      }
+    ],
+    "receitaPorMes": [
+      {
+        "mes": 1,
+        "betha": 1500000,
+        "tce": 1500000,
+        "diferenca": 0
+      },
+      {
+        "mes": 2,
+        "betha": 445000.25,
+        "tce": 395000.25,
+        "diferenca": 50000
+      }
+    ],
+    "receitaPorNatureza": [
+      {
+        "entidade": "FMS",
+        "natureza": "17135011",
+        "descricao": "Transferência SUS",
+        "betha": 400000,
+        "tce": 350000,
+        "diferenca": 50000,
+        "codigoEntidade": "319",
+        "tipo": "valor",
+        "incoerenciaBetha": 50000,
+        "nota": "Na própria Betha, o arrecadado no mês não fecha com o acumulado da rubrica em fevereiro (R$ 50.000,00): lançamento que a consulta mantém e o acumulado desconsidera. Explica toda a diferença."
+      }
+    ],
+    "receitaIncoerente": [
+      {
+        "ent": "319",
+        "nat": "17135011",
+        "mes": 2,
+        "excesso": 50000
+      }
+    ],
+    "empenhos": [
+      {
+        "entidade": "Prefeitura",
+        "codigoEntidade": "728",
+        "betha": 5,
+        "tce": 4,
+        "casados": 3,
+        "soBetha": 2,
+        "valorSoBetha": 10000,
+        "soTce": 1,
+        "valorSoTce": 7000
+      },
+      {
+        "entidade": "FMS",
+        "codigoEntidade": "319",
+        "betha": 1,
+        "tce": 1,
+        "casados": 1,
+        "soBetha": 0,
+        "valorSoBetha": 0,
+        "soTce": 0,
+        "valorSoTce": 0
+      }
+    ],
+    "empenhosSemPar": [
+      {
+        "fonte": "betha",
+        "entidade": "Prefeitura",
+        "codigoEntidade": "728",
+        "numero": 12,
+        "data": "2025-02-01",
+        "valor": 7000,
+        "liquidado": 7000,
+        "ocorrencia": 1,
+        "numeroNaOutra": 112,
+        "id": "211:728:1003",
+        "nota": "Na outra fonte, o empenho com esta data e valor é o nº 112: provável renumeração."
+      },
+      {
+        "fonte": "tce",
+        "entidade": "Prefeitura",
+        "codigoEntidade": "728",
+        "numero": 112,
+        "data": "2025-02-01",
+        "valor": 7000,
+        "liquidado": 7000,
+        "ocorrencia": 1,
+        "numeroNaOutra": 12,
+        "id": "5003",
+        "nota": "Na outra fonte, o empenho com esta data e valor é o nº 12: provável renumeração."
+      },
+      {
+        "fonte": "betha",
+        "entidade": "Prefeitura",
+        "codigoEntidade": "728",
+        "numero": 13,
+        "data": "2025-02-05",
+        "valor": 3000,
+        "liquidado": null,
+        "ocorrencia": 2,
+        "numeroNaOutra": null,
+        "id": "211:728:900",
+        "nota": "Registro repetido: mesmo número, data e valor de outro empenho. Não tem liquidação registrada."
+      }
+    ],
+    "resumo": {
+      "despesaEntidadesComparadas": 0,
+      "despesaEntidadesIguais": 0,
+      "receitaBetha": 1945000.25,
+      "receitaTce": 1895000.25,
+      "receitaDiferenca": 50000,
+      "receitaIncoerenteBetha": 50000,
+      "naturezasComparadas": 3,
+      "naturezasIguais": 2,
+      "empenhosBetha": 6,
+      "empenhosTce": 5,
+      "empenhosCasados": 4
+    }
+  }
+}
