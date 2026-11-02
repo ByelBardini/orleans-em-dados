@@ -6,9 +6,13 @@ import {
   empenhosForaDaSoma,
   listarSemExplicacao,
   montarConferencia,
+  separarReceita,
+  separarValores,
+  type CruzamentoReceita,
   type DadosDaConferencia,
   type EmpenhoSemPar,
   type LinhaNatureza,
+  type PistasDaReceita,
 } from '../../src/conferencia/conferencia.bo';
 
 const NBSP = ' ';
@@ -530,5 +534,147 @@ describe('montarConferencia com as causas', () => {
     );
     expect(resumo).toMatchObject({ semExplicacao: 1, comCausaProvavel: 2, conhecidas: 1 });
     expect(semExplicacao.map((i) => i.titulo)).toEqual(['Rubrica 11125001']);
+  });
+});
+
+describe('separarValores', () => {
+  it.each([
+    ['iguais', 100, 100, 100, 0, 0],
+    ['Betha maior', 150, 100, 100, 50, 0],
+    ['TCE maior', 100, 150, 100, 0, 50],
+    ['negativos de mesmo sinal', -100, -60, -60, -40, 0],
+    ['negativos com o TCE mais negativo', -60, -100, -60, 0, -40],
+    ['sinais opostos', 50, -50, 0, 50, -50],
+    ['só na Betha', 80, null, 0, 80, 0],
+    ['só no TCE', null, 80, 0, 0, 80],
+    ['linha negativa só na Betha', -15312.12, null, 0, -15312.12, 0],
+  ])('%s: Betha %s e TCE %s conferem %s', (_cenario, betha, tce, conferido, diferencaBetha, diferencaTce) => {
+    expect(separarValores(betha, tce)).toEqual({ conferido, diferencaBetha, diferencaTce });
+  });
+
+  it('valores quebrados saem em centavos exatos, sem erro de ponto flutuante', () => {
+    // Em number, 1234567.89 - 1234567.8 dá 0.08999999985.
+    expect(separarValores(1234567.89, 1234567.8)).toEqual({
+      conferido: 1234567.8,
+      diferencaBetha: 0.09,
+      diferencaTce: 0,
+    });
+  });
+});
+
+const cruzamento = (campos: Partial<CruzamentoReceita>): CruzamentoReceita => ({
+  ent: '728',
+  entidade: 'Prefeitura',
+  natureza: '11125001',
+  descricao: 'IPTU',
+  mes: 1,
+  betha: 100,
+  tce: 100,
+  ...campos,
+});
+
+const SEM_PISTAS: PistasDaReceita = { repetidas: [], incoerentes: [], repetidasMeses: [] };
+
+describe('separarReceita', () => {
+  it('cruzamento igual é todo conferido e fica sem tipo', () => {
+    const { linhas } = separarReceita([cruzamento({})], SEM_PISTAS, 12);
+    expect(linhas).toMatchObject([{ conferido: 100, diferencaBetha: 0, diferencaTce: 0, tipo: null }]);
+  });
+
+  it('natureza que só existe no TCE confere zero e é so_tce', () => {
+    const { linhas } = separarReceita([cruzamento({ betha: null, tce: 80 })], SEM_PISTAS, 12);
+    expect(linhas).toMatchObject([{ conferido: 0, diferencaBetha: 0, diferencaTce: 80, tipo: 'so_tce' }]);
+  });
+
+  it('mês sem Betha em natureza que a Betha tem em outro mês não é so_tce', () => {
+    const { linhas } = separarReceita(
+      [cruzamento({ mes: 1 }), cruzamento({ mes: 2, betha: null, tce: 80 })],
+      SEM_PISTAS,
+      12,
+    );
+    expect(linhas.map((l) => l.tipo)).toEqual([null, 'sem_causa']);
+  });
+
+  it('natureza cuja diferença o acumulado explica inteira é fora_do_acumulado, mesmo em outro mês', () => {
+    // A linha sobrando é de maio; o acumulado só desencontra em junho.
+    const { linhas } = separarReceita(
+      [cruzamento({ mes: 5, betha: 150, tce: 100 }), cruzamento({ mes: 6, betha: 100, tce: 100 })],
+      { ...SEM_PISTAS, incoerentes: [{ ent: '728', nat: '11125001', mes: 6, excesso: 50 }] },
+      12,
+    );
+    expect(linhas.map((l) => [l.mes, l.tipo])).toEqual([
+      [5, 'fora_do_acumulado'],
+      [6, null],
+    ]);
+  });
+
+  it('acumulado que explica só parte da natureza deixa o resto como sem_causa', () => {
+    const { linhas } = separarReceita(
+      [cruzamento({ betha: 150, tce: 100 })],
+      { ...SEM_PISTAS, incoerentes: [{ ent: '728', nat: '11125001', mes: 1, excesso: 30 }] },
+      12,
+    );
+    expect(linhas[0]?.tipo).toBe('sem_causa');
+  });
+
+  it('mesmo valor lançado em outra rubrica do mês é duas_rubricas', () => {
+    const { linhas } = separarReceita(
+      [cruzamento({ betha: 5000, tce: null })],
+      { ...SEM_PISTAS, repetidas: [{ ent: '728', nat: '11125001', outra: '11125002', mes: 1, v: 5000 }] },
+      12,
+    );
+    expect(linhas).toMatchObject([{ conferido: 0, diferencaBetha: 5000, tipo: 'duas_rubricas' }]);
+  });
+
+  it('diferença anual zero com meses opostos é mes_diferente, com os dois lados fora do conferido', () => {
+    const { linhas } = separarReceita(
+      [cruzamento({ mes: 1, betha: 100, tce: null }), cruzamento({ mes: 2, betha: null, tce: 100 })],
+      SEM_PISTAS,
+      12,
+    );
+    expect(linhas).toMatchObject([
+      { mes: 1, conferido: 0, diferencaBetha: 100, diferencaTce: 0, tipo: 'mes_diferente' },
+      { mes: 2, conferido: 0, diferencaBetha: 0, diferencaTce: 100, tipo: 'mes_diferente' },
+    ]);
+  });
+
+  it('diferença sem padrão é sem_causa', () => {
+    const { linhas } = separarReceita([cruzamento({ betha: 150, tce: 100 })], SEM_PISTAS, 12);
+    expect(linhas[0]?.tipo).toBe('sem_causa');
+  });
+
+  it('pista de outra entidade não classifica a natureza', () => {
+    const { linhas } = separarReceita(
+      [cruzamento({ betha: 150, tce: 100 })],
+      { ...SEM_PISTAS, incoerentes: [{ ent: '319', nat: '11125001', mes: 1, excesso: 50 }] },
+      12,
+    );
+    expect(linhas[0]?.tipo).toBe('sem_causa');
+  });
+
+  it('mês além do que o TCE recebeu sai das linhas e vai para aguardando', () => {
+    const { linhas, aguardando } = separarReceita(
+      [cruzamento({ mes: 9 }), cruzamento({ mes: 10, betha: 700, tce: null })],
+      SEM_PISTAS,
+      9,
+    );
+    expect(linhas.map((l) => l.mes)).toEqual([9]);
+    expect(aguardando).toMatchObject([{ mes: 10, valor: 700 }]);
+  });
+
+  it('o mês do corte ainda é comparado, e linha sem mês na Betha nunca aguarda', () => {
+    const { linhas, aguardando } = separarReceita(
+      [cruzamento({ mes: 9 }), cruzamento({ mes: null, betha: 40, tce: null })],
+      SEM_PISTAS,
+      9,
+    );
+    expect(linhas.map((l) => l.mes)).toEqual([9, null]);
+    expect(aguardando).toEqual([]);
+  });
+
+  it('sem mês nenhum no TCE, toda linha aguarda', () => {
+    const { linhas, aguardando } = separarReceita([cruzamento({ mes: 1, tce: null })], SEM_PISTAS, null);
+    expect(linhas).toEqual([]);
+    expect(aguardando).toMatchObject([{ mes: 1, valor: 100 }]);
   });
 });
