@@ -49,6 +49,7 @@
             "diferencaDaNatureza": null,
             "etapas": null,
             "valor": 50000,
+            "compensacao": null,
             "nota": "Na própria Betha, o arrecadado no mês não fecha com o acumulado da rubrica em fevereiro (R$ 50.000,00): é onde a conta desencontra. A linha que o acumulado provavelmente desconsidera pode ser de outro mês. Explica toda a diferença."
           }
         ]
@@ -84,6 +85,7 @@
             "diferencaDaNatureza": null,
             "etapas": null,
             "valor": 3000,
+            "compensacao": null,
             "nota": "Registro repetido: mesmo número, data e valor de outro empenho."
           }
         ]
@@ -119,6 +121,7 @@
             "diferencaDaNatureza": null,
             "etapas": null,
             "valor": 7000,
+            "compensacao": null,
             "nota": "Na outra fonte, o empenho com esta data, este valor e a mesma identificação é o nº 112: provável renumeração."
           },
           {
@@ -145,6 +148,7 @@
             "diferencaDaNatureza": null,
             "etapas": null,
             "valor": 7000,
+            "compensacao": null,
             "nota": "Na outra fonte, o empenho com esta data, este valor e a mesma identificação é o nº 12: provável renumeração."
           }
         ]

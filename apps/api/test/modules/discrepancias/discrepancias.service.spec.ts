@@ -96,3 +96,86 @@ describe('textos públicos', () => {
     expect(textos).not.toMatch(/fantasma|\berros?\b|irregular|fraude/i);
   });
 });
+
+describe('rubricas que se compensam', () => {
+  const mes = (n: number, diferenca: number) => ({ mes: n, betha: null, tce: null, diferenca });
+  const lado = (campos: Partial<DiscrepanciaConferida>) =>
+    caso({
+      tipo: 'fora_do_acumulado',
+      entidade: 'Prefeitura',
+      codigoEntidade: '728',
+      natureza: '17295101',
+      descricao: 'Sub-rubrica (exemplo)',
+      betha: 180,
+      tce: 195,
+      diferenca: -15,
+      meses: [mes(4, -15)],
+      ...campos,
+    });
+  const outroLado = (campos: Partial<DiscrepanciaConferida> = {}) =>
+    lado({ natureza: '24299901', betha: 515, tce: 500, diferenca: 15, meses: [mes(4, 15)], ...campos });
+  const tipos = (lista: DiscrepanciaConferida[]) => secao(lista).grupos.map((g) => [g.tipo, g.total, g.itens.length]);
+
+  // Regressão: FMS/Prefeitura 2025, ±R$ 15.312,12 saíam como dois casos independentes (conferência de 02/11/2026).
+  it('valores opostos da mesma entidade viram um caso de reclassificação, contado uma vez', () => {
+    const { grupos, resumo } = secao([lado({}), outroLado()]);
+    expect(grupos.map((g) => [g.tipo, g.total, g.itens.length])).toEqual([['reclassificacao', 15, 1]]);
+    expect(resumo.casos).toBe(1);
+    expect(resumo.porArea.receita).toEqual({ casos: 1, total: 15 });
+  });
+
+  it('o caso traz as duas rubricas com o valor de cada fonte e diferença zero no total', () => {
+    const [item] = secao([outroLado(), lado({})]).grupos[0]?.itens ?? [];
+    expect(item?.compensacao).toEqual({
+      aMenos: { natureza: '17295101', betha: 180, tce: 195 },
+      aMais: { natureza: '24299901', betha: 515, tce: 500 },
+    });
+    expect(item).toMatchObject({ diferenca: 0, valor: 15, descricao: null, natureza: null, betha: null, tce: null });
+    expect(item?.meses.map((m) => m.mes)).toEqual([4]);
+  });
+
+  it('a nota diz o lado de cada rubrica e que não muda o total, sem afirmar a causa', () => {
+    const [item] = secao([lado({}), outroLado()]).grupos[0]?.itens ?? [];
+    expect(item?.nota).toContain('a menos na rubrica 17295101 e a mais na 24299901');
+    expect(item?.nota).toContain('provável reclassificação');
+    expect(item?.nota).toContain('sem efeito no total');
+  });
+
+  it('lançamento fora do acumulado continua dito na nota do caso', () => {
+    const [item] = secao([lado({}), outroLado()]).grupos[0]?.itens ?? [];
+    expect(item?.nota).toContain('não fecha com o acumulado');
+  });
+
+  it('par já classificado como reclassificação não cita o acumulado', () => {
+    const [item] =
+      secao([lado({ tipo: 'reclassificacao' }), outroLado({ tipo: 'reclassificacao' })]).grupos[0]?.itens ?? [];
+    expect(item?.nota).not.toContain('acumulado');
+    expect(item?.compensacao).not.toBeNull();
+  });
+
+  it.each([
+    ['outra entidade', { codigoEntidade: '319' }],
+    ['valor diferente', { diferenca: 14 }],
+    ['mesmo lado', { diferenca: -15 }],
+    ['parte de uma natureza dividida', { diferencaDaNatureza: 30 }],
+    ['outro mês', { meses: [mes(5, 15)] }],
+    ['outra situação', { situacao: 'confirmada_no_portal' as const }],
+    ['outra área', { area: 'despesa' as const }],
+  ])('com %s, os dois lados seguem separados', (_nome, campos) => {
+    const itens = secao([lado({}), outroLado(campos)]).grupos.flatMap((g) => g.itens);
+    expect(itens).toHaveLength(2);
+    expect(itens.every((i) => i.compensacao === null)).toBe(true);
+  });
+
+  it('tipo sem relação com reclassificação não é juntado', () => {
+    expect(tipos([lado({ tipo: 'so_tce' }), outroLado({ tipo: 'so_tce' })])).toEqual([['so_tce', 30, 2]]);
+  });
+
+  it('terceiro caso de mesmo valor fica de fora: cada lado forma um par só', () => {
+    const terceiro = lado({ natureza: '13000000', betha: 15, tce: 0, diferenca: 15 });
+    expect(tipos([lado({}), outroLado(), terceiro])).toEqual([
+      ['reclassificacao', 15, 1],
+      ['fora_do_acumulado', 15, 1],
+    ]);
+  });
+});

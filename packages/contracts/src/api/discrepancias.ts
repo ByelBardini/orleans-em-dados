@@ -8,6 +8,8 @@ const areaSchema = z.enum(['receita', 'despesa', 'empenho']);
 
 const etapaSchema = z.strictObject({ betha: valorSchema, tce: valorSchema, diferenca: valorSchema });
 
+const rubricaDoParSchema = z.strictObject({ natureza: z.string(), betha: valorSchema, tce: valorSchema });
+
 const itemSchema = z.strictObject({
   area: areaSchema,
   situacao: situacaoSchema,
@@ -38,6 +40,8 @@ const itemSchema = z.strictObject({
   etapas: z.strictObject({ empenhado: etapaSchema, liquidado: etapaSchema, pago: etapaSchema }).nullable(),
   // Em módulo: é o que soma no `total` do grupo.
   valor: z.number(),
+  // Duas rubricas de valores opostos, contadas como um caso: `natureza`, `betha` e `tce` ficam nulos.
+  compensacao: z.strictObject({ aMenos: rubricaDoParSchema, aMais: rubricaDoParSchema }).nullable(),
   nota: z.string(),
 });
 

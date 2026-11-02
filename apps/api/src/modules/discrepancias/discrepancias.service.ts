@@ -7,6 +7,8 @@ type Grupo = Discrepancias['grupos'][number];
 type Item = Grupo['itens'][number];
 type Area = Grupo['area'];
 type TipoDoGrupo = Exclude<TipoDiscrepancia, 'aguardando_tce'>;
+/** Duas rubricas que se compensam, já contadas como um caso. */
+type ComPar = DiscrepanciaConferida & { compensacao?: Item['compensacao']; valorDoPar?: number };
 
 /** O nome interno não sai: o público lê o que foi observado, sem a causa. */
 const TIPO_PUBLICO: Record<TipoDoGrupo, Grupo['tipo']> = {
@@ -91,12 +93,13 @@ const centavos = (v: number) => Math.round(v * 100);
 const somar = (itens: readonly Item[]) => itens.reduce((total, i) => total + centavos(i.valor), 0) / 100;
 
 /** O que cada caso pesa no grupo, em módulo. Em meses diferentes a soma do ano é zero: pesa o que mudou de mês. */
-function valorDe(d: DiscrepanciaConferida) {
+function valorDe(d: ComPar) {
+  if (d.valorDoPar !== undefined) return d.valorDoPar;
   if (d.tipo !== 'mes_diferente') return Math.abs(d.diferenca);
   return Math.max(Math.abs(d.diferencaBetha ?? 0), Math.abs(d.diferencaTce ?? 0));
 }
 
-const paraItem = (d: DiscrepanciaConferida): Item => ({
+const paraItem = (d: ComPar): Item => ({
   area: d.area,
   situacao: d.situacao,
   data: d.data ?? null,
@@ -120,13 +123,73 @@ const paraItem = (d: DiscrepanciaConferida): Item => ({
   diferencaDaNatureza: d.diferencaDaNatureza ?? null,
   etapas: d.etapas ?? null,
   valor: valorDe(d),
+  compensacao: d.compensacao ?? null,
   nota: d.nota,
 });
 
 const ehPendencia = (d: DiscrepanciaConferida) => d.tipo === 'aguardando_tce';
 
+const fmt = (v: number) => v.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+const mesesDe = (d: DiscrepanciaConferida) =>
+  (d.meses ?? [])
+    .map((m) => m.mes)
+    .sort()
+    .join();
+const TIPOS_DO_PAR: readonly DiscrepanciaConferida['tipo'][] = ['fora_do_acumulado', 'reclassificacao'];
+
+/** Duas rubricas inteiras, da mesma entidade, situação e meses, com valores exatamente opostos. */
+const formamPar = (a: DiscrepanciaConferida, b: DiscrepanciaConferida) =>
+  a.area === 'receita' &&
+  b.area === 'receita' &&
+  TIPOS_DO_PAR.includes(a.tipo) &&
+  a.tipo === b.tipo &&
+  a.natureza !== b.natureza &&
+  a.codigoEntidade === b.codigoEntidade &&
+  a.situacao === b.situacao &&
+  a.diferencaDaNatureza === undefined &&
+  b.diferencaDaNatureza === undefined &&
+  a.diferenca !== 0 &&
+  centavos(a.diferenca) === -centavos(b.diferenca) &&
+  mesesDe(a) === mesesDe(b);
+
+function juntarPar(a: DiscrepanciaConferida, b: DiscrepanciaConferida): ComPar {
+  const [aMenos, aMais] = a.diferenca < 0 ? [a, b] : [b, a];
+  const acumulado =
+    a.tipo === 'fora_do_acumulado' ? ' Na Betha, o arrecadado no mês dessas rubricas não fecha com o acumulado.' : '';
+  return {
+    ...a,
+    tipo: 'reclassificacao',
+    natureza: undefined,
+    descricao: undefined,
+    betha: null,
+    tce: null,
+    diferenca: 0,
+    diferencaBetha: undefined,
+    diferencaTce: undefined,
+    meses: (a.meses ?? []).map((m) => ({ ...m, betha: null, tce: null, diferenca: 0 })),
+    compensacao: {
+      aMenos: { natureza: aMenos.natureza ?? '', betha: aMenos.betha, tce: aMenos.tce },
+      aMais: { natureza: aMais.natureza ?? '', betha: aMais.betha, tce: aMais.tce },
+    },
+    valorDoPar: Math.abs(a.diferenca),
+    nota: `Em relação ao TCE-SC, a Betha tem ${fmt(Math.abs(a.diferenca))} a menos na rubrica ${aMenos.natureza} e a mais na ${aMais.natureza}: provável reclassificação entre rubricas, sem efeito no total.${acumulado}`,
+  };
+}
+
+/** Os dois lados de uma compensação são um valor só: pesam uma vez no grupo. */
+function juntarCompensacoes(discrepancias: readonly DiscrepanciaConferida[]): ComPar[] {
+  const usados = new Set<DiscrepanciaConferida>();
+  return discrepancias.flatMap((d): ComPar[] => {
+    if (usados.has(d)) return [];
+    const par = discrepancias.find((o) => o !== d && !usados.has(o) && formamPar(d, o));
+    if (!par) return [d];
+    usados.add(d).add(par);
+    return [juntarPar(d, par)];
+  });
+}
+
 /** Um grupo por área e tipo, na ordem da lista: receita, despesa e empenhos não se somam. */
-function agrupar(discrepancias: readonly DiscrepanciaConferida[]): Grupo[] {
+function agrupar(discrepancias: readonly ComPar[]): Grupo[] {
   const grupos = new Map<string, Grupo>();
   for (const d of discrepancias) {
     if (d.tipo === 'aguardando_tce') continue;
@@ -169,7 +232,7 @@ type Publicado = Pick<Discrepancias, 'ano' | 'parcial' | 'limites'> & {
 };
 
 export function montarSecao({ ano, parcial, limites, discrepancias }: Publicado): Discrepancias {
-  const grupos = agrupar(discrepancias);
+  const grupos = agrupar(juntarCompensacoes(discrepancias));
   const pendentes = discrepancias.filter(ehPendencia).map(paraItem);
   const daReceita = pendentes.filter((i) => i.area === 'receita');
   const daDespesa = pendentes.filter((i) => i.area === 'despesa');
