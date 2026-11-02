@@ -1136,7 +1136,7 @@ function notaDoEmpenho(e: EmpenhoParaClassificar, tipo: TipoDoEmpenho) {
     case 'empenho_repetido':
       return 'Registro repetido: mesmo número, data e valor de outro empenho.';
     case 'empenho_renumerado':
-      return `Na outra fonte, o empenho com esta data, este valor e o mesmo credor ou histórico é o nº ${e.numeroNaOutra}: provável renumeração.`;
+      return `Na outra fonte, o empenho com esta data, este valor e a mesma identificação é o nº ${e.numeroNaOutra}: provável renumeração.`;
     case 'empenho_fantasma':
       return 'Na Betha, sem correspondente no TCE-SC e sem nenhum campo de execução (liquidado, pago ou saldo a pagar).';
     case 'empenho_ausente':
