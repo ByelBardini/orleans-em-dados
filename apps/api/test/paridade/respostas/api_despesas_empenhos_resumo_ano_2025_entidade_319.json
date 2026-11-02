@@ -26,25 +26,32 @@
       "exemplo": false,
       "conferencia": []
     },
+    "conferencia": {
+      "disponivel": true,
+      "parcial": true,
+      "dataCorte": "2025-02-05"
+    },
     "totais": {
       "quantidade": 1,
       "empenhado": 15000,
-      "liquidado": null,
-      "pago": null,
-      "semValoresDeExecucao": 1,
-      "semValoresDeExecucaoValor": 15000,
-      "saldoAPagar": 15000,
-      "comSaldoAPagar": 1,
+      "empenhadoLiquido": 15000,
+      "liquidado": 0,
+      "pago": 0,
+      "semValoresDeExecucao": 0,
+      "semValoresDeExecucaoValor": 0,
+      "saldoAPagar": 0,
+      "comSaldoAPagar": 0,
       "credores": 1,
-      "excluidos": 2
+      "excluidos": 0
     },
     "porMes": [
       {
         "chave": 1,
         "quantidade": 1,
         "empenhado": 15000,
-        "liquidado": null,
-        "pago": null
+        "empenhadoLiquido": 15000,
+        "liquidado": 0,
+        "pago": 0
       }
     ],
     "porEntidade": [
@@ -57,6 +64,7 @@
         },
         "quantidade": 3,
         "empenhado": 173000,
+        "empenhadoLiquido": 173000,
         "liquidado": 113000,
         "pago": 93000
       },
@@ -69,8 +77,9 @@
         },
         "quantidade": 1,
         "empenhado": 15000,
-        "liquidado": null,
-        "pago": null
+        "empenhadoLiquido": 15000,
+        "liquidado": 0,
+        "pago": 0
       }
     ],
     "porOrgao": [
@@ -79,8 +88,9 @@
         "nome": "FUNDO MUNICIPAL DE SAÚDE",
         "quantidade": 1,
         "empenhado": 15000,
-        "liquidado": null,
-        "pago": null
+        "empenhadoLiquido": 15000,
+        "liquidado": 0,
+        "pago": 0
       }
     ],
     "porCredor": [
@@ -90,8 +100,9 @@
         "orgaoPrincipal": "FUNDO MUNICIPAL DE SAÚDE",
         "quantidade": 1,
         "empenhado": 15000,
-        "liquidado": null,
-        "pago": null
+        "empenhadoLiquido": 15000,
+        "liquidado": 0,
+        "pago": 0
       }
     ],
     "maiores": [
@@ -104,7 +115,8 @@
         "credor": "LABORATORIO EXEMPLO LTDA",
         "historico": "Exames (exemplo)",
         "empenhado": 15000,
-        "pago": null
+        "empenhadoLiquido": 15000,
+        "pago": 0
       }
     ]
   }

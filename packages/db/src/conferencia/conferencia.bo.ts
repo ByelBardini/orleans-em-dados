@@ -343,12 +343,6 @@ export function listarSemExplicacao(
   ];
 }
 
-/** Empenhos Betha que a conferência aponta como versões antigas de empenhos
- *  renumerados ou registros repetidos: saem das somas. */
-export function empenhosForaDaSoma(semPar: readonly EmpenhoSemPar[]): string[] {
-  return semPar.filter((e) => e.fonte === 'betha' && (e.ocorrencia > 1 || e.numeroNaOutra)).map((e) => e.id);
-}
-
 /** Exercício completo no TCE-SC quando a receita já chega a dezembro. */
 export const ehParcial = (limites: Limites) => (limites.mesReceita ?? 0) < 12;
 
@@ -876,17 +870,36 @@ export function montarReceitaConferida(ano: number, mesLimite: number | null, da
   const entidades = agrupar<CruzamentoReceita>([...linhas, ...aguardando], (l) => l.ent);
   const origens = [...new Set([...linhas, ...aguardando].map((l) => l.natureza.slice(0, 2)))];
 
-  const porMes = meses.map((mes) => {
-    const doMes = linhas.filter((l) => l.mes === mes);
-    const aguardandoDoMes = aguardando.filter((l) => l.mes === mes);
-    return {
-      mes,
-      betha: somaDaFonte([...doMes, ...aguardandoDoMes], 'betha'),
-      tce: somaDaFonte(doMes, 'tce'),
-      ...somaDasPartes(doMes),
-      aguardandoTce: somaEmCentavos(aguardandoDoMes, (l) => l.valor),
-    };
-  });
+  const porMesDe = (dasLinhas: readonly LinhaSeparada[], doAguardando: readonly LinhaAguardando[]) =>
+    meses.flatMap((mes) => {
+      const doMes = dasLinhas.filter((l) => l.mes === mes);
+      const aguardandoDoMes = doAguardando.filter((l) => l.mes === mes);
+      if (!doMes.length && !aguardandoDoMes.length) return [];
+      return [
+        {
+          mes,
+          betha: somaDaFonte([...doMes, ...aguardandoDoMes], 'betha'),
+          tce: somaDaFonte(doMes, 'tce'),
+          ...somaDasPartes(doMes),
+          aguardandoTce: somaEmCentavos(aguardandoDoMes, (l) => l.valor),
+        },
+      ];
+    });
+  const porOrigemDe = (dasLinhas: readonly LinhaSeparada[], doAguardando: readonly LinhaAguardando[]) =>
+    origens
+      .flatMap((origem) => {
+        const daOrigem = dasLinhas.filter((l) => l.natureza.startsWith(origem));
+        const aguardandoDaOrigem = doAguardando.filter((l) => l.natureza.startsWith(origem));
+        if (!daOrigem.length && !aguardandoDaOrigem.length) return [];
+        return [
+          {
+            origem,
+            ...somaDasPartes(daOrigem),
+            aguardandoTce: somaEmCentavos(aguardandoDaOrigem, (l) => l.valor),
+          },
+        ];
+      })
+      .sort(porConferido);
   const porEntidade = [...entidades.values()]
     .flatMap((grupo) => {
       const [primeira] = grupo;
@@ -903,19 +916,24 @@ export function montarReceitaConferida(ano: number, mesLimite: number | null, da
       ];
     })
     .sort(porConferido);
-  const porOrigem = origens
-    .map((origem) => ({
-      origem,
-      ...somaDasPartes(linhas.filter((l) => l.natureza.startsWith(origem))),
-      aguardandoTce: aguardandoEm(aguardando, (l) => l.natureza.startsWith(origem)),
-    }))
-    .sort(porConferido);
+  // O recorte de uma entidade: o mês e a origem não dão para derivar dos agregados do município.
+  const recortes = Object.fromEntries(
+    porEntidade.map((e) => {
+      const daEntidade = linhas.filter((l) => l.ent === e.codigoEntidade);
+      const aguardandoDela = aguardando.filter((l) => l.ent === e.codigoEntidade);
+      return [
+        e.codigoEntidade,
+        { porMes: porMesDe(daEntidade, aguardandoDela), porOrigem: porOrigemDe(daEntidade, aguardandoDela) },
+      ];
+    }),
+  );
 
   return {
     receita: {
-      porMes,
+      porMes: porMesDe(linhas, aguardando),
       porEntidade,
-      porOrigem,
+      porOrigem: porOrigemDe(linhas, aguardando),
+      recortes,
       naturezas: naturezasMistas(linhas, rubricas),
       totais: {
         ...somaDasPartes(linhas),

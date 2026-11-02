@@ -3,23 +3,10 @@
   "tipo": "application/json; charset=utf-8",
   "disposicao": null,
   "corpo": {
-    "total": 6,
+    "total": 4,
     "offset": 0,
     "limit": 200,
     "itens": [
-      {
-        "id": "211:728:900",
-        "entidade": "Prefeitura",
-        "numero": 13,
-        "data": "2025-02-05",
-        "orgao": "SECRETARIA MUNICIPAL DE EDUCAÇÃO",
-        "credor": "PAPELARIA MODELO ME",
-        "historico": "Material escolar (exemplo)",
-        "empenhado": 3000,
-        "liquidado": null,
-        "pago": null,
-        "saldoAPagar": null
-      },
       {
         "id": "211:728:1004",
         "entidade": "Prefeitura",
@@ -29,21 +16,9 @@
         "credor": "PAPELARIA MODELO ME",
         "historico": "Material escolar (exemplo)",
         "empenhado": 3000,
-        "liquidado": 3000,
+        "empenhadoLiquido": 3000,
         "pago": 3000,
-        "saldoAPagar": 0
-      },
-      {
-        "id": "211:728:1003",
-        "entidade": "Prefeitura",
-        "numero": 12,
-        "data": "2025-02-01",
-        "orgao": "SECRETARIA MUNICIPAL DE OBRAS",
-        "credor": "CONSTRUTORA FICTICIA S.A.",
-        "historico": "Drenagem\nsegunda linha (exemplo)",
-        "empenhado": 7000,
-        "liquidado": 7000,
-        "pago": 7000,
+        "liquidado": 3000,
         "saldoAPagar": 0
       },
       {
@@ -55,9 +30,10 @@
         "credor": "LABORATORIO EXEMPLO LTDA",
         "historico": "Exames (exemplo)",
         "empenhado": 15000,
-        "liquidado": null,
-        "pago": null,
-        "saldoAPagar": 15000
+        "empenhadoLiquido": 15000,
+        "pago": 0,
+        "liquidado": 0,
+        "saldoAPagar": 0
       },
       {
         "id": "211:728:1002",
@@ -68,9 +44,10 @@
         "credor": "CONSTRUTORA FICTICIA S.A.",
         "historico": "Pavimentação; trecho \"A\" (exemplo)",
         "empenhado": 120000,
-        "liquidado": 60000,
+        "empenhadoLiquido": 120000,
         "pago": 40000,
-        "saldoAPagar": 80000
+        "liquidado": 60000,
+        "saldoAPagar": 20000
       },
       {
         "id": "211:728:1001",
@@ -81,8 +58,9 @@
         "credor": "MERENDA EXEMPLO LTDA",
         "historico": "Merenda escolar (exemplo)",
         "empenhado": 50000,
-        "liquidado": 50000,
+        "empenhadoLiquido": 50000,
         "pago": 50000,
+        "liquidado": 50000,
         "saldoAPagar": 0
       }
     ]

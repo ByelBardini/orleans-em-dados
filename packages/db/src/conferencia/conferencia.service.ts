@@ -22,7 +22,6 @@ import {
 } from './conferencia.dao';
 import { cruzarConferenciasManuais } from './conferencias-manuais';
 
-export { empenhosForaDaSoma } from './conferencia.bo';
 export type {
   DespesaConferida,
   Discrepancia,

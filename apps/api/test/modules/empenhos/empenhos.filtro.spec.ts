@@ -6,8 +6,8 @@ describe('filtroBusca', () => {
     const { filtro, params } = filtroBusca({});
 
     expect(params).toEqual(['', '', '']);
-    expect(filtro).not.toContain('saldo_a_pagar');
-    expect(filtro).not.toContain('valor_liquidado');
+    expect(filtro).not.toContain('saldo');
+    expect(filtro).not.toContain('liquidado');
   });
 
   it('o termo de busca vai sem espaços nas pontas', () => {
@@ -19,9 +19,9 @@ describe('filtroBusca', () => {
   });
 
   it.each([
-    ['pago', 'valor_liquidado IS NOT NULL AND coalesce(saldo_a_pagar, 0) = 0'],
-    ['apagar', 'saldo_a_pagar > 0'],
-    ['sem', 'valor_liquidado IS NULL'],
+    ['pago', 'e.liquidado IS NOT NULL AND e.saldo = 0'],
+    ['apagar', 'e.saldo > 0'],
+    ['sem', 'e.liquidado IS NULL'],
   ])('situação %s acrescenta a própria cláusula', (situacao, clausula) => {
     expect(filtroBusca({ situacao }).filtro).toContain(`AND ${clausula}`);
   });

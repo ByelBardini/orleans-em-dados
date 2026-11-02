@@ -26,11 +26,29 @@
       "exemplo": false,
       "conferencia": []
     },
+    "fonteUnica": [
+      "orcadoAtualizado",
+      "orcadoDeducoes"
+    ],
+    "conferencia": {
+      "disponivel": true,
+      "parcial": true,
+      "limites": {
+        "mesReceita": 2,
+        "dataEmpenho": "2025-02-05"
+      },
+      "conferido": 1895000.25,
+      "diferencaBetha": 50000,
+      "diferencaTce": 0,
+      "aguardandoTce": 0,
+      "totalBetha": 1945000.25,
+      "totalTce": 1895000.25
+    },
     "totais": {
       "quantidade": 6,
       "orcadoAtualizado": 9400000,
       "orcadoDeducoes": 0,
-      "arrecadadoNoMes": 1945000.25,
+      "arrecadadoNoMes": 1895000.25,
       "negativos": 1,
       "rubricas": 3
     },
@@ -43,7 +61,7 @@
       {
         "chave": 2,
         "quantidade": 3,
-        "arrecadadoNoMes": 445000.25
+        "arrecadadoNoMes": 395000.25
       }
     ],
     "porEntidade": [
@@ -67,7 +85,7 @@
         },
         "quantidade": 2,
         "orcadoAtualizado": 2400000,
-        "arrecadadoNoMes": 400000
+        "arrecadadoNoMes": 350000
       }
     ],
     "porOrigem": [
@@ -75,7 +93,7 @@
         "chave": "17",
         "quantidade": 4,
         "orcadoAtualizado": 8400000,
-        "arrecadadoNoMes": 1394999.75,
+        "arrecadadoNoMes": 1344999.75,
         "descricao": "Transferências correntes"
       },
       {
@@ -90,6 +108,7 @@
       {
         "chave": "728|17115101000000",
         "rubrica": "17115101000000",
+        "nivel": 14,
         "descricao": "Cota-parte FPM (exemplo)",
         "entidade": "Prefeitura",
         "quantidade": 2,
@@ -99,6 +118,7 @@
       {
         "chave": "728|11125001000000",
         "rubrica": "11125001000000",
+        "nivel": 14,
         "descricao": "IPTU (exemplo)",
         "entidade": "Prefeitura",
         "quantidade": 2,
@@ -106,13 +126,14 @@
         "arrecadadoNoMes": 550000.5
       },
       {
-        "chave": "319|17135011000000",
-        "rubrica": "17135011000000",
-        "descricao": "Transferência SUS (exemplo)",
+        "chave": "319|17135011",
+        "rubrica": "17135011",
+        "nivel": 8,
+        "descricao": "Transferência SUS",
         "entidade": "FMS",
         "quantidade": 2,
         "orcadoAtualizado": 2400000,
-        "arrecadadoNoMes": 400000
+        "arrecadadoNoMes": 350000
       }
     ]
   }

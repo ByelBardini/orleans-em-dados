@@ -16,9 +16,10 @@
         "credor": "CONSTRUTORA FICTICIA S.A.",
         "historico": "Pavimentação; trecho \"A\" (exemplo)",
         "empenhado": 120000,
-        "liquidado": 60000,
+        "empenhadoLiquido": 120000,
         "pago": 40000,
-        "saldoAPagar": 80000
+        "liquidado": 60000,
+        "saldoAPagar": 20000
       }
     ]
   }

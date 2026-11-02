@@ -6,7 +6,6 @@ import {
   completarRubricas,
   conferirDespesaEncerrada,
   discrepanciasDeEmpenhos,
-  empenhosForaDaSoma,
   listarSemExplicacao,
   montarConferencia,
   montarDespesaConferida,
@@ -187,18 +186,6 @@ describe('anotarEmpenho', () => {
 
   it('empenho do TCE-SC sem liquidação não ganha o aviso', () => {
     expect(anotarEmpenho(semPar({ fonte: 'tce', liquidado: null })).nota).toBe('Sem correspondente na Betha.');
-  });
-});
-
-describe('empenhosForaDaSoma', () => {
-  it('sai da soma o que é da Betha e repetido ou renumerado', () => {
-    const lista = [
-      semPar({ id: 'repetido', ocorrencia: 2 }),
-      semPar({ id: 'renumerado', numeroNaOutra: 112 }),
-      semPar({ id: 'so-na-betha' }),
-      semPar({ id: 'do-tce', fonte: 'tce', numeroNaOutra: 12 }),
-    ];
-    expect(empenhosForaDaSoma(lista)).toEqual(['repetido', 'renumerado']);
   });
 });
 

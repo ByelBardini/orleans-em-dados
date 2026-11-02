@@ -1,23 +1,24 @@
 // O filtro da busca de empenhos: o que o usuário pede vai sempre como parâmetro.
+// Roda sobre o conjunto de `empenhos.dao.ts`, em que `liquidado` e `saldo` são os publicados.
 import { chaveTexto } from '../../lib/consultas';
 
-// Situação a partir dos valores publicados. NULL em liquidado/pago é ausência de
-// informação na fonte, não zero.
+// NULL no liquidado é ausência de informação na fonte, não zero.
 const SITUACOES = new Map([
-  ['pago', 'valor_liquidado IS NOT NULL AND coalesce(saldo_a_pagar, 0) = 0'],
-  ['apagar', 'saldo_a_pagar > 0'],
-  ['sem', 'valor_liquidado IS NULL'],
+  ['pago', 'e.liquidado IS NOT NULL AND e.saldo = 0'],
+  ['apagar', 'e.saldo > 0'],
+  ['sem', 'e.liquidado IS NULL'],
 ]);
 
 export type OpcoesDaBusca = { q?: string; entidade?: string; orgao?: string; situacao?: string };
 
 // Busca sem acento e sem diferenciar maiúsculas em número, credor, histórico e órgão.
-export function filtroBusca({ q = '', entidade = '', orgao = '', situacao = '' }: OpcoesDaBusca) {
+// `inicio`: o número do primeiro parâmetro do filtro; os anteriores são do conjunto.
+export function filtroBusca({ q = '', entidade = '', orgao = '', situacao = '' }: OpcoesDaBusca, inicio = 1) {
+  const [ent, termo, org] = [`$${inicio}`, `$${inicio + 1}`, `$${inicio + 2}`];
   const clausula = SITUACOES.get(situacao);
-  const filtro = `coleta_id = $1
-    AND ($2 = '' OR e.entidade_codigo = $2)
-    AND ($3 = '' OR unaccent(concat_ws(' ', numero::text, credor, historico, orgao)) ILIKE unaccent('%' || $3 || '%'))
-    AND ($4 = '' OR ${chaveTexto('orgao')} = $4)
+  const filtro = `(${ent} = '' OR e.entidade_codigo = ${ent})
+    AND (${termo} = '' OR unaccent(concat_ws(' ', e.numero::text, e.credor, e.historico, e.orgao)) ILIKE unaccent('%' || ${termo} || '%'))
+    AND (${org} = '' OR ${chaveTexto('e.orgao')} = ${org})
     ${clausula ? `AND ${clausula}` : ''}`;
   return { filtro, params: [entidade, q.trim(), orgao] };
 }
