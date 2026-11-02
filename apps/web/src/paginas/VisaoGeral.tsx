@@ -1,3 +1,12 @@
+import {
+  despesasResumoSchema,
+  empenhosResumoSchema,
+  receitasSchema,
+  type Conferencia,
+  type DespesasResumo,
+  type EmpenhosResumo,
+  type Receitas,
+} from '@orleans-em-dados/contracts';
 import { useApi } from '../api';
 import { BarrasMensais, Estado, Filtros, Fonte, ListaPontos, Mi, Numero, Numeros } from '../components';
 import {
@@ -15,14 +24,15 @@ import {
 import { Selo, useConferencia } from '../selo';
 import { seloDespesa, seloReceita } from '../selos';
 import { GLOSSARIO, ORIGEM_CIDADAO, ORIGENS_DE_FORA, populacao, sujeito } from '../referencias';
+import type { PropsDaPagina } from './props';
 
-const qs = (ano, entidade) => new URLSearchParams({ ano, entidade }).toString();
+const qs = (ano: number, entidade: string) => new URLSearchParams({ ano: String(ano), entidade }).toString();
 const N = Number;
 
-export default function VisaoGeral({ ano, entidade, filtros }) {
-  const rec = useApi(`/api/receitas?${qs(ano, entidade)}`);
-  const emp = useApi(`/api/despesas/empenhos/resumo?${qs(ano, entidade)}`);
-  const desp = useApi(`/api/despesas/resumo?${qs(ano, entidade)}`);
+export default function VisaoGeral({ ano, entidade, filtros }: PropsDaPagina) {
+  const rec = useApi(`/api/receitas?${qs(ano, entidade)}`, receitasSchema);
+  const emp = useApi(`/api/despesas/empenhos/resumo?${qs(ano, entidade)}`, empenhosResumoSchema);
+  const desp = useApi(`/api/despesas/resumo?${qs(ano, entidade)}`, despesasResumoSchema);
   const conf = useConferencia(ano);
   const r = rec.dados;
   const d = emp.dados;
@@ -46,7 +56,25 @@ export default function VisaoGeral({ ano, entidade, filtros }) {
 // `o`: despesa orçamentária (57170), já descontadas as anulações: os totais oficiais.
 // `d`: empenhos individuais (57140), pelo valor original: só para as divisões
 // por órgão e por mês, que a 57170 não tem.
-function Conteudo({ ano, entidade, r, d, o, pop, entidades, conf }) {
+function Conteudo({
+  ano,
+  entidade,
+  r,
+  d,
+  o,
+  pop,
+  entidades,
+  conf,
+}: {
+  ano: number;
+  entidade: string;
+  r: Receitas;
+  d: EmpenhosResumo;
+  o: DespesasResumo;
+  pop: ReturnType<typeof populacao>;
+  entidades: readonly { codigo: string; sigla: string }[];
+  conf: Conferencia | null;
+}) {
   const arrecadado = N(r.totais.arrecadadoNoMes);
   const previsto = N(r.totais.orcadoAtualizado);
   const empenhado = N(o.totais.empenhado);
@@ -70,21 +98,25 @@ function Conteudo({ ano, entidade, r, d, o, pop, entidades, conf }) {
   // Meses: arrecadado (receitas) e empenhado (empenhos), cada um da sua consulta.
   const meses = MESES.map((rotulo, i) => ({
     rotulo,
-    nome: MESES_LONGOS[i],
+    nome: MESES_LONGOS[i] as string,
     a: N(r.porMes.find((m) => m.chave === i + 1)?.arrecadadoNoMes ?? 0),
     b: N(d.porMes.find((m) => m.chave === i + 1)?.empenhado ?? 0),
   }));
-  const pico = meses.reduce((m, x, i) => (x.b > meses[m].b ? i : m), 0);
-  const anotacao = meses[pico].b > 0 && {
-    texto: `${nomeProprio(meses[pico].nome)}: R$ ${milhoes(meses[pico].b)} mi empenhados, o maior valor do ano.${
+  const pico = meses.reduce((m, x, i) => (x.b > (meses[m]?.b ?? 0) ? i : m), 0);
+  const noPico = meses[pico] as (typeof meses)[number];
+  const anotacao = noPico.b > 0 && {
+    texto: `${nomeProprio(noPico.nome)}: R$ ${milhoes(noPico.b)} mi empenhados, o maior valor do ano.${
       pico === 0 ? ' Contratos do ano inteiro costumam ser empenhados logo no início.' : ''
     }`,
     posicao: pico < 6 ? { left: `${((pico + 1) / 12) * 100}%`, top: 4 } : { left: '4%', top: 4 },
   };
+  const maiorCada100 = N(d.porOrgao[0]?.empenhado ?? 0);
 
   const outros = d.porOrgao.slice(8);
-  const cada100 = [
-    ...d.porOrgao.slice(0, 8).map((x) => ({ nome: nomeProprio(x.nome), valor: N(x.empenhado) })),
+  const cada100: { nome: string; valor: number; outro?: boolean }[] = [
+    ...d.porOrgao
+      .slice(0, 8)
+      .map((x) => ({ nome: nomeProprio(x.nome) ?? 'Sem órgão informado', valor: N(x.empenhado) })),
     ...(outros.length
       ? [{ nome: `Outros ${outros.length} órgãos`, valor: outros.reduce((s, x) => s + N(x.empenhado), 0), outro: true }]
       : []),
@@ -184,7 +216,7 @@ function Conteudo({ ano, entidade, r, d, o, pop, entidades, conf }) {
             meses={meses}
             series={['Arrecadado', 'Empenhado']}
             descricao={`Barras mensais de arrecadado e empenhado em ${ano}`}
-            anotacao={anotacao}
+            anotacao={anotacao || null}
           />
         </section>
 
@@ -228,7 +260,7 @@ function Conteudo({ ano, entidade, r, d, o, pop, entidades, conf }) {
                 <span
                   className={o.outro ? '' : 'vermelho'}
                   style={{
-                    width: `${(o.valor / cada100[0].valor) * 100}%`,
+                    width: `${(o.valor / maiorCada100) * 100}%`,
                     background: o.outro ? 'var(--pontilhado)' : undefined,
                   }}
                 />
@@ -251,11 +283,11 @@ function Conteudo({ ano, entidade, r, d, o, pop, entidades, conf }) {
                 const qtd = d.porEntidade.find((x) => x.chave === e.chave)?.quantidade;
                 return {
                   chave: e.chave,
-                  nome: e.entidade?.nome ?? `Entidade ${e.chave}`,
+                  nome: e.entidade.nome ?? `Entidade ${e.chave}`,
                   valor: e.empenhado,
                   selecionado: e.chave === entidade,
                   extra: qtd ? `${numero(qtd)} empenhos` : undefined,
-                  dica: `${e.entidade?.nome}: ${emMilhoes(e.empenhado)} empenhados, já descontadas as anulações`,
+                  dica: `${e.entidade.nome}: ${emMilhoes(e.empenhado)} empenhados, já descontadas as anulações`,
                 };
               }),
               ...(camara

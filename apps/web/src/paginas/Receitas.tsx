@@ -1,3 +1,4 @@
+import { receitasSchema, type Conferencia, type Receitas as DadosDeReceitas } from '@orleans-em-dados/contracts';
 import { useMemo, useState } from 'react';
 import { useApi } from '../api';
 import { BarraDividida, Estado, Filtros, Fonte, LinhaAcumulada, ListaPontos, Mi, Numero, Numeros } from '../components';
@@ -5,25 +6,30 @@ import { emMilhoes, MESES, MESES_LONGOS, milhoes, moeda, numero, pct, porExtenso
 import { Selo, useConferencia } from '../selo';
 import { seloReceita, seloRubrica } from '../selos';
 import { ORIGEM_CIDADAO, ORIGENS_DE_FORA, populacao, sujeito } from '../referencias';
+import type { PropsDaPagina } from './props';
 
 const N = Number;
 const INICIAL = 10;
 
 // "Imposto sobre ... - Principal" → "Imposto sobre ..."
-const nomeReceita = (d) => d.replace(/\s*-\s*Principal$/i, '').trim();
+const nomeReceita = (d: string) => d.replace(/\s*-\s*Principal$/i, '').trim();
 
 // Nomes pelos quais o morador conhece os tributos, pelo começo da natureza.
-const TRIBUTOS = [
+const TRIBUTOS: [string, string][] = [
   ['111250', 'IPTU'],
   ['111253', 'ITBI (venda de imóveis)'],
   ['111451', 'ISS (imposto sobre serviços)'],
   ['11130', 'Imposto de Renda retido na fonte'],
   ['1241', 'Contribuição de iluminação pública'],
 ];
-const nomeTributo = (r) => TRIBUTOS.find(([prefixo]) => r.rubrica.startsWith(prefixo))?.[1] ?? r.descricao;
+const nomeTributo = (r: { rubrica: string; descricao: string }) =>
+  TRIBUTOS.find(([prefixo]) => r.rubrica.startsWith(prefixo))?.[1] ?? r.descricao;
 
-export default function Receitas({ ano, entidade, filtros }) {
-  const { dados, carregando, erro } = useApi(`/api/receitas?${new URLSearchParams({ ano, entidade })}`);
+export default function Receitas({ ano, entidade, filtros }: PropsDaPagina) {
+  const { dados, carregando, erro } = useApi(
+    `/api/receitas?${new URLSearchParams({ ano: String(ano), entidade })}`,
+    receitasSchema,
+  );
   const conf = useConferencia(ano);
   return (
     <>
@@ -33,7 +39,13 @@ export default function Receitas({ ano, entidade, filtros }) {
   );
 }
 
-function Conteudo({ ano, entidade, filtros, dados, conf }) {
+function Conteudo({
+  ano,
+  entidade,
+  filtros,
+  dados,
+  conf,
+}: PropsDaPagina & { dados: DadosDeReceitas; conf: Conferencia | null }) {
   const [busca, setBusca] = useState('');
   const [todas, setTodas] = useState(false);
   const pop = populacao(ano);
@@ -46,7 +58,10 @@ function Conteudo({ ano, entidade, filtros, dados, conf }) {
 
   // Uma linha por rubrica, somando as entidades.
   const rubricas = useMemo(() => {
-    const mapa = new Map();
+    const mapa = new Map<
+      string,
+      { rubrica: string; descricao: string; previsto: number; arrecadado: number; entidades: Set<string | null> }
+    >();
     for (const n of dados.naturezas) {
       const r = mapa.get(n.rubrica) ?? {
         rubrica: n.rubrica,
@@ -84,12 +99,12 @@ function Conteudo({ ano, entidade, filtros, dados, conf }) {
 
   // Acumulado mês a mês a partir de "arrecadado no mês" (o acumulado da fonte não é somável).
   const ultimoMes = Math.max(0, ...dados.porMes.map((m) => m.chave ?? 0));
-  const acumulado = [];
+  const acumulado: number[] = [];
   for (let i = 1, soma = 0; i <= ultimoMes; i++) {
     soma += N(dados.porMes.find((m) => m.chave === i)?.arrecadadoNoMes ?? 0);
     acumulado.push(soma);
   }
-  const ritmo = (i) => (previsto / 12) * (i + 1);
+  const ritmo = (i: number) => (previsto / 12) * (i + 1);
   const sempreAcima = acumulado.every((v, i) => v >= ritmo(i));
   const sempreAbaixo = acumulado.every((v, i) => v < ritmo(i));
   const textoLinha = !previsto
@@ -98,12 +113,13 @@ function Conteudo({ ano, entidade, filtros, dados, conf }) {
       ? 'A linha cheia corre acima da tracejada o ano todo: a arrecadação ficou à frente do previsto.'
       : sempreAbaixo
         ? 'A linha cheia corre sempre abaixo da tracejada: o ano todo, a arrecadação ficou atrás do previsto.'
-        : acumulado.at(-1) >= ritmo(acumulado.length - 1)
+        : (acumulado.at(-1) ?? 0) >= ritmo(acumulado.length - 1)
           ? 'A linha cheia passa a tracejada no decorrer do ano: a arrecadação terminou à frente do previsto.'
           : 'A linha cheia perde fôlego no decorrer do ano e termina abaixo da tracejada.';
 
   const origens = dados.porOrigem.filter((o) => N(o.arrecadadoNoMes) !== 0);
-  const somaOrigem = (f) => origens.filter(f).reduce((s, o) => s + N(o.arrecadadoNoMes), 0);
+  const somaOrigem = (f: (o: DadosDeReceitas['porOrigem'][number]) => boolean) =>
+    origens.filter(f).reduce((s, o) => s + N(o.arrecadadoNoMes), 0);
   const deFora = somaOrigem((o) => ORIGENS_DE_FORA.has(o.chave));
   const emprestimos = somaOrigem((o) => o.chave === '21' || o.chave === '23');
   const propria = arrecadado - deFora - emprestimos;
@@ -192,7 +208,7 @@ function Conteudo({ ano, entidade, filtros, dados, conf }) {
             rotulos={MESES}
             nomes={MESES_LONGOS}
             descricao={`Arrecadado acumulado em ${ano} chega a ${milhoes(arrecadado)} milhões; o previsto era ${milhoes(previsto)} milhões`}
-            anotacao={textoLinha && { texto: textoLinha, posicao: { left: '5%', top: '2%' } }}
+            anotacao={textoLinha ? { texto: textoLinha, posicao: { left: '5%', top: '2%' } } : null}
           />
         </section>
       )}
@@ -303,7 +319,7 @@ function Conteudo({ ano, entidade, filtros, dados, conf }) {
                 onChange={(e) => setBusca(e.target.value)}
               />
             </div>
-            <a href={`/api/receitas.csv?${new URLSearchParams({ ano, entidade })}`} className="botao-link">
+            <a href={`/api/receitas.csv?${new URLSearchParams({ ano: String(ano), entidade })}`} className="botao-link">
               Baixar CSV ↓
             </a>
           </div>
@@ -387,7 +403,7 @@ function Conteudo({ ano, entidade, filtros, dados, conf }) {
 }
 
 // Rubricas que o TCE-SC registra e que não existem na Betha: não aparecem na tabela acima.
-function SoNoTce({ conf, entidade }) {
+function SoNoTce({ conf, entidade }: { conf: Conferencia | null; entidade: string }) {
   const linhas = (conf?.receitaPorNatureza ?? []).filter(
     (n) => n.tipo === 'soTce' && (!entidade || n.codigoEntidade === entidade),
   );
