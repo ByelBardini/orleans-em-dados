@@ -80,8 +80,9 @@ describe('VisaoGeral', () => {
     render(<VisaoGeral {...props} />);
 
     const manchete = await screen.findByRole('heading', { level: 1 });
+    // A fixture gravada é parcial: o TCE-SC vai até fevereiro.
     expect(manchete).toHaveTextContent(
-      'Em 2025, Orleans arrecadou R$ 1,9 milhões e empenhou R$ 0,2 milhões em despesas.',
+      'Até fevereiro de 2025, Orleans arrecadou R$ 1,9 milhões e, até 05/02, empenhou R$ 0,2 milhões em despesas.',
     );
   });
 
@@ -92,7 +93,7 @@ describe('VisaoGeral', () => {
     render(<VisaoGeral {...props} />);
 
     const totais = await screen.findByRole('region', { name: 'Totais do ano' });
-    expect(within(totais).getByText('Empenhado').parentElement).toHaveTextContent('5,0 mi');
+    expect(within(totais).getByText('Empenhado até 05/02/2025').parentElement).toHaveTextContent('5,0 mi');
     expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('empenhou R$ 5,0 milhões');
   });
 
@@ -101,26 +102,8 @@ describe('VisaoGeral', () => {
 
     render(<VisaoGeral {...props} />);
 
-    expect(await screen.findByText(/Com a Câmara Municipal/)).toHaveTextContent('dados do TCE-SC');
+    expect(await screen.findByText(/A Câmara Municipal fica à parte/)).toHaveTextContent('dados do TCE-SC');
     expect(screen.getByText('Câmara Municipal de Orleans')).toBeInTheDocument();
-  });
-
-  it('o selo da conferência vai junto do número', async () => {
-    apiCompleta().instalar();
-
-    render(<VisaoGeral {...props} />);
-
-    expect(await screen.findByText(/Difere do TCE-SC/)).toBeInTheDocument();
-  });
-
-  it('sem conferência disponível, os números aparecem sem selo', async () => {
-    apiCompleta().responder(ROTAS.conferencia, { erro: 'Sem as duas fontes' }, 404).instalar();
-
-    render(<VisaoGeral {...props} />);
-
-    await screen.findByRole('heading', { level: 1 });
-    expect(screen.queryByText(/Difere do TCE-SC/)).not.toBeInTheDocument();
-    expect(screen.queryByText(/Confere com o TCE-SC/)).not.toBeInTheDocument();
   });
 
   it('ano sem coleta mostra o erro da API, sem manchete', async () => {
@@ -148,7 +131,7 @@ describe('VisaoGeral', () => {
     render(<VisaoGeral {...props} ano={ANO_CORRENTE} />);
 
     expect(await screen.findAllByText('Dado atrasado')).toHaveLength(2);
-    expect(screen.getAllByRole('link', { name: 'Ver conferência →' }).length).toBeGreaterThan(0);
+    expect(screen.getAllByRole('link', { name: 'Ver discrepâncias →' }).length).toBeGreaterThan(0);
   });
 
   it('cada conjunto de números mostra de onde veio', async () => {
@@ -173,7 +156,9 @@ describe('VisaoGeral', () => {
 
     render(<VisaoGeral {...props} entidade="319" />);
 
-    expect(await screen.findByRole('heading', { level: 1 })).toHaveTextContent('Em 2025, o Fundo Municipal de Saúde');
+    expect(await screen.findByRole('heading', { level: 1 })).toHaveTextContent(
+      'Até fevereiro de 2025, o Fundo Municipal de Saúde',
+    );
     expect(fake.pedidos).toContain('/api/receitas?ano=2025&entidade=319');
   });
 });
@@ -193,7 +178,7 @@ describe('Receitas', () => {
     render(<Receitas {...props} />);
 
     expect(await screen.findByRole('heading', { level: 1 })).toHaveTextContent(
-      /Orleans arrecadou .*% do que o orçamento/,
+      /Até fevereiro de 2025, Orleans arrecadou .*% do que o orçamento/,
     );
   });
 
@@ -207,18 +192,9 @@ describe('Receitas', () => {
     render(<Receitas {...props} />);
 
     expect(await screen.findByRole('heading', { level: 1 })).toHaveTextContent(
-      'Orleans arrecadou R$ 1,9 milhões em 2025.',
+      'Até fevereiro de 2025, Orleans arrecadou R$ 1,9 milhões.',
     );
     expect(screen.getByText(/Não há previsão de receita publicada/)).toBeInTheDocument();
-  });
-
-  it('a rubrica com diferença traz o selo na linha da tabela', async () => {
-    apiCompleta().instalar();
-
-    render(<Receitas {...props} />);
-
-    const linha = (await screen.findByText('Transferência SUS')).closest('tr') as HTMLElement;
-    expect(within(linha).getByText(/Difere do TCE-SC/)).toBeInTheDocument();
   });
 
   it('a busca filtra sem diferenciar acento, e por código', async () => {
@@ -271,9 +247,10 @@ describe('Despesas', () => {
   const carregar = async (fake = apiCompleta().instalar()) => {
     render(<Despesas {...props} />);
     await screen.findByRole('heading', { level: 1 });
-    await screen.findByRole('table');
+    await screen.findByRole('columnheader', { name: 'Situação' });
     return fake;
   };
+  const listaDeEmpenhos = () => screen.getByRole('columnheader', { name: 'Situação' }).closest('table') as HTMLElement;
 
   it('dado atrasado aparece junto do total empenhado', async () => {
     apiCompleta().responder('/api/importacoes', IMPORTACOES_ATRASADAS).instalar();
@@ -286,7 +263,9 @@ describe('Despesas', () => {
   it('a manchete diz quanto de cada R$ 100 já foi pago', async () => {
     await carregar();
 
-    expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('De cada R$ 100 reservados para despesas');
+    expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent(
+      'Até 05/02, de cada R$ 100 reservados para despesas',
+    );
   });
 
   // A resposta gravada já vem com a execução do TCE-SC: o liquidado nulo é escrito aqui.
@@ -303,7 +282,7 @@ describe('Despesas', () => {
     };
     await carregar(apiCompleta().responder(ROTAS.busca(), lista).instalar());
 
-    const linha = within(screen.getByRole('table'))
+    const linha = within(listaDeEmpenhos())
       .getByText(/^Exames/)
       .closest('tr') as HTMLElement;
     expect(linha.lastElementChild).toHaveTextContent(esperado);
@@ -312,27 +291,9 @@ describe('Despesas', () => {
   it('o filtro de situação diz "Sem liquidação", e não fala em falta de informação', async () => {
     await carregar();
 
-    expect(within(screen.getByLabelText('Situação')).getByRole('option', { name: 'Sem liquidação' })).toHaveValue('sem');
-  });
-
-  // A lista da API não traz mais o renumerado; o selo da tela sai na Fase 10, e até lá continua provado.
-  it('empenho que não consta no TCE-SC traz o selo na linha', async () => {
-    const renumerado = {
-      ...BUSCA.itens[0],
-      id: '211:728:1003',
-      numero: 12,
-      historico: 'Drenagem (exemplo)',
-    };
-    await carregar(
-      apiCompleta()
-        .responder(ROTAS.busca(), { ...BUSCA, itens: [renumerado] })
-        .instalar(),
+    expect(within(screen.getByLabelText('Situação')).getByRole('option', { name: 'Sem liquidação' })).toHaveValue(
+      'sem',
     );
-
-    const linha = within(screen.getByRole('table'))
-      .getByText(/^Drenagem/)
-      .closest('tr') as HTMLElement;
-    expect(within(linha).getByText('Provável renumeração · não consta no TCE-SC')).toBeInTheDocument();
   });
 
   it('buscar pede a lista filtrada, depois da pausa de digitação', async () => {

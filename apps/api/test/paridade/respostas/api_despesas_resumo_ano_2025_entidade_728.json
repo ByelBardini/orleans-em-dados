@@ -37,6 +37,8 @@
         "dataEmpenho": "2025-02-05"
       },
       "aguardandoTce": 0,
+      "diferencaBetha": null,
+      "totalBetha": null,
       "entidadesConferidas": 2,
       "entidadesFora": 0
     },

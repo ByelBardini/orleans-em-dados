@@ -229,6 +229,19 @@ describe('exercício encerrado', () => {
       expect(corpo.porEntidade.map((e: { chave: string }) => e.chave)).not.toContain('1864');
     });
 
+    it('a conta do empenhado: conferido + linhas retiradas + entidade fora = total da 57170', async () => {
+      const { corpo } = await get('/api/despesas/resumo?ano=2025');
+      // SAMAE: 100 de modalidade 71. FMS: 99999, a entidade inteira. Total: 950 + 100 + 4200 + 99999.
+      expect(corpo.totais.empenhado).toBe(5150);
+      expect(corpo.conferencia).toMatchObject({ diferencaBetha: 100099, totalBetha: 105249 });
+    });
+
+    it('a conta do recorte é só da entidade', async () => {
+      const { corpo } = await get('/api/despesas/resumo?ano=2025&entidade=2473');
+      expect(corpo.totais.empenhado).toBe(950);
+      expect(corpo.conferencia).toMatchObject({ diferencaBetha: 100, totalBetha: 1050 });
+    });
+
     it('recorte de entidade não conferida não tem total, e não traz a Câmara', async () => {
       const { corpo } = await get('/api/despesas/resumo?ano=2025&entidade=319');
       expect(corpo.totais).toMatchObject({ empenhado: null, liquidado: null, pago: null });
@@ -285,6 +298,8 @@ describe('exercício encerrado', () => {
         semValoresDeExecucaoValor: 500,
         comSaldoAPagar: 2,
         excluidos: 2,
+        aguardandoTce: 0,
+        emDiscrepancia: 2,
       });
       expect(corpo.conferencia).toEqual({ disponivel: true, parcial: false, dataCorte: null });
     });
@@ -454,6 +469,11 @@ describe('ano em curso', () => {
     expect(corpo.conferencia).toMatchObject({ parcial: true, aguardandoTce: VALOR_EMPENHO });
   });
 
+  it('despesa: sem conta até o total, porque o aguardando é valor original da Betha, e o conferido é líquido do TCE-SC', async () => {
+    const { corpo } = await get('/api/despesas/resumo?ano=2025');
+    expect(corpo.conferencia).toMatchObject({ diferencaBetha: null, totalBetha: null });
+  });
+
   it.each([
     '/api/despesas/empenhos?ano=2025',
     '/api/despesas/empenhos?ano=2025&q=TARDIA',
@@ -469,7 +489,12 @@ describe('ano em curso', () => {
     expect(corpo.conferencia).toEqual({ disponivel: true, parcial: true, dataCorte: '2025-02-05' });
     expect(corpo.porMes.map((m: { chave: number }) => m.chave)).toEqual([1, 2]);
     // Sem par: o 12 e a cópia do 13. Depois do corte: o 77.
-    expect(corpo.totais.excluidos).toBe(3);
+    expect(corpo.totais).toMatchObject({ excluidos: 3, aguardandoTce: 1, emDiscrepancia: 2 });
+  });
+
+  it('o recorte separa aguardando de discrepância só daquela entidade', async () => {
+    const { corpo } = await get('/api/despesas/empenhos/resumo?ano=2025&entidade=319');
+    expect(corpo.totais).toMatchObject({ excluidos: 0, aguardandoTce: 0, emDiscrepancia: 0 });
   });
 
   it('/api/discrepancias: aguardando tem os valores, por área, e não vira grupo', async () => {
@@ -523,7 +548,18 @@ describe('situação do empenho', () => {
           empenho('728:3', 3, '2025-01-12', SETOR, 'CREDOR C EXEMPLO LTDA', 'Zero (exemplo)', 100, 0, 0, 0),
           empenho('728:4', 4, '2025-01-13', SETOR, 'CREDOR D EXEMPLO LTDA', 'Nulo (exemplo)', 100, null, null, null),
           // Saldo nulo é falta de informação na fonte, não zero: não é pago.
-          empenho('728:5', 5, '2025-01-14', SETOR, 'CREDOR E EXEMPLO LTDA', 'Saldo nulo (exemplo)', 100, 100, 100, null),
+          empenho(
+            '728:5',
+            5,
+            '2025-01-14',
+            SETOR,
+            'CREDOR E EXEMPLO LTDA',
+            'Saldo nulo (exemplo)',
+            100,
+            100,
+            100,
+            null,
+          ),
         ]),
       });
       await pool.query(`UPDATE coletas SET status = 'exemplo'`);
@@ -582,7 +618,14 @@ describe('ano sem a coleta do TCE-SC', () => {
     const busca = await get('/api/despesas/empenhos?ano=2025');
     const resumo = await get('/api/despesas/empenhos/resumo?ano=2025');
     expect(busca.corpo.total).toBe(0);
-    expect(resumo.corpo.totais).toMatchObject({ quantidade: 0, empenhado: null, excluidos: 6 });
+    // Sem conferência não há o que chamar de discrepância nem de pendência.
+    expect(resumo.corpo.totais).toMatchObject({
+      quantidade: 0,
+      empenhado: null,
+      excluidos: 6,
+      aguardandoTce: 0,
+      emDiscrepancia: 0,
+    });
     expect(resumo.corpo.conferencia).toEqual({
       disponivel: false,
       parcial: null,
@@ -630,7 +673,13 @@ describe('dados de exemplo', () => {
     const busca = await get('/api/despesas/empenhos?ano=2025');
     const resumo = await get('/api/despesas/empenhos/resumo?ano=2025');
     expect(busca.corpo.total).toBe(6);
-    expect(resumo.corpo.totais).toMatchObject({ quantidade: 6, empenhado: 198000, excluidos: 0 });
+    expect(resumo.corpo.totais).toMatchObject({
+      quantidade: 6,
+      empenhado: 198000,
+      excluidos: 0,
+      aguardandoTce: 0,
+      emDiscrepancia: 0,
+    });
     expect(resumo.corpo.conferencia.disponivel).toBe(false);
   });
 

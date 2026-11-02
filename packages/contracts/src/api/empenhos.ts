@@ -43,6 +43,10 @@ export const empenhosResumoSchema = z.strictObject({
     credores: z.number(),
     // Registros da 57140 no recorte que ficaram fora da lista: sem par 1:1 ou depois do corte.
     excluidos: z.number(),
+    // Os mesmos excluídos, separados: depois do corte, à espera do TCE-SC, e sem par até o corte.
+    // Sem conferência, os dois ficam em zero: não há o que separar.
+    aguardandoTce: z.number(),
+    emDiscrepancia: z.number(),
   }),
   porMes: z.array(z.strictObject({ chave: z.number().nullable(), ...somasSchema })),
   porEntidade: z.array(z.strictObject({ chave: z.string(), entidade: entidadeSchema, ...somasSchema })),

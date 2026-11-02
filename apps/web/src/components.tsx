@@ -97,8 +97,8 @@ export function ListaPontos<I extends ItemDaLista>({
               <span className="lp-nome">{item.nome}</span>
             )}
             <span className="lp-pontos" aria-hidden="true" />
-            <span className="lp-valor">{milhoes(item.valor)}</span>
-            {total && <span className="lp-pct">{pctCurto(item.valor, total)}</span>}
+            <span className="lp-valor">{item.valor === null ? '—' : milhoes(item.valor)}</span>
+            {total && item.valor !== null && <span className="lp-pct">{pctCurto(item.valor, total)}</span>}
           </div>
           <div className="trilho" aria-hidden="true">
             <span

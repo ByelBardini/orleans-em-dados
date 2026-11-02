@@ -42,7 +42,9 @@
       "saldoAPagar": 0,
       "comSaldoAPagar": 0,
       "credores": 1,
-      "excluidos": 0
+      "excluidos": 0,
+      "aguardandoTce": 0,
+      "emDiscrepancia": 0
     },
     "porMes": [
       {

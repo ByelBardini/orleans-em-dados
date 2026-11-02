@@ -1,21 +1,12 @@
-// O selo na tela e a conferência que alimenta a regra de selos.ts.
-// A conferência vem de /api/conferencias; sem as duas fontes publicadas, não há selo.
-import { conferenciaSchema, importacoesSchema } from '@orleans-em-dados/contracts';
+// O selo na tela, com a regra de selos.ts.
+import { importacoesSchema } from '@orleans-em-dados/contracts';
 import { useApi } from './api';
 import { seloDeAtraso, type DadosDoSelo } from './selos';
 
-// `explicada`: diverge, mas um padrão nos números aponta a causa provável, ou a diferença
-// já se repetia em outros anos (conhecida, sem causa confirmada). Fica em cinza.
-const ICONES = { confere: '✓', diverge: '!', explicada: 'i', pendente: '…', 'fonte-unica': '–' };
-// Fonte única e pendência não têm caso na seção de discrepâncias.
-const SEM_LINK: ReadonlySet<string> = new Set(['pendente', 'fonte-unica']);
+const ICONES = { confere: '✓', pendente: '…', 'fonte-unica': '–' };
 
-export function useConferencia(ano: number | null) {
-  const { dados } = useApi(ano ? `/api/conferencias?ano=${ano}` : null, conferenciaSchema);
-  return dados;
-}
-
-// `compacto`: versão de linha de tabela, sem link. `semLink`: tamanho normal, mas o selo não é da conferência.
+// Só o conferido pode ter caso na seção: fonte única e pendência não levam a ela.
+// `compacto`: versão de linha de tabela, sem link. `semLink`: o link já está ao lado, na conta.
 export function Selo({
   selo,
   compacto = false,
@@ -35,9 +26,9 @@ export function Selo({
         {selo.titulo}
       </span>
       {selo.motivo && <span className="selo-motivo">{selo.motivo}</span>}
-      {!compacto && !semLink && !SEM_LINK.has(selo.estado) && (
-        <a href="#conferencia" className="selo-link">
-          Ver conferência →
+      {!compacto && !semLink && selo.estado === 'confere' && (
+        <a href="#discrepancias" className="selo-link">
+          Ver discrepâncias →
         </a>
       )}
     </span>

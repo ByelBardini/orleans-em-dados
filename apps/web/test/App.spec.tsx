@@ -54,6 +54,16 @@ describe('App', () => {
     expect(document.title).toBe('Receitas · Orleans em Dados');
   });
 
+  it.each(['#discrepancias', '#conferencia'])('%s abre a aba de conferência, marcada na navegação', async (hash) => {
+    new FetchFake().responder('/api/anos', ANOS).instalar();
+    window.location.hash = hash;
+
+    render(<App />);
+
+    expect(await screen.findByText('Página conferência')).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Conferência' })).toHaveAttribute('aria-current', 'page');
+  });
+
   it('hash desconhecido cai na visão geral', async () => {
     new FetchFake().responder('/api/anos', ANOS).instalar();
     window.location.hash = '#inexistente';
