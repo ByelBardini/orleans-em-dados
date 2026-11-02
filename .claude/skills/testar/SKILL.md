@@ -219,7 +219,7 @@ Ele roda o driver em duas fixtures: `fixtures/monorepo/` (o monorepo pnpm em Typ
 
 ## Gotchas
 
-- **`packages/db/index.js` cai no banco de desenvolvimento** quando `DATABASE_URL` não está definida (`URL_PADRAO` na porta 5433). O spec de integração roda sempre no projeto `integracao`, que define a URL descartável e recusa a 5433 (`packages/db/test/support/setup-integracao.js`); fora dele, grava no banco das coletas reais.
+- **`packages/db/index.js` cai no banco de desenvolvimento** quando `DATABASE_URL` não está definida (`URL_PADRAO` na porta 5433, em `packages/db/src/index.ts`). O spec de integração roda sempre no projeto `integracao`, que define a URL descartável e recusa a 5433 (`packages/db/test/support/setup-integracao.js`); fora dele, grava no banco das coletas reais.
 - **Inversão que tira um parâmetro `$n` do SQL falha pelo motivo errado**: o Postgres recusa parâmetro sem uso e todos os `it` do arquivo ficam vermelhos. Inverta mantendo o parâmetro (`($4 OR true)`).
 - **`NUMERIC` chega como `number`** (o `setTypeParser` de `packages/db/index.js`): o esperado de valor monetário em integração é `number`, e soma de centavos se confere no banco, não em JS.
 - **Função asseguradora não é "sem asserção".** Função local ou importada de arquivo relativo cujo nome começa com `espera`, `assert`, `confere`, `verifica`, `garante` ou `expect` e que contém `expect` por dentro conta como asserção para quem a chama. `expect.assertions(n)` também.

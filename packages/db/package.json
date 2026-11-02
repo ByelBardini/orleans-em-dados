@@ -3,15 +3,21 @@
   "version": "0.1.0",
   "private": true,
   "type": "module",
-  "main": "index.js",
   "exports": {
-    ".": "./index.js",
-    "./conferencias": "./conferencias.js"
+    ".": "./src/index.ts",
+    "./conferencias": "./src/conferencias.js"
   },
   "scripts": {
-    "migrar": "node --env-file-if-exists=../../.env migrar.js"
+    "migrar": "tsx --env-file-if-exists=../../.env src/migrar.ts",
+    "gerar": "drizzle-kit generate",
+    "typecheck": "tsc"
   },
   "dependencies": {
+    "drizzle-orm": "^0.45.4",
     "pg": "^8.16.0"
+  },
+  "devDependencies": {
+    "@types/pg": "^8.23.1",
+    "drizzle-kit": "^0.31.11"
   }
 }

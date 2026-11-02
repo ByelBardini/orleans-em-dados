@@ -4,7 +4,7 @@
 // Só compara indicadores de mesmo conceito. As notas apontam padrões
 // (duplicidade, renumeração, reclassificação); não são explicações contábeis.
 
-import { pool } from './index.js';
+import { pool } from './index';
 
 const consultar = async (sql, params) => (await pool.query(sql, params)).rows;
 const coleta = (chave) =>

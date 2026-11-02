@@ -1,5 +1,5 @@
 import { defineConfig } from 'vitest/config';
-import { URL_TESTE } from './packages/db/test/support/banco.js';
+import { URL_TESTE } from './packages/db/test/support/url';
 
 const SPECS = 'test/**/*.spec.{js,jsx,ts,tsx}';
 
@@ -26,8 +26,8 @@ export default defineConfig({
           name: 'integracao',
           include: ['{apps,packages}/*/test/integration/**/*.spec.{js,ts}'],
           env: { DATABASE_URL: URL_TESTE },
-          globalSetup: ['./packages/db/test/support/banco.js'],
-          setupFiles: ['./packages/db/test/support/setup-integracao.js'],
+          globalSetup: ['./packages/db/test/support/banco.ts'],
+          setupFiles: ['./packages/db/test/support/setup-integracao.ts'],
           // Os specs dividem o mesmo banco.
           fileParallelism: false,
         },
