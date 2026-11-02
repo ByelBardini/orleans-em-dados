@@ -301,6 +301,34 @@ describe('Discrepancias: selo de situação', () => {
   });
 });
 
+describe('Discrepancias: o que cada situação quer dizer', () => {
+  const legenda = () => screen.getByRole('region', { name: 'O que diz a coluna Situação' });
+
+  it.each([
+    ['Confirmado no portal', 'Conferido à mão no Portal da Transparência, na data indicada'],
+    ['Confirmado em parte', 'Só um exemplo foi conferido à mão, e a nota do caso diz qual'],
+    ['Calculado (provável)', 'Ninguém conferiu este caso no portal'],
+    ['Rever', 'o valor mudou depois'],
+  ])('"%s" vem com a explicação', async (rotulo, explicacao) => {
+    await abrir();
+
+    const termo = within(legenda()).getByText(rotulo);
+    expect(termo.closest('div')).toHaveTextContent(explicacao);
+  });
+
+  it('confirmado no portal avisa que não confirma a causa da diferença', async () => {
+    await abrir();
+
+    expect(legenda()).toHaveTextContent('Confirma o que o portal mostra, não a causa da diferença.');
+  });
+
+  it('sem nenhum caso, não há coluna Situação para explicar', async () => {
+    await abrir({ secao: discrepancias({ grupos: [] }) });
+
+    expect(screen.queryByRole('region', { name: 'O que diz a coluna Situação' })).toBeNull();
+  });
+});
+
 describe('Discrepancias: a abertura', () => {
   it('diz o que é a seção e quantos casos há', async () => {
     await abrir();
