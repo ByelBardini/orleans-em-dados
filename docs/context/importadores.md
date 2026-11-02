@@ -1,6 +1,18 @@
-# Coletores
+# Importadores
 
 Coleta das fontes externas e gravação no banco. Vive em `packages/importadores/` (pacote `@orleans-em-dados/importadores`, sem `src/`: fontes na raiz). Rodam à mão pela CLI; não há agendamento.
+
+## O contrato (`packages/importadores/nucleo`)
+
+Todo importador novo segue `Importador` e `ConsultaImportada` (`nucleo/src/importador.ts`): `id`, `fonte`, `agenda` (cron), `anosDaRodada(agora)` e `consultas`, cada uma com `id`, `chave`, `tabela`, `coletar` (só I/O), `normalizar` (pura, lança se o registro não servir) e `validar`. Gravar e publicar são do executor.
+
+- `executar(importador, ano, { repositorio, relogio }, chaves?)` (`executor.service.ts`) — coletar → normalizar → validar → gravar → publicar, consulta por consulta. Devolve `ResultadoDaExecucao`; não relança: quem decide repetir é o worker, pelo `status`.
+- `RepositorioDeLotesPostgres` (`lotes.dao.ts`) — implementa a porta `RepositorioDeLotes`: `gravar` (uma transação, linhas em blocos de 1.000), `publicar` (troca o ponteiro), `reconfirmar`, `abrirExecucao`, `fecharExecucao`.
+- `ocultarSegredos(texto)` — tira `Bearer` e `access_token` da mensagem de erro antes de gravar.
+
+Status da consulta: `publicada`, `sem_mudanca` (mesmo hash da publicada: não grava outra coleta e só atualiza `coletas.finalizado_em`), `nao_publicada` (exemplo sobre dado real), `rejeitada` (gravada, publicação anterior intacta), `falhou` (nada gravado). Status da execução, em `execucoes`: `em_andamento`, `sucesso`, `rejeitada`, `falhou`; falha tem prioridade sobre rejeição.
+
+O núcleo já confere contagem e ids únicos; `validar` cuida do que é da fonte (totalizador).
 
 ## Estrutura
 
@@ -36,6 +48,8 @@ Coleta das fontes externas e gravação no banco. Vive em `packages/importadores
 - Token nunca vai para log nem para mensagem de erro.
 
 ## Testes
+
+- `nucleo/test/support/fakes.ts` — `RepositorioDeLotesFake` (guarda a ordem das chamadas), `relogioFake`, `consultaFake`, `importadorFake`.
 
 - `packages/importadores/test/support/snapshots.js` — snapshots fictícios das cinco consultas (`receitas`, `empenhos`, `despesas`, `tcescReceitas`, `tcescEmpenhos`, e `snapshot(consultaId, registros, opções)` para montar outro). Carregam receita negativa, incoerência mês × acumulado, empenho renumerado, cópia antiga, empenho sem liquidação e a Câmara; o TCE-SC vai só até fevereiro (exercício parcial).
 - `packages/importadores/test/support/banco-de-teste.js` — `limparColetas()` (mantém o catálogo) e `popularBancoDeTeste()` (as cinco publicadas).
