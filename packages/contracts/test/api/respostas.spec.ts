@@ -6,6 +6,7 @@ import type { z } from 'zod';
 import {
   anosSchema,
   conferenciaSchema,
+  discrepanciasSchema,
   despesasResumoSchema,
   empenhosBuscaSchema,
   empenhosResumoSchema,
@@ -26,6 +27,7 @@ const SCHEMAS: [RegExp, z.ZodType][] = [
   [/^api_conferencias/, conferenciaSchema],
   [/^api_receitas_ano|^api_receitas\.json/, receitasSchema],
   [/^api_despesas_resumo/, despesasResumoSchema],
+  [/^api_discrepancias/, discrepanciasSchema],
   [/^api_despesas_empenhos_resumo/, empenhosResumoSchema],
   [/^api_despesas_empenhos_ano/, empenhosBuscaSchema],
 ];

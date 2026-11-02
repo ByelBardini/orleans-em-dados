@@ -1,0 +1,194 @@
+{
+  "status": 200,
+  "tipo": "application/json; charset=utf-8",
+  "disposicao": null,
+  "corpo": {
+    "ano": 2025,
+    "disponivel": true,
+    "parcial": true,
+    "limites": {
+      "mesReceita": 2,
+      "dataEmpenho": "2025-02-05"
+    },
+    "grupos": [
+      {
+        "tipo": "fora_do_acumulado",
+        "area": "receita",
+        "rotulo": "Lançamento fora do acumulado",
+        "explicacao": "O valor do mês na Betha traz um lançamento que o acumulado da própria rubrica não considera.",
+        "total": 50000,
+        "itens": [
+          {
+            "area": "receita",
+            "situacao": "rever",
+            "data": "2026-11-01",
+            "protocolo": null,
+            "evidencia": "Conferido à mão no portal: lançamento que o acumulado da rubrica desconsidera.",
+            "entidade": "FMS",
+            "codigoEntidade": "319",
+            "natureza": "17135011",
+            "descricao": "Transferência SUS",
+            "mes": 2,
+            "meses": [
+              {
+                "mes": 2,
+                "betha": 200000,
+                "tce": 150000,
+                "diferenca": 50000
+              }
+            ],
+            "fonte": null,
+            "numero": null,
+            "dataEmpenho": null,
+            "id": null,
+            "quantidade": null,
+            "betha": 400000,
+            "tce": 350000,
+            "diferenca": 50000,
+            "diferencaBetha": 50000,
+            "diferencaTce": 0,
+            "diferencaDaNatureza": null,
+            "etapas": null,
+            "valor": 50000,
+            "nota": "Na própria Betha, o arrecadado no mês não fecha com o acumulado da rubrica em fevereiro (R$ 50.000,00): é onde a conta desencontra. A linha que o acumulado provavelmente desconsidera pode ser de outro mês. Explica toda a diferença."
+          }
+        ]
+      },
+      {
+        "tipo": "empenho_repetido",
+        "area": "empenho",
+        "rotulo": "Registro repetido",
+        "explicacao": "Mais de um registro na Betha com o mesmo número, a mesma data e o mesmo valor.",
+        "total": 3000,
+        "itens": [
+          {
+            "area": "empenho",
+            "situacao": "calculada",
+            "data": null,
+            "protocolo": null,
+            "evidencia": null,
+            "entidade": "Prefeitura",
+            "codigoEntidade": "728",
+            "natureza": null,
+            "descricao": null,
+            "mes": null,
+            "meses": [],
+            "fonte": "betha",
+            "numero": 13,
+            "dataEmpenho": "2025-02-05",
+            "id": "211:728:900",
+            "quantidade": null,
+            "betha": 3000,
+            "tce": null,
+            "diferenca": 3000,
+            "diferencaBetha": null,
+            "diferencaTce": null,
+            "diferencaDaNatureza": null,
+            "etapas": null,
+            "valor": 3000,
+            "nota": "Registro repetido: mesmo número, data e valor de outro empenho."
+          }
+        ]
+      },
+      {
+        "tipo": "empenho_renumerado",
+        "area": "empenho",
+        "rotulo": "Empenho com outro número na outra fonte",
+        "explicacao": "A outra fonte tem um empenho com a mesma data, o mesmo valor e a mesma identificação, com outro número.",
+        "total": 14000,
+        "itens": [
+          {
+            "area": "empenho",
+            "situacao": "calculada",
+            "data": null,
+            "protocolo": null,
+            "evidencia": null,
+            "entidade": "Prefeitura",
+            "codigoEntidade": "728",
+            "natureza": null,
+            "descricao": null,
+            "mes": null,
+            "meses": [],
+            "fonte": "betha",
+            "numero": 12,
+            "dataEmpenho": "2025-02-01",
+            "id": "211:728:1003",
+            "quantidade": null,
+            "betha": 7000,
+            "tce": null,
+            "diferenca": 7000,
+            "diferencaBetha": null,
+            "diferencaTce": null,
+            "diferencaDaNatureza": null,
+            "etapas": null,
+            "valor": 7000,
+            "nota": "Na outra fonte, o empenho com esta data, este valor e a mesma identificação é o nº 112: provável renumeração."
+          },
+          {
+            "area": "empenho",
+            "situacao": "calculada",
+            "data": null,
+            "protocolo": null,
+            "evidencia": null,
+            "entidade": "Prefeitura",
+            "codigoEntidade": "728",
+            "natureza": null,
+            "descricao": null,
+            "mes": null,
+            "meses": [],
+            "fonte": "tce",
+            "numero": 112,
+            "dataEmpenho": "2025-02-01",
+            "id": "5003",
+            "quantidade": null,
+            "betha": null,
+            "tce": 7000,
+            "diferenca": -7000,
+            "diferencaBetha": null,
+            "diferencaTce": null,
+            "diferencaDaNatureza": null,
+            "etapas": null,
+            "valor": 7000,
+            "nota": "Na outra fonte, o empenho com esta data, este valor e a mesma identificação é o nº 12: provável renumeração."
+          }
+        ]
+      }
+    ],
+    "aguardando": {
+      "rotulo": "Aguardando o TCE-SC",
+      "explicacao": "O TCE-SC ainda não recebeu estes meses. O valor entra no conferido quando a remessa chegar.",
+      "receita": {
+        "total": 0,
+        "itens": []
+      },
+      "despesa": {
+        "total": 0,
+        "quantidade": 0,
+        "itens": []
+      }
+    },
+    "resumo": {
+      "casos": 4,
+      "porSituacao": {
+        "confirmada_no_portal": 0,
+        "confirmada_em_parte": 0,
+        "calculada": 3,
+        "rever": 1
+      },
+      "porArea": {
+        "receita": {
+          "casos": 1,
+          "total": 50000
+        },
+        "despesa": {
+          "casos": 0,
+          "total": 0
+        },
+        "empenho": {
+          "casos": 3,
+          "total": 17000
+        }
+      }
+    }
+  }
+}
