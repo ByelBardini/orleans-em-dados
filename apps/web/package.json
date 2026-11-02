@@ -1,5 +1,5 @@
 {
-  "name": "@orleans-em-dados/frontend",
+  "name": "@orleans-em-dados/web",
   "version": "0.1.0",
   "private": true,
   "type": "module",

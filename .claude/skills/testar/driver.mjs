@@ -23,7 +23,7 @@ const EXTENSOES = new Set(['.ts', '.tsx', '.js', '.jsx', '.mjs']);
 
 const USO = `uso: node .claude/skills/testar/driver.mjs <alvo> [opções]
   <alvo>            spec, pasta de test/ ou arquivo/pasta de produção, relativo à raiz do repo
-                    (ex.: backend/src, db/conferencias.js, collectors/test)
+                    (ex.: apps/api/src, packages/db/conferencias.js, packages/importadores/test)
   --json            saída em JSON (espelho + resumo + achados) em vez do relatório em texto
   --min <sev>       severidade mínima: erro | aviso | info (padrão info)
   --so <cats>       só estas categorias, separadas por vírgula: ${ORDEM_DAS_CATEGORIAS.join(', ')}

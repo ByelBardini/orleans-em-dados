@@ -30,7 +30,7 @@ Reformule o pedido em 2–3 frases: o que será construído, para quem (o cidad�
 Antes de opinar, pesquise como o mercado resolve esse tipo de problema:
 
 - **WebSearch** (2–4 buscas): padrões de arquitetura, fluxos consagrados, armadilhas conhecidas para esse tipo de funcionalidade (para dados públicos: portais de transparência e projetos de dados abertos como referência, coleta incremental e idempotente, versionamento de snapshot, reconciliação entre fontes, comunicação de incerteza no número).
-- **context7** (se envolver biblioteca específica): documentação atual da lib no ecossistema do projeto — React 19, Vite, `pg`, Vitest. Para a API da Betha e o Qlik do TCE-SC, a referência é a própria especificação (§4) e o `collectors/tcesc/README.md`, não a web.
+- **context7** (se envolver biblioteca específica): documentação atual da lib no ecossistema do projeto — React 19, Vite, `pg`, Vitest. Para a API da Betha e o Qlik do TCE-SC, a referência é a própria especificação (§4) e o `packages/importadores/tcesc/README.md`, não a web.
 
 Anote o que encontrou: abordagens comuns, trade-offs entre elas, e o que é considerado boa prática hoje. Isso alimenta as recomendações do passo 3 e a seção "Contexto" do plano.
 
@@ -57,7 +57,7 @@ Registre duas listas explícitas, que entram no plano: **o que será reaproveita
 
 ### 5. Montar o plano em fases TDD
 
-Divida o trabalho em **fases pequenas** — cada fase entrega algo verificável e cabe em uma sessão de trabalho. Prefira mais fases pequenas a poucas fases grandes. Ordem natural entre workspaces, a do caminho do dado: collectors (coleta e normalização) → db (migração, gravação, conferência) → backend (indicador e rota) → frontend (página, componente, selo).
+Divida o trabalho em **fases pequenas** — cada fase entrega algo verificável e cabe em uma sessão de trabalho. Prefira mais fases pequenas a poucas fases grandes. Ordem natural entre workspaces, a do caminho do dado: importadores (coleta e normalização) → db (migração, gravação, conferência) → api (indicador e rota) → web (página, componente, selo).
 
 Cada fase segue TDD à risca, nesta ordem:
 
@@ -71,10 +71,10 @@ Se o repo ainda não tem runner de teste, a **fase 1** é instalá-lo (decisão 
 
 Ao listar os cenários do passo 1, use a régua da skill `testar`: cenário vem do contrato (doc da área, especificação, assinatura, `throw` e `if` da fonte), nunca de "linha não coberta"; o valor esperado é escrito à mão; I/O externo entra por fake nomeado. Diga em qual camada cada cenário é provado (a lente do `/testar`):
 
-- **collectors**: unit para cliente da Betha/TCE-SC (transporte falso com fixture) e normalização; **integração** para gravação.
+- **importadores**: unit para cliente da Betha/TCE-SC (transporte falso com fixture) e normalização; **integração** para gravação.
 - **db**: unit para a regra da conferência; **integração** (Postgres descartável) para SQL, migração e exclusão de cópias antigas.
-- **backend**: **integração** para indicador e rota (servidor real em porta efêmera, Postgres descartável); unit para função pura extraída (CSV, filtro).
-- **frontend**: sem DOM para formatação, referências e regra de selo; componente para páginas (exige Testing Library + jsdom: dependência nova é pergunta do passo 3).
+- **api**: **integração** para indicador e rota (servidor real em porta efêmera, Postgres descartável); unit para função pura extraída (CSV, filtro).
+- **web**: sem DOM para formatação, referências e regra de selo; componente para páginas (exige Testing Library + jsdom: dependência nova é pergunta do passo 3).
 
 ### 6. Gerar o arquivo do plano
 

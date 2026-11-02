@@ -1,12 +1,12 @@
 # API
 
-API REST somente leitura sobre as coletas publicadas. Vive em `backend/src/` (pacote `@orleans-em-dados/backend`): `node:http` sem framework, nunca consulta as fontes externas.
+API REST somente leitura sobre as coletas publicadas. Vive em `apps/api/src/` (pacote `@orleans-em-dados/api`): `node:http` sem framework, nunca consulta as fontes externas.
 
 ## Estrutura
 
-- `backend/src/server.js` — tabela `rotas` (caminho → handler, só `GET`), respostas JSON e CSV, cache das exclusões de empenho.
-- `backend/src/dados.js` — `anosDisponiveis()`, `coletaPublicada(chave, ano)` (coleta + metadados exibidos + totalizadores).
-- `backend/src/indicadores.js` — agregações em SQL: `resumoReceitas`, `resumoEmpenhos`, `resumoDespesas`, `buscarEmpenhos`, `todosEmpenhos`.
+- `apps/api/src/server.js` — tabela `rotas` (caminho → handler, só `GET`), respostas JSON e CSV, cache das exclusões de empenho.
+- `apps/api/src/dados.js` — `anosDisponiveis()`, `coletaPublicada(chave, ano)` (coleta + metadados exibidos + totalizadores).
+- `apps/api/src/indicadores.js` — agregações em SQL: `resumoReceitas`, `resumoEmpenhos`, `resumoDespesas`, `buscarEmpenhos`, `todosEmpenhos`.
 
 ## Contrato
 
@@ -31,8 +31,8 @@ Todas as rotas recebem `ano` e respondem `404 { erro }` quando o ano não tem co
 
 ## Testes
 
-- `backend/test/integration/paridade.spec.js` — compara cada pedido de `backend/test/paridade/casos.js` (`CASOS`) com a resposta gravada em `backend/test/paridade/respostas/` (status, tipo, `Content-Disposition`, corpo; CSV com BOM), sobre o banco de `popularBancoDeTeste()`. Traz também valores escritos à mão, que provam que o gravado está certo.
-- Regravar só com motivo no commit: `REGRAVAR_PARIDADE=1 pnpm exec vitest run --project=integracao backend/test/integration/paridade.spec.js`.
+- `apps/api/test/integration/paridade.spec.js` — compara cada pedido de `apps/api/test/paridade/casos.js` (`CASOS`) com a resposta gravada em `apps/api/test/paridade/respostas/` (status, tipo, `Content-Disposition`, corpo; CSV com BOM), sobre o banco de `popularBancoDeTeste()`. Traz também valores escritos à mão, que provam que o gravado está certo.
+- Regravar só com motivo no commit: `REGRAVAR_PARIDADE=1 pnpm exec vitest run --project=integracao apps/api/test/integration/paridade.spec.js`.
 - `criarServidor()` (`server.js`) devolve o servidor sem `listen`; o teste sobe em porta efêmera.
 
 ## Armadilhas

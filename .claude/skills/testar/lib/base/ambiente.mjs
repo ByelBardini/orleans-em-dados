@@ -1,7 +1,7 @@
 // Onde o alvo mora no monorepo: o workspace dono (backend, frontend,
 // collectors, db), os outros workspaces (campo `workspaces` do package.json da
 // raiz, ou pnpm-workspace.yaml nas fixtures), o `typescript` e os aliases de
-// cada tsconfig/jsconfig. Workspace sem src/ (db/, collectors/) tem as fontes
+// cada tsconfig/jsconfig. Workspace sem src/ (packages/db/, packages/importadores/) tem as fontes
 // na própria raiz: `fontes` é '' em vez de 'src'.
 import fs from 'node:fs';
 import path from 'node:path';
@@ -38,7 +38,7 @@ export function encontrarRaizDoApp(alvoAbsoluto) {
     if (pai === atual || ehRaizDeMonorepo(atual)) {
       throw new Error(
         `Nenhum workspace acima de ${alvoAbsoluto}; ` +
-          'o alvo precisa estar dentro de um workspace (backend/, frontend/, collectors/, db/)',
+          'o alvo precisa estar dentro de um workspace (apps/api/, apps/web/, packages/importadores/, packages/db/)',
       );
     }
     atual = pai;
@@ -94,9 +94,9 @@ function lerManifesto(raiz) {
 export function tipoDoWorkspace(manifesto) {
   const deps = { ...manifesto.dependencies, ...manifesto.devDependencies };
   const nome = manifesto.name ?? '';
-  if (deps.fastify || /(^|\/)(server|backend)$/.test(nome)) return 'server';
+  if (deps.fastify || /(^|\/)(server|api)$/.test(nome)) return 'server';
   if (deps.react) return 'client';
-  if (/(^|\/)collectors$/.test(nome)) return 'coletor';
+  if (/(^|\/)importadores$/.test(nome)) return 'coletor';
   if (/(^|\/)db$/.test(nome)) return 'db';
   return 'pacote';
 }

@@ -7,12 +7,12 @@ Plataforma open source para centralização, visualização e análise de dados 
 
 ## O que já existe
 
-- **Coletor Betha** (`collectors/betha`): baixa as consultas de receitas (`57153`) e empenhos (`57140`) do Portal da
+- **Coletor Betha** (`packages/importadores/betha`): baixa as consultas de receitas (`57153`) e empenhos (`57140`) do Portal da
   Transparência, pagina até o fim, verifica IDs e confere as somas com os totalizadores da própria consulta.
 - **Banco PostgreSQL** (`db`): guarda cada coleta (bruta e normalizada) com seus totalizadores. Só coletas
   conciliadas são publicadas no dashboard; coletas rejeitadas ficam registradas para análise.
-- **API** (`backend`): Node.js, somente leitura sobre as coletas publicadas.
-- **Dashboard** (`frontend`): React + Vite, com visão geral, receitas, despesas/empenhos com busca, e fontes e metodologia.
+- **API** (`apps/api`): Node.js, somente leitura sobre as coletas publicadas.
+- **Dashboard** (`apps/web`): React + Vite, com visão geral, receitas, despesas/empenhos com busca, e fontes e metodologia.
 
 ## Como rodar
 
@@ -53,14 +53,14 @@ O banco roda na porta **5433** (veja `docker-compose.yml` e `.env.example`).
 ## Estrutura
 
 ```
-collectors/
+packages/importadores/
   betha/      coletor do Portal da Transparência Betha (OAuth anônimo, paginação, validação)
   tcesc/      coletor do Farol TCE-SC (Qlik Engine API, sessão anônima)
   conferir.js conferência Betha × TCE-SC sobre as coletas publicadas
   gravar.js   grava uma coleta no banco (bruto → normalizado → publicação)
-db/           conexão, migrações SQL e esquema
-backend/      API REST que lê as coletas publicadas
-frontend/     dashboard React + Vite
+packages/db/           conexão, migrações SQL e esquema
+apps/api/      API REST que lê as coletas publicadas
+apps/web/     dashboard React + Vite
 docs/         especificação, dicionário de dados, fontes e metodologia
 examples/     snapshots fictícios no mesmo formato dos reais
 data/         snapshots JSON opcionais (fora do git)

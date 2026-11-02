@@ -1,7 +1,7 @@
 // Caminho do alvo → os docs/context que o agente lê ANTES de abrir fonte
 // (regra do AGENTS.md). Sem tabela de apelidos: o doc de uma área tem o nome
-// da pasta dela no código (`collectors/betha` → `betha.md`), e o hub de cada
-// workspace tem o nome do workspace (`backend.md`, `db.md`).
+// da pasta dela no código (`packages/importadores/betha` → `betha.md`), e o hub de cada
+// workspace tem o nome do workspace (`api.md`, `db.md`).
 import fs from 'node:fs';
 import path from 'node:path';
 import { paraBarras } from './ambiente.mjs';
@@ -11,7 +11,7 @@ const SEGMENTOS_ESTRUTURAIS = new Set(['src', 'test', 'modules', 'features', 'pa
 /** Os docs de contexto que existem para o alvo, do hub do workspace para a
  *  área mais específica.
  *
- *  Example: `contextosDoAlvo(ambiente) // ['docs/context/collectors.md', 'docs/context/betha.md']` */
+ *  Example: `contextosDoAlvo(ambiente) // ['docs/context/importadores.md', 'docs/context/betha.md']` */
 export function contextosDoAlvo(ambiente) {
   const hub = ambiente.app.nome;
   const relativo = paraBarras(path.relative(ambiente.app.raiz, ambiente.alvo));

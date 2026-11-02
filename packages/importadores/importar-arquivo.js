@@ -10,7 +10,7 @@ import { parseArgs } from 'node:util';
 import { pool } from '@orleans-em-dados/db';
 import { gravarColeta } from './gravar.js';
 
-const RAIZ = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
+const RAIZ = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
 
 const { values, positionals } = parseArgs({
   options: { exemplos: { type: 'boolean', default: false } },

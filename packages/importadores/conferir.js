@@ -12,7 +12,7 @@ import { parseArgs } from 'node:util';
 import { pool } from '@orleans-em-dados/db';
 import { conferencia } from '@orleans-em-dados/db/conferencias';
 
-const RAIZ = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
+const RAIZ = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
 const DATA_DIR = path.resolve(RAIZ, process.env.DATA_DIR ?? 'data', 'conferencias');
 
 const { values } = parseArgs({

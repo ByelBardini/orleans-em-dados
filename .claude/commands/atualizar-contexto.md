@@ -20,14 +20,14 @@ Os arquivos de `docs/context/` existem para que um agente de IA planeje e codifi
 
 O driver do `/testar` monta o `leia antes:` pelo caminho do alvo, sem tabela de apelidos:
 
-- **Hub de workspace** = nome da pasta do workspace: `docs/context/backend.md`, `frontend.md`, `collectors.md`, `db.md`.
-- **Área** = nome da pasta dela no código (`collectors/betha` → `docs/context/betha.md`; `collectors/tcesc` → `tcesc.md`). `src`, `test`, `paginas`, `integration` e `support` são pastas estruturais e não viram área. Área grande vira hub com subpasta (`betha.md` + `betha/`), e um assunto de um workspace pode morar em `docs/context/<workspace>/<área>.md`.
-- Assunto que atravessa workspaces (a conferência Betha × TCE-SC vive em `db/`, `backend/` e `frontend/`) mora no hub do workspace onde está a regra (`db.md`) e é citado pelos outros com link.
+- **Hub de workspace** = nome da pasta do workspace: `docs/context/api.md`, `web.md`, `importadores.md`, `db.md`.
+- **Área** = nome da pasta dela no código (`packages/importadores/betha` → `docs/context/betha.md`; `packages/importadores/tcesc` → `tcesc.md`). `src`, `test`, `paginas`, `integration` e `support` são pastas estruturais e não viram área. Área grande vira hub com subpasta (`betha.md` + `betha/`), e um assunto de um workspace pode morar em `docs/context/<workspace>/<área>.md`.
+- Assunto que atravessa workspaces (a conferência Betha × TCE-SC vive em `packages/db/`, `apps/api/` e `apps/web/`) mora no hub do workspace onde está a regra (`db.md`) e é citado pelos outros com link.
 - O **conteúdo** é em pt-BR. Nome fora dessa regra faz o driver não achar o doc e o agente abrir fonte sem contexto.
 
 ## O que entra nos arquivos
 
-- **Funções e utilitários existentes** — nome, caminho, uma linha sobre o que faz (para não reimplementar). Formatação de moeda e data do frontend, o cliente da Betha e o do TCE-SC, a transação do `db/` são o mais valioso: é o que se reescreve sem querer.
+- **Funções e utilitários existentes** — nome, caminho, uma linha sobre o que faz (para não reimplementar). Formatação de moeda e data do web, o cliente da Betha e o do TCE-SC, a transação do `packages/db/` são o mais valioso: é o que se reescreve sem querer.
 - **Componentes/módulos existentes** — o que são e onde estão.
 - **Contrato** — rotas da API (`GET /api/...`, parâmetros, shape da resposta, CSV), consultas da Betha usadas (id e o que trazem), tabelas e colunas que existem.
 - **Regras de negócio** — decisões de produto que o código sozinho não explica (fonte preferida de cada indicador, quando um valor é "validado", o que sai da soma, o que é dado pessoal e não é exibido).

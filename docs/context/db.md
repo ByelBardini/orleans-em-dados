@@ -1,13 +1,13 @@
 # Banco de dados e conferência
 
-Esquema PostgreSQL, conexão e a conferência Betha × TCE-SC. Vive em `db/` (pacote `@orleans-em-dados/db`, sem `src/`: fontes na raiz).
+Esquema PostgreSQL, conexão e a conferência Betha × TCE-SC. Vive em `packages/db/` (pacote `@orleans-em-dados/db`, sem `src/`: fontes na raiz).
 
 ## Estrutura
 
-- `db/index.js` — `pool` (`pg.Pool`, máx. 5) e `transacao(fn)` (BEGIN/COMMIT/ROLLBACK).
-- `db/migrar.js` — aplica em ordem os `.sql` de `db/migrations/` ainda não registrados na tabela `migracoes`.
-- `db/migrations/001_inicial.sql`, `002_despesas_e_tcesc.sql` — esquema e catálogo inicial (fontes, consultas, entidades, unidades do TCE).
-- `db/conferencias.js` — `conferencia(ano)`, usada pela API (`/api/conferencias`) e pelo `pnpm conferir`. Exportado como `@orleans-em-dados/db/conferencias`.
+- `packages/db/index.js` — `pool` (`pg.Pool`, máx. 5) e `transacao(fn)` (BEGIN/COMMIT/ROLLBACK).
+- `packages/db/migrar.js` — aplica em ordem os `.sql` de `packages/db/migrations/` ainda não registrados na tabela `migracoes`.
+- `packages/db/migrations/001_inicial.sql`, `002_despesas_e_tcesc.sql` — esquema e catálogo inicial (fontes, consultas, entidades, unidades do TCE).
+- `packages/db/conferencias.js` — `conferencia(ano)`, usada pela API (`/api/conferencias`) e pelo `pnpm conferir`. Exportado como `@orleans-em-dados/db/conferencias`.
 
 ## Contrato (tabelas)
 
@@ -22,13 +22,13 @@ Esquema PostgreSQL, conexão e a conferência Betha × TCE-SC. Vive em `db/` (pa
 
 ## Funções e utilitários
 
-- `transacao(fn)` (`db/index.js`) — passa o cliente da transação para `fn`; desfaz tudo se `fn` lançar.
-- `conferencia(ano)` (`db/conferencias.js`) — `{ disponivel: false, faltando }` sem as cinco coletas publicadas; senão despesa/receita por entidade, receita por mês e natureza (com nota do padrão encontrado), empenhos casados e sem par, Câmara e um `resumo`.
-- `anotarNaturezas`, `anotarEmpenho` (`db/conferencias.js`, não exportadas) — a regra pura da conferência: classificam cada diferença (duplicidade, reclassificação, incoerência mês × acumulado, renumeração, registro repetido).
+- `transacao(fn)` (`packages/db/index.js`) — passa o cliente da transação para `fn`; desfaz tudo se `fn` lançar.
+- `conferencia(ano)` (`packages/db/conferencias.js`) — `{ disponivel: false, faltando }` sem as cinco coletas publicadas; senão despesa/receita por entidade, receita por mês e natureza (com nota do padrão encontrado), empenhos casados e sem par, Câmara e um `resumo`.
+- `anotarNaturezas`, `anotarEmpenho` (`packages/db/conferencias.js`, não exportadas) — a regra pura da conferência: classificam cada diferença (duplicidade, reclassificação, incoerência mês × acumulado, renumeração, registro repetido).
 
 ## Regras de negócio
 
-- Só coleta `totalizador_conciliado` é publicada; `rejeitado` fica gravada para análise. `exemplo` só é publicada se não houver dado real para o ano (regra em `collectors/gravar.js`).
+- Só coleta `totalizador_conciliado` é publicada; `rejeitado` fica gravada para análise. `exemplo` só é publicada se não houver dado real para o ano (regra em `packages/importadores/gravar.js`).
 - Valor monetário é `NUMERIC(18,2)`; rubrica e natureza são texto (zeros à esquerda).
 - Conferência compara só conceitos iguais, no nível comum às duas fontes: natureza da receita em 8 dígitos (Betha `17135011000000` ↔ TCE `1.7.1.3.50.1.1`).
 - No exercício corrente o TCE-SC está atrasado: a conferência corta no último mês de receita e na última data de empenho que o TCE já tem (`parcial: true`). Isso é pendência, não divergência.
@@ -37,11 +37,11 @@ Esquema PostgreSQL, conexão e a conferência Betha × TCE-SC. Vive em `db/` (pa
 
 ## Testes
 
-- `db/test/support/banco.js` — `URL_TESTE` (porta 5434), `garantirBancoDescartavel(url)` (recusa a porta 5433) e `recriarBanco()` (derruba o esquema e aplica as migrações); é o `globalSetup` do projeto `integracao`.
+- `packages/db/test/support/banco.js` — `URL_TESTE` (porta 5434), `garantirBancoDescartavel(url)` (recusa a porta 5433) e `recriarBanco()` (derruba o esquema e aplica as migrações); é o `globalSetup` do projeto `integracao`.
 
 ## Armadilhas
 
-- `URL_PADRAO` em `db/index.js`: sem `DATABASE_URL`, conecta no banco de desenvolvimento (porta 5433, coletas reais). O projeto `integracao` do Vitest define a URL descartável e `setup-integracao.js` recusa a 5433 antes do primeiro `import` do pacote.
+- `URL_PADRAO` em `packages/db/index.js`: sem `DATABASE_URL`, conecta no banco de desenvolvimento (porta 5433, coletas reais). O projeto `integracao` do Vitest define a URL descartável e `setup-integracao.js` recusa a 5433 antes do primeiro `import` do pacote.
 - `NUMERIC` é lido como `number` (`setTypeParser`): somas exatas se fazem no SQL ou em centavos inteiros, nunca somando os `number` em JS.
 - `conferencia(ano)` devolve `geradoEm: new Date()`: duas chamadas nunca são iguais. Comparação de resposta ignora ou fixa esse campo.
 - `receitas.valor_arrecadado_ate_mes` é acumulado: nunca somar entre meses. `receitas.mes` é inferido do sufixo `_N` do id (semântica não confirmada).
