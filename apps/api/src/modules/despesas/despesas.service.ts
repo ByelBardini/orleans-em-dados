@@ -14,10 +14,29 @@ const semConferencia = (faltando: readonly string[]) => ({
   parcial: null,
   limites: null,
   aguardandoTce: null,
+  diferencaBetha: null,
+  totalBetha: null,
   entidadesConferidas: null,
   entidadesFora: null,
   faltando,
 });
+
+const emCentavos = (v: number | null | undefined) => Math.round((v ?? 0) * 100);
+
+/** Conferido + em discrepância = total da 57170, no empenhado. Entidade fora sai com o valor inteiro
+ *  da Betha; a duplicidade, só com as linhas retiradas. No ano em curso não há conta: o que aguarda é
+ *  valor original da Betha, e o conferido é líquido do TCE-SC. */
+function contaDoEmpenhado(
+  { parcial, discrepancias }: Disponiveis,
+  entidade: string,
+  conferido: number | null | undefined,
+) {
+  if (parcial) return { diferencaBetha: null, totalBetha: null };
+  const retirado = discrepancias
+    .filter((d) => d.area === 'despesa' && (!entidade || d.codigoEntidade === entidade))
+    .reduce((soma, d) => soma + emCentavos(d.tipo === 'despesa_duplicada' ? d.diferenca : d.betha), 0);
+  return { diferencaBetha: retirado / 100, totalBetha: (emCentavos(conferido) + retirado) / 100 };
+}
 
 async function despesasConferidas(coleta: ColetaPublicada, dados: Disponiveis, ano: number, entidade: string) {
   const { despesa, parcial, limites } = dados;
@@ -36,6 +55,7 @@ async function despesasConferidas(coleta: ColetaPublicada, dados: Disponiveis, a
       parcial,
       limites,
       aguardandoTce: entidade ? (daEntidade?.aguardandoTce ?? null) : despesa.totais.aguardandoTce,
+      ...contaDoEmpenhado(dados, entidade, totais?.empenhado),
       entidadesConferidas: despesa.totais.entidadesConferidas,
       entidadesFora: despesa.totais.entidadesFora,
     },

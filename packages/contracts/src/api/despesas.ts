@@ -10,6 +10,10 @@ export const despesasResumoSchema = z.strictObject({
     parcial: z.boolean().nullable(),
     limites: limitesDaConferenciaSchema.nullable(),
     aguardandoTce: valorSchema,
+    // A conta do empenhado no exercício encerrado: conferido + diferencaBetha = totalBetha (57170).
+    // Nula no ano em curso: o aguardando é valor original da Betha, o conferido é líquido do TCE-SC.
+    diferencaBetha: valorSchema,
+    totalBetha: valorSchema,
     entidadesConferidas: z.number().nullable(),
     entidadesFora: z.number().nullable(),
     // Só quando não há conferência: as consultas que faltam publicar.

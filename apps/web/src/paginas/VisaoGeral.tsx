@@ -2,7 +2,6 @@ import {
   despesasResumoSchema,
   empenhosResumoSchema,
   receitasSchema,
-  type Conferencia,
   type DespesasResumo,
   type EmpenhosResumo,
   type Receitas,
@@ -12,6 +11,7 @@ import { BarrasMensais, Estado, Filtros, Fonte, ListaPontos, Mi, Numero, Numeros
 import {
   data,
   decimal,
+  diaEMes,
   emMilhoes,
   MESES,
   MESES_LONGOS,
@@ -21,8 +21,16 @@ import {
   pct,
   porExtenso,
 } from '../format';
-import { AvisoDeAtraso, Selo, useConferencia } from '../selo';
-import { seloDespesa, seloReceita } from '../selos';
+import {
+  AvisoDaReceitaAguardando,
+  ateOMes,
+  ContaDaDespesa,
+  ContaDaReceita,
+  LINK_DISCREPANCIAS,
+  SemConferencia,
+} from '../conferido';
+import { AvisoDeAtraso, Selo } from '../selo';
+import { SELO_EXEMPLO, SELO_FONTE_UNICA, seloConferidoComTce, seloDaDespesa } from '../selos';
 import { GLOSSARIO, ORIGEM_CIDADAO, ORIGENS_DE_FORA, populacao, sujeito } from '../referencias';
 import type { PropsDaPagina } from './props';
 
@@ -33,7 +41,6 @@ export default function VisaoGeral({ ano, entidade, filtros }: PropsDaPagina) {
   const rec = useApi(`/api/receitas?${qs(ano, entidade)}`, receitasSchema);
   const emp = useApi(`/api/despesas/empenhos/resumo?${qs(ano, entidade)}`, empenhosResumoSchema);
   const desp = useApi(`/api/despesas/resumo?${qs(ano, entidade)}`, despesasResumoSchema);
-  const conf = useConferencia(ano);
   const r = rec.dados;
   const d = emp.dados;
   const o = desp.dados;
@@ -46,16 +53,20 @@ export default function VisaoGeral({ ano, entidade, filtros }: PropsDaPagina) {
         carregando={rec.carregando || emp.carregando || desp.carregando}
         erro={rec.erro || emp.erro || desp.erro}
       />
-      {r && d && o && (
-        <Conteudo ano={ano} entidade={entidade} r={r} d={d} o={o} pop={pop} entidades={filtros.entidades} conf={conf} />
+      {r && d && o && !r.meta.exemplo && !r.conferencia.disponivel && (
+        <SemConferencia ano={ano} faltando={r.conferencia.faltando} />
+      )}
+      {r && d && o && (r.meta.exemplo || r.conferencia.disponivel) && (
+        <Conteudo ano={ano} entidade={entidade} r={r} d={d} o={o} pop={pop} entidades={filtros.entidades} />
       )}
     </>
   );
 }
 
-// `o`: despesa orçamentária (57170), já descontadas as anulações: os totais oficiais.
-// `d`: empenhos individuais (57140), pelo valor original: só para as divisões
-// por órgão e por mês, que a 57170 não tem.
+// `r` e `o`: só o conferido; em dados de exemplo, os números fictícios, sem selo de conferido.
+// `o`: despesa conferida, já descontadas as anulações: os totais oficiais.
+// `d`: empenhos casados com o TCE-SC, pelo valor original: só para as divisões por órgão e por mês,
+// que a despesa não tem.
 function Conteudo({
   ano,
   entidade,
@@ -64,7 +75,6 @@ function Conteudo({
   o,
   pop,
   entidades,
-  conf,
 }: {
   ano: number;
   entidade: string;
@@ -73,15 +83,21 @@ function Conteudo({
   o: DespesasResumo;
   pop: ReturnType<typeof populacao>;
   entidades: readonly { codigo: string; sigla: string }[];
-  conf: Conferencia | null;
 }) {
   const arrecadado = N(r.totais.arrecadadoNoMes);
   const previsto = N(r.totais.orcadoAtualizado);
+  // Nulo: a entidade do recorte não fechou entre as fontes e está fora da soma.
+  const temDespesa = o.totais.empenhado !== null;
   const empenhado = N(o.totais.empenhado);
   const pago = N(o.totais.pago ?? 0);
   const original = N(d.totais.empenhado);
   const camara = o.camara;
-  const comCamara = camara ? empenhado + N(camara.empenhado) : null;
+  const exemplo = r.meta.exemplo;
+  const { parcial, limites } = r.conferencia;
+  const mesReceita = limites?.mesReceita;
+  const dataCorte = o.conferencia.limites?.dataEmpenho;
+  const ate = ateOMes(parcial, mesReceita, ano);
+  const ateDespesa = parcial ? `até ${data(dataCorte)}` : '';
   const quem = sujeito(entidade, entidades);
   const anoEncerrado = ano < new Date().getFullYear();
 
@@ -126,8 +142,16 @@ function Conteudo({
     <>
       <div className="abertura">
         <h1 className="manchete">
-          Em {ano}, {quem} arrecadou <em>{porExtenso(arrecadado)}</em> e empenhou <em>{porExtenso(empenhado)}</em> em
-          despesas.
+          {ate ? ate.charAt(0).toLocaleUpperCase('pt-BR') + ate.slice(1) : `Em ${ano}`}, {quem} arrecadou{' '}
+          <em>{porExtenso(arrecadado)}</em>
+          {temDespesa ? (
+            <>
+              {parcial ? ` e, até ${diaEMes(dataCorte)}, empenhou ` : ' e empenhou '}
+              <em>{porExtenso(empenhado)}</em> em despesas.
+            </>
+          ) : (
+            '. A despesa deste recorte está fora da soma conferida.'
+          )}
         </h1>
         <div className="abertura-lado">
           <p className="capitular">
@@ -148,13 +172,17 @@ function Conteudo({
                 )}
               </>
             )}
-            Do que foi empenhado, {pct(pago, empenhado)} já estava pago{anoEncerrado ? ' no fim do ano' : ' até agora'}.
+            {temDespesa && (
+              <>
+                Do que foi empenhado, {pct(pago, empenhado)} já estava pago
+                {parcial ? ` até ${diaEMes(dataCorte)}` : anoEncerrado ? ' no fim do ano' : ' até agora'}.
+              </>
+            )}
             {camara && (
               <>
                 {' '}
-                Com a Câmara Municipal ({porExtenso(N(camara.empenhado))}, dados do TCE-SC
-                {anoEncerrado ? '' : ` até ${data(camara.ultimoEmpenho)}`}), o município empenhou{' '}
-                {porExtenso(comCamara)}.
+                A Câmara Municipal fica à parte: {porExtenso(N(camara.empenhado))} empenhados, dados do TCE-SC
+                {anoEncerrado ? '' : ` até ${data(camara.ultimoEmpenho)}`}, fonte única e sem conferência.
               </>
             )}
           </p>
@@ -166,40 +194,74 @@ function Conteudo({
 
       <Numeros rotulo="Totais do ano">
         <Numero
-          rotulo="Arrecadado"
-          detalhe={previsto > 0 ? `${pct(arrecadado, previsto)} dos ${emMilhoes(previsto)} previstos` : 'sem previsão'}
+          rotulo={`Arrecadado${ate ? ` ${ate}` : ''}`}
+          detalhe={
+            previsto > 0
+              ? `${pct(arrecadado, previsto)} dos ${emMilhoes(previsto)} previstos para o ano (orçamento: fonte única, sem conferência)`
+              : 'sem previsão'
+          }
           barra={previsto > 0 ? (arrecadado / previsto) * 100 : undefined}
           selo={
             <>
-              <Selo selo={seloReceita(conf, entidade)} />
+              {exemplo ? (
+                <Selo selo={SELO_EXEMPLO} />
+              ) : (
+                <>
+                  <Selo semLink selo={seloConferidoComTce(parcial ? mesReceita : null)} />
+                  <ContaDaReceita conferencia={r.conferencia} />
+                  <AvisoDaReceitaAguardando valor={r.conferencia.aguardandoTce} mes={mesReceita} />
+                </>
+              )}
               <AvisoDeAtraso indicador="receita-arrecadada" ano={ano} />
             </>
           }
         >
           <Mi valor={arrecadado} />
         </Numero>
+        {temDespesa ? (
+          <>
+            <Numero
+              rotulo={`Empenhado${ateDespesa ? ` ${ateDespesa}` : ''}`}
+              detalhe={`já descontadas as anulações · ${numero(d.totais.quantidade)} empenhos, ${numero(d.totais.credores)} credores`}
+              selo={
+                <>
+                  {exemplo ? (
+                    <Selo selo={SELO_EXEMPLO} />
+                  ) : (
+                    <>
+                      <Selo semLink={o.conferencia.totalBetha !== null} selo={seloDaDespesa(o.conferencia)} />
+                      <ContaDaDespesa conferido={o.totais.empenhado} conferencia={o.conferencia} />
+                    </>
+                  )}
+                  <AvisoDeAtraso indicador="despesa-empenhada-liquida" ano={ano} />
+                </>
+              }
+            >
+              <Mi valor={empenhado} />
+            </Numero>
+            <Numero
+              rotulo={`Pago${ateDespesa ? ` ${ateDespesa}` : ''}`}
+              detalhe={`${pct(pago, empenhado)} do empenhado`}
+              barra={(pago / empenhado) * 100}
+              vermelho
+            >
+              <Mi valor={pago} />
+            </Numero>
+          </>
+        ) : (
+          <Numero
+            rotulo="Empenhado"
+            detalhe={
+              <>
+                Fora da soma: as fontes não fecham neste recorte. <a href={LINK_DISCREPANCIAS}>Ver discrepâncias</a>
+              </>
+            }
+          >
+            —
+          </Numero>
+        )}
         <Numero
-          rotulo="Empenhado"
-          detalhe={`já descontadas as anulações · ${numero(d.totais.quantidade)} empenhos, ${numero(d.totais.credores)} credores`}
-          selo={
-            <>
-              <Selo selo={seloDespesa(conf, entidade)} />
-              <AvisoDeAtraso indicador="despesa-empenhada-liquida" ano={ano} />
-            </>
-          }
-        >
-          <Mi valor={empenhado} />
-        </Numero>
-        <Numero
-          rotulo="Pago"
-          detalhe={`${pct(pago, empenhado)} do empenhado`}
-          barra={(pago / empenhado) * 100}
-          vermelho
-        >
-          <Mi valor={pago} />
-        </Numero>
-        <Numero
-          rotulo="Arrecadado aqui, por morador"
+          rotulo={`Arrecadado aqui, por morador${ate ? `, ${ate}` : ''}`}
           detalhe={`impostos, taxas e tarifas da cidade ÷ ${numero(pop.pessoas)} moradores (${pop.fonte}). Com os repasses, R$ ${numero(Math.round(arrecadado / pop.pessoas))}`}
         >
           R$ {numero(Math.round(propria / pop.pessoas))}
@@ -296,8 +358,18 @@ function Conteudo({
                   nome: e.entidade.nome ?? `Entidade ${e.chave}`,
                   valor: e.empenhado,
                   selecionado: e.chave === entidade,
-                  extra: qtd ? `${numero(qtd)} empenhos` : undefined,
-                  dica: `${e.entidade.nome}: ${emMilhoes(e.empenhado)} empenhados, já descontadas as anulações`,
+                  extra:
+                    e.empenhado === null ? (
+                      <>
+                        fora da soma: <a href={LINK_DISCREPANCIAS}>ver discrepâncias</a>
+                      </>
+                    ) : qtd ? (
+                      `${numero(qtd)} empenhos`
+                    ) : undefined,
+                  dica:
+                    e.empenhado === null
+                      ? `${e.entidade.nome}: fora da soma conferida`
+                      : `${e.entidade.nome}: ${emMilhoes(e.empenhado)} empenhados, já descontadas as anulações`,
                 };
               }),
               ...(camara
@@ -306,7 +378,13 @@ function Conteudo({
                       chave: 'camara',
                       nome: camara.nome,
                       valor: camara.empenhado,
-                      extra: `${numero(camara.quantidade)} empenhos · fonte TCE-SC${anoEncerrado ? '' : `, até ${data(camara.ultimoEmpenho)}`}`,
+                      extra: (
+                        <>
+                          {numero(camara.quantidade)} empenhos · fonte TCE-SC
+                          {anoEncerrado ? '' : `, até ${data(camara.ultimoEmpenho)}`} · à parte da soma
+                          <Selo compacto selo={SELO_FONTE_UNICA} />
+                        </>
+                      ),
                       dica: `${camara.nome}: ${emMilhoes(camara.empenhado)} (TCE-SC; não está no portal Betha)`,
                     },
                   ]
@@ -332,10 +410,13 @@ function Conteudo({
       </div>
 
       <p className="nota" style={{ marginTop: 32 }}>
-        Abrangência: Prefeitura, Fundo Municipal de Saúde, SAMAE e Fundação Ambiental, como publicados no portal Betha.
-        Empenhado e pago são a despesa orçamentária (consulta 57170), já descontadas as anulações. As divisões por órgão
-        e por mês usam o valor original de cada empenho (consulta 57140), sem os registros que a conferência aponta como
-        repetidos. A Câmara Municipal não está no portal Betha: seus valores vêm do TCE-SC e aparecem à parte.
+        Abrangência: Prefeitura, Fundo Municipal de Saúde, SAMAE e Fundação Ambiental.{' '}
+        {parcial
+          ? `Empenhado e pago são os valores do TCE-SC nos empenhos casados com a Betha até ${data(dataCorte)}.`
+          : 'Empenhado e pago são a despesa orçamentária (consulta 57170), já descontadas as anulações.'}{' '}
+        As divisões por órgão e por mês usam o valor original de cada empenho (consulta 57140)
+        {exemplo ? '' : ', só dos empenhos casados com o TCE-SC'}. A Câmara Municipal não está no portal Betha: seus
+        valores vêm do TCE-SC, sem conferência, e aparecem à parte.
       </p>
       <Fonte meta={r.meta} />
       <Fonte meta={o.meta} />

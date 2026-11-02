@@ -34,6 +34,9 @@ export const conjuntoDeExemplo = (): ConjuntoDeEmpenhos => ({
   params: [],
 });
 
+/** O que o resumo precisa saber da conferência para separar os registros que ficaram de fora. */
+export type EstadoDoConjunto = { disponivel: boolean; parcial: boolean | null; dataCorte: string | null };
+
 const SOMAS_EMPENHO = `count(*)::int AS quantidade, sum(empenhado) AS empenhado, sum(empenhado_liquido) AS "empenhadoLiquido",
   sum(liquidado) AS liquidado, sum(pago) AS pago`;
 
@@ -47,7 +50,7 @@ const ORDEM_DA_LISTA = 'ORDER BY data_empenho DESC NULLS LAST, numero DESC, id_e
 export async function resumoEmpenhos(
   { coletaId, meta }: ColetaPublicada,
   { relacao, params }: ConjuntoDeEmpenhos,
-  { entidade = '' }: { entidade?: string },
+  { entidade = '', conferencia }: { entidade?: string; conferencia: EstadoDoConjunto },
 ) {
   const doConjunto = [coletaId, ...params];
   const p = [...doConjunto, entidade];
@@ -64,9 +67,12 @@ export async function resumoEmpenhos(
        FROM ${relacao} WHERE ${filtro}`,
       p,
     ),
-    consultar<{ total: number }>(
-      `SELECT count(*)::int AS total FROM empenhos WHERE coleta_id = $1 AND ($2 = '' OR entidade_codigo = $2)`,
-      [coletaId, entidade],
+    // Mesma regra de `classificarEmpenho`: no ano em curso, depois do corte é pendência; sem corte, tudo é.
+    consultar<{ total: number; aguardando: number }>(
+      `SELECT count(*)::int AS total,
+              count(*) FILTER (WHERE $3::boolean AND ($4::date IS NULL OR data_empenho > $4::date))::int AS aguardando
+       FROM empenhos WHERE coleta_id = $1 AND ($2 = '' OR entidade_codigo = $2)`,
+      [coletaId, entidade, conferencia.parcial === true, conferencia.dataCorte],
     ),
     consultar(
       `SELECT extract(month FROM data_empenho)::int AS chave, ${SOMAS_EMPENHO}
@@ -102,7 +108,21 @@ export async function resumoEmpenhos(
     ),
   ]);
   const excluidos = (registros?.total ?? 0) - (totais?.quantidade ?? 0);
-  return { meta, totais: { ...totais, excluidos }, porMes, porEntidade, porOrgao, porCredor, maiores };
+  const aguardandoTce = registros?.aguardando ?? 0;
+  return {
+    meta,
+    totais: {
+      ...totais,
+      excluidos,
+      aguardandoTce,
+      emDiscrepancia: conferencia.disponivel ? excluidos - aguardandoTce : 0,
+    },
+    porMes,
+    porEntidade,
+    porOrgao,
+    porCredor,
+    maiores,
+  };
 }
 
 export async function buscarEmpenhos(

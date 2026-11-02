@@ -1,10 +1,11 @@
-import { receitasSchema, type Conferencia, type Receitas as DadosDeReceitas } from '@orleans-em-dados/contracts';
+import { receitasSchema, type Receitas as DadosDeReceitas } from '@orleans-em-dados/contracts';
 import { useMemo, useState } from 'react';
 import { useApi } from '../api';
 import { BarraDividida, Estado, Filtros, Fonte, LinhaAcumulada, ListaPontos, Mi, Numero, Numeros } from '../components';
+import { AvisoDaReceitaAguardando, ateOMes, ContaDaReceita, LINK_DISCREPANCIAS, SemConferencia } from '../conferido';
 import { emMilhoes, MESES, MESES_LONGOS, milhoes, moeda, numero, pct, porExtenso } from '../format';
-import { AvisoDeAtraso, Selo, useConferencia } from '../selo';
-import { seloReceita, seloRubrica } from '../selos';
+import { AvisoDeAtraso, Selo } from '../selo';
+import { SELO_EXEMPLO, SELO_FONTE_UNICA, seloConferidoComTce } from '../selos';
 import { ORIGEM_CIDADAO, ORIGENS_DE_FORA, populacao, sujeito } from '../referencias';
 import type { PropsDaPagina } from './props';
 
@@ -30,22 +31,22 @@ export default function Receitas({ ano, entidade, filtros }: PropsDaPagina) {
     `/api/receitas?${new URLSearchParams({ ano: String(ano), entidade })}`,
     receitasSchema,
   );
-  const conf = useConferencia(ano);
+  const semConferencia = dados && !dados.meta.exemplo && !dados.conferencia.disponivel;
   return (
     <>
       <Estado carregando={carregando} erro={erro} />
-      {dados && <Conteudo ano={ano} entidade={entidade} filtros={filtros} dados={dados} conf={conf} />}
+      {semConferencia && (
+        <>
+          <Filtros {...filtros} />
+          <SemConferencia ano={ano} faltando={dados.conferencia.faltando} />
+        </>
+      )}
+      {dados && !semConferencia && <Conteudo ano={ano} entidade={entidade} filtros={filtros} dados={dados} />}
     </>
   );
 }
 
-function Conteudo({
-  ano,
-  entidade,
-  filtros,
-  dados,
-  conf,
-}: PropsDaPagina & { dados: DadosDeReceitas; conf: Conferencia | null }) {
+function Conteudo({ ano, entidade, filtros, dados }: PropsDaPagina & { dados: DadosDeReceitas }) {
   const [busca, setBusca] = useState('');
   const [todas, setTodas] = useState(false);
   const pop = populacao(ano);
@@ -55,16 +56,32 @@ function Conteudo({
   const realizado = previsto > 0 ? (arrecadado / previsto) * 100 : null;
   const diferenca = arrecadado - previsto;
   const quem = sujeito(entidade, filtros.entidades);
+  const Quem = quem.charAt(0).toUpperCase() + quem.slice(1);
+  const exemplo = dados.meta.exemplo;
+  const { parcial, limites } = dados.conferencia;
+  const mesReceita = limites?.mesReceita;
+  const ate = ateOMes(parcial, mesReceita, ano);
+  const Ate = ate && ate.charAt(0).toUpperCase() + ate.slice(1);
+  // Previsto é do ano inteiro: no ano em curso, a falta ainda não é falta do ano.
+  const nomeDoMes = parcial && mesReceita ? MESES_LONGOS[mesReceita - 1] : '';
 
   // Uma linha por rubrica, somando as entidades.
   const rubricas = useMemo(() => {
     const mapa = new Map<
       string,
-      { rubrica: string; descricao: string; previsto: number; arrecadado: number; entidades: Set<string | null> }
+      {
+        rubrica: string;
+        nivel: number;
+        descricao: string;
+        previsto: number;
+        arrecadado: number;
+        entidades: Set<string | null>;
+      }
     >();
     for (const n of dados.naturezas) {
       const r = mapa.get(n.rubrica) ?? {
         rubrica: n.rubrica,
+        nivel: n.nivel,
         descricao: nomeReceita(n.descricao),
         previsto: 0,
         arrecadado: 0,
@@ -109,13 +126,15 @@ function Conteudo({
   const sempreAbaixo = acumulado.every((v, i) => v < ritmo(i));
   const textoLinha = !previsto
     ? null
-    : sempreAcima
-      ? 'A linha cheia corre acima da tracejada o ano todo: a arrecadação ficou à frente do previsto.'
-      : sempreAbaixo
-        ? 'A linha cheia corre sempre abaixo da tracejada: o ano todo, a arrecadação ficou atrás do previsto.'
-        : (acumulado.at(-1) ?? 0) >= ritmo(acumulado.length - 1)
-          ? 'A linha cheia passa a tracejada no decorrer do ano: a arrecadação terminou à frente do previsto.'
-          : 'A linha cheia perde fôlego no decorrer do ano e termina abaixo da tracejada.';
+    : nomeDoMes
+      ? `Até ${nomeDoMes}, a arrecadação conferida ${(acumulado.at(-1) ?? 0) >= ritmo(acumulado.length - 1) ? 'está à frente' : 'está atrás'} do ritmo previsto.`
+      : sempreAcima
+        ? 'A linha cheia corre acima da tracejada o ano todo: a arrecadação ficou à frente do previsto.'
+        : sempreAbaixo
+          ? 'A linha cheia corre sempre abaixo da tracejada: o ano todo, a arrecadação ficou atrás do previsto.'
+          : (acumulado.at(-1) ?? 0) >= ritmo(acumulado.length - 1)
+            ? 'A linha cheia passa a tracejada no decorrer do ano: a arrecadação terminou à frente do previsto.'
+            : 'A linha cheia perde fôlego no decorrer do ano e termina abaixo da tracejada.';
 
   const origens = dados.porOrigem.filter((o) => N(o.arrecadadoNoMes) !== 0);
   const somaOrigem = (f: (o: DadosDeReceitas['porOrigem'][number]) => boolean) =>
@@ -135,13 +154,22 @@ function Conteudo({
         <div className="manchete" style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
           <h1 style={{ font: 'inherit' }}>
             {realizado !== null ? (
+              ate ? (
+                <>
+                  {Ate}, {quem} arrecadou <em>{pct(arrecadado, previsto)}</em> do que o orçamento previa para o ano.
+                </>
+              ) : (
+                <>
+                  {Quem} arrecadou <em>{pct(arrecadado, previsto)}</em> do que o orçamento previa para {ano}.
+                </>
+              )
+            ) : ate ? (
               <>
-                {quem.charAt(0).toUpperCase() + quem.slice(1)} arrecadou <em>{pct(arrecadado, previsto)}</em> do que o
-                orçamento previa para {ano}.
+                {Ate}, {quem} arrecadou <em>{porExtenso(arrecadado)}</em>.
               </>
             ) : (
               <>
-                {quem.charAt(0).toUpperCase() + quem.slice(1)} arrecadou <em>{porExtenso(arrecadado)}</em> em {ano}.
+                {Quem} arrecadou <em>{porExtenso(arrecadado)}</em> em {ano}.
               </>
             )}
           </h1>
@@ -152,7 +180,9 @@ function Conteudo({
               ? 'Não há previsão de receita publicada para este recorte. '
               : diferenca >= 0
                 ? `Entraram ${porExtenso(diferenca)} a mais que os ${porExtenso(previsto)} previstos. `
-                : `Faltaram ${porExtenso(-diferenca)} para a meta de ${porExtenso(previsto)}. `}
+                : nomeDoMes
+                  ? `Faltam ${porExtenso(-diferenca)} para os ${porExtenso(previsto)} previstos para o ano. `
+                  : `Faltaram ${porExtenso(-diferenca)} para a meta de ${porExtenso(previsto)}. `}
             {deFora > 0 &&
               `Repasses da União e do Estado responderam por ${pct(deFora, arrecadado)} do total; o restante saiu de impostos, taxas e tarifas cobrados aqui.`}
           </p>
@@ -162,30 +192,54 @@ function Conteudo({
       <Filtros {...filtros} />
 
       <Numeros rotulo="Totais de receita">
-        <Numero rotulo="Previsto" detalhe="orçamento atualizado do ano">
+        <Numero
+          rotulo="Previsto"
+          detalhe="orçamento atualizado do ano"
+          selo={<Selo selo={exemplo ? SELO_EXEMPLO : SELO_FONTE_UNICA} />}
+        >
           <Mi valor={previsto} />
         </Numero>
         <Numero
-          rotulo="Arrecadado"
+          rotulo={`Arrecadado${ate ? ` ${ate}` : ''}`}
           detalhe={moeda(arrecadado)}
           selo={
             <>
-              <Selo selo={seloReceita(conf, entidade)} />
+              {exemplo ? (
+                <Selo selo={SELO_EXEMPLO} />
+              ) : (
+                <>
+                  <Selo semLink selo={seloConferidoComTce(parcial ? mesReceita : null)} />
+                  <ContaDaReceita conferencia={dados.conferencia} />
+                  <AvisoDaReceitaAguardando valor={dados.conferencia.aguardandoTce} mes={mesReceita} />
+                </>
+              )}
               <AvisoDeAtraso indicador="receita-arrecadada" ano={ano} />
             </>
           }
         >
           <Mi valor={arrecadado} />
         </Numero>
-        <Numero rotulo="Realizado" vermelho barra={realizado ?? undefined}>
+        <Numero
+          rotulo={`Realizado${ate ? ` ${ate}` : ''}`}
+          detalhe={realizado === null ? undefined : 'arrecadado conferido ÷ previsto para o ano'}
+          vermelho
+          barra={realizado ?? undefined}
+        >
           {realizado === null ? '—' : pct(arrecadado, previsto)}
         </Numero>
         {deducoes > 0 ? (
-          <Numero rotulo="Separado p/ o FUNDEB" detalhe="previsto: 20% de FPM, ICMS, IPVA, IPI e ITR">
+          <Numero
+            rotulo="Separado p/ o FUNDEB"
+            detalhe="previsto: 20% de FPM, ICMS, IPVA, IPI e ITR"
+            selo={<Selo selo={exemplo ? SELO_EXEMPLO : SELO_FONTE_UNICA} />}
+          >
             <Mi valor={deducoes} />
           </Numero>
         ) : (
-          <Numero rotulo="Por morador" detalhe={`${numero(pop.pessoas)} moradores (${pop.fonte})`}>
+          <Numero
+            rotulo={`Por morador${ate ? ` ${ate}` : ''}`}
+            detalhe={`arrecadado conferido ÷ ${numero(pop.pessoas)} moradores (${pop.fonte})`}
+          >
             R$ {numero(Math.round(arrecadado / pop.pessoas))}
           </Numero>
         )}
@@ -363,7 +417,12 @@ function Conteudo({
                         {r.rubrica}
                         {r.entidades.size === 1 && !entidade ? ` · ${[...r.entidades][0]}` : ''}
                       </span>
-                      <Selo compacto selo={seloRubrica(conf, r.rubrica, r.entidades)} />
+                      {r.nivel === 8 && (
+                        <span className="sub rubrica-agrupada">
+                          Agrupada em 8 dígitos: há mês em discrepância.{' '}
+                          <a href={LINK_DISCREPANCIAS}>Ver discrepâncias</a>
+                        </span>
+                      )}
                     </td>
                     <td>{ORIGEM_CIDADAO[r.rubrica.slice(0, 2)] ?? r.rubrica.slice(0, 2)}</td>
                     <td className="num">{r.previsto ? milhoes(r.previsto) : '—'}</td>
@@ -394,9 +453,9 @@ function Conteudo({
           </table>
         </div>
         <div className="paginacao">
-          <SoNoTce conf={conf} entidade={entidade} />
           <p className="nota-serif">
-            O traço vertical marca 100% do previsto. Em vermelho, receitas que passaram da meta.
+            O traço vertical marca 100% do previsto. Em vermelho, receitas que passaram da meta. O previsto é o
+            orçamento da Betha: fonte única, sem conferência.
           </p>
           {!busca && rubricas.length > INICIAL && (
             <button type="button" className="botao-link" onClick={() => setTodas((t) => !t)}>
@@ -408,20 +467,5 @@ function Conteudo({
 
       <Fonte meta={dados.meta} />
     </>
-  );
-}
-
-// Rubricas que o TCE-SC registra e que não existem na Betha: não aparecem na tabela acima.
-function SoNoTce({ conf, entidade }: { conf: Conferencia | null; entidade: string }) {
-  const linhas = (conf?.receitaPorNatureza ?? []).filter(
-    (n) => n.tipo === 'soTce' && (!entidade || n.codigoEntidade === entidade),
-  );
-  if (!linhas.length) return null;
-  return (
-    <p className="nota" style={{ flexBasis: '100%' }}>
-      <strong className="vermelho">Só no TCE-SC, sem rubrica correspondente aqui:</strong>{' '}
-      {linhas.map((n) => `${n.natureza} ${nomeReceita(n.descricao ?? '')} (${n.entidade}, ${moeda(n.tce)})`).join('; ')}
-      . <a href="#conferencia">Ver conferência</a>
-    </p>
   );
 }

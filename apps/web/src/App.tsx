@@ -18,7 +18,12 @@ const ABAS = [
 ];
 
 const PADRAO = ABAS[0]!;
-const abaDoHash = () => ABAS.find((a) => `#${a.id}` === window.location.hash)?.id ?? PADRAO.id;
+// A Fase 11 renomeia a aba; até lá, o link novo já abre a seção atual.
+const ALIASES: Record<string, string> = { '#discrepancias': '#conferencia' };
+const abaDoHash = () => {
+  const hash = ALIASES[window.location.hash] ?? window.location.hash;
+  return ABAS.find((a) => `#${a.id}` === hash)?.id ?? PADRAO.id;
+};
 
 function Navegacao({ aba }: { aba: string }) {
   return (

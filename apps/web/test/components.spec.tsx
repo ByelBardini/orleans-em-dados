@@ -114,6 +114,12 @@ describe('ListaPontos', () => {
     expect(container.querySelectorAll('.trilho span')[2]).toHaveStyle({ width: '0%' });
   });
 
+  it('valor nulo sai com travessão e sem percentual, e não como zero', () => {
+    const { container } = render(<ListaPontos itens={[{ nome: 'Fora', valor: null }]} total={4_000_000} />);
+    expect(container.querySelector('.lp-valor')).toHaveTextContent('—');
+    expect(container.querySelector('.lp-pct')).toBeNull();
+  });
+
   it('com total, mostra o percentual', () => {
     render(<ListaPontos itens={itens} total={4_000_000} />);
     expect(screen.getByText('50,0%')).toBeInTheDocument();

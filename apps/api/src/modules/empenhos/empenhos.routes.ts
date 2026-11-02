@@ -34,7 +34,7 @@ export async function rotasDeEmpenhos(app: FastifyInstance) {
     const coleta = await coletaOu404(request, reply, 'empenhos');
     if (!coleta) return reply;
     const { conjunto, conferencia } = await conjuntoDoAno(coleta, anoDo(request));
-    const resumo = await resumoEmpenhos(coleta, conjunto, { entidade: texto(request, 'entidade') });
+    const resumo = await resumoEmpenhos(coleta, conjunto, { entidade: texto(request, 'entidade'), conferencia });
     return responder(reply, empenhosResumoSchema, { ...resumo, conferencia });
   });
 
