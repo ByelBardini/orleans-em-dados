@@ -2,7 +2,7 @@
 // calculada foi confirmada. Só o número do protocolo: código de acompanhamento e nome de pessoa nunca.
 import type { Discrepancia, TipoDiscrepancia } from './conferencia.bo';
 
-export type SituacaoDaDiscrepancia = 'confirmada_no_portal' | 'calculada' | 'rever';
+export type SituacaoDaDiscrepancia = 'confirmada_no_portal' | 'confirmada_em_parte' | 'calculada' | 'rever';
 
 export type ConferenciaManual = {
   ano: number;
@@ -13,7 +13,8 @@ export type ConferenciaManual = {
   chave: string | null;
   /** Em módulo. `null`: confirmado sem um total. */
   valor: number | null;
-  situacao: 'confirmada_no_portal';
+  /** Em parte: só um exemplo foi conferido, e a evidência diz qual. Nunca confirma o valor inteiro. */
+  situacao: 'confirmada_no_portal' | 'confirmada_em_parte';
   evidencia: string;
   /** Quando foi conferido, em AAAA-MM-DD. */
   data: string;
@@ -41,6 +42,8 @@ const CAMPOS: ReadonlySet<string> = new Set([
 ]);
 const PROTOCOLO = /^[\p{L}-]+ \d+\/\d{4}$/u;
 const DATA = /^\d{4}-\d{2}-\d{2}$/;
+// A evidência sai na seção pública: diferença entre fontes não afirma causa.
+const TERMO_QUE_AFIRMA_CAUSA = /fantasma|\berros?\b|irregular|fraude/iu;
 
 /** Devolve o registro, ou recusa dizendo o campo. O erro nunca repete o valor: pode ser um código. */
 export function validarConferenciaManual(registro: ConferenciaManual): ConferenciaManual {
@@ -55,6 +58,7 @@ export function validarConferenciaManual(registro: ConferenciaManual): Conferenc
   if (!DATA.test(registro.data)) recusar('data fora de AAAA-MM-DD');
   if (!registro.evidencia.trim()) recusar('evidência vazia');
   if (/acompanhamento/i.test(registro.evidencia)) recusar('evidência com código de acompanhamento');
+  if (TERMO_QUE_AFIRMA_CAUSA.test(registro.evidencia)) recusar('evidência com termo que afirma causa');
   if (registro.protocolo !== undefined && !PROTOCOLO.test(registro.protocolo)) {
     recusar('protocolo aceita só o canal e o número: <canal> <número>/<ano>');
   }
@@ -115,7 +119,9 @@ export const CONFERENCIAS_MANUAIS: readonly ConferenciaManual[] = (
       tipo: 'duas_rubricas',
       chave: '13210300',
       valor: null,
-      evidencia: `${DUAS_RUBRICAS} Conferência parcial, sem um total confirmado; exemplo conferido: R$ 66.113,49.`,
+      situacao: 'confirmada_em_parte',
+      evidencia:
+        'Conferido à mão no portal só um exemplo de R$ 66.113,49, lançado em duas rubricas. O restante da diferença é calculado, sem confirmação no portal.',
     },
     {
       ano: 2024,

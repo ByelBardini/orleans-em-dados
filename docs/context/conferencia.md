@@ -66,10 +66,10 @@ Compara as coletas publicadas das duas fontes num exercício. A regra mora em `p
 
 1. Acrescente um item em `CONFERENCIAS_MANUAIS` (`conferencias-manuais.ts`), com `{ ano, entidade, tipo, chave, valor, evidencia }`. `situacao` e `data` vêm de `NO_PORTAL`; caso de outra data leva a própria `data`.
 2. `chave` é a natureza ou o número do empenho. `null` cobre todas as discrepâncias do tipo na entidade, pela soma: é o caso de `despesa_duplicada` e de um grupo de empenhos. `valor` é em módulo; `null` confirma sem total, como uma conferência parcial.
-3. `protocolo` é só o número (`e-SIC 000/0000`). Código de acompanhamento nunca: a validação recusa, e o import do módulo falha. Nada de nome de pessoa ou de credor na `evidencia`: ela sai na seção pública.
+3. `protocolo` é só o número (`e-SIC 000/0000`). Código de acompanhamento nunca: a validação recusa, e o import do módulo falha. Nada de nome de pessoa ou de credor na `evidencia`: ela sai na seção pública. A validação também recusa termo que afirma causa ("fantasma", "erro", "irregular", "fraude").
 4. Rode o spec, e confira em `dadosConferidos(ano).avisos` que o registro achou a discrepância.
 
-- Com registro e o mesmo valor: `confirmada_no_portal`. Sem registro: `calculada`. Com registro e valor diferente, ou a soma do grupo: `rever`, com aviso. Registro sem discrepância do mesmo ano, entidade, tipo e chave: só um aviso.
+- Com registro e o mesmo valor: `confirmada_no_portal`. Registro com `situacao: 'confirmada_em_parte'` (só um exemplo foi conferido, citado na evidência, com `valor: null`): fica assim, e nunca confirma o valor inteiro. Sem registro: `calculada`. Com registro e valor diferente, ou a soma do grupo: `rever`, com aviso. Registro sem discrepância do mesmo ano, entidade, tipo e chave: só um aviso.
 
 ## Testes
 

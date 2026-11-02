@@ -179,6 +179,35 @@ describe('validarConferenciaManual', () => {
   });
 });
 
+describe('situação confirmada em parte', () => {
+  it('o caso confirmado em parte mantém a situação do registro, com a evidência', () => {
+    const { discrepancias, avisos } = cruzar(
+      [discrepancia({ diferenca: 113099.53 })],
+      [registro({ situacao: 'confirmada_em_parte', valor: null, evidencia: 'Exemplo de R$ 1,00 (exemplo).' })],
+    );
+    expect(discrepancias[0]).toMatchObject({
+      situacao: 'confirmada_em_parte',
+      evidencia: 'Exemplo de R$ 1,00 (exemplo).',
+    });
+    expect(avisos).toEqual([]);
+  });
+});
+
+describe('texto público da evidência', () => {
+  it.each(['Registro fantasma.', 'Erro de digitação.', 'Situação irregular.', 'Possível fraude.'])(
+    'evidência "%s" é recusada',
+    (evidencia) => {
+      expect(() => validarConferenciaManual(registro({ evidencia }))).toThrow('termo que afirma causa');
+    },
+  );
+
+  it('palavra que só contém o termo não é recusada', () => {
+    expect(validarConferenciaManual(registro({ evidencia: 'Compra de terreno e ferro.' })).evidencia).toBe(
+      'Compra de terreno e ferro.',
+    );
+  });
+});
+
 describe('CONFERENCIAS_MANUAIS', () => {
   it.each([
     [2025, 'SAMAE', 'fora_do_acumulado', '22130101', 32900],
@@ -200,10 +229,23 @@ describe('CONFERENCIAS_MANUAIS', () => {
     expect(achados.map((r) => r.valor)).toEqual([valor]);
   });
 
-  it('são só os doze casos da conferência de 01/11/2026, confirmados no portal', () => {
+  it('são só os doze casos da conferência de 01/11/2026, e só a 13210300 foi confirmada em parte', () => {
     expect(CONFERENCIAS_MANUAIS).toHaveLength(12);
     expect(new Set(CONFERENCIAS_MANUAIS.map((r) => r.data))).toEqual(new Set(['2026-11-01']));
-    expect(new Set(CONFERENCIAS_MANUAIS.map((r) => r.situacao))).toEqual(new Set(['confirmada_no_portal']));
+    expect(CONFERENCIAS_MANUAIS.filter((r) => r.situacao !== 'confirmada_no_portal').map((r) => r.chave)).toEqual([
+      '13210300',
+    ]);
+  });
+
+  it('a 13210300 é confirmada em parte, sem um total, e não como confirmada no valor inteiro', () => {
+    const parcial = CONFERENCIAS_MANUAIS.find((r) => r.chave === '13210300');
+    expect(parcial).toMatchObject({ situacao: 'confirmada_em_parte', valor: null });
+    expect(parcial?.evidencia).not.toContain('113.099,53');
+  });
+
+  it('nenhuma evidência usa termo que afirma causa', () => {
+    const textos = CONFERENCIAS_MANUAIS.map((r) => r.evidencia).join(' ');
+    expect(textos).not.toMatch(/fantasma|\berros?\b|irregular|fraude/i);
   });
 
   it('só a natureza 11130311 do SAMAE tem protocolo, e é o número do e-SIC', () => {
