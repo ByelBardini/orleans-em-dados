@@ -173,7 +173,7 @@ Spec que muda só por rename é ajuste; spec que muda de **asserção** é mudan
 
 ## Verificação por workspace
 
-> Spec isolado, projeto e suíte verificados em 01/11/2026. O nome do projeto é o `name` do `package.json` do workspace, não a pasta. A receita de integração ainda não rodou neste repo (o primeiro spec de integração é a fase 2 do plano).
+> Verificados em 01/11/2026. O nome do projeto é o `name` do `package.json` do workspace, não a pasta. O `pnpm test` não roda a integração: ela é o projeto `integracao`.
 
 ```bash
 pnpm exec vitest run db/test/conferencias.spec.js     # spec isolado
@@ -190,15 +190,16 @@ pnpm exec vitest run db/test/conferencias.spec.js     # 1 failed: o cenário da 
 cp "$SCRATCHPAD/conferencias.js.bak" db/conferencias.js
 ```
 
-Integração (tudo que passa pelo `pg`): nunca contra o banco do `pnpm db:subir`, que é o de desenvolvimento e guarda as coletas reais. Postgres descartável numa porta própria, em memória, migrado pelas migrações do repo:
+Integração (tudo que passa pelo `pg`): nunca contra o banco do `pnpm db:subir`, que é o de desenvolvimento e guarda as coletas reais. Postgres descartável na porta 5434, em memória; o `globalSetup` do projeto `integracao` espera ele subir e recria o esquema pelas migrações a cada rodada:
 
 ```bash
-MSYS_NO_PATHCONV=1 docker run -d --name orleans-testar -e POSTGRES_USER=orleans -e POSTGRES_PASSWORD=orleans -e POSTGRES_DB=orleans_teste -p 5434:5432 --tmpfs /var/lib/postgresql/data postgres:17-alpine
-export DATABASE_URL=postgres://orleans:orleans@localhost:5434/orleans_teste
-pnpm db:migrar
-pnpm exec vitest run <workspace>/test/integration/<area>.spec.js
-docker rm -f orleans-testar
+pnpm db:teste                                                  # sobe (uma vez por sessão)
+pnpm test:integracao                                           # todos os specs de */test/integration/
+pnpm exec vitest run --project=integracao <caminho do spec>    # um spec
+pnpm db:teste:parar                                            # derruba
 ```
+
+Banco com as cinco coletas fictícias publicadas: `popularBancoDeTeste()` de `collectors/test/support/banco-de-teste.js`.
 
 ## Autoteste do driver
 
@@ -218,7 +219,8 @@ Ele roda o driver em duas fixtures: `fixtures/monorepo/` (o monorepo pnpm em Typ
 
 ## Gotchas
 
-- **`db/index.js` cai no banco de desenvolvimento** quando `DATABASE_URL` não está definida (`URL_PADRAO` na porta 5433). Spec de integração define a URL do Postgres descartável **antes** do primeiro `import` de `@orleans-em-dados/db` (no `setup` do projeto de integração), senão grava no banco das coletas reais.
+- **`db/index.js` cai no banco de desenvolvimento** quando `DATABASE_URL` não está definida (`URL_PADRAO` na porta 5433). O spec de integração roda sempre no projeto `integracao`, que define a URL descartável e recusa a 5433 (`db/test/support/setup-integracao.js`); fora dele, grava no banco das coletas reais.
+- **Inversão que tira um parâmetro `$n` do SQL falha pelo motivo errado**: o Postgres recusa parâmetro sem uso e todos os `it` do arquivo ficam vermelhos. Inverta mantendo o parâmetro (`($4 OR true)`).
 - **`NUMERIC` chega como `number`** (o `setTypeParser` de `db/index.js`): o esperado de valor monetário em integração é `number`, e soma de centavos se confere no banco, não em JS.
 - **Função asseguradora não é "sem asserção".** Função local ou importada de arquivo relativo cujo nome começa com `espera`, `assert`, `confere`, `verifica`, `garante` ou `expect` e que contém `expect` por dentro conta como asserção para quem a chama. `expect.assertions(n)` também.
 - **`it.each` com `%s`/`$campo` no nome não é `nome-sem-cenario`**: o placeholder carrega o cenário. `it.each` sem placeholder e com nome curto dispara.

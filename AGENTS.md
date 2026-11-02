@@ -35,8 +35,8 @@ Leia o hub da área antes de abrir fonte. O driver do `/testar` indica qual (`le
 
 - Specs em `<workspace>/test/` espelhando a raiz das fontes (`src/` no backend e no frontend, a raiz no db e nos collectors); integração em `<workspace>/test/integration/`.
 - `describe`/`it`/`expect` importados de `vitest` (sem globals); import relativo com extensão.
-- `pnpm test` roda tudo; `pnpm exec vitest run <spec>` isola um spec; `--project @orleans-em-dados/<workspace>` filtra pelo `name` do pacote.
-- Integração só em Postgres descartável (receita na skill `testar`), nunca no banco do `pnpm db:subir`.
+- `pnpm test` roda os unit de todos os workspaces, sem banco; `pnpm exec vitest run <spec>` isola um spec; `--project @orleans-em-dados/<workspace>` filtra pelo `name` do pacote.
+- `pnpm test:integracao` roda `*/test/integration/` no projeto `integracao`, contra o Postgres descartável (`pnpm db:teste` sobe na porta 5434, `pnpm db:teste:parar` derruba). O esquema é recriado a cada rodada; a porta 5433 (`pnpm db:subir`, coletas reais) é recusada.
 - Antes de fechar: `pnpm test && pnpm lint`. Todo teste nasce pelo `/testar`.
 
 ## Comandos

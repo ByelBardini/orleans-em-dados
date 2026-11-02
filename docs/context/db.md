@@ -35,9 +35,13 @@ Esquema PostgreSQL, conexão e a conferência Betha × TCE-SC. Vive em `db/` (pa
 - Empenhos casam 1:1 por entidade, número, data e valor original. Entre repetidos na Betha, o que tem execução e id maior é o válido; as cópias antigas da 57140 ficam "só na Betha" e a API as tira das somas.
 - Diferença entre fontes é informação, nunca rotulada como irregularidade; as notas dizem "provável"/"possível".
 
+## Testes
+
+- `db/test/support/banco.js` — `URL_TESTE` (porta 5434), `garantirBancoDescartavel(url)` (recusa a porta 5433) e `recriarBanco()` (derruba o esquema e aplica as migrações); é o `globalSetup` do projeto `integracao`.
+
 ## Armadilhas
 
-- `URL_PADRAO` em `db/index.js`: sem `DATABASE_URL`, conecta no banco de desenvolvimento (porta 5433, coletas reais). Teste define `DATABASE_URL` antes do primeiro `import` do pacote.
+- `URL_PADRAO` em `db/index.js`: sem `DATABASE_URL`, conecta no banco de desenvolvimento (porta 5433, coletas reais). O projeto `integracao` do Vitest define a URL descartável e `setup-integracao.js` recusa a 5433 antes do primeiro `import` do pacote.
 - `NUMERIC` é lido como `number` (`setTypeParser`): somas exatas se fazem no SQL ou em centavos inteiros, nunca somando os `number` em JS.
 - `conferencia(ano)` devolve `geradoEm: new Date()`: duas chamadas nunca são iguais. Comparação de resposta ignora ou fixa esse campo.
 - `receitas.valor_arrecadado_ate_mes` é acumulado: nunca somar entre meses. `receitas.mes` é inferido do sufixo `_N` do id (semântica não confirmada).
