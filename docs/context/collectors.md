@@ -1,0 +1,45 @@
+# Coletores
+
+Coleta das fontes externas e gravação no banco. Vive em `collectors/` (pacote `@orleans-em-dados/collectors`, sem `src/`: fontes na raiz). Rodam à mão pela CLI; não há agendamento.
+
+## Estrutura
+
+- `collectors/betha/` — Portal da Transparência Betha: `auth.js`, `client.js`, `config.js`, `coletar.js` (CLI).
+- `collectors/tcesc/` — Farol TCE-SC (Qlik Engine API sobre WebSocket): `qlik-client.js`, `config.js`, `coletar.js` (CLI). Detalhe do protocolo em `collectors/tcesc/README.md`.
+- `collectors/gravar.js` — `gravarColeta(snapshot, origem)`: grava e publica uma coleta.
+- `collectors/conferir.js` — CLI da conferência (`pnpm conferir --ano 2025 [--json]`).
+- `collectors/importar-arquivo.js` — CLI que grava snapshots JSON já existentes (`pnpm importar <arquivos>` ou `pnpm db:exemplos`).
+
+## Contrato
+
+- Snapshot `{ meta, registros }`: `meta` traz `consultaId`, `ano`, `filtro`, `iniciadoEm`, `coletadoEm`, `totalHits`, `capturados`, `idsUnicos`, `camposAusentes`, `conferencia` (por campo: `fonte`, `calculado`, `diferenca`), `status` e `erros`; `registros` são os payloads com `id`.
+- Betha `57153` (filtro `ano`), `57140` (filtro `anoExercicio`), `57170` (filtro `ano`; com `anoExercicio` volta todos os exercícios). Campos somados e conferidos contra `/totalizadores` em `CONSULTAS` de `betha/config.js`.
+- TCE-SC `900001` (receitas: unidade × natureza × mês × dedução) e `900002` (um empenho por `ID Empenho`), filtrados por ente `ORLEANS` e ano.
+- Com `--json`, o snapshot também vai para `data/betha/` ou `data/tcesc/` (fora do git; `.rejeitado.json` quando há erro).
+
+## Funções e utilitários
+
+- `BethaAuthClient` (`betha/auth.js`) — token anônimo pelo fluxo implícito (HTTP 303), só em memória, renovado 60 s antes de expirar; confere o destino do redirecionamento.
+- `BethaQueryClient` (`betha/client.js`) — `buscar(consultaId, filtro, { offset, limit })` e `totalizadores(consultaId, filtro)`; em `401` renova o token uma vez, em `429`/`5xx`/erro de rede repete até 4 vezes com espera exponencial.
+- `QlikSessao` (`tcesc/qlik-client.js`) — `abrir(appId)`, `selecionar(campo, texto)`, `limparSelecoes()`, `selecoes()`, `hipercubo({ dimensoes, medidas })`, `infoApp()`, `fechar()`.
+- `gravarColeta` (`gravar.js`) — numa transação: `coletas` → `totais_fonte` → `registros_brutos` (um parâmetro JSON expandido no servidor) → tabela normalizada (SQL de `NORMALIZAR` por consulta) → `publicacoes`.
+
+## Regras de negócio
+
+- Uma coleta só é `totalizador_conciliado` com todos os registros capturados, ids únicos, `totalHits` estável e soma em centavos igual ao totalizador da fonte (Betha) ou ao total do motor (TCE-SC). Qualquer falha: `rejeitado`, gravada e não publicada.
+- Campo ausente é contado em `camposAusentes`, nunca somado como zero.
+- TCE-SC: as duas seleções (ente e ano) têm de ser exatamente as pedidas, e o app não pode ter sido recarregado durante a coleta.
+
+## Regras de arquitetura
+
+- A normalização bruto → tabela é SQL (`INSERT ... SELECT` sobre o `JSONB`), para o valor ir de texto JSON para `NUMERIC` sem passar por float.
+- Token nunca vai para log nem para mensagem de erro.
+
+## Armadilhas
+
+- Paginação da Betha sem ordenação é instável (em 2026 a 57153 devolveu 1.294 registros com 1.017 ids únicos): o cliente ordena por `id`, e `coletar.js` ainda repete a leitura inteira até 3 vezes antes de entregar uma coleta inconsistente.
+- O Qlik devolve `double` (`170915184.25000012`): o coletor converte para centavos e recusa o que não cai sobre um centavo inteiro. Nulo no Qlik é `qIsNull` ou `qText '-'`.
+- Selecionar no Qlik por texto não restringe o recorte neste servidor: a seleção é pelo `qElemNumber` lido na sessão.
+- Endpoints da Betha e apps do TCE-SC não são APIs documentadas: ids, campos e filtros podem mudar.
+- `pnpm` repassa `--` literalmente: é `pnpm coletar --ano 2025`, não `pnpm coletar -- --ano 2025` (o `parseArgs` leria o resto como posicional).
+- `credor` pode ser pessoa física: fixture de teste e log nunca levam nome real.
