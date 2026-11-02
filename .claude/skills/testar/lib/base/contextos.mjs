@@ -6,15 +6,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { paraBarras } from './ambiente.mjs';
 
-const SEGMENTOS_ESTRUTURAIS = new Set([
-  'src',
-  'test',
-  'modules',
-  'features',
-  'paginas',
-  'integration',
-  'support',
-]);
+const SEGMENTOS_ESTRUTURAIS = new Set(['src', 'test', 'modules', 'features', 'paginas', 'integration', 'support']);
 
 /** Os docs de contexto que existem para o alvo, do hub do workspace para a
  *  área mais específica.

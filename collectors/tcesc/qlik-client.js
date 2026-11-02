@@ -99,7 +99,10 @@ export class QlikSessao {
     const h = await this.criarObjeto({ qInfo: { qType: 'SelectionObject' }, qSelectionObjectDef: {} });
     const { qSelectionObject } = await this.layout(h);
     return Object.fromEntries(
-      qSelectionObject.qSelections.map((s) => [s.qField, s.qSelectedFieldSelectInfo?.map((v) => v.qName) ?? [s.qSelected]]),
+      qSelectionObject.qSelections.map((s) => [
+        s.qField,
+        s.qSelectedFieldSelectInfo?.map((v) => v.qName) ?? [s.qSelected],
+      ]),
     );
   }
 

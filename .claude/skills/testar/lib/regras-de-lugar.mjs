@@ -47,10 +47,7 @@ function importsRelativosDeProducao(contexto, ficha) {
   return ficha.imports
     .filter((item) => item.especificador.startsWith('.'))
     .filter((item) =>
-      ehDeProducao(
-        contexto.app,
-        resolverEspecificador(contexto.app, ficha.relativo, item.especificador) ?? 'test/',
-      ),
+      ehDeProducao(contexto.app, resolverEspecificador(contexto.app, ficha.relativo, item.especificador) ?? 'test/'),
     )
     .map((item) =>
       achado(
@@ -70,11 +67,7 @@ function mockDaUnidadeSobTeste(contexto, ficha) {
   if (!espelho?.fonte) return [];
   const fonteSemExtensao = semExtensao(espelho.fonte);
   return ficha.mocksDeModulo
-    .filter(
-      (item) =>
-        resolverEspecificador(contexto.app, ficha.relativo, item.especificador) ===
-        fonteSemExtensao,
-    )
+    .filter((item) => resolverEspecificador(contexto.app, ficha.relativo, item.especificador) === fonteSemExtensao)
     .map((item) =>
       achado(
         CATEGORIA,
@@ -89,12 +82,7 @@ function mockDaUnidadeSobTeste(contexto, ficha) {
 }
 
 function specSemEspelho(contexto, ficha) {
-  if (
-    ehIntegracao(ficha.relativo) ||
-    ehApoioDeTeste(ficha.relativo) ||
-    !ehDeTeste(ficha.relativo)
-  )
-    return [];
+  if (ehIntegracao(ficha.relativo) || ehApoioDeTeste(ficha.relativo) || !ehDeTeste(ficha.relativo)) return [];
   const espelho = fonteDoSpec(contexto.app, ficha.relativo, ficha.importsResolvidos);
   if (!espelho || espelho.fonte) return [];
   return [

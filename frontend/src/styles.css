@@ -1367,7 +1367,20 @@ tr.expansivel {
 
 /* Os fios horizontais atravessam a tela de ponta a ponta; o conteúdo
    continua recuado pela margem. */
-.pagina :is(.fio-duplo, .faixa-meta, .capa .nav-principal, .cabecalho-compacto, .barra-filtros, .abertura, .numeros, .colunas.dupla, .secao.dupla, .rodape, .fonte) {
+.pagina
+  :is(
+    .fio-duplo,
+    .faixa-meta,
+    .capa .nav-principal,
+    .cabecalho-compacto,
+    .barra-filtros,
+    .abertura,
+    .numeros,
+    .colunas.dupla,
+    .secao.dupla,
+    .rodape,
+    .fonte
+  ) {
   margin-inline: calc(-1 * var(--margem));
   padding-inline: var(--margem);
 }

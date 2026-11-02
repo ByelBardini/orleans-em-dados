@@ -30,9 +30,7 @@ function ehRaizDeMonorepo(pasta) {
 }
 
 export function encontrarRaizDoApp(alvoAbsoluto) {
-  const partida = fs.statSync(alvoAbsoluto).isDirectory()
-    ? alvoAbsoluto
-    : path.dirname(alvoAbsoluto);
+  const partida = fs.statSync(alvoAbsoluto).isDirectory() ? alvoAbsoluto : path.dirname(alvoAbsoluto);
   let atual = partida;
   while (true) {
     if (fs.existsSync(path.join(atual, 'package.json')) && !ehRaizDeMonorepo(atual)) return atual;
@@ -108,11 +106,8 @@ export function tipoDoWorkspace(manifesto) {
 function entradaDoPacote(raiz, manifesto) {
   const exportado = manifesto.exports;
   const ponto = typeof exportado === 'string' ? exportado : exportado?.['.'];
-  const destino =
-    typeof ponto === 'string' ? ponto : (ponto?.import ?? ponto?.default ?? manifesto.main);
-  const candidatos = [destino, 'src/index.ts', 'src/index.tsx', 'src/index.js', 'index.js'].filter(
-    Boolean,
-  );
+  const destino = typeof ponto === 'string' ? ponto : (ponto?.import ?? ponto?.default ?? manifesto.main);
+  const candidatos = [destino, 'src/index.ts', 'src/index.tsx', 'src/index.js', 'index.js'].filter(Boolean);
   const achado = candidatos.map((c) => path.resolve(raiz, c)).find((c) => fs.existsSync(c));
   return achado ?? null;
 }
@@ -125,9 +120,7 @@ export function carregarTypescript(candidatos) {
       // tenta o próximo: a fixture não tem node_modules, a raiz do repo tem
     }
   }
-  throw new Error(
-    `typescript não encontrado a partir de ${candidatos.join(', ')}; rode npm install na raiz`,
-  );
+  throw new Error(`typescript não encontrado a partir de ${candidatos.join(', ')}; rode npm install na raiz`);
 }
 
 export function aliasesDoTsconfig(ts, raizDoApp) {
@@ -156,9 +149,7 @@ function descreverWorkspace(ts, raiz, monorepo) {
     fontes: fs.existsSync(path.join(raiz, 'src')) ? 'src' : '',
     // App (server, client) não tem entrada de pacote: ninguém o importa, e o
     // index.ts dele é consumidor de verdade, não re-exportação.
-    entrada: ['server', 'client'].includes(tipoDoWorkspace(manifesto))
-      ? null
-      : entradaDoPacote(raiz, manifesto),
+    entrada: ['server', 'client'].includes(tipoDoWorkspace(manifesto)) ? null : entradaDoPacote(raiz, manifesto),
     dependencias: new Set(Object.keys(deps)),
     aliases: aliasesDoTsconfig(ts, raiz),
   };
@@ -175,8 +166,7 @@ function listarWorkspaces(ts, monorepo, raizDoApp) {
   const raizes = padroesDoMonorepo(monorepo)
     .flatMap((padrao) => expandirPadrao(monorepo, padrao))
     .filter((raiz) => fs.existsSync(path.join(raiz, 'package.json')));
-  if (!raizes.some((raiz) => path.resolve(raiz) === path.resolve(raizDoApp)))
-    raizes.push(raizDoApp);
+  if (!raizes.some((raiz) => path.resolve(raiz) === path.resolve(raizDoApp))) raizes.push(raizDoApp);
   return raizes.map((raiz) => descreverWorkspace(ts, raiz, monorepo));
 }
 
@@ -202,7 +192,5 @@ export function descreverAmbiente(alvoInformado, raizDoProcesso) {
  *
  *  Exemplo: `dependenciasDoWorkspace(ambiente, ambiente.app).map((ws) => ws.tipo) // ['db']` */
 export function dependenciasDoWorkspace(ambiente, workspace) {
-  return ambiente.workspaces.filter(
-    (ws) => ws !== workspace && workspace.dependencias.has(ws.pacote),
-  );
+  return ambiente.workspaces.filter((ws) => ws !== workspace && workspace.dependencias.has(ws.pacote));
 }

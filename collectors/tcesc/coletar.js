@@ -26,7 +26,8 @@ function centavos(qNum) {
   const r = Math.round(c);
   return Math.abs(c - r) < 1e-3 ? r : null;
 }
-const decimal = (c) => `${c < 0 ? '-' : ''}${Math.trunc(Math.abs(c) / 100)}.${String(Math.abs(c) % 100).padStart(2, '0')}`;
+const decimal = (c) =>
+  `${c < 0 ? '-' : ''}${Math.trunc(Math.abs(c) / 100)}.${String(Math.abs(c) % 100).padStart(2, '0')}`;
 // Nulo no Qlik: qIsNull, ou qText '-' com qNum 'NaN'.
 const texto = (cel) => (cel.qIsNull || cel.qText === undefined || cel.qText === '-' ? null : cel.qText);
 
@@ -72,7 +73,8 @@ async function coletar(chave, ano, { json }) {
   console.log(`\n[TCE-SC] ${consulta.nome} — ${ano}`);
 
   const { cubo, selecoes, ultimaRecarga } = await lerCubo(consulta, app, ano, erros);
-  if (cubo.linhas.length !== cubo.linhasTotal) erros.push(`capturadas ${cubo.linhas.length} de ${cubo.linhasTotal} linhas`);
+  if (cubo.linhas.length !== cubo.linhasTotal)
+    erros.push(`capturadas ${cubo.linhas.length} de ${cubo.linhasTotal} linhas`);
 
   // Soma em centavos; célula vazia é contada como ausente, não como zero.
   const nd = consulta.dimensoes.length;
@@ -109,7 +111,16 @@ async function coletar(chave, ano, { json }) {
     }
     const diferenca = (somas[m.campo] - fonte) / 100;
     if (diferenca !== 0) erros.push(`${m.campo}: soma das linhas difere do total do motor (${diferenca})`);
-    return [{ campo: m.campo, titulo: m.expr, descricao: 'Total geral do hipercubo no motor Qlik', calculado: somas[m.campo] / 100, fonte: fonte / 100, diferenca }];
+    return [
+      {
+        campo: m.campo,
+        titulo: m.expr,
+        descricao: 'Total geral do hipercubo no motor Qlik',
+        calculado: somas[m.campo] / 100,
+        fonte: fonte / 100,
+        diferenca,
+      },
+    ];
   });
 
   const snapshot = {

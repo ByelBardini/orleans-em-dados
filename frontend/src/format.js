@@ -16,7 +16,9 @@ export const milhoes = (v) => umaCasa.format(Number(v) / 1e6);
 export const emMilhoes = (v) => `R$ ${milhoes(v)} mi`;
 export const porExtenso = (v) => `R$ ${milhoes(v)} milhões`;
 export const pct = (parte, total, casas = 1) =>
-  total ? `${((parte / total) * 100).toLocaleString('pt-BR', { minimumFractionDigits: casas, maximumFractionDigits: casas })}%` : '—';
+  total
+    ? `${((parte / total) * 100).toLocaleString('pt-BR', { minimumFractionDigits: casas, maximumFractionDigits: casas })}%`
+    : '—';
 
 export const data = (iso) => (iso ? new Date(`${iso.slice(0, 10)}T12:00:00`).toLocaleDateString('pt-BR') : '—');
 export const dataHora = (iso) => (iso ? new Date(iso).toLocaleString('pt-BR') : '—');
@@ -25,12 +27,43 @@ export const dataCurta = (iso) =>
 
 export const MESES = ['jan', 'fev', 'mar', 'abr', 'mai', 'jun', 'jul', 'ago', 'set', 'out', 'nov', 'dez'];
 export const MESES_LONGOS = [
-  'janeiro', 'fevereiro', 'março', 'abril', 'maio', 'junho',
-  'julho', 'agosto', 'setembro', 'outubro', 'novembro', 'dezembro',
+  'janeiro',
+  'fevereiro',
+  'março',
+  'abril',
+  'maio',
+  'junho',
+  'julho',
+  'agosto',
+  'setembro',
+  'outubro',
+  'novembro',
+  'dezembro',
 ];
 
 const MINUSCULAS = new Set(['de', 'da', 'do', 'das', 'dos', 'e', 'em', 'a', 'o', 'para', 'por']);
-const SIGLAS = new Set(['SAMAE', 'INSS', 'SUS', 'FPM', 'ICMS', 'IPVA', 'ISS', 'ISSQN', 'IPTU', 'ITBI', 'FUNDEB', 'LTDA', 'ME', 'EPP', 'S.A.', 'SA', 'AMREC', 'CISAMREC', 'II', 'III']);
+const SIGLAS = new Set([
+  'SAMAE',
+  'INSS',
+  'SUS',
+  'FPM',
+  'ICMS',
+  'IPVA',
+  'ISS',
+  'ISSQN',
+  'IPTU',
+  'ITBI',
+  'FUNDEB',
+  'LTDA',
+  'ME',
+  'EPP',
+  'S.A.',
+  'SA',
+  'AMREC',
+  'CISAMREC',
+  'II',
+  'III',
+]);
 
 // Textos da Betha vêm em caixa alta: "SECRETARIA MUNICIPAL DE EDUCAÇÃO" → "Secretaria Municipal de Educação".
 export function nomeProprio(texto) {

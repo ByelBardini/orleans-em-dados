@@ -24,12 +24,12 @@ Dashboard público, rastreável, com dados de receitas e despesas do município 
 
 Leia o hub da área antes de abrir fonte. O driver do `/testar` indica qual (`leia antes:`).
 
-| Área | Arquivo | Cobre |
-| --- | --- | --- |
-| Banco e conferência | [`db.md`](docs/context/db.md) | tabelas, publicação por ponteiro, regras da conferência Betha × TCE-SC |
-| Coletores | [`collectors.md`](docs/context/collectors.md) | clientes Betha e Qlik, validação das coletas, `gravarColeta` |
-| API | [`backend.md`](docs/context/backend.md) | rotas, parâmetros, CSV |
-| Dashboard | [`frontend.md`](docs/context/frontend.md) | páginas, componentes, formatação, selos |
+| Área                | Arquivo                                       | Cobre                                                                  |
+| ------------------- | --------------------------------------------- | ---------------------------------------------------------------------- |
+| Banco e conferência | [`db.md`](docs/context/db.md)                 | tabelas, publicação por ponteiro, regras da conferência Betha × TCE-SC |
+| Coletores           | [`collectors.md`](docs/context/collectors.md) | clientes Betha e Qlik, validação das coletas, `gravarColeta`           |
+| API                 | [`backend.md`](docs/context/backend.md)       | rotas, parâmetros, CSV                                                 |
+| Dashboard           | [`frontend.md`](docs/context/frontend.md)     | páginas, componentes, formatação, selos                                |
 
 ## Testes
 

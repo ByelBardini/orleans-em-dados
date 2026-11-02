@@ -102,16 +102,9 @@ export function fonteDoSpec(app, relativoDoSpec, importsResolvidos = []) {
   const base = baseSemSufixo(nomeDoSpec);
   const fontes = listarFontes(path.join(app.raiz, pastaDaFonte));
   const porNome = fontes
-    .filter(
-      (fonte) =>
-        base === fonte.base ||
-        base.startsWith(`${fonte.base}-`) ||
-        base.startsWith(`${fonte.base}.`),
-    )
+    .filter((fonte) => base === fonte.base || base.startsWith(`${fonte.base}-`) || base.startsWith(`${fonte.base}.`))
     .sort((a, b) => b.base.length - a.base.length)[0];
-  const porImport = fontes.find((fonte) =>
-    importsResolvidos.includes(juntar(pastaDaFonte, fonte.base)),
-  );
+  const porImport = fontes.find((fonte) => importsResolvidos.includes(juntar(pastaDaFonte, fonte.base)));
   const escolhida = porNome ?? porImport ?? null;
   const extensao = nomeDoSpec.match(SUFIXO_DE_SPEC)?.[2] ?? 'ts';
   return {
@@ -127,11 +120,7 @@ export function fonteDoSpec(app, relativoDoSpec, importsResolvidos = []) {
 export function specsDaFonte(app, relativoDaFonte, importsDoSpec = () => []) {
   const pastaDaFonte = path.posix.dirname(relativoDaFonte);
   const dentroDasFontes =
-    app.fontes === ''
-      ? pastaDaFonte === '.'
-        ? ''
-        : pastaDaFonte
-      : pastaDaFonte.slice(app.fontes.length + 1);
+    app.fontes === '' ? (pastaDaFonte === '.' ? '' : pastaDaFonte) : pastaDaFonte.slice(app.fontes.length + 1);
   const pastaDosSpecs = juntar(RAIZ_DOS_SPECS, dentroDasFontes);
   const base = baseSemSufixo(path.posix.basename(relativoDaFonte));
   const pastaAbsoluta = path.join(app.raiz, pastaDosSpecs);

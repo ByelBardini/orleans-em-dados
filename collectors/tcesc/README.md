@@ -9,10 +9,10 @@ pnpm coletar:tcesc --ano 2025                      # receitas e empenhos
 pnpm coletar:tcesc --ano 2025 --consulta empenhos --json
 ```
 
-| Consulta | App Qlik | Granularidade | Medidas |
-|---|---|---|---|
-| `receitas` (`900001`) | Receitas Municipais Externo | unidade × natureza (`codigoreceita`) × mês × tipo de dedução | `Sum(valorarrecadado)` |
-| `empenhos` (`900002`) | Despesas Municipais Externo | um empenho (`ID Empenho`) | `Sum(LiquidoEmpenho/LiquidoLiquidacao/LiquidoPagamento)`, valor original, reforço, estorno |
+| Consulta              | App Qlik                    | Granularidade                                                | Medidas                                                                                    |
+| --------------------- | --------------------------- | ------------------------------------------------------------ | ------------------------------------------------------------------------------------------ |
+| `receitas` (`900001`) | Receitas Municipais Externo | unidade × natureza (`codigoreceita`) × mês × tipo de dedução | `Sum(valorarrecadado)`                                                                     |
+| `empenhos` (`900002`) | Despesas Municipais Externo | um empenho (`ID Empenho`)                                    | `Sum(LiquidoEmpenho/LiquidoLiquidacao/LiquidoPagamento)`, valor original, reforço, estorno |
 
 `900001`/`900002` são IDs internos do projeto; o UUID do app fica em `consultas.identificador_externo`.
 
@@ -33,13 +33,13 @@ Qualquer divergência rejeita a coleta (gravada, não publicada), como na Betha.
 
 ## Unidades gestoras de Orleans
 
-| `identificadorUG` | Unidade | Entidade Betha |
-|---|---|---|
-| 204 | Prefeitura Municipal | 728 |
-| 486 | Fundo Municipal de Saúde | 319 |
-| 524 | SAMAE | 2473 |
-| 1839078 | Fundação Ambiental | 320 |
-| 1864 | **Câmara Municipal** | — (só no TCE) |
+| `identificadorUG` | Unidade                  | Entidade Betha |
+| ----------------- | ------------------------ | -------------- |
+| 204               | Prefeitura Municipal     | 728            |
+| 486               | Fundo Municipal de Saúde | 319            |
+| 524               | SAMAE                    | 2473           |
+| 1839078           | Fundação Ambiental       | 320            |
+| 1864              | **Câmara Municipal**     | — (só no TCE)  |
 
 O vínculo está em `unidades_tce`. O app de receitas só expõe o nome da unidade; o vínculo é
 pelo nome exato. A Câmara não tem receitas próprias no app de receitas.

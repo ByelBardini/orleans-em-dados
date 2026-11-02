@@ -103,8 +103,9 @@ function Conteudo({ ano, filtros, dados }) {
             )
           ) : (
             <>
-              Em {ano}, a despesa bate ao centavo em {resumo.despesaEntidadesIguais} de {resumo.despesaEntidadesComparadas}{' '}
-              entidades; a receita difere em <em>{moeda(Math.abs(resumo.receitaDiferenca))}</em>.
+              Em {ano}, a despesa bate ao centavo em {resumo.despesaEntidadesIguais} de{' '}
+              {resumo.despesaEntidadesComparadas} entidades; a receita difere em{' '}
+              <em>{moeda(Math.abs(resumo.receitaDiferenca))}</em>.
             </>
           )}
         </h1>
@@ -130,7 +131,9 @@ function Conteudo({ ano, filtros, dados }) {
       <Numeros rotulo="Resumo da conferência">
         <Numero
           rotulo="Despesa por entidade"
-          detalhe={parcial ? 'aguardando o exercício completo no TCE' : 'iguais ao centavo (empenhado, liquidado e pago)'}
+          detalhe={
+            parcial ? 'aguardando o exercício completo no TCE' : 'iguais ao centavo (empenhado, liquidado e pago)'
+          }
           vermelho={!parcial && divergentesDespesa.length > 0}
         >
           {parcial ? '—' : `${resumo.despesaEntidadesIguais} de ${resumo.despesaEntidadesComparadas}`}
@@ -183,8 +186,8 @@ function Conteudo({ ano, filtros, dados }) {
             Como ler esta página
           </h2>
           <p>
-            <strong>Igual</strong> significa idêntico ao centavo. Quando não é igual, a diferença diz qual fonte registra
-            mais: “a mais na Betha” ou “a mais no TCE”.
+            <strong>Igual</strong> significa idêntico ao centavo. Quando não é igual, a diferença diz qual fonte
+            registra mais: “a mais na Betha” ou “a mais no TCE”.
           </p>
           <p>
             <strong>Despesa</strong> compara a consulta 57170 da Betha (empenhado, liquidado e pago já descontadas as
@@ -337,7 +340,9 @@ function ReceitaMeses({ dados }) {
   return (
     <section className="secao media">
       <h2 className="secao-titulo">Receita mês a mês</h2>
-      <p className="legenda-secao">Em cada mês, quanto uma fonte registra a mais que a outra · traço maior, diferença maior</p>
+      <p className="legenda-secao">
+        Em cada mês, quanto uma fonte registra a mais que a outra · traço maior, diferença maior
+      </p>
       <ul className="lista-pontos">
         {meses.map((m) => (
           <li key={m.mes}>
@@ -404,7 +409,9 @@ function RubricasDivergentes({ dados }) {
                         {r.natureza}
                       </span>{' '}
                       · {r.entidade}
-                      <div className="historico">{r.descricao ? r.descricao.replace(/\s*-\s*Principal$/i, '') : 'sem descrição no TCE'}</div>
+                      <div className="historico">
+                        {r.descricao ? r.descricao.replace(/\s*-\s*Principal$/i, '') : 'sem descrição no TCE'}
+                      </div>
                     </td>
                     <td className="num">{moeda(r.betha)}</td>
                     <td className="num">{moeda(r.tce)}</td>
@@ -555,7 +562,9 @@ function Empenhos({ dados }) {
           )}
         </>
       ) : (
-        <p className="nota-serif">Todos os empenhos comparados existem nas duas fontes, com o mesmo número, data e valor.</p>
+        <p className="nota-serif">
+          Todos os empenhos comparados existem nas duas fontes, com o mesmo número, data e valor.
+        </p>
       )}
     </section>
   );
@@ -564,11 +573,16 @@ function Empenhos({ dados }) {
 const NOME_FONTE = { betha: 'Betha', tcesc: 'TCE-SC' };
 
 function Coletas({ coletas }) {
-  const recarga = coletas.map((c) => c.recargaTce).filter(Boolean).sort().at(-1);
+  const recarga = coletas
+    .map((c) => c.recargaTce)
+    .filter(Boolean)
+    .sort()
+    .at(-1);
   return (
     <details className="fonte">
       <summary>
-        Coletas comparadas · {coletas.length} consultas{recarga ? ` · painéis do TCE atualizados em ${dataHora(recarga)}` : ''}
+        Coletas comparadas · {coletas.length} consultas
+        {recarga ? ` · painéis do TCE atualizados em ${dataHora(recarga)}` : ''}
       </summary>
       <dl>
         {coletas.map((c) => (

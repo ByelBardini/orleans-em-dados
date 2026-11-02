@@ -1,6 +1,16 @@
 import { useMemo, useState } from 'react';
 import { useApi } from '../api.js';
-import { BarraDividida, Estado, Filtros, Fonte, LinhaAcumulada, ListaPontos, Mi, Numero, Numeros } from '../components.jsx';
+import {
+  BarraDividida,
+  Estado,
+  Filtros,
+  Fonte,
+  LinhaAcumulada,
+  ListaPontos,
+  Mi,
+  Numero,
+  Numeros,
+} from '../components.jsx';
 import { emMilhoes, MESES, MESES_LONGOS, milhoes, moeda, numero, pct, porExtenso } from '../format.js';
 import { Selo, seloReceita, seloRubrica, useConferencia } from '../selos.jsx';
 import { ORIGEM_CIDADAO, ORIGENS_DE_FORA, populacao, sujeito } from '../referencias.js';
@@ -47,7 +57,13 @@ function Conteudo({ ano, entidade, filtros, dados, conf }) {
   const rubricas = useMemo(() => {
     const mapa = new Map();
     for (const n of dados.naturezas) {
-      const r = mapa.get(n.rubrica) ?? { rubrica: n.rubrica, descricao: nomeReceita(n.descricao), previsto: 0, arrecadado: 0, entidades: new Set() };
+      const r = mapa.get(n.rubrica) ?? {
+        rubrica: n.rubrica,
+        descricao: nomeReceita(n.descricao),
+        previsto: 0,
+        arrecadado: 0,
+        entidades: new Set(),
+      };
       r.previsto += N(n.orcadoAtualizado);
       r.arrecadado += N(n.arrecadadoNoMes);
       r.entidades.add(n.entidade);
@@ -57,12 +73,20 @@ function Conteudo({ ano, entidade, filtros, dados, conf }) {
   }, [dados.naturezas]);
 
   const filtradas = useMemo(() => {
-    const t = busca.trim().toLocaleLowerCase('pt-BR').normalize('NFD').replace(/\p{Diacritic}/gu, '');
+    const t = busca
+      .trim()
+      .toLocaleLowerCase('pt-BR')
+      .normalize('NFD')
+      .replace(/\p{Diacritic}/gu, '');
     if (!t) return rubricas;
     return rubricas.filter(
       (r) =>
         r.rubrica.includes(t) ||
-        r.descricao.toLocaleLowerCase('pt-BR').normalize('NFD').replace(/\p{Diacritic}/gu, '').includes(t),
+        r.descricao
+          .toLocaleLowerCase('pt-BR')
+          .normalize('NFD')
+          .replace(/\p{Diacritic}/gu, '')
+          .includes(t),
     );
   }, [rubricas, busca]);
   const visiveis = todas || busca ? filtradas : filtradas.slice(0, INICIAL);
@@ -93,7 +117,9 @@ function Conteudo({ ano, entidade, filtros, dados, conf }) {
   const emprestimos = somaOrigem((o) => o.chave === '21' || o.chave === '23');
   const propria = arrecadado - deFora - emprestimos;
 
-  const impostos = rubricas.filter((r) => (r.rubrica.startsWith('11') || r.rubrica.startsWith('12')) && r.arrecadado > 0);
+  const impostos = rubricas.filter(
+    (r) => (r.rubrica.startsWith('11') || r.rubrica.startsWith('12')) && r.arrecadado > 0,
+  );
   const totalImpostos = impostos.reduce((s, r) => s + r.arrecadado, 0);
 
   return (
@@ -210,12 +236,12 @@ function Conteudo({ ano, entidade, filtros, dados, conf }) {
             {dados.totais.negativos > 0 && `Neste recorte há ${numero(dados.totais.negativos)} lançamentos assim.`}
           </p>
           <p>
-            <strong>Acima de 100% é bom sinal.</strong> Aquela receita rendeu mais do que o orçamento esperava.
-            Receitas sem previsão (convênios, emendas) entram no ano sem meta.
+            <strong>Acima de 100% é bom sinal.</strong> Aquela receita rendeu mais do que o orçamento esperava. Receitas
+            sem previsão (convênios, emendas) entram no ano sem meta.
           </p>
           <p>
-            <strong>O SAMAE cobra e depois recebe.</strong> A tarifa de água é lançada no mês e só conta como
-            arrecadada quando a conta é paga.
+            <strong>O SAMAE cobra e depois recebe.</strong> A tarifa de água é lançada no mês e só conta como arrecadada
+            quando a conta é paga.
           </p>
         </aside>
       </div>
@@ -234,7 +260,11 @@ function Conteudo({ ano, entidade, filtros, dados, conf }) {
             ]}
           />
           <p className="nota-serif">
-            Para cada R$ 10 que entraram, R$ {((deFora / arrecadado) * 10).toLocaleString('pt-BR', { maximumFractionDigits: 2, minimumFractionDigits: 2 })}{' '}
+            Para cada R$ 10 que entraram, R${' '}
+            {((deFora / arrecadado) * 10).toLocaleString('pt-BR', {
+              maximumFractionDigits: 2,
+              minimumFractionDigits: 2,
+            })}{' '}
             vieram de repasses.
           </p>
         </section>
@@ -321,7 +351,11 @@ function Conteudo({ ano, entidade, filtros, dados, conf }) {
                     </td>
                     <td>{ORIGEM_CIDADAO[r.rubrica.slice(0, 2)] ?? r.rubrica.slice(0, 2)}</td>
                     <td className="num">{r.previsto ? milhoes(r.previsto) : '—'}</td>
-                    <td className={`num${r.arrecadado < 0 ? ' vermelho' : ''}`} style={{ fontWeight: 500 }} title={moeda(r.arrecadado)}>
+                    <td
+                      className={`num${r.arrecadado < 0 ? ' vermelho' : ''}`}
+                      style={{ fontWeight: 500 }}
+                      title={moeda(r.arrecadado)}
+                    >
                       {milhoes(r.arrecadado)}
                     </td>
                     <td>
@@ -370,8 +404,8 @@ function SoNoTce({ conf, entidade }) {
   return (
     <p className="nota" style={{ flexBasis: '100%' }}>
       <strong className="vermelho">Só no TCE-SC, sem rubrica correspondente aqui:</strong>{' '}
-      {linhas.map((n) => `${n.natureza} ${nomeReceita(n.descricao ?? '')} (${n.entidade}, ${moeda(n.tce)})`).join('; ')}.{' '}
-      <a href="#conferencia">Ver conferência</a>
+      {linhas.map((n) => `${n.natureza} ${nomeReceita(n.descricao ?? '')} (${n.entidade}, ${moeda(n.tce)})`).join('; ')}
+      . <a href="#conferencia">Ver conferência</a>
     </p>
   );
 }

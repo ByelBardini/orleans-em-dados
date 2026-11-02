@@ -9,8 +9,8 @@ export default function Metodologia() {
         </h1>
         <div className="abertura-lado">
           <p className="capitular">
-            Os dados vêm do Portal da Transparência de Orleans. Antes de aparecer no site, cada coleta é somada
-            centavo por centavo e comparada com o total que o próprio portal informa.
+            Os dados vêm do Portal da Transparência de Orleans. Antes de aparecer no site, cada coleta é somada centavo
+            por centavo e comparada com o total que o próprio portal informa.
           </p>
         </div>
       </div>
@@ -54,8 +54,8 @@ export default function Metodologia() {
               (consulta 57170) é usada na conferência com o TCE-SC.
             </li>
             <li>
-              O mês das receitas é inferido do sufixo do ID do registro. A comparação mês a mês com o TCE-SC confirma essa
-              leitura.
+              O mês das receitas é inferido do sufixo do ID do registro. A comparação mês a mês com o TCE-SC confirma
+              essa leitura.
             </li>
             <li>
               As entidades são identificadas pelo código no ID dos registros. O vínculo com as unidades do TCE-SC foi
@@ -70,8 +70,8 @@ export default function Metodologia() {
             </li>
             <li>
               A comparação com o TCE-SC está na página <a href="#conferencia">Conferência</a>. O TCE recebe os dados com
-              cerca de um mês de atraso. Diferenças entre fontes podem decorrer de critério, classificação ou atualização
-              e não indicam, por si, erro ou irregularidade.
+              cerca de um mês de atraso. Diferenças entre fontes podem decorrer de critério, classificação ou
+              atualização e não indicam, por si, erro ou irregularidade.
             </li>
           </ul>
         </article>

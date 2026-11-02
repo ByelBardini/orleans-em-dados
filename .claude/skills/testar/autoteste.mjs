@@ -102,10 +102,7 @@ function semRepetir(achados) {
 function conferirEsperados(achados) {
   return ESPERADOS.flatMap(([categoria, regra, arquivo]) => {
     const bateu = achados.some(
-      (item) =>
-        item.categoria === categoria &&
-        item.regra === regra &&
-        item.arquivo.endsWith(`/${arquivo}`),
+      (item) => item.categoria === categoria && item.regra === regra && item.arquivo.endsWith(`/${arquivo}`),
     );
     return bateu ? [] : [`esperava ${categoria}/${regra} em ${arquivo}`];
   });
@@ -115,21 +112,14 @@ function conferirSilencios(achados) {
   return SILENCIOS.flatMap((arquivo) =>
     achados
       .filter((item) => item.arquivo.endsWith(`/${arquivo}`))
-      .map(
-        (item) =>
-          `${arquivo} devia ficar em silêncio, mas disparou ${item.regra}:${item.linha} (${item.mensagem})`,
-      ),
+      .map((item) => `${arquivo} devia ficar em silêncio, mas disparou ${item.regra}:${item.linha} (${item.mensagem})`),
   );
 }
 
 function conferirContagens(achados) {
   return CONTAGENS_EXATAS.flatMap(([regra, arquivo, esperada]) => {
-    const quantidade = achados.filter(
-      (item) => item.regra === regra && item.arquivo.endsWith(`/${arquivo}`),
-    ).length;
-    return quantidade === esperada
-      ? []
-      : [`${regra} em ${arquivo}: esperava ${esperada}, veio ${quantidade}`];
+    const quantidade = achados.filter((item) => item.regra === regra && item.arquivo.endsWith(`/${arquivo}`)).length;
+    return quantidade === esperada ? [] : [`${regra} em ${arquivo}: esperava ${esperada}, veio ${quantidade}`];
   });
 }
 

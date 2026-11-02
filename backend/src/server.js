@@ -66,7 +66,8 @@ const rotas = {
   '/api/conferencias': async (q, res) => {
     const ano = Number(q.get('ano'));
     const c = Number.isInteger(ano) ? await conferencia(ano) : null;
-    if (!c?.disponivel) return json(res, 404, { erro: `Sem as duas fontes publicadas para ${q.get('ano')}`, faltando: c?.faltando });
+    if (!c?.disponivel)
+      return json(res, 404, { erro: `Sem as duas fontes publicadas para ${q.get('ano')}`, faltando: c?.faltando });
     json(res, 200, c);
   },
 

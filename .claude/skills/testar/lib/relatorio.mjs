@@ -4,8 +4,7 @@ export const ORDEM_DAS_CATEGORIAS = ['lugar', 'espelho', 'prova', 'cenarios'];
 
 export function montarResumo(achados) {
   const porCategoria = {};
-  for (const categoria of ORDEM_DAS_CATEGORIAS)
-    porCategoria[categoria] = { erro: 0, aviso: 0, info: 0 };
+  for (const categoria of ORDEM_DAS_CATEGORIAS) porCategoria[categoria] = { erro: 0, aviso: 0, info: 0 };
   const total = { erro: 0, aviso: 0, info: 0 };
   for (const item of achados) {
     porCategoria[item.categoria][item.severidade] += 1;
@@ -17,9 +16,7 @@ export function montarResumo(achados) {
 export function filtrarAchados(achados, opcoes) {
   const minimo = SEVERIDADES.indexOf(opcoes.min ?? 'info');
   return achados.filter(
-    (item) =>
-      SEVERIDADES.indexOf(item.severidade) <= minimo &&
-      (!opcoes.so || opcoes.so.includes(item.categoria)),
+    (item) => SEVERIDADES.indexOf(item.severidade) <= minimo && (!opcoes.so || opcoes.so.includes(item.categoria)),
   );
 }
 
@@ -31,9 +28,7 @@ export function imprimirRelatorio(resultado, opcoes) {
     '',
   ];
   for (const categoria of ORDEM_DAS_CATEGORIAS) {
-    const doGrupo = ordenarAchados(
-      resultado.achados.filter((item) => item.categoria === categoria),
-    );
+    const doGrupo = ordenarAchados(resultado.achados.filter((item) => item.categoria === categoria));
     if (doGrupo.length === 0) continue;
     linhas.push(...secao(categoria, doGrupo, opcoes.limite ?? 30), '');
   }
@@ -54,8 +49,7 @@ function secaoDeEspelho(espelho) {
   if (espelho.length === 0) return [];
   const linhas = ['## espelho src ↔ test'];
   for (const par of espelho) {
-    const specs =
-      par.specs.length > 0 ? par.specs.join(', ') : `— sem spec (novo em ${par.canonico})`;
+    const specs = par.specs.length > 0 ? par.specs.join(', ') : `— sem spec (novo em ${par.canonico})`;
     linhas.push(`  ${par.fonte}  →  ${specs}`);
   }
   return [...linhas, ''];
@@ -80,9 +74,7 @@ function secao(categoria, achados, limite) {
     `## ${categoria} (${achados.length}: ${contagem.erro} erro, ${contagem.aviso} aviso, ${contagem.info} info)`,
   ];
   for (const item of mostrados) {
-    linhas.push(
-      `  [${item.severidade}] ${item.arquivo}:${item.linha} · ${item.regra} · ${item.mensagem}`,
-    );
+    linhas.push(`  [${item.severidade}] ${item.arquivo}:${item.linha} · ${item.regra} · ${item.mensagem}`);
     if (item.sugestao) linhas.push(`      → ${item.sugestao}`);
   }
   if (mostrados.length < achados.length)

@@ -97,13 +97,7 @@ function semAssercao(ficha, teste, reais) {
 // determinística ou singleton, o que pode ser o cenário, mas o nome tem que dizer.
 function tautologias(ficha, teste, reais) {
   return reais
-    .filter(
-      (item) =>
-        IGUALDADE.has(item.matcher) &&
-        !item.negado &&
-        item.alvo !== '' &&
-        item.alvo === item.argumento,
-    )
+    .filter((item) => IGUALDADE.has(item.matcher) && !item.negado && item.alvo !== '' && item.alvo === item.argumento)
     .map((item) => {
       const ehChamada = item.alvo.includes('(');
       const severidade = ehChamada ? 'aviso' : 'erro';
@@ -113,24 +107,14 @@ function tautologias(ficha, teste, reais) {
       const sugestao = ehChamada
         ? 'só prova determinismo/identidade; se é esse o cenário, o nome do it diz isso'
         : 'comparar com o valor esperado escrito à mão';
-      return achado(
-        CATEGORIA,
-        'assercao-tautologica',
-        severidade,
-        ficha,
-        item.linha,
-        mensagem,
-        sugestao,
-      );
+      return achado(CATEGORIA, 'assercao-tautologica', severidade, ficha, item.linha, mensagem, sugestao);
     });
 }
 
 // O mock devolve X e o teste confere X: só prova que a chamada passou adiante.
 function ecoDoMock(ficha, teste, reais) {
   const valoresDoArquivo = ficha.ganchos.flatMap((gancho) => gancho.valoresDeMock);
-  const valores = new Set(
-    [...teste.valoresDeMock, ...valoresDoArquivo].filter((texto) => !PRIMITIVO.test(texto)),
-  );
+  const valores = new Set([...teste.valoresDeMock, ...valoresDoArquivo].filter((texto) => !PRIMITIVO.test(texto)));
   if (valores.size === 0) return [];
   return reais
     .filter((item) => IGUALDADE.has(item.matcher) && !item.negado && valores.has(item.argumento))
@@ -148,8 +132,7 @@ function ecoDoMock(ficha, teste, reais) {
 }
 
 function soVerificaChamada(ficha, teste, reais) {
-  if (reais.length === 0 || !reais.every((item) => SO_CHAMADA.test(item.matcher) && !item.negado))
-    return [];
+  if (reais.length === 0 || !reais.every((item) => SO_CHAMADA.test(item.matcher) && !item.negado)) return [];
   return [
     achado(
       CATEGORIA,
@@ -181,8 +164,7 @@ function soSnapshot(ficha, teste, reais) {
 function assercaoFraca(ficha, teste, reais) {
   const ehFraca = (item) =>
     !QUERY_DA_TESTING_LIBRARY.test(item.alvo) &&
-    ((FRACAS.has(item.matcher) && !item.negado) ||
-      (FRACAS_NEGADAS.has(item.matcher) && item.negado));
+    ((FRACAS.has(item.matcher) && !item.negado) || (FRACAS_NEGADAS.has(item.matcher) && item.negado));
   if (reais.length === 0 || !reais.every(ehFraca)) return [];
   return [
     achado(

@@ -8,7 +8,9 @@ const POPULACAO = {
 };
 
 export function populacao(ano) {
-  const anos = Object.keys(POPULACAO).map(Number).sort((a, b) => a - b);
+  const anos = Object.keys(POPULACAO)
+    .map(Number)
+    .sort((a, b) => a - b);
   const escolhido = [...anos].reverse().find((a) => a <= ano) ?? anos[0];
   return POPULACAO[escolhido];
 }

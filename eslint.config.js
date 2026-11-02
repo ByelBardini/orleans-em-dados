@@ -7,7 +7,17 @@ import tseslint from 'typescript-eslint';
 
 export default tseslint.config(
   // As fixtures dos drivers de .claude/skills violam regras de propósito; docs/screens é mockup exportado (com runtime vendorizado), não código.
-  { ignores: ['**/dist', '**/.vite', '**/coverage', '**/node_modules', 'data', 'docs/screens', '.claude/skills/*/fixtures'] },
+  {
+    ignores: [
+      '**/dist',
+      '**/.vite',
+      '**/coverage',
+      '**/node_modules',
+      'data',
+      'docs/screens',
+      '.claude/skills/*/fixtures',
+    ],
+  },
   js.configs.recommended,
   ...tseslint.configs.recommended,
   {

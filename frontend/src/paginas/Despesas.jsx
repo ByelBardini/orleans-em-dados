@@ -1,6 +1,16 @@
 import { useEffect, useRef, useState } from 'react';
 import { useApi } from '../api.js';
-import { BarraDividida, BarrasMensais, Estado, Filtros, Fonte, ListaPontos, Mi, Numero, Numeros } from '../components.jsx';
+import {
+  BarraDividida,
+  BarrasMensais,
+  Estado,
+  Filtros,
+  Fonte,
+  ListaPontos,
+  Mi,
+  Numero,
+  Numeros,
+} from '../components.jsx';
 import { data, decimal, emMilhoes, MESES, MESES_LONGOS, moeda, nomeProprio, numero, pct } from '../format.js';
 import { populacao } from '../referencias.js';
 import { Selo, seloDespesa, seloEmpenho, useConferencia } from '../selos.jsx';
@@ -82,7 +92,14 @@ function Conteudo({ ano, entidade, filtros, d, o, conf }) {
   const orgaos = [
     ...d.porOrgao.slice(0, 8).map((o) => ({ ...o, rotulo: nomeProprio(o.nome) })),
     ...(outros.length
-      ? [{ chave: '', rotulo: `Outros ${outros.length} órgãos`, empenhado: outros.reduce((s, o) => s + N(o.empenhado), 0), outro: true }]
+      ? [
+          {
+            chave: '',
+            rotulo: `Outros ${outros.length} órgãos`,
+            empenhado: outros.reduce((s, o) => s + N(o.empenhado), 0),
+            outro: true,
+          },
+        ]
       : []),
   ];
 
@@ -178,7 +195,11 @@ function Conteudo({ ano, entidade, filtros, d, o, conf }) {
             <span>R$ milhões · valor original, pelo mês do empenho</span>
           </span>
         </div>
-        <BarrasMensais meses={meses} series={['Empenhado', 'Já pago']} descricao={`Empenhado e pago por mês de ${ano}`} />
+        <BarrasMensais
+          meses={meses}
+          series={['Empenhado', 'Já pago']}
+          descricao={`Empenhado e pago por mês de ${ano}`}
+        />
       </section>
 
       <div className="colunas dupla">
@@ -258,7 +279,9 @@ function Conteudo({ ano, entidade, filtros, d, o, conf }) {
                 <span className="sub mono apagado" style={{ fontSize: 12 }}>
                   {nomeProprio(e.orgao)}
                 </span>
-                <p title={e.historico}>{e.historico?.toLocaleLowerCase('pt-BR').replace(/^./, (c) => c.toUpperCase())}</p>
+                <p title={e.historico}>
+                  {e.historico?.toLocaleLowerCase('pt-BR').replace(/^./, (c) => c.toUpperCase())}
+                </p>
               </article>
             ))}
           </div>
@@ -399,7 +422,12 @@ function Conteudo({ ano, entidade, filtros, d, o, conf }) {
                   : '0 empenhos'}
               </span>
               <nav aria-label="Paginação">
-                <button type="button" className="botao-link" disabled={pagina === 0} onClick={() => setPagina((p) => p - 1)}>
+                <button
+                  type="button"
+                  className="botao-link"
+                  disabled={pagina === 0}
+                  onClick={() => setPagina((p) => p - 1)}
+                >
                   ← Anterior
                 </button>
                 <button
@@ -429,7 +457,8 @@ function Conteudo({ ano, entidade, filtros, d, o, conf }) {
             <strong>{moeda(empenhado + N(camara.empenhado))}</strong>.
           </p>
           <p className="nota">
-            Fonte: <a href={camara.urlOrigem}>Farol TCE-SC — Despesas Municipais</a>, coletado em {data(camara.coletadoEm)}.
+            Fonte: <a href={camara.urlOrigem}>Farol TCE-SC — Despesas Municipais</a>, coletado em{' '}
+            {data(camara.coletadoEm)}.
           </p>
         </section>
       )}

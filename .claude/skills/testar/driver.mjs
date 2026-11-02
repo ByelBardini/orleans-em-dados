@@ -16,12 +16,7 @@ import { lerSpec } from './lib/leitura-de-specs.mjs';
 import { analisarLugar } from './lib/regras-de-lugar.mjs';
 import { analisarProva } from './lib/regras-de-prova.mjs';
 import { analisarCenarios } from './lib/regras-de-cenario.mjs';
-import {
-  ORDEM_DAS_CATEGORIAS,
-  filtrarAchados,
-  imprimirRelatorio,
-  montarResumo,
-} from './lib/relatorio.mjs';
+import { ORDEM_DAS_CATEGORIAS, filtrarAchados, imprimirRelatorio, montarResumo } from './lib/relatorio.mjs';
 
 const PASTAS_IGNORADAS = new Set(['node_modules', 'dist', 'coverage', '.git']);
 const EXTENSOES = new Set(['.ts', '.tsx', '.js', '.jsx', '.mjs']);
@@ -45,8 +40,7 @@ export function analisar(alvoInformado, raizDoProcesso = process.cwd()) {
   const fichas = new Map();
   const lerComCache = (absoluto) =>
     fichas.get(absoluto) ?? fichas.set(absoluto, lerSpec(ambiente, absoluto)).get(absoluto);
-  const importsDoSpec = (relativo) =>
-    lerComCache(path.join(ambiente.app.raiz, relativo)).importsResolvidos;
+  const importsDoSpec = (relativo) => lerComCache(path.join(ambiente.app.raiz, relativo)).importsResolvidos;
   const espelho = fontes.map((item) => ({
     fonte: item.relativo,
     ...specsDaFonte(ambiente.app, item.relativo, importsDoSpec),
@@ -74,9 +68,7 @@ export function analisar(alvoInformado, raizDoProcesso = process.cwd()) {
       pulados: specs.reduce(
         (soma, ficha) =>
           soma +
-          ficha.testes.filter(
-            (t) => t.modificadores.includes('skip') || t.modificadores.includes('todo'),
-          ).length,
+          ficha.testes.filter((t) => t.modificadores.includes('skip') || t.modificadores.includes('todo')).length,
         0,
       ),
       fontes: fontes.length,
@@ -97,13 +89,8 @@ function listarArquivos(alvo) {
   const saida = [];
   for (const entrada of fs.readdirSync(alvo, { withFileTypes: true })) {
     const caminho = path.join(alvo, entrada.name);
-    if (entrada.isDirectory() && !PASTAS_IGNORADAS.has(entrada.name))
-      saida.push(...listarArquivos(caminho));
-    else if (
-      entrada.isFile() &&
-      EXTENSOES.has(path.extname(entrada.name)) &&
-      !entrada.name.endsWith('.d.ts')
-    )
+    if (entrada.isDirectory() && !PASTAS_IGNORADAS.has(entrada.name)) saida.push(...listarArquivos(caminho));
+    else if (entrada.isFile() && EXTENSOES.has(path.extname(entrada.name)) && !entrada.name.endsWith('.d.ts'))
       saida.push(caminho);
   }
   return saida;
@@ -111,11 +98,8 @@ function listarArquivos(alvo) {
 
 // Specs do alvo mais os que espelham as fontes do alvo, sem repetir.
 function lerSpecs(ambiente, arquivos, espelho, lerComCache) {
-  const caminhos = new Set(
-    arquivos.filter((item) => ehSpec(item.relativo)).map((item) => item.absoluto),
-  );
-  for (const par of espelho)
-    for (const spec of par.existentes) caminhos.add(path.join(ambiente.app.raiz, spec));
+  const caminhos = new Set(arquivos.filter((item) => ehSpec(item.relativo)).map((item) => item.absoluto));
+  for (const par of espelho) for (const spec of par.existentes) caminhos.add(path.join(ambiente.app.raiz, spec));
   return [...caminhos].sort().map(lerComCache);
 }
 
@@ -138,13 +122,9 @@ function achadosDeEspelho(ambiente, espelho) {
     .filter((par) => par.existentes.length === 0)
     .map((par) => {
       const ficha = {
-        relativoAoRepo: paraBarras(
-          path.relative(ambiente.repo, path.join(ambiente.app.raiz, par.fonte)),
-        ),
+        relativoAoRepo: paraBarras(path.relative(ambiente.repo, path.join(ambiente.app.raiz, par.fonte))),
       };
-      const canonico = paraBarras(
-        path.relative(ambiente.repo, path.join(ambiente.app.raiz, par.canonico)),
-      );
+      const canonico = paraBarras(path.relative(ambiente.repo, path.join(ambiente.app.raiz, par.canonico)));
       return achado(
         'espelho',
         'fonte-sem-spec',
@@ -178,19 +158,14 @@ function principal() {
   if (!alvo) return imprimirESair(USO, 2);
   const invalida = opcoes.so?.find((categoria) => !ORDEM_DAS_CATEGORIAS.includes(categoria));
   if (invalida)
-    return imprimirESair(
-      `categoria "${invalida}" inválida; esperado uma de ${ORDEM_DAS_CATEGORIAS.join(', ')}`,
-      2,
-    );
+    return imprimirESair(`categoria "${invalida}" inválida; esperado uma de ${ORDEM_DAS_CATEGORIAS.join(', ')}`, 2);
   if (!['erro', 'aviso', 'info'].includes(opcoes.min))
     return imprimirESair(`--min "${opcoes.min}" inválido; esperado erro, aviso ou info`, 2);
   const resultado = analisar(alvo);
   const achados = filtrarAchados(resultado.achados, opcoes);
   const filtrado = { ...resultado, achados, resumo: montarResumo(achados) };
   process.stdout.write(
-    opcoes.json
-      ? `${JSON.stringify(filtrado, null, 2)}\n`
-      : `${imprimirRelatorio(filtrado, opcoes)}\n`,
+    opcoes.json ? `${JSON.stringify(filtrado, null, 2)}\n` : `${imprimirRelatorio(filtrado, opcoes)}\n`,
   );
   return 0;
 }

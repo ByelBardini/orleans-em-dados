@@ -61,7 +61,7 @@ export function ListaPontos({ itens, vermelho, total, aoClicar }) {
           </div>
           <div className="trilho" aria-hidden="true">
             <span
-              className={item.vermelho ?? vermelho ? 'vermelho' : ''}
+              className={(item.vermelho ?? vermelho) ? 'vermelho' : ''}
               style={{ width: `${(Math.max(Number(item.valor), 0) / max) * 100}%`, background: item.cor }}
             />
           </div>
@@ -72,7 +72,8 @@ export function ListaPontos({ itens, vermelho, total, aoClicar }) {
   );
 }
 
-const pctCurto = (v, t) => `${((Number(v) / Number(t)) * 100).toLocaleString('pt-BR', { maximumFractionDigits: 1, minimumFractionDigits: 1 })}%`;
+const pctCurto = (v, t) =>
+  `${((Number(v) / Number(t)) * 100).toLocaleString('pt-BR', { maximumFractionDigits: 1, minimumFractionDigits: 1 })}%`;
 
 // Escala "redonda" para o eixo: 34 → passo 10, topo 40.
 export function escala(maximo, linhas = 3) {
@@ -292,7 +293,12 @@ export function SeletorTema() {
     setTema(novo);
   };
   return (
-    <button type="button" className="botao-tema" onClick={trocar} aria-label={tema === 'dark' ? 'Usar tema claro' : 'Usar tema escuro'}>
+    <button
+      type="button"
+      className="botao-tema"
+      onClick={trocar}
+      aria-label={tema === 'dark' ? 'Usar tema claro' : 'Usar tema escuro'}
+    >
       <span aria-hidden="true">{tema === 'dark' ? '☀' : '☾'}</span> {tema === 'dark' ? 'Tema claro' : 'Tema escuro'}
     </button>
   );
