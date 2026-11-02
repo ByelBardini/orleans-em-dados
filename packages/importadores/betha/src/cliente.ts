@@ -1,14 +1,21 @@
-import { BETHA } from './config.js';
+import { BETHA, esperarDeVerdade, type TransporteHttp } from './config';
+import type { Pagina } from './paginacao';
 
 const MAX_TENTATIVAS = 4;
-const esperar = (ms) => new Promise((r) => setTimeout(r, ms));
+
+export interface AutenticadorBetha {
+  getToken(): Promise<string>;
+  invalidar(): void;
+}
 
 export class BethaQueryClient {
-  constructor(auth) {
-    this.auth = auth;
-  }
+  constructor(
+    private readonly auth: AutenticadorBetha,
+    private readonly transporte: TransporteHttp = fetch,
+    private readonly esperar: (ms: number) => Promise<void> = esperarDeVerdade,
+  ) {}
 
-  buscar(consultaId, filtro, { offset = 0, limit = 100 } = {}) {
+  buscar(consultaId: number, filtro: unknown, { offset = 0, limit = 100 } = {}): Promise<Pagina> {
     // Sem ordenação explícita a paginação é instável: em 2026 a 57153 devolveu
     // 1.294 registros com só 1.017 IDs únicos. Ordenar por id resolve.
     const qs = new URLSearchParams({
@@ -18,21 +25,21 @@ export class BethaQueryClient {
       limit: String(limit),
       hiperlink: 'false',
     });
-    return this.#post(`/transparencia/api/busca-textual/${consultaId}?${qs}`, filtro);
+    return this.#post<Pagina>(`/transparencia/api/busca-textual/${consultaId}?${qs}`, filtro);
   }
 
-  totalizadores(consultaId, filtro) {
-    return this.#post(`/transparencia/api/busca-textual/${consultaId}/totalizadores`, filtro);
+  totalizadores(consultaId: number, filtro: unknown): Promise<unknown[]> {
+    return this.#post<unknown[]>(`/transparencia/api/busca-textual/${consultaId}/totalizadores`, filtro);
   }
 
   // Em 401 renova o token uma única vez; em 429/5xx tenta novamente com espera exponencial.
-  async #post(caminho, corpo) {
+  async #post<T>(caminho: string, corpo: unknown): Promise<T> {
     let renovou = false;
     for (let tentativa = 1; ; tentativa++) {
       const token = await this.auth.getToken();
-      let r;
+      let r: Response;
       try {
-        r = await fetch(`${BETHA.api}${caminho}`, {
+        r = await this.transporte(`${BETHA.api}${caminho}`, {
           method: 'POST',
           headers: {
             Authorization: `Bearer ${token}`,
@@ -45,19 +52,17 @@ export class BethaQueryClient {
         });
       } catch (err) {
         if (tentativa >= MAX_TENTATIVAS) throw err;
-        await esperar(1000 * 2 ** tentativa);
+        await this.esperar(1000 * 2 ** tentativa);
         continue;
       }
-
-      if (r.ok) return r.json();
-
+      if (r.ok) return r.json() as Promise<T>;
       if (r.status === 401 && !renovou) {
         renovou = true;
         this.auth.invalidar();
         continue;
       }
       if ((r.status === 429 || r.status >= 500) && tentativa < MAX_TENTATIVAS) {
-        await esperar(1000 * 2 ** tentativa);
+        await this.esperar(1000 * 2 ** tentativa);
         continue;
       }
       throw new Error(`Betha: HTTP ${r.status} em ${caminho.split('?')[0]}`);

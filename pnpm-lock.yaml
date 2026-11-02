@@ -97,6 +97,24 @@ importers:
       '@orleans-em-dados/db':
         specifier: workspace:*
         version: link:../db
+      '@orleans-em-dados/importador-betha':
+        specifier: workspace:*
+        version: link:betha
+      '@orleans-em-dados/importador-nucleo':
+        specifier: workspace:*
+        version: link:nucleo
+
+  packages/importadores/betha:
+    dependencies:
+      '@orleans-em-dados/contracts':
+        specifier: workspace:*
+        version: link:../../contracts
+      '@orleans-em-dados/db':
+        specifier: workspace:*
+        version: link:../../db
+      '@orleans-em-dados/importador-nucleo':
+        specifier: workspace:*
+        version: link:../nucleo
 
   packages/importadores/nucleo:
     dependencies:
