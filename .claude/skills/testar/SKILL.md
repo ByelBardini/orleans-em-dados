@@ -16,7 +16,7 @@ O objetivo não é "ter teste": é ter **um teste que quebra quando o comportame
 1. **Todo `it` precisa poder falhar.** Antes de dar um teste por pronto, responda: _qual mudança no código de produção faz este `it` ficar vermelho?_ Se a resposta é "nenhuma", "só apagar a função" ou "só se o mock mudar", o teste não prova nada e não entra.
 2. **Vermelho primeiro.** Teste de comportamento novo roda e **falha pela razão certa** antes da implementação (é o TDD do `/planejamento`). Teste de bug **reproduz o bug** antes da correção e cita de onde veio (`// Regressão: <o que quebrava> (#issue, SHA, data ou armadilha)`). Teste que já nasce verde precisa da prova de que falharia: quebre a regra de propósito, veja falhar, desfaça.
 3. **Cenário vem do contrato, não da linha.** Os `it` nascem da lista "o que esta fonte promete" (passo 3): entradas válidas, bordas, erros, o que ela recusa. Nunca de "esta linha ainda não está coberta". Cobertura é consequência, não alvo.
-4. **Lugar e import fixos**: spec em `<workspace>/test/` espelhando a raiz das fontes — `src/` no `apps/api/` e no `apps/web/`, a própria raiz do workspace no `packages/db/` e no `packages/importadores/` (`packages/db/conferencias.js` → `packages/db/test/conferencias.spec.js`; `packages/importadores/betha/client.js` → `packages/importadores/test/betha/client.spec.js`). Integração (Postgres real, servidor HTTP real) em `<workspace>/test/integration/`. Import relativo com extensão (`../src/format.js`), porque nenhum workspace tem alias.
+4. **Lugar e import fixos**: spec em `<workspace>/test/` espelhando a raiz das fontes — `src/` (`packages/importadores/betha/src/cliente.ts` → `packages/importadores/betha/test/cliente.spec.ts`). Integração (Postgres real, servidor HTTP real) em `<workspace>/test/integration/`. Import relativo com extensão (`../src/format.js`), porque nenhum workspace tem alias.
 5. **A unidade roda de verdade; só as bordas são falsas.** I/O externo (API da Betha, Qlik do TCE-SC, `pg`, sistema de arquivos, relógio) entra por **fake nomeado** (`class BethaClientFake` com os mesmos métodos do cliente real, guardando o que recebeu), nunca `vi.fn()` solto num objeto inline, e nunca `vi.mock` do próprio arquivo que o spec espelha.
 6. **Um cenário por `it`, nome = situação + resultado**, em pt-BR como o código: "empenho renumerado sai da soma do ano", não "funciona" nem "erro". Tabela de casos é `it.each` com placeholder no nome.
 7. **Nada muda em produção "de passagem".** Bug achado enquanto se testa vira teste de regressão vermelho e item separado; a correção é outra entrega (ou a fase seguinte do plano). Nenhum `.only` sobrevive; `.skip` só com o porquê na mensagem do commit.
@@ -100,7 +100,7 @@ Para cada `erro` e `aviso` do driver: abra o trecho com `Read` (offset/limit), c
 - **`so-verifica-chamada`** vira `toHaveBeenCalledWith(argumentos)` ou asserção do efeito. Callback de UI ("trocar o ano avisa a página") pode ficar em `toHaveBeenCalledTimes(1)` **se** o `it` também prova que o callback **não** dispara no cenário oposto.
 - **`assercao-fraca`** em `not.toBeNull()` sobre `screen.getByText('x')` já é forte (a query carrega o esperado); o driver sabe disso. `toBeDefined()` sobre retorno de função nunca é.
 - **`assercao-tautologica`** com chamada dos dois lados (`expect(f()).toEqual(f())`) só prova determinismo; se é isso que o cenário quer, o nome diz.
-- **`fonte-sem-spec`** em ponto de entrada de CLI (`packages/importadores/*/coletar.js`, `packages/db/migrar.js`) e no roteamento de `apps/api/src/server.js`: o que vale provar ali é a regra que eles chamam. Se a regra está misturada com I/O no mesmo arquivo, registre como débito (a extração é refatoração, outra entrega) e prove o que der pela integração. O driver já dispensa `index.js`, `main.jsx`, `*.config.js` e `migrations/`.
+- **`fonte-sem-spec`** em ponto de entrada de CLI (`apps/worker/src/cli.ts`, `packages/db/src/migrar.ts`) e no roteamento de `apps/api/src/server.js`: o que vale provar ali é a regra que eles chamam. Se a regra está misturada com I/O no mesmo arquivo, registre como débito (a extração é refatoração, outra entrega) e prove o que der pela integração. O driver já dispensa `index.js`, `main.jsx`, `*.config.js` e `migrations/`.
 - **`spec-sem-espelho`** é válido para cenário transversal; se espelha um arquivo, renomeie para o nome dele.
 
 ### 5. Escrever ou corrigir os specs
@@ -199,7 +199,7 @@ pnpm exec vitest run --project=integracao <caminho do spec>    # um spec
 pnpm db:teste:parar                                            # derruba
 ```
 
-Banco com as cinco coletas fictícias publicadas: `popularBancoDeTeste()` de `packages/importadores/test/support/banco-de-teste.js`.
+Banco com as cinco coletas fictícias publicadas: `popularBancoDeTeste()` de `packages/importadores/fixtures/src/banco-de-teste.ts`.
 
 ## Autoteste do driver
 
@@ -225,11 +225,11 @@ Ele roda o driver em duas fixtures: `fixtures/monorepo/` (o monorepo pnpm em Typ
 - **Função asseguradora não é "sem asserção".** Função local ou importada de arquivo relativo cujo nome começa com `espera`, `assert`, `confere`, `verifica`, `garante` ou `expect` e que contém `expect` por dentro conta como asserção para quem a chama. `expect.assertions(n)` também.
 - **`it.each` com `%s`/`$campo` no nome não é `nome-sem-cenario`**: o placeholder carrega o cenário. `it.each` sem placeholder e com nome curto dispara.
 - **`eco-do-mock` olha os ganchos também.** Valor devolvido em `beforeEach` e conferido no `it` conta; primitivos (`null`, `true`, `1`, `''`, `[]`, `{}`) não contam, senão todo `toBe(true)` viraria eco.
-- **`mock-da-unidade-sob-teste` resolve alias e relativo.** `vi.mock('../conferencias.js')` em `packages/db/test/conferencias.spec.js` é o próprio arquivo; `vi.mock` do cliente da Betha num spec de `coletar.js` é dependência e passa.
+- **`mock-da-unidade-sob-teste` resolve alias e relativo.** `vi.mock('../src/normalizar')` em `packages/importadores/betha/test/normalizar.spec.ts` é o próprio arquivo; `vi.mock` do cliente da Betha num spec de `coletar.js` é dependência e passa.
 - **`regressao-sem-referencia` procura no nome e nos comentários do `it`** por `#123`, SHA de 7+ hex, data (`2026-10-14` ou `14/10/2026`), `§7.2`, `issue`, `PR` ou `armadilha`. Comentário acima do `it` conta.
 - **`cenario-longo` mede linhas úteis** (sem vazias nem comentários), teto 40. A saída é fábrica ou `beforeEach`, não apagar asserção.
 - **`vi.mock` é içado**: a fake mora dentro da fábrica do mock.
-- **Coletor nunca chama a Betha nem o TCE-SC de verdade no teste.** A resposta real (sem dado pessoal de credor: CPF, nome de pessoa física) vira fixture em `packages/importadores/test/support/`; `data/` não é versionado e não serve de fixture.
+- **Coletor nunca chama a Betha nem o TCE-SC de verdade no teste.** A resposta real (sem dado pessoal de credor: CPF, nome de pessoa física) vira fixture em `packages/importadores/fixtures/`; `data/` não é versionado e não serve de fixture.
 - **Caminho no Windows**: alvo relativo com barra normal; o relatório imprime `arquivo:linha` clicável. Saída piped some se o runner pendura: redirecione para arquivo no scratchpad e leia depois.
 
 ## Troubleshooting
@@ -238,4 +238,4 @@ Ele roda o driver em duas fixtures: `fixtures/monorepo/` (o monorepo pnpm em Typ
 - **`Nenhum workspace acima de …`**: o alvo está fora de um workspace. Aponte para dentro de `apps/api/`, `apps/web/`, `packages/importadores/` ou `packages/db/`.
 - **`Alvo X não existe`**: o caminho é relativo à raiz do repo (`packages/importadores/betha`, não `betha`).
 - **`categoria "x" inválida`**: os nomes válidos são `lugar`, `espelho`, `prova`, `cenarios` (sem acento).
-- **O espelho aponta spec errado**: o pareamento é por prefixo do nome; spec `gravar-receitas.spec.js` espelha `gravar.js` se `gravar-receitas.js` não existe. Renomeie o spec para o nome da fonte ou aceite o pareamento por import.
+- **O espelho aponta spec errado**: o pareamento é por prefixo do nome; spec `validar-receitas.spec.ts` espelha `validar.ts` se `validar-receitas.ts` não existe. Renomeie o spec para o nome da fonte ou aceite o pareamento por import.

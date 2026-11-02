@@ -2,8 +2,7 @@ import { readFileSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
-// @ts-expect-error: os importadores ainda são JavaScript.
-import { popularBancoDeTeste, limparColetas } from '../../../importadores/test/support/banco-de-teste.js';
+import { popularBancoDeTeste, limparColetas } from '../../../importadores/fixtures/src/banco-de-teste';
 import { conferencia } from '../../src/conferencia/conferencia.service';
 import { pool } from '../../src/index';
 

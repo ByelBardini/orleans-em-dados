@@ -14,7 +14,12 @@ import type {
   StatusDaExecucao,
 } from './importador';
 
-export type Dependencias = { repositorio: RepositorioDeLotes; relogio: () => Date };
+export type Dependencias = {
+  repositorio: RepositorioDeLotes;
+  relogio: () => Date;
+  /** Chamado com cada lote montado, antes de gravar; a CLI usa para salvar o snapshot. */
+  aoMontarLote?: (lote: Lote, consulta: ConsultaImportada) => Promise<void>;
+};
 
 const MAX_ERROS_DE_NORMALIZACAO = 10;
 
@@ -87,7 +92,7 @@ function montarLote(
 async function executarConsulta(
   consulta: ConsultaImportada,
   ano: number,
-  { repositorio, relogio }: Dependencias,
+  { repositorio, relogio, aoMontarLote }: Dependencias,
 ): Promise<ResultadoDaConsulta> {
   const base = { consultaId: consulta.id, chave: consulta.chave };
   let linhasLidas = 0;
@@ -96,6 +101,8 @@ async function executarConsulta(
     const coleta = await consulta.coletar({ ano });
     linhasLidas = coleta.registros.length;
     const lote = montarLote(consulta, ano, coleta, iniciadoEm, relogio());
+
+    await aoMontarLote?.(lote, consulta);
 
     if (lote.status === 'rejeitado') {
       const coletaId = await repositorio.gravar(lote);

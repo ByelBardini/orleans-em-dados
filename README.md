@@ -7,12 +7,11 @@ Plataforma open source para centralização, visualização e análise de dados 
 
 ## O que já existe
 
-- **Coletor Betha** (`packages/importadores/betha`): baixa as consultas de receitas (`57153`) e empenhos (`57140`) do Portal da
-  Transparência, pagina até o fim, verifica IDs e confere as somas com os totalizadores da própria consulta.
-- **Banco PostgreSQL** (`db`): guarda cada coleta (bruta e normalizada) com seus totalizadores. Só coletas
-  conciliadas são publicadas no dashboard; coletas rejeitadas ficam registradas para análise.
+- **Importadores** (`packages/importadores`): um por fonte, sobre o mesmo contrato: Portal da Transparência Betha (receitas, empenhos e despesa orçamentária) e Farol TCE-SC. Cada coleta é validada contra o total da própria fonte antes de publicar.
+- **Worker** (`apps/worker`): agenda os importadores com pg-boss e registra cada execução.
+- **Banco PostgreSQL** (`packages/db`): guarda cada coleta (bruta e normalizada) com seus totalizadores. Só coletas conciliadas são publicadas no dashboard; coletas rejeitadas ficam registradas para análise.
 - **API** (`apps/api`): Node.js, somente leitura sobre as coletas publicadas.
-- **Dashboard** (`apps/web`): React + Vite, com visão geral, receitas, despesas/empenhos com busca, e fontes e metodologia.
+- **Dashboard** (`apps/web`): React + Vite, com visão geral, receitas, despesas/empenhos com busca, conferência entre fontes, e fontes e metodologia.
 
 ## Como rodar
 
@@ -31,7 +30,7 @@ pnpm db:migrar
 ```
 
 ```bash
-pnpm coletar --ano 2025
+pnpm importar betha --ano 2025
 ```
 
 ```bash
@@ -42,10 +41,11 @@ Depois, acesse http://localhost:5173.
 
 Outros comandos:
 
-- `pnpm coletar --ano 2025 --consulta receitas` (ou `empenhos`, `despesas`) coleta só uma consulta. Com `--json`, também salva o snapshot em `data/betha/`.
-- `pnpm coletar:tcesc --ano 2025` coleta receitas e empenhos do Farol TCE-SC (inclui a Câmara). Com `--json`, salva em `data/tcesc/`.
+- `pnpm importar betha --ano 2025 --consulta receitas` (ou `empenhos`, `despesas`) coleta só uma consulta. Com `--json`, também salva o snapshot em `data/betha/`.
+- `pnpm importar tcesc --ano 2025` coleta receitas e empenhos do Farol TCE-SC (inclui a Câmara). Com `--json`, salva em `data/tcesc/`.
 - `pnpm conferir --ano 2025` compara as coletas publicadas das duas fontes (ver [`docs/CONFERENCIA_BETHA_TCE.md`](docs/CONFERENCIA_BETHA_TCE.md)).
-- `pnpm importar data/betha/receitas-2025.json` importa no banco um snapshot JSON já existente.
+- `pnpm importar --arquivo data/betha/receitas-2025.json` importa no banco um snapshot JSON já existente.
+- `pnpm worker` sobe o agendador: Betha às 3h e TCE-SC às 4h, no exercício corrente e no anterior.
 - `pnpm db:exemplos` carrega os **dados fictícios** de `examples/`. Eles só são publicados se ainda não houver dado real para o ano.
 
 O banco roda na porta **5433** (veja `docker-compose.yml` e `.env.example`).
@@ -53,14 +53,18 @@ O banco roda na porta **5433** (veja `docker-compose.yml` e `.env.example`).
 ## Estrutura
 
 ```
-packages/importadores/
-  betha/      coletor do Portal da Transparência Betha (OAuth anônimo, paginação, validação)
-  tcesc/      coletor do Farol TCE-SC (Qlik Engine API, sessão anônima)
-  conferir.js conferência Betha × TCE-SC sobre as coletas publicadas
-  gravar.js   grava uma coleta no banco (bruto → normalizado → publicação)
-packages/db/           conexão, migrações SQL e esquema
-apps/api/      API REST que lê as coletas publicadas
-apps/web/     dashboard React + Vite
+apps/
+  api/        API REST que lê as coletas publicadas
+  web/        dashboard React + Vite
+  worker/     agendador e CLI dos importadores
+packages/
+  contracts/  valores do domínio e schemas compartilhados
+  db/         esquema, migrações e conexão
+  importadores/
+    nucleo/   contrato do importador e executor
+    betha/    Portal da Transparência Betha (OAuth anônimo, paginação, validação)
+    tcesc/    Farol TCE-SC (Qlik Engine API, sessão anônima)
+    fixtures/ dados fictícios dos testes
 docs/         especificação, dicionário de dados, fontes e metodologia
 examples/     snapshots fictícios no mesmo formato dos reais
 data/         snapshots JSON opcionais (fora do git)

@@ -1,39 +1,77 @@
 import { afterAll, beforeEach, describe, expect, it } from 'vitest';
 import { pool } from '@orleans-em-dados/db';
-import { gravarSnapshot, RepositorioDeLotesPostgres } from '@orleans-em-dados/importador-nucleo';
-// @ts-expect-error: o caminho antigo ainda é JavaScript.
-import { gravarColeta } from '../../../gravar.js';
-// @ts-expect-error: as fixtures ainda são JavaScript.
-import { tcescEmpenhos, tcescReceitas } from '../../../test/support/snapshots.js';
+import { executar, RepositorioDeLotesPostgres } from '@orleans-em-dados/importador-nucleo';
 import { criarImportadorTcesc } from '../../src/importador';
+import type { SessaoQlik } from '../../src/sessao-qlik';
 
-const repositorio = new RepositorioDeLotesPostgres();
-const importador = criarImportadorTcesc({
-  abrirSessao: async () => {
-    throw new Error('o spec não coleta');
-  },
-});
-const consulta = (chave: string) => importador.consultas.find((c) => c.chave === chave)!;
+const dim = (qText: string | null) => (qText === null ? { qIsNull: true } : { qText, qNum: 'NaN' as const });
+const num = (qNum: number) => ({ qNum, qText: String(qNum) });
 
-async function linhas(tabela: string, coletaId: number) {
-  const { rows } = await pool.query(`SELECT * FROM ${tabela} WHERE coleta_id = $1 ORDER BY id_externo`, [coletaId]);
-  return rows.map(({ coleta_id: _coleta, ...resto }) => resto);
-}
+const sessao = (total: number): SessaoQlik => {
+  const selecionados: Record<string, string[]> = {};
+  return {
+    limparSelecoes: async () => {},
+    selecionar: async (campo, texto) => {
+      selecionados[campo] = [texto];
+    },
+    selecoes: async () => selecionados,
+    hipercubo: async () => ({
+      linhasTotal: 2,
+      linhas: [
+        [
+          dim('Prefeitura Municipal de Orleans'),
+          dim('1.1.1.2.50.0.1'),
+          dim('jan'),
+          dim(null),
+          num(300000.5),
+          dim('IPTU'),
+        ],
+        [dim('Prefeitura Municipal de Orleans'), dim('1.1.1.2.50.0.1'), dim('fev'), dim(null), num(-0.5), dim('IPTU')],
+      ],
+      totais: [num(total), dim(null)],
+    }),
+    infoApp: async () => ({ titulo: 'App', ultimaRecarga: '2025-03-01T06:00:00.000Z' }),
+    fechar: () => {},
+  };
+};
 
-beforeEach(() => pool.query('TRUNCATE coletas RESTART IDENTITY CASCADE'));
+const rodar = (total: number) =>
+  executar(
+    criarImportadorTcesc({ abrirSessao: async () => sessao(total) }),
+    2025,
+    { repositorio: new RepositorioDeLotesPostgres(), relogio: () => new Date('2026-03-10T06:00:00.000Z') },
+    ['receitas'],
+  );
+
+beforeEach(() => pool.query('TRUNCATE coletas, execucoes RESTART IDENTITY CASCADE'));
 afterAll(() => pool.end());
 
-describe('normalização em TS × SQL antigo de gravarColeta', () => {
-  it.each([
-    ['receitas', 'tcesc_receitas', tcescReceitas],
-    ['empenhos', 'tcesc_empenhos', tcescEmpenhos],
-  ])('%s gera exatamente as mesmas linhas', async (chave, tabela, montar) => {
-    const { coletaId: antiga } = await gravarColeta(montar(), 'arquivo');
-    const { coletaId: nova } = await gravarSnapshot(consulta(chave), montar(), 'arquivo', repositorio);
+describe('importador TCE-SC sobre o Postgres', () => {
+  it('cubo que bate com o motor fica publicado, com mês e valor na tabela', async () => {
+    const resultado = await rodar(300000);
 
-    const resultado = await linhas(tabela, nova);
+    expect(resultado.status).toBe('sucesso');
+    const { rows } = await pool.query(
+      `SELECT mes, valor_arrecadado FROM tcesc_receitas r JOIN publicacoes p ON p.coleta_id = r.coleta_id ORDER BY mes`,
+    );
+    expect(rows).toEqual([
+      { mes: 1, valor_arrecadado: 300000.5 },
+      { mes: 2, valor_arrecadado: -0.5 },
+    ]);
+  });
 
-    expect(resultado).toEqual(await linhas(tabela, antiga));
-    expect(resultado.length).toBeGreaterThan(0);
+  it('a recarga do app fica no filtro, de onde a conferência a lê', async () => {
+    await rodar(300000);
+
+    const { rows } = await pool.query(`SELECT filtro->>'ultimaRecargaApp' AS recarga FROM coletas`);
+    expect(rows).toEqual([{ recarga: '2025-03-01T06:00:00.000Z' }]);
+  });
+
+  it('cubo que não bate fica gravado como rejeitado e nada é publicado', async () => {
+    const resultado = await rodar(300000.01);
+
+    expect(resultado.status).toBe('rejeitada');
+    const { rows } = await pool.query('SELECT count(*)::int AS n FROM publicacoes');
+    expect(rows[0].n).toBe(0);
   });
 });

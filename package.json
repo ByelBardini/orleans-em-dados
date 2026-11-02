@@ -11,13 +11,11 @@
   "scripts": {
     "db:subir": "docker compose up -d --wait",
     "db:migrar": "pnpm --filter @orleans-em-dados/db migrar",
-    "db:exemplos": "pnpm --filter @orleans-em-dados/importadores importar --exemplos",
+    "db:exemplos": "pnpm --filter @orleans-em-dados/worker importar --exemplos",
     "db:teste": "docker run -d --rm --name orleans-testar -e POSTGRES_USER=orleans -e POSTGRES_PASSWORD=orleans -e POSTGRES_DB=orleans_teste -p 5434:5432 --tmpfs /var/lib/postgresql/data postgres:17-alpine",
     "db:teste:parar": "docker rm -f orleans-testar",
-    "coletar": "pnpm --filter @orleans-em-dados/importadores coletar",
-    "coletar:tcesc": "pnpm --filter @orleans-em-dados/importadores coletar:tcesc",
-    "conferir": "pnpm --filter @orleans-em-dados/importadores conferir",
-    "importar": "pnpm --filter @orleans-em-dados/importadores importar",
+    "conferir": "pnpm --filter @orleans-em-dados/worker conferir",
+    "importar": "pnpm --filter @orleans-em-dados/worker importar",
     "dev": "concurrently -n api,web -c blue,green \"pnpm --filter @orleans-em-dados/api dev\" \"pnpm --filter @orleans-em-dados/web dev\"",
     "build": "pnpm --filter @orleans-em-dados/web build",
     "start": "pnpm --filter @orleans-em-dados/api start",
@@ -26,7 +24,8 @@
     "typecheck": "pnpm -r --if-present typecheck",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "test:integracao": "vitest run --project=integracao"
+    "test:integracao": "vitest run --project=integracao",
+    "worker": "pnpm --filter @orleans-em-dados/worker start"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",

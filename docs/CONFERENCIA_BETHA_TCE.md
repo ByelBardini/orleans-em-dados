@@ -1,7 +1,7 @@
 # Conferência Betha × TCE-SC: manter as duas fontes ou trocar?
 
 > Data: 01/11/2026 · Exercícios: 2024 (encerrado), 2025 (encerrado) e 2026 (em curso).
-> Reproduzir: `pnpm coletar --ano AAAA && pnpm coletar:tcesc --ano AAAA && pnpm conferir --ano AAAA --json`
+> Reproduzir: `pnpm importar betha --ano AAAA && pnpm importar tcesc --ano AAAA && pnpm conferir --ano AAAA --json`
 > (resultado completo em `data/conferencias/AAAA.json`).
 
 ## Resposta curta
@@ -162,7 +162,7 @@ Regras simples, todas já possíveis com o que foi implementado:
 ## Próximos passos sugeridos
 
 Já feito: aba **Conferência** no dashboard (`#conferencia`), alimentada por `GET /api/conferencias?ano=AAAA`
-(consultas em `packages/db/conferencias.js`, as mesmas do `pnpm conferir`). No ano em curso, compara só o período que o TCE
+(consultas em `packages/db/src/conferencia/`, as mesmas do `pnpm conferir`). No ano em curso, compara só o período que o TCE
 já recebeu.
 
 1. Persistir cada conferência (tabela `comparacoes_fontes`) para ter histórico das divergências.

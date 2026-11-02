@@ -1,0 +1,15 @@
+{
+  "name": "@orleans-em-dados/fixtures-de-teste",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "typecheck": "tsc"
+  },
+  "dependencies": {
+    "@orleans-em-dados/db": "workspace:*",
+    "@orleans-em-dados/importador-betha": "workspace:*",
+    "@orleans-em-dados/importador-nucleo": "workspace:*",
+    "@orleans-em-dados/importador-tcesc": "workspace:*"
+  }
+}
