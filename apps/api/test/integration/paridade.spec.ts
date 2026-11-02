@@ -1,25 +1,25 @@
 // A API responde igual às respostas gravadas, rota por rota. Regravar só com motivo
-// escrito no commit: REGRAVAR_PARIDADE=1 pnpm exec vitest run --project=integracao apps/api/test/integration/paridade.spec.js
+// escrito no commit: REGRAVAR_PARIDADE=1 pnpm exec vitest run --project=integracao apps/api/test/integration/paridade.spec.ts
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { pool } from '@orleans-em-dados/db';
+import type { FastifyInstance } from 'fastify';
 import { popularBancoDeTeste } from '../../../../packages/importadores/fixtures/src/banco-de-teste';
-import { criarServidor } from '../../src/server.js';
-import { CASOS, gravarResposta, pedir, respostaGravada } from '../paridade/casos.js';
+import { criarApp } from '../../src/app';
+import { CASOS, gravarResposta, pedir, respostaGravada } from '../paridade/casos';
 
 const REGRAVAR = Boolean(process.env.REGRAVAR_PARIDADE);
 
-let servidor;
-let base;
+let app: FastifyInstance;
+let base: string;
 
 beforeAll(async () => {
   await popularBancoDeTeste();
-  servidor = criarServidor();
-  await new Promise((pronto) => servidor.listen(0, pronto));
-  base = `http://localhost:${servidor.address().port}`;
+  app = criarApp();
+  base = await app.listen({ port: 0, host: '127.0.0.1' });
 });
 
 afterAll(async () => {
-  await new Promise((fechado) => servidor.close(fechado));
+  await app.close();
   await pool.end();
 });
 
@@ -66,7 +66,7 @@ describe('contrato', () => {
 
   it('busca ignora acento: "saude" acha o órgão com "SAÚDE"', async () => {
     const { corpo } = await pedir(base, '/api/despesas/empenhos?ano=2025&q=saude');
-    expect(corpo.itens.map((l) => l.numero)).toEqual([5]);
+    expect(corpo.itens.map((l: { numero: number }) => l.numero)).toEqual([5]);
   });
 
   it('CSV de empenhos abre com BOM, usa ponto e vírgula e escapa aspas', async () => {

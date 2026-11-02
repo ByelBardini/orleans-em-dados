@@ -6,7 +6,8 @@ Dashboard público, rastreável, com dados de receitas e despesas do município 
 
 - Node.js ≥ 22.9, pnpm (versão no `packageManager`), PostgreSQL 17 (`docker-compose.yml`, porta 5433).
 - Migração em andamento de JavaScript (ESM) para TypeScript 6 strict (`tsconfig.base.json`, tsx); código novo é TypeScript, e `packages/contracts` já está.
-- `apps/api`: `node:http` sem framework, SQL direto pelo `pg`.
+- `apps/api`: Fastify, SQL em texto pelo `pg`, resposta validada pelos schemas Zod de `packages/contracts`.
+- `packages/db`: Drizzle para esquema, migrações e gravação. `apps/worker`: pg-boss.
 - `apps/web`: React 19 + Vite 6, JSX, CSS próprio em `styles.css`.
 - Qualidade: Vitest 5 (`vitest.config.ts`, um projeto por workspace), ESLint flat (`eslint.config.js`), Prettier (`.prettierrc.json`, largura 120).
 

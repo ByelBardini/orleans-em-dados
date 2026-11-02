@@ -5,3 +5,4 @@ export * from './despesas';
 export * from './empenhos';
 export * from './erro';
 export * from './receitas';
+export * from './importacoes';

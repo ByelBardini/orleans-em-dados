@@ -1,4 +1,8 @@
-﻿import { pool } from '@orleans-em-dados/db';
+// O que está publicado: exercícios disponíveis e a coleta de cada consulta.
+import type { Meta } from '@orleans-em-dados/contracts';
+import { pool } from '@orleans-em-dados/db';
+
+export type ColetaPublicada = { coletaId: number; meta: Meta };
 
 export async function anosDisponiveis() {
   const { rows } = await pool.query(
@@ -21,7 +25,7 @@ export async function anosDisponiveis() {
 }
 
 // Coleta publicada de uma consulta/ano, com os metadados exibidos no dashboard.
-export async function coletaPublicada(chave, ano) {
+export async function coletaPublicada(chave: string, ano: number): Promise<ColetaPublicada | null> {
   const {
     rows: [c],
   } = await pool.query(
