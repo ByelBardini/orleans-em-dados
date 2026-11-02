@@ -128,6 +128,19 @@ const fmt = (v: number) => v.toLocaleString('pt-BR', { style: 'currency', curren
 const somaEmCentavos = <T>(lista: readonly T[], valor: (item: T) => number) =>
   lista.reduce((soma, item) => soma + centavos(valor(item)), 0) / 100;
 
+/** O que os lançamentos da própria Betha dizem de uma natureza: quanto o acumulado desconsidera
+ *  e se a diferença é o mesmo valor lançado em outra rubrica do mês. */
+function pistasDaNatureza(
+  r: Pick<LinhaNatureza, 'ent' | 'natureza' | 'diferenca'>,
+  repetidas: readonly ReceitaRepetida[],
+  incoerentes: readonly ReceitaIncoerente[],
+) {
+  const incoerencias = incoerentes.filter((i) => i.ent === r.ent && i.nat === r.natureza);
+  const duplicada =
+    r.diferenca > 0 ? repetidas.find((d) => d.ent === r.ent && d.nat === r.natureza && igual(d.v, r.diferenca)) : null;
+  return { incoerencias, excesso: somaEmCentavos(incoerencias, (i) => i.excesso), duplicada };
+}
+
 export function anotarNaturezas(
   linhas: readonly LinhaNatureza[],
   repetidas: readonly ReceitaRepetida[],
@@ -139,13 +152,8 @@ export function anotarNaturezas(
     .map((r) => {
       const tipo = r.betha === null ? ('soTce' as const) : r.tce === null ? ('soBetha' as const) : ('valor' as const);
       const mesmaEntidade = linhas.filter((o) => o.ent === r.ent && o.natureza !== r.natureza);
-      const duplicada =
-        r.diferenca > 0
-          ? repetidas.find((d) => d.ent === r.ent && d.nat === r.natureza && igual(d.v, r.diferenca))
-          : null;
+      const { incoerencias, excesso, duplicada } = pistasDaNatureza(r, repetidas, incoerentes);
       const compensa = mesmaEntidade.find((o) => o.diferenca !== 0 && igual(o.diferenca, -r.diferenca));
-      const incoerencias = incoerentes.filter((i) => i.ent === r.ent && i.nat === r.natureza);
-      const excesso = somaEmCentavos(incoerencias, (i) => i.excesso);
       const emDoisMeses =
         r.diferenca > 0
           ? repetidasMeses.find((d) => d.ent === r.ent && d.nat === r.natureza && igual(d.v, r.diferenca))
@@ -372,5 +380,110 @@ export function montarConferencia(ano: number, dados: DadosDaConferencia, agora:
       comCausaProvavel: rubricas.filter((r) => r.explicada).length + empenhosSemPar.filter((e) => e.explicada).length,
       conhecidas: rubricas.filter((r) => r.conhecida).length,
     },
+  };
+}
+
+// --- Separação da receita: cada cruzamento vira parte conferida + diferença. ---
+
+export type TipoDiscrepancia =
+  | 'fora_do_acumulado'
+  | 'duas_rubricas'
+  | 'mes_diferente'
+  | 'so_tce'
+  | 'despesa_duplicada'
+  | 'aguardando_tce'
+  | 'sem_causa';
+
+/** Um cruzamento entidade × natureza de 8 dígitos × mês. `null` é "a fonte não tem a linha". */
+export type CruzamentoReceita = {
+  ent: string;
+  entidade: string;
+  natureza: string;
+  descricao: string | null;
+  mes: number | null;
+  betha: number | null;
+  tce: number | null;
+};
+
+export type PistasDaReceita = {
+  repetidas: readonly ReceitaRepetida[];
+  incoerentes: readonly ReceitaIncoerente[];
+  repetidasMeses: readonly ReceitaRepetidaMeses[];
+};
+
+/** A parte comum às duas fontes: o valor de menor módulo, se têm o mesmo sinal; senão, nada.
+ *  Sempre vale: conferido + diferencaBetha = Betha, e conferido + diferencaTce = TCE. */
+export function separarValores(betha: number | null, tce: number | null) {
+  const b = centavos(betha ?? 0);
+  const t = centavos(tce ?? 0);
+  const comum = Math.sign(b) === Math.sign(t) ? Math.sign(b) * Math.min(Math.abs(b), Math.abs(t)) : 0;
+  return { conferido: comum / 100, diferencaBetha: (b - comum) / 100, diferencaTce: (t - comum) / 100 };
+}
+
+const temDiferenca = (l: { diferencaBetha: number; diferencaTce: number }) =>
+  l.diferencaBetha !== 0 || l.diferencaTce !== 0;
+
+/** Ordem dos tipos: mês trocado (soma zero no ano), acumulado que explica toda a diferença,
+ *  mesmo valor em outra rubrica do mês, natureza que a Betha não tem, e o que sobra. */
+function classificarNatureza(
+  r: LinhaNatureza,
+  { repetidas, incoerentes }: PistasDaReceita,
+): Exclude<TipoDiscrepancia, 'despesa_duplicada' | 'aguardando_tce'> {
+  if (r.diferenca === 0) return 'mes_diferente';
+  const { excesso, duplicada } = pistasDaNatureza(r, repetidas, incoerentes);
+  if (excesso !== 0) return igual(excesso, r.diferenca) ? 'fora_do_acumulado' : 'sem_causa';
+  if (duplicada) return 'duas_rubricas';
+  return r.betha === null ? 'so_tce' : 'sem_causa';
+}
+
+const chaveNatureza = (l: { ent: string | null; natureza: string }) => `${l.ent}|${l.natureza}`;
+
+const agrupar = <T>(lista: readonly T[], chave: (item: T) => string) => {
+  const grupos = new Map<string, T[]>();
+  for (const item of lista) grupos.set(chave(item), [...(grupos.get(chave(item)) ?? []), item]);
+  return grupos;
+};
+
+/** A natureza no ano, até o corte: a soma dos meses de cada fonte. */
+function naturezaDoAno(linhas: readonly CruzamentoReceita[]): LinhaNatureza {
+  const [primeira] = linhas;
+  if (!primeira) throw new Error('Natureza sem nenhum cruzamento');
+  const soma = (fonte: 'betha' | 'tce') =>
+    linhas.some((l) => l[fonte] !== null) ? somaEmCentavos(linhas, (l) => l[fonte] ?? 0) : null;
+  const betha = soma('betha');
+  const tce = soma('tce');
+  return {
+    ent: primeira.ent,
+    entidade: primeira.entidade,
+    natureza: primeira.natureza,
+    descricao: primeira.descricao,
+    betha,
+    tce,
+    diferenca: (centavos(betha ?? 0) - centavos(tce ?? 0)) / 100,
+  };
+}
+
+/** Separa os cruzamentos até `mesLimite` (o último mês que o TCE-SC recebeu) e deixa os
+ *  meses seguintes como pendência. O tipo é decidido por natureza, não por mês: o mês em que o
+ *  acumulado desencontra pode não ser o da linha sobrando. */
+export function separarReceita(
+  cruzamentos: readonly CruzamentoReceita[],
+  pistas: PistasDaReceita,
+  mesLimite: number | null,
+) {
+  const aguarda = (c: CruzamentoReceita) => c.mes !== null && c.mes > (mesLimite ?? 0);
+  const comparados = cruzamentos.filter((c) => !aguarda(c));
+  const tipos = new Map(
+    [...agrupar(comparados, chaveNatureza)].map(([chave, grupo]) => [
+      chave,
+      classificarNatureza(naturezaDoAno(grupo), pistas),
+    ]),
+  );
+  return {
+    linhas: comparados.map((c) => {
+      const partes = separarValores(c.betha, c.tce);
+      return { ...c, ...partes, tipo: temDiferenca(partes) ? (tipos.get(chaveNatureza(c)) ?? null) : null };
+    }),
+    aguardando: cruzamentos.filter(aguarda).map((c) => ({ ...c, mes: c.mes as number, valor: c.betha ?? 0 })),
   };
 }

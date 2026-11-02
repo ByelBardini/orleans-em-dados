@@ -17,6 +17,8 @@ Compara as coletas publicadas das duas fontes num exercício. A regra mora em `p
 - `empenhosForaDaSoma(semPar)` — ids Betha repetidos ou renumerados, que a API tira das somas.
 - `ehParcial(limites)` — o TCE-SC ainda não tem dezembro de receita.
 - `montarConferencia(ano, dados, agora)` — junta tudo e calcula o `resumo` em centavos.
+- `separarValores(betha, tce)` — a parte comum a um cruzamento e o que sobra de cada lado, em centavos.
+- `separarReceita(cruzamentos, pistas, mesLimite)` — separa cada entidade × natureza de 8 dígitos × mês em conferido + diferença com `TipoDiscrepancia`, e devolve à parte os meses depois de `mesLimite`.
 
 ## Regras de negócio
 
@@ -25,6 +27,9 @@ Compara as coletas publicadas das duas fontes num exercício. A regra mora em `p
 - No exercício parcial, receita e empenhos são comparados só até onde o TCE-SC já recebeu, e a despesa por entidade não é comparável (a 57170 não tem data). Atraso do TCE-SC é pendência, não divergência.
 - Empenhos casam 1:1 por entidade, número, data e valor original. Entre repetidos na Betha, o que tem execução e id maior é o válido; as cópias antigas da 57140 ficam "só na Betha".
 - Cada mês de `receitaPorMes` traz `parcelas`: a diferença decomposta por rubrica. O total do mês nunca é a causa.
+- Separação da receita: se as fontes têm o mesmo sinal, o conferido é o valor de menor módulo; se os sinais são opostos ou uma fonte não tem a linha, é zero. Sempre vale conferido + diferença do lado = valor da fonte.
+- O tipo é da natureza no ano, nesta ordem: `mes_diferente` (soma zero no ano, com meses opostos), `fora_do_acumulado` (a incoerência explica toda a diferença; se explica parte, fica `sem_causa`), `duas_rubricas` (mesmo valor em outra rubrica do mês, igual à diferença do ano), `so_tce` (a Betha não tem a natureza no ano), `sem_causa`. Reclassificação provável e duplicidade em dois meses não têm tipo próprio: ficam `sem_causa`, e a nota diz o padrão.
+- Mês depois do último que o TCE-SC recebeu é pendência (`aguardando_tce`), fora da separação; linha sem mês na Betha é sempre comparada.
 - Diferença entre fontes é informação, nunca rotulada como irregularidade; as notas dizem "provável"/"possível".
 
 ## Testes
