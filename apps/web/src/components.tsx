@@ -4,7 +4,7 @@ import { dataHora, milhoes, moeda, numero } from './format';
 
 export type Anotacao = { texto: ReactNode; posicao?: CSSProperties };
 
-export function Estado({ carregando, erro }: { carregando: boolean; erro: string | null }) {
+export function Estado({ carregando, erro }: { carregando: boolean; erro?: string | null }) {
   if (erro) return <p className="aviso">Não foi possível carregar: {erro}</p>;
   if (carregando) return <p className="carregando">Carregando os números…</p>;
   return null;

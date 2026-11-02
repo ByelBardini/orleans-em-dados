@@ -31,10 +31,6 @@ export default tseslint.config(
     rules: {
       ...reactHooks.configs.recommended.rules,
       'react-refresh/only-export-components': ['warn', { allowConstantExport: true }],
-      // Aviso, não erro, enquanto api.js, App.jsx e Despesas.jsx não são convertidos:
-      // trocar o setState de dentro do efeito muda o ciclo de render e é das fases 17–20
-      // do plano docs/plans/2026-11-01-plataforma-de-importadores-em-typescript.md.
-      'react-hooks/set-state-in-effect': 'warn',
     },
   },
   {

@@ -1,3 +1,12 @@
+import {
+  despesasResumoSchema,
+  empenhosBuscaSchema,
+  empenhosResumoSchema,
+  type Conferencia,
+  type DespesasResumo,
+  type EmpenhosBusca,
+  type EmpenhosResumo,
+} from '@orleans-em-dados/contracts';
 import { useEffect, useRef, useState } from 'react';
 import { useApi } from '../api';
 import { BarraDividida, BarrasMensais, Estado, Filtros, Fonte, ListaPontos, Mi, Numero, Numeros } from '../components';
@@ -5,11 +14,12 @@ import { data, decimal, emMilhoes, MESES, MESES_LONGOS, moeda, nomeProprio, nume
 import { populacao } from '../referencias';
 import { Selo, useConferencia } from '../selo';
 import { seloDespesa, seloEmpenho } from '../selos';
+import type { PropsDaPagina } from './props';
 
 const POR_PAGINA = 25;
 const N = Number;
 
-function useDebounce(valor, ms = 300) {
+function useDebounce<T>(valor: T, ms = 300): T {
   const [atrasado, setAtrasado] = useState(valor);
   useEffect(() => {
     const t = setTimeout(() => setAtrasado(valor), ms);
@@ -24,11 +34,18 @@ const SITUACAO = {
   sem: { nome: 'Sem informação', classe: 'sem', amostra: 'listrada' },
 };
 
-const situacaoDe = (e) => (e.liquidado === null ? 'sem' : N(e.saldoAPagar) > 0 ? 'apagar' : 'pago');
+const situacaoDe = (e: EmpenhosBusca['itens'][number]) =>
+  e.liquidado === null ? 'sem' : N(e.saldoAPagar) > 0 ? 'apagar' : 'pago';
 
-export default function Despesas({ ano, entidade, filtros }) {
-  const resumo = useApi(`/api/despesas/empenhos/resumo?${new URLSearchParams({ ano, entidade })}`);
-  const desp = useApi(`/api/despesas/resumo?${new URLSearchParams({ ano, entidade })}`);
+export default function Despesas({ ano, entidade, filtros }: PropsDaPagina) {
+  const resumo = useApi(
+    `/api/despesas/empenhos/resumo?${new URLSearchParams({ ano: String(ano), entidade })}`,
+    empenhosResumoSchema,
+  );
+  const desp = useApi(
+    `/api/despesas/resumo?${new URLSearchParams({ ano: String(ano), entidade })}`,
+    despesasResumoSchema,
+  );
   const conf = useConferencia(ano);
   return (
     <>
@@ -45,21 +62,36 @@ export default function Despesas({ ano, entidade, filtros }) {
 
 // `o`: despesa orçamentária (57170), já descontadas as anulações: totais e etapas.
 // `d`: empenhos individuais (57140), pelo valor original: mês, órgão, credor e lista.
-function Conteudo({ ano, entidade, filtros, d, o, conf }) {
+function Conteudo({
+  ano,
+  entidade,
+  filtros,
+  d,
+  o,
+  conf,
+}: PropsDaPagina & { d: EmpenhosResumo; o: DespesasResumo; conf: Conferencia | null }) {
   const [busca, setBusca] = useState('');
   const [orgao, setOrgao] = useState('');
   const [situacao, setSituacao] = useState('');
-  const [pagina, setPagina] = useState(0);
-  const [aberta, setAberta] = useState(null);
-  const tabela = useRef(null);
+  const [aberta, setAberta] = useState<string | null>(null);
+  const tabela = useRef<HTMLElement>(null);
   const termo = useDebounce(busca);
   const pop = populacao(ano);
 
-  useEffect(() => setPagina(0), [termo, entidade, ano, orgao, situacao]);
+  // A página vale para o filtro em que foi escolhida: filtro novo volta à primeira.
+  const chaveDoFiltro = [termo, entidade, ano, orgao, situacao].join('|');
+  const [escolhida, setEscolhida] = useState({ chave: chaveDoFiltro, pagina: 0 });
+  const pagina = escolhida.chave === chaveDoFiltro ? escolhida.pagina : 0;
+  const setPagina = (muda: (p: number) => number) => setEscolhida({ chave: chaveDoFiltro, pagina: muda(pagina) });
 
-  const filtroLista = { ano, q: termo, entidade, orgao, situacao };
+  const filtroLista = { ano: String(ano), q: termo, entidade, orgao, situacao };
   const lista = useApi(
-    `/api/despesas/empenhos?${new URLSearchParams({ ...filtroLista, offset: pagina * POR_PAGINA, limit: POR_PAGINA })}`,
+    `/api/despesas/empenhos?${new URLSearchParams({
+      ...filtroLista,
+      offset: String(pagina * POR_PAGINA),
+      limit: String(POR_PAGINA),
+    })}`,
+    empenhosBuscaSchema,
   );
   const totalPaginas = lista.dados ? Math.max(1, Math.ceil(lista.dados.total / POR_PAGINA)) : 1;
 
@@ -76,12 +108,12 @@ function Conteudo({ ano, entidade, filtros, d, o, conf }) {
 
   const meses = MESES.map((rotulo, i) => {
     const m = d.porMes.find((x) => x.chave === i + 1);
-    return { rotulo, nome: MESES_LONGOS[i], a: N(m?.empenhado ?? 0), b: N(m?.pago ?? 0) };
+    return { rotulo, nome: MESES_LONGOS[i] as string, a: N(m?.empenhado ?? 0), b: N(m?.pago ?? 0) };
   });
 
   const outros = d.porOrgao.slice(8);
-  const orgaos = [
-    ...d.porOrgao.slice(0, 8).map((o) => ({ ...o, rotulo: nomeProprio(o.nome) })),
+  const orgaos: { chave: string | null; rotulo: string; empenhado: number | null; outro?: boolean }[] = [
+    ...d.porOrgao.slice(0, 8).map((o) => ({ ...o, rotulo: nomeProprio(o.nome) ?? 'Sem órgão informado' })),
     ...(outros.length
       ? [
           {
@@ -201,7 +233,7 @@ function Conteudo({ ano, entidade, filtros, d, o, conf }) {
             total={original}
             aoClicar={(o) => {
               if (o.outro) return;
-              setOrgao(o.chave);
+              setOrgao(o.chave ?? '');
               irParaTabela();
             }}
             itens={orgaos.map((o) => ({
@@ -209,7 +241,7 @@ function Conteudo({ ano, entidade, filtros, d, o, conf }) {
               nome: o.rotulo,
               valor: o.empenhado,
               outro: o.outro,
-              selecionado: o.chave && o.chave === orgao,
+              selecionado: Boolean(o.chave && o.chave === orgao),
               cor: o.outro ? 'var(--pontilhado)' : undefined,
               extra: o.outro ? undefined : `R$ ${numero(Math.round(N(o.empenhado) / pop.pessoas))} por morador`,
               dica: `${o.rotulo}: ${emMilhoes(o.empenhado)}`,
@@ -270,7 +302,7 @@ function Conteudo({ ano, entidade, filtros, d, o, conf }) {
                 <span className="sub mono apagado" style={{ fontSize: 12 }}>
                   {nomeProprio(e.orgao)}
                 </span>
-                <p title={e.historico}>
+                <p title={e.historico ?? undefined}>
                   {e.historico?.toLocaleLowerCase('pt-BR').replace(/^./, (c) => c.toUpperCase())}
                 </p>
               </article>
@@ -305,7 +337,7 @@ function Conteudo({ ano, entidade, filtros, d, o, conf }) {
               <select id="orgao-d" value={orgao} onChange={(e) => setOrgao(e.target.value)} style={{ maxWidth: 260 }}>
                 <option value="">Todos os {d.porOrgao.length}</option>
                 {d.porOrgao.map((o) => (
-                  <option key={o.chave} value={o.chave}>
+                  <option key={o.chave} value={o.chave ?? ''}>
                     {nomeProprio(o.nome)}
                   </option>
                 ))}
@@ -385,7 +417,7 @@ function Conteudo({ ano, entidade, filtros, d, o, conf }) {
                             </span>
                           )}
                         </td>
-                        <td className="num">{decimal(e.empenhado)}</td>
+                        <td className="num">{decimal(N(e.empenhado))}</td>
                         <td className="num">{e.pago === null ? '—' : decimal(e.pago)}</td>
                         <td style={{ whiteSpace: 'nowrap' }}>
                           <span className={`situacao ${s.classe}`}>

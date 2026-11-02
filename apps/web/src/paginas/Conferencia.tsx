@@ -1,16 +1,18 @@
+import { conferenciaSchema, type Conferencia as DadosDaConferencia } from '@orleans-em-dados/contracts';
 import { useState } from 'react';
 import { useApi } from '../api';
 import { Estado, Filtros, Mi, Numero, Numeros } from '../components';
 import { data, dataHora, emMilhoes, MESES, MESES_LONGOS, moeda, numero, pct } from '../format';
+import type { PropsDaPagina } from './props';
 
 const N = Number;
 const INICIAL = 8;
 const RELATORIO = 'https://github.com/ByelBardini/orleans-em-dados/blob/main/docs/CONFERENCIA_BETHA_TCE.md';
 
 // Diferença Betha − TCE dita por extenso: "R$ 1,00 a mais na Betha" / "a mais no TCE" / "igual".
-const ladoMaior = (v) => (N(v) > 0 ? 'a mais na Betha' : 'a mais no TCE');
+const ladoMaior = (v: number) => (N(v) > 0 ? 'a mais na Betha' : 'a mais no TCE');
 
-function Diferenca({ valor }) {
+function Diferenca({ valor }: { valor: number | null | undefined }) {
   if (valor === null || valor === undefined) return <span className="apagado">—</span>;
   if (N(valor) === 0) return <span className="apagado">igual</span>;
   return (
@@ -21,7 +23,7 @@ function Diferenca({ valor }) {
 }
 
 // Valores grandes em milhões; abaixo de 1 milhão, em milhares.
-function MilOuMi({ valor }) {
+function MilOuMi({ valor }: { valor: number | null }) {
   if (Math.abs(N(valor)) >= 1e6) return <Mi valor={valor} />;
   return (
     <>
@@ -40,7 +42,7 @@ const SITUACOES = {
   valor: { texto: 'Valor diferente', classe: 'apagar', amostra: 'vermelho' },
 };
 
-function Situacao({ tipo }) {
+function Situacao({ tipo }: { tipo: keyof typeof SITUACOES }) {
   const s = SITUACOES[tipo];
   return (
     <span className={`situacao ${s.classe}`}>
@@ -50,8 +52,8 @@ function Situacao({ tipo }) {
   );
 }
 
-export default function Conferencia({ ano, filtros }) {
-  const { dados, carregando, erro } = useApi(`/api/conferencias?ano=${ano}`);
+export default function Conferencia({ ano, filtros }: PropsDaPagina) {
+  const { dados, carregando, erro } = useApi(`/api/conferencias?ano=${ano}`, conferenciaSchema);
   return (
     <>
       {erro ? (
@@ -63,7 +65,7 @@ export default function Conferencia({ ano, filtros }) {
             <div className="abertura-lado">
               <p>
                 A conferência precisa das coletas publicadas das duas fontes para o mesmo exercício. Rode{' '}
-                <code>npm run coletar -- --ano {ano}</code> e <code>npm run coletar:tcesc -- --ano {ano}</code>.
+                <code>pnpm importar betha --ano {ano}</code> e <code>pnpm importar tcesc --ano {ano}</code>.
               </p>
             </div>
           </div>
@@ -77,9 +79,9 @@ export default function Conferencia({ ano, filtros }) {
   );
 }
 
-function Conteudo({ ano, filtros, dados }) {
+function Conteudo({ ano, filtros, dados }: Pick<PropsDaPagina, 'ano' | 'filtros'> & { dados: DadosDaConferencia }) {
   const { resumo, parcial, limites, camara } = dados;
-  const mesLimite = MESES_LONGOS[limites.mesReceita - 1];
+  const mesLimite = MESES_LONGOS[(limites.mesReceita ?? 1) - 1];
   const divergentesDespesa = dados.despesaPorEntidade.filter(
     (r) => r.comparavel && (r.difEmpenhado !== 0 || r.difLiquidado !== 0 || r.difPago !== 0),
   );
@@ -211,9 +213,11 @@ function Conteudo({ ano, filtros, dados }) {
   );
 }
 
-function Despesa({ dados }) {
+type LinhaDeDespesa = DadosDaConferencia['despesaPorEntidade'][number];
+
+function Despesa({ dados }: { dados: DadosDaConferencia }) {
   const linhas = dados.despesaPorEntidade;
-  const soma = (k) => linhas.reduce((s, r) => s + Math.round(N(r[k] ?? 0) * 100), 0) / 100;
+  const soma = (k: keyof LinhaDeDespesa) => linhas.reduce((s, r) => s + Math.round(N(r[k] ?? 0) * 100), 0) / 100;
   return (
     <section className="secao solta">
       <div className="secao-cab">
@@ -289,7 +293,7 @@ function Despesa({ dados }) {
   );
 }
 
-function ReceitaEntidades({ dados }) {
+function ReceitaEntidades({ dados }: { dados: DadosDaConferencia }) {
   return (
     <section className="secao solta">
       <div className="secao-cab">
@@ -334,7 +338,7 @@ function ReceitaEntidades({ dados }) {
   );
 }
 
-function ReceitaMeses({ dados }) {
+function ReceitaMeses({ dados }: { dados: DadosDaConferencia }) {
   const meses = dados.receitaPorMes.filter((m) => m.mes);
   const max = Math.max(...meses.map((m) => Math.abs(N(m.diferenca ?? 0))), 1);
   return (
@@ -347,7 +351,7 @@ function ReceitaMeses({ dados }) {
         {meses.map((m) => (
           <li key={m.mes}>
             <div className="lp-linha">
-              <span className="lp-cod">{MESES[m.mes - 1]}</span>
+              <span className="lp-cod">{MESES[(m.mes as number) - 1]}</span>
               <span className="lp-nome apagado">{m.diferenca === null ? 'TCE ainda não recebeu' : ''}</span>
               <span className="lp-pontos" aria-hidden="true" />
               <span className="lp-valor">
@@ -366,7 +370,7 @@ function ReceitaMeses({ dados }) {
   );
 }
 
-function RubricasDivergentes({ dados }) {
+function RubricasDivergentes({ dados }: { dados: DadosDaConferencia }) {
   const [todas, setTodas] = useState(false);
   const linhas = dados.receitaPorNatureza;
   const visiveis = todas ? linhas : linhas.slice(0, INICIAL);
@@ -440,7 +444,7 @@ function RubricasDivergentes({ dados }) {
   );
 }
 
-function Empenhos({ dados }) {
+function Empenhos({ dados }: { dados: DadosDaConferencia }) {
   const [todos, setTodos] = useState(false);
   const semPar = dados.empenhosSemPar;
   const visiveis = todos ? semPar : semPar.slice(0, INICIAL);
@@ -570,9 +574,9 @@ function Empenhos({ dados }) {
   );
 }
 
-const NOME_FONTE = { betha: 'Betha', tcesc: 'TCE-SC' };
+const NOME_FONTE: Record<string, string> = { betha: 'Betha', tcesc: 'TCE-SC' };
 
-function Coletas({ coletas }) {
+function Coletas({ coletas }: { coletas: DadosDaConferencia['coletas'] }) {
   const recarga = coletas
     .map((c) => c.recargaTce)
     .filter(Boolean)
