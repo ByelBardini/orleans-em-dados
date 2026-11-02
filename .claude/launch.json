@@ -18,6 +18,25 @@
       "runtimeExecutable": "pnpm",
       "runtimeArgs": ["--filter", "@orleans-em-dados/web", "dev", "--port", "5174", "--strictPort"],
       "port": 5174
+    },
+    {
+      "name": "api-descartavel",
+      "runtimeExecutable": "pnpm",
+      "runtimeArgs": ["--filter", "@orleans-em-dados/api", "start"],
+      "port": 3101,
+      "env": {
+        "PORT": "3101",
+        "DATABASE_URL": "postgres://orleans:orleans@localhost:5434/orleans_teste"
+      }
+    },
+    {
+      "name": "web-descartavel",
+      "runtimeExecutable": "pnpm",
+      "runtimeArgs": ["--filter", "@orleans-em-dados/web", "dev", "--port", "5175", "--strictPort"],
+      "port": 5175,
+      "env": {
+        "API_URL": "http://localhost:3101"
+      }
     }
   ]
 }
