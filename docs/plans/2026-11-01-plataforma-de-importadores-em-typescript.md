@@ -1,6 +1,6 @@
 # Plano: plataforma de importadores em TypeScript
 
-> **Status:** aprovado em 2026-11-01 — em execução
+> **Status:** concluído em 2026-11-02
 > **Data:** 2026-11-01
 > **Pedido original:** migrar backend, db, coletores e frontend de JavaScript para TypeScript (Fastify + Drizzle + Zod) e transformar a coleta numa plataforma de importadores diários, sem mudar o que o dashboard mostra hoje.
 > **Na especificação:** §2.2 (estrutura pronta para novos indicadores), §8 (modelo de dados), §9 etapas B e D (extração transacional e atualização contínua), §11 pendência "política de atualização, retenção, registro de erros e snapshots" e critérios de aceite "nunca publica conjunto incompleto" e "precisão monetária", §12 (tipos e validações de payload, testes de integração).
