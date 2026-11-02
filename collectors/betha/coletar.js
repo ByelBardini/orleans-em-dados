@@ -1,7 +1,7 @@
 // Coleta paginada de uma consulta Betha, com validação de integridade e
 // conferência dos somatórios contra os totalizadores da própria consulta.
 //
-// Uso: npm run coletar -- --ano 2025 [--consulta receitas|empenhos] [--json]
+// Uso: pnpm coletar --ano 2025 [--consulta receitas|empenhos] [--json]
 //
 // Grava a coleta no banco. Só a publica (dashboard) se todas as checagens
 // passarem; uma coleta rejeitada fica registrada e a publicação anterior é mantida.

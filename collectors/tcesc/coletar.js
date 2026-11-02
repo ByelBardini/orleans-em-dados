@@ -1,7 +1,7 @@
 // Coleta dos painéis municipais do Farol TCE-SC (Qlik Engine API), com
 // conferência do recorte selecionado e da soma das linhas contra o total do motor.
 //
-// Uso: npm run coletar:tcesc -- --ano 2025 [--consulta receitas|empenhos] [--json]
+// Uso: pnpm coletar:tcesc --ano 2025 [--consulta receitas|empenhos] [--json]
 //
 // Mesmo fluxo da Betha: grava a coleta; só publica se todas as checagens passarem.
 // Com --json, também salva o snapshot em data/tcesc/.

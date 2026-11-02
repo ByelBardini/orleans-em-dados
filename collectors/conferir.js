@@ -1,7 +1,7 @@
 // Conferência Betha × TCE-SC sobre as coletas publicadas de um exercício.
 // As consultas ficam em db/conferencias.js, compartilhadas com a API.
 //
-// Uso: npm run conferir -- --ano 2025 [--json]
+// Uso: pnpm conferir --ano 2025 [--json]
 //
 // Com --json, grava o resultado em data/conferencias/<ano>.json.
 

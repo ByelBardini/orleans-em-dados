@@ -1,7 +1,7 @@
 // Importa no banco snapshots JSON já existentes (coletas antigas em data/ ou os exemplos fictícios).
 //
-// Uso: npm run importar -- data/betha/receitas-2025.json [outros.json...]
-//      npm run importar -- --exemplos
+// Uso: pnpm importar data/betha/receitas-2025.json [outros.json...]
+//      pnpm importar --exemplos
 
 import { readdir, readFile } from 'node:fs/promises';
 import path from 'node:path';

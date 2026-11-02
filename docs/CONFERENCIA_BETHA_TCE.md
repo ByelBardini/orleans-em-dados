@@ -1,7 +1,7 @@
 # Conferência Betha × TCE-SC: manter as duas fontes ou trocar?
 
 > Data: 01/11/2026 · Exercícios: 2024 (encerrado), 2025 (encerrado) e 2026 (em curso).
-> Reproduzir: `npm run coletar -- --ano AAAA && npm run coletar:tcesc -- --ano AAAA && npm run conferir -- --ano AAAA --json`
+> Reproduzir: `pnpm coletar --ano AAAA && pnpm coletar:tcesc --ano AAAA && pnpm conferir --ano AAAA --json`
 > (resultado completo em `data/conferencias/AAAA.json`).
 
 ## Resposta curta
@@ -34,7 +34,7 @@ e roda em segundos.
 2. **Betha `57170`** (despesa orçamentária atualizada) integrada. Filtro confirmado: `{"ano": [...]}`.
 3. **Correção no coletor Betha:** a paginação sem ordenação devolvia IDs repetidos no ano
    corrente. A 57140 de 2026 era rejeitada sempre, e 2025 só funcionou por acaso.
-4. **`npm run conferir`**: compara as coletas publicadas por entidade, mês, natureza e empenho.
+4. **`pnpm conferir`**: compara as coletas publicadas por entidade, mês, natureza e empenho.
 5. Coleta e conferência de 2024, 2025 e 2026 nas duas fontes. Todas as 15 coletas foram
    conciliadas internamente com o totalizador da própria fonte.
 
@@ -162,7 +162,7 @@ Regras simples, todas já possíveis com o que foi implementado:
 ## Próximos passos sugeridos
 
 Já feito: aba **Conferência** no dashboard (`#conferencia`), alimentada por `GET /api/conferencias?ano=AAAA`
-(consultas em `db/conferencias.js`, as mesmas do `npm run conferir`). No ano em curso, compara só o período que o TCE
+(consultas em `db/conferencias.js`, as mesmas do `pnpm conferir`). No ano em curso, compara só o período que o TCE
 já recebeu.
 
 1. Persistir cada conferência (tabela `comparacoes_fontes`) para ter histórico das divergências.
