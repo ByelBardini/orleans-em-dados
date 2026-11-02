@@ -296,6 +296,76 @@ describe('dadosConferidos: natureza explicada em parte pelo acumulado', () => {
   });
 });
 
+describe('dadosConferidos: repetição linha a linha entre rubricas', () => {
+  const rubrica = (id: string, codigo: string, mes: number, valor: number, acumulado = valor) =>
+    receita(id, codigo, 'Rendimentos (exemplo)', mes, valor, acumulado);
+  beforeAll(() =>
+    popularCenario({
+      receitas: snapshot(57153, [
+        // Três linhas da provisória iguais às da definitiva, uma no limite de R$ 1,00.
+        rubrica('728:1', '13210300000001', 1, 300),
+        rubrica('728:2', '13210300000002', 1, 200),
+        rubrica('728:3', '13210300000003', 1, 1),
+        // Abaixo de R$ 1,00: não entra, mesmo igual.
+        rubrica('728:4', '13210300000004', 1, 0.5),
+        // Só a soma de duas linhas da definitiva bate.
+        rubrica('728:5', '13210300000005', 1, 77.77),
+        // Mesma rubrica em meses diferentes, e fevereiro sem par.
+        rubrica('728:1', '13210300000001', 2, 7.92, 307.92),
+        rubrica('728:11', '13210111000001', 1, 300),
+        rubrica('728:12', '13210111000002', 1, 200),
+        rubrica('728:13', '13210111000003', 1, 1),
+        rubrica('728:14', '13210111000004', 1, 0.5),
+        rubrica('728:15', '13210111000005', 1, 50),
+        rubrica('728:16', '13210111000006', 1, 27.77),
+        // O mesmo valor só em outra entidade.
+        rubrica('319:1', '13210300000001', 1, 640),
+        rubrica('728:17', '13210111000007', 1, 640),
+        // A mesma rubrica repete em dois meses: não é esta regra.
+        rubrica('320:1', '13210300000001', 1, 90),
+        rubrica('320:1', '13210300000001', 2, 90, 180),
+        receita('728:9', '11125001000000', 'IPTU (exemplo)', 12, 1, 1),
+      ]),
+      tcescReceitas: snapshot(900001, [
+        receitaTce(PREFEITURA_TCE, '1.3.2.1.01.1.1', 'Rendimentos', 'jan', '1219.27'),
+        receitaTce(FUNDACAO_TCE, '1.3.2.1.03.0.0', 'Rendimentos', 'jan', '90.00'),
+        receitaTce(PREFEITURA_TCE, '1.1.1.2.50.0.1', 'IPTU', 'dez', '1.00'),
+      ]),
+    }),
+  );
+
+  const daNatureza = async (entidade: string) =>
+    (await disponiveis(2025)).discrepancias.filter((d) => d.natureza === '13210300' && d.entidade === entidade);
+
+  it('só as linhas iguais, de R$ 1,00 para cima, contam; a soma de duas e o mês sem par ficam no resto', async () => {
+    const partes = await daNatureza('Prefeitura');
+    expect(partes.map((d) => [d.tipo, d.diferenca, d.diferencaDaNatureza])).toEqual([
+      ['duas_rubricas', 501, 587.19],
+      ['sem_causa', 86.19, 587.19],
+    ]);
+  });
+
+  it('valor igual em outra entidade não marca', async () => {
+    expect((await daNatureza('FMS')).map((d) => [d.tipo, d.diferenca])).toEqual([['sem_causa', 640]]);
+  });
+
+  it('a mesma rubrica em meses diferentes não marca por esta regra', async () => {
+    expect((await daNatureza('Fundação Ambiental')).map((d) => [d.tipo, d.diferenca])).toEqual([['sem_causa', 90]]);
+  });
+
+  it('a conta com os totais das fontes não muda', async () => {
+    const { receita: r } = await disponiveis(2025);
+    expect(r.totais).toEqual({
+      conferido: 1310.27,
+      diferencaBetha: 1317.19,
+      diferencaTce: 0,
+      aguardandoTce: 0,
+      totalBetha: 2627.46,
+      totalTce: 1310.27,
+    });
+  });
+});
+
 describe('dadosConferidos: ano em curso', () => {
   beforeAll(() =>
     popularCenario({
