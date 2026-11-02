@@ -12,6 +12,8 @@
     "db:subir": "docker compose up -d --wait",
     "db:migrar": "pnpm --filter @orleans-em-dados/db migrar",
     "db:exemplos": "pnpm --filter @orleans-em-dados/collectors importar --exemplos",
+    "db:teste": "docker run -d --rm --name orleans-testar -e POSTGRES_USER=orleans -e POSTGRES_PASSWORD=orleans -e POSTGRES_DB=orleans_teste -p 5434:5432 --tmpfs /var/lib/postgresql/data postgres:17-alpine",
+    "db:teste:parar": "docker rm -f orleans-testar",
     "coletar": "pnpm --filter @orleans-em-dados/collectors coletar",
     "coletar:tcesc": "pnpm --filter @orleans-em-dados/collectors coletar:tcesc",
     "conferir": "pnpm --filter @orleans-em-dados/collectors conferir",
@@ -19,11 +21,12 @@
     "dev": "concurrently -n api,web -c blue,green \"pnpm --filter @orleans-em-dados/backend dev\" \"pnpm --filter @orleans-em-dados/frontend dev\"",
     "build": "pnpm --filter @orleans-em-dados/frontend build",
     "start": "pnpm --filter @orleans-em-dados/backend start",
-    "test": "vitest run",
+    "test": "vitest run --project=!integracao",
     "lint": "eslint .",
     "typecheck": "pnpm -r --if-present typecheck",
     "format": "prettier --write .",
-    "format:check": "prettier --check ."
+    "format:check": "prettier --check .",
+    "test:integracao": "vitest run --project=integracao"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",

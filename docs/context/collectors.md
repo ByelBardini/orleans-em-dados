@@ -35,6 +35,12 @@ Coleta das fontes externas e gravação no banco. Vive em `collectors/` (pacote 
 - A normalização bruto → tabela é SQL (`INSERT ... SELECT` sobre o `JSONB`), para o valor ir de texto JSON para `NUMERIC` sem passar por float.
 - Token nunca vai para log nem para mensagem de erro.
 
+## Testes
+
+- `collectors/test/support/snapshots.js` — snapshots fictícios das cinco consultas (`receitas`, `empenhos`, `despesas`, `tcescReceitas`, `tcescEmpenhos`, e `snapshot(consultaId, registros, opções)` para montar outro). Carregam receita negativa, incoerência mês × acumulado, empenho renumerado, cópia antiga, empenho sem liquidação e a Câmara; o TCE-SC vai só até fevereiro (exercício parcial).
+- `collectors/test/support/banco-de-teste.js` — `limparColetas()` (mantém o catálogo) e `popularBancoDeTeste()` (as cinco publicadas).
+- Gravação e publicação são provadas em `collectors/test/integration/gravar.spec.js`.
+
 ## Armadilhas
 
 - Paginação da Betha sem ordenação é instável (em 2026 a 57153 devolveu 1.294 registros com 1.017 ids únicos): o cliente ordena por `id`, e `coletar.js` ainda repete a leitura inteira até 3 vezes antes de entregar uma coleta inconsistente.
