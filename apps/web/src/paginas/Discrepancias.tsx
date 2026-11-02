@@ -13,7 +13,7 @@ import { Estado, Filtros } from '../components';
 import { ContaDaDespesa, ContaDaReceita, ContaDosEmpenhos, FRASE_DA_DIFERENCA, SemConferencia } from '../conferido';
 import { data, dataHora, MESES, MESES_LONGOS, moeda, numero } from '../format';
 import { Selo } from '../selo';
-import { seloDaSituacao } from '../selos';
+import { seloDaSituacao, type SituacaoDoCaso } from '../selos';
 import type { PropsDaPagina } from './props';
 
 const N = Number;
@@ -120,6 +120,8 @@ function Conteudo({ ano, entidade, filtros, dados }: PropsDeConteudo & { dados: 
 
       <ContasDoAno ano={ano} entidade={entidade} dados={dados} grupos={grupos} />
 
+      {casos > 0 && <SignificadoDasSituacoes />}
+
       {AREAS.map((area) => (
         <BlocoDaArea key={area.id} {...area} grupos={grupos.filter((g) => g.area === area.id)} />
       ))}
@@ -215,6 +217,51 @@ function ContasDoAno({
           </p>
         </>
       )}
+    </section>
+  );
+}
+
+const SITUACOES_DO_CASO: readonly { situacao: SituacaoDoCaso; explicacao: string }[] = [
+  {
+    situacao: 'confirmada_no_portal',
+    explicacao:
+      'Conferido à mão no Portal da Transparência, na data indicada. Confirma o que o portal mostra, não a causa da diferença.',
+  },
+  {
+    situacao: 'confirmada_em_parte',
+    explicacao:
+      'Só um exemplo foi conferido à mão, e a nota do caso diz qual. O resto do valor continua sendo cálculo.',
+  },
+  {
+    situacao: 'calculada',
+    explicacao:
+      'Ninguém conferiu este caso no portal. O tipo vem do padrão dos números: é a hipótese mais provável, não uma explicação contábil.',
+  },
+  {
+    situacao: 'rever',
+    explicacao: 'Foi conferido à mão, mas o valor mudou depois. A conferência antiga não vale até ser refeita.',
+  },
+];
+
+function SignificadoDasSituacoes() {
+  return (
+    <section className="secao solta" aria-label="O que diz a coluna Situação">
+      <div className="secao-cab">
+        <h2 className="secao-titulo">O que diz a coluna Situação</h2>
+        <span className="legenda">
+          <span>De onde vem o que se sabe de cada caso</span>
+        </span>
+      </div>
+      <dl className="significado-situacoes">
+        {SITUACOES_DO_CASO.map(({ situacao, explicacao }) => (
+          <div key={situacao}>
+            <dt>
+              <Selo compacto selo={seloDaSituacao(situacao)} />
+            </dt>
+            <dd>{explicacao}</dd>
+          </div>
+        ))}
+      </dl>
     </section>
   );
 }
@@ -739,11 +786,6 @@ function ComoLer({ dados, filtrado }: { dados: DadosDaConferencia; filtrado: boo
       <p>
         <strong>Igual</strong> significa idêntico ao centavo. Quando não é igual, a diferença diz qual fonte registra
         mais: “a mais na Betha” ou “a mais no TCE”.
-      </p>
-      <p>
-        <strong>A situação de cada caso</strong> diz de onde vem a informação: conferida à mão no portal, com a data,
-        conferida só em parte, ou apenas calculada, e aí o tipo do caso é o mais provável, não uma explicação contábil.
-        Se o valor muda depois da conferência à mão, o caso volta a pedir revisão.
       </p>
       <p>
         <strong>Despesa</strong> compara a consulta 57170 da Betha (empenhado, liquidado e pago já descontadas as
