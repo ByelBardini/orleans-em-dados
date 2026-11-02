@@ -766,6 +766,29 @@ function naturezasMistas(
     .sort(porConferido);
 }
 
+const diferencaDoMes = (l: LinhaSeparada) => somaEmCentavos([l], (x) => x.diferencaBetha - x.diferencaTce);
+
+/** Natureza dividida: só atribui um mês a uma parte quando a diferença do mês é exatamente
+ *  o valor dela e os demais meses, se houver, cabem na única parte restante. Sem isso, não
+ *  há como saber de qual mês é cada parte, e todas citam todos os meses. */
+function mesesDasPartes(
+  fatias: readonly ParteDaNatureza[],
+  divergentes: readonly LinhaSeparada[],
+): readonly (readonly LinhaSeparada[])[] {
+  const todos = fatias.map(() => divergentes);
+  if (fatias.length < 2) return todos;
+  const usados = new Set<LinhaSeparada>();
+  const exatos = fatias.map((parte) => {
+    const achado = divergentes.find((l) => !usados.has(l) && igual(diferencaDoMes(l), parte.valor));
+    if (achado) usados.add(achado);
+    return achado;
+  });
+  const resto = divergentes.filter((l) => !usados.has(l));
+  const semMes = exatos.filter((achado) => !achado).length;
+  const fecha = semMes === 0 ? resto.length === 0 : semMes === 1 && resto.length > 0;
+  return fecha ? exatos.map((achado) => (achado ? [achado] : resto)) : todos;
+}
+
 function discrepanciasDaReceita(
   linhas: readonly LinhaSeparada[],
   partes: ReadonlyMap<string, readonly ParteDaNatureza[]>,
@@ -803,33 +826,38 @@ function discrepanciasDaReceita(
     if (!primeira?.tipo) return [];
     const { betha, tce, diferenca, descricao } = naturezaDoAno(grupo);
     const { diferencaBetha, diferencaTce } = somaDasPartes(grupo);
-    const mes = divergentes.length === 1 && primeira.mes !== null ? primeira.mes : undefined;
     const fatias = partes.get(chaveNatureza(primeira)) ?? [];
     const lados = ladosDasPartes(fatias, diferencaBetha, diferencaTce);
-    return fatias.map((parte, i): Discrepancia => ({
-      area: 'receita',
-      tipo: parte.tipo,
-      entidade: primeira.entidade,
-      codigoEntidade: primeira.ent,
-      natureza: primeira.natureza,
-      descricao,
-      ...(mes === undefined ? {} : { mes }),
-      meses: divergentes.map((l) => ({
-        mes: l.mes,
-        betha: l.betha,
-        tce: l.tce,
-        diferenca: somaEmCentavos([l], (x) => x.diferencaBetha - x.diferencaTce),
-      })),
-      betha,
-      tce,
-      diferenca: parte.valor,
-      ...lados[i],
-      ...(fatias.length > 1 ? { diferencaDaNatureza: diferenca } : {}),
-      nota:
-        parte.nota ??
-        notas.get(chaveNatureza(primeira)) ??
-        'A soma do ano é igual nas duas fontes: o valor só está em meses diferentes.',
-    }));
+    const mesesPorParte = mesesDasPartes(fatias, divergentes);
+    return fatias.map((parte, i): Discrepancia => {
+      const dosMeses = mesesPorParte[i] ?? divergentes;
+      const [unico] = dosMeses;
+      const mes = dosMeses.length === 1 && unico?.mes != null ? unico.mes : undefined;
+      return {
+        area: 'receita',
+        tipo: parte.tipo,
+        entidade: primeira.entidade,
+        codigoEntidade: primeira.ent,
+        natureza: primeira.natureza,
+        descricao,
+        ...(mes === undefined ? {} : { mes }),
+        meses: dosMeses.map((l) => ({
+          mes: l.mes,
+          betha: l.betha,
+          tce: l.tce,
+          diferenca: diferencaDoMes(l),
+        })),
+        betha,
+        tce,
+        diferenca: parte.valor,
+        ...lados[i],
+        ...(fatias.length > 1 ? { diferencaDaNatureza: diferenca } : {}),
+        nota:
+          parte.nota ??
+          notas.get(chaveNatureza(primeira)) ??
+          'A soma do ano é igual nas duas fontes: o valor só está em meses diferentes.',
+      };
+    });
   });
 
   const pendentes = [...agrupar(aguardando, (l) => `${l.ent}|${l.mes}`).values()].flatMap((grupo): Discrepancia[] => {

@@ -1109,6 +1109,40 @@ describe('diferença explicada só em parte pelo acumulado', () => {
     ]);
   });
 
+  // Regressão: FMS 2025, 17135011: os R$ 306.503,90 de maio saíam como "maio e novembro" (conferência de 02/11/2026).
+  it('mês com a diferença igual à da parte fica só nela, e o outro mês vai para o resto', () => {
+    const { discrepancias } = receitaConferida(
+      [cruzamento({ mes: 5, betha: 852811.63, tce: 546307.73 }), cruzamento({ mes: 11, betha: 862887.22, tce: 849254.32 })],
+      excesso(306503.9),
+    );
+    expect(discrepancias.map((d) => [d.tipo, d.mes, d.meses?.map((m) => m.mes)])).toEqual([
+      ['fora_do_acumulado', 5, [5]],
+      ['sem_causa', 11, [11]],
+    ]);
+  });
+
+  it('nenhum mês igual à parte: as duas partes citam todos os meses, sem escolher um', () => {
+    const { discrepancias } = receitaConferida(
+      [cruzamento({ mes: 1, betha: 140, tce: 100 }), cruzamento({ mes: 2, betha: 110, tce: 100 })],
+      excesso(20),
+    );
+    expect(discrepancias.map((d) => [d.mes, d.meses?.map((m) => m.mes)])).toEqual([
+      [undefined, [1, 2]],
+      [undefined, [1, 2]],
+    ]);
+  });
+
+  it('um mês só: as duas partes ficam nele', () => {
+    const { discrepancias } = receitaConferida(
+      [cruzamento({ mes: 5, betha: 150, tce: 100 })],
+      excesso(30),
+    );
+    expect(discrepancias.map((d) => [d.mes, d.meses?.map((m) => m.mes)])).toEqual([
+      [5, [5]],
+      [5, [5]],
+    ]);
+  });
+
   it('as partes dizem o total da natureza, e a soma em centavos bate com ele', () => {
     const { discrepancias } = receitaConferida(
       [cruzamento({ betha: 13635187.54, tce: 13315050.74 })],
