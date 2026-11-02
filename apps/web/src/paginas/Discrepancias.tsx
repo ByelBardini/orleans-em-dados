@@ -357,7 +357,7 @@ function Caso({ item }: { item: Item }) {
         <DiferencaDoCaso item={item} />
       </td>
       <td data-rotulo="Situação">
-        <Selo compacto selo={seloDaSituacao(item.situacao, item.data, item.protocolo)} />
+        <Selo compacto selo={seloDaSituacao(item.situacao, item.data)} />
       </td>
     </tr>
   );

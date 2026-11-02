@@ -1,5 +1,5 @@
 // O que o usuário conferiu à mão no portal, versionado no git. Cada registro diz se uma discrepância
-// calculada foi confirmada. Só o número do protocolo: código de acompanhamento e nome de pessoa nunca.
+// calculada foi confirmada. Pedido aberto (protocolo, e-SIC), código de acompanhamento e nome de pessoa nunca.
 import type { Discrepancia, TipoDiscrepancia } from './conferencia.bo';
 
 export type SituacaoDaDiscrepancia = 'confirmada_no_portal' | 'confirmada_em_parte' | 'calculada' | 'rever';
@@ -18,14 +18,11 @@ export type ConferenciaManual = {
   evidencia: string;
   /** Quando foi conferido, em AAAA-MM-DD. */
   data: string;
-  /** Só o número: `e-SIC 000/0000`. */
-  protocolo?: string;
 };
 
 export type DiscrepanciaConferida = Discrepancia & {
   situacao: SituacaoDaDiscrepancia;
   data?: string;
-  protocolo?: string;
   evidencia?: string;
 };
 
@@ -38,12 +35,12 @@ const CAMPOS: ReadonlySet<string> = new Set([
   'situacao',
   'evidencia',
   'data',
-  'protocolo',
 ]);
-const PROTOCOLO = /^[\p{L}-]+ \d+\/\d{4}$/u;
 const DATA = /^\d{4}-\d{2}-\d{2}$/;
 // A evidência sai na seção pública: diferença entre fontes não afirma causa.
 const TERMO_QUE_AFIRMA_CAUSA = /fantasma|\berros?\b|irregular|fraude/iu;
+// Pedido aberto no município não sai na seção pública.
+const CITA_PEDIDO = /protocolo|e-?sic\b|pedido de informa/iu;
 
 /** Devolve o registro, ou recusa dizendo o campo. O erro nunca repete o valor: pode ser um código. */
 export function validarConferenciaManual(registro: ConferenciaManual): ConferenciaManual {
@@ -59,17 +56,14 @@ export function validarConferenciaManual(registro: ConferenciaManual): Conferenc
   if (!registro.evidencia.trim()) recusar('evidência vazia');
   if (/acompanhamento/i.test(registro.evidencia)) recusar('evidência com código de acompanhamento');
   if (TERMO_QUE_AFIRMA_CAUSA.test(registro.evidencia)) recusar('evidência com termo que afirma causa');
-  if (registro.protocolo !== undefined && !PROTOCOLO.test(registro.protocolo)) {
-    recusar('protocolo aceita só o canal e o número: <canal> <número>/<ano>');
-  }
+  if (CITA_PEDIDO.test(registro.evidencia)) recusar('evidência cita pedido aberto');
   return registro;
 }
 
 const NO_PORTAL = { situacao: 'confirmada_no_portal', data: '2026-11-01' } as const;
 const FORA_DO_ACUMULADO = 'Conferido à mão no portal: lançamento que o acumulado da rubrica desconsidera.';
 const DUAS_RUBRICAS = 'Conferido à mão no portal: o mesmo valor lançado em duas rubricas.';
-const SO_TCE = 'Conferido à mão no portal: a natureza só aparece no TCE-SC. Pedido de informação registrado.';
-const E_SIC = 'e-SIC 000/0000';
+const SO_TCE = 'Conferido à mão no portal: a natureza só aparece no TCE-SC.';
 
 export const CONFERENCIAS_MANUAIS: readonly ConferenciaManual[] = (
   [
@@ -162,7 +156,6 @@ export const CONFERENCIAS_MANUAIS: readonly ConferenciaManual[] = (
       chave: '11130311',
       valor: 428717.37,
       evidencia: SO_TCE,
-      protocolo: E_SIC,
     },
     {
       ano: 2026,
@@ -171,7 +164,6 @@ export const CONFERENCIAS_MANUAIS: readonly ConferenciaManual[] = (
       chave: '11130311',
       valor: 414748.48,
       evidencia: SO_TCE,
-      protocolo: E_SIC,
     },
   ] as const
 ).map((caso) => validarConferenciaManual({ ...NO_PORTAL, ...caso }));
@@ -212,8 +204,8 @@ export function cruzarConferenciasManuais(
     discrepancias: discrepancias.map((d): DiscrepanciaConferida => {
       const achado = achados.get(d);
       if (!achado) return { ...d, situacao: 'calculada' };
-      const { data, protocolo, evidencia } = achado.registro;
-      return { ...d, situacao: achado.situacao, data, evidencia, ...(protocolo ? { protocolo } : {}) };
+      const { data, evidencia } = achado.registro;
+      return { ...d, situacao: achado.situacao, data, evidencia };
     }),
   };
 }

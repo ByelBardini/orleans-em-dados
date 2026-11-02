@@ -275,7 +275,8 @@ describe('Discrepancias: selo de situação', () => {
   it('"Confirmado no portal" só aparece nos casos confirmados', async () => {
     await abrir();
 
-    expect(screen.getAllByText(/Confirmado no portal/)).toHaveLength(2);
+    const linhas = screen.getAllByRole('row').filter((l) => l.textContent?.includes('Confirmado no portal'));
+    expect(linhas).toHaveLength(2);
     expect(linhaDo('Mesmo valor em duas rubricas')).not.toHaveTextContent('Confirmado no portal');
     expect(linhaDo('Registro repetido')).not.toHaveTextContent('Confirmado no portal');
     expect(linhaDo('Despesa de consórcio em duas linhas')).not.toHaveTextContent('Confirmado no portal');
@@ -297,13 +298,6 @@ describe('Discrepancias: selo de situação', () => {
     await abrir();
 
     expect(linhaDo('Despesa de consórcio em duas linhas')).toHaveTextContent('Rever');
-  });
-
-  it('o protocolo aparece só no caso que tem', async () => {
-    await abrir();
-
-    expect(linhaDo('Só no TCE-SC')).toHaveTextContent('Protocolo e-SIC 999/2026');
-    expect(screen.getAllByText(/Protocolo/)).toHaveLength(1);
   });
 });
 
@@ -452,6 +446,20 @@ describe('Discrepancias: texto e dados que não saem', () => {
 
     expect(await screen.findByText(/Não foi possível carregar: Resposta inesperada/)).toBeInTheDocument();
     expect(screen.queryByText(/NOME DE PESSOA/)).not.toBeInTheDocument();
+  });
+
+  it('resposta com protocolo é recusada, e o número não chega à tela', async () => {
+    const secao = discrepancias({ grupos: [] });
+    const comProtocolo = {
+      ...secao,
+      grupos: [{ ...FORA_DO_ACUMULADO, itens: [{ ...FORA_DO_ACUMULADO.itens[0], protocolo: 'e-SIC 999/2026' }] }],
+    };
+    instalar({ secao: comProtocolo });
+
+    render(<Discrepancias {...PROPS} />);
+
+    expect(await screen.findByText(/Não foi possível carregar: Resposta inesperada/)).toBeInTheDocument();
+    expect(screen.queryByText(/999\/2026/)).not.toBeInTheDocument();
   });
 });
 

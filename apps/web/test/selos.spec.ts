@@ -83,11 +83,4 @@ describe('selo da situação de um caso', () => {
   it('valor que mudou depois da conferência é "Rever", e não confirmado', () => {
     expect(seloDaSituacao('rever', '2026-11-01')).toEqual({ estado: 'pendente', titulo: 'Rever' });
   });
-
-  it('o protocolo vai como motivo, só quando existe', () => {
-    expect(seloDaSituacao('confirmada_no_portal', '2026-11-01', 'e-SIC 999/2026').motivo).toBe(
-      'Protocolo e-SIC 999/2026',
-    );
-    expect(seloDaSituacao('confirmada_no_portal', '2026-11-01', null)).not.toHaveProperty('motivo');
-  });
 });

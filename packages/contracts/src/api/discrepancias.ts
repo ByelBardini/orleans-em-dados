@@ -13,7 +13,6 @@ const itemSchema = z.strictObject({
   situacao: situacaoSchema,
   // Quando foi conferido à mão; nulos no que é só cálculo.
   data: z.string().nullable(),
-  protocolo: z.string().nullable(),
   evidencia: z.string().nullable(),
   entidade: z.string(),
   codigoEntidade: z.string().nullable(),
