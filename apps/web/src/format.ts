@@ -4,25 +4,28 @@ const inteiro = new Intl.NumberFormat('pt-BR');
 const umaCasa = new Intl.NumberFormat('pt-BR', { minimumFractionDigits: 1, maximumFractionDigits: 1 });
 const duasCasas = new Intl.NumberFormat('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
-export const moeda = (v) => (v === null || v === undefined ? '—' : brl.format(v));
-export const moedaCompacta = (v) => (v === null || v === undefined ? '—' : `R$ ${compacto.format(v)}`);
-export const numero = (v) => inteiro.format(v);
-export const decimal = (v) => duasCasas.format(v);
-export const percentual = (parte, total) =>
+type Talvez<T> = T | null | undefined;
+
+export const moeda = (v: Talvez<number>) => (v === null || v === undefined ? '—' : brl.format(v));
+export const moedaCompacta = (v: Talvez<number>) => (v === null || v === undefined ? '—' : `R$ ${compacto.format(v)}`);
+export const numero = (v: number) => inteiro.format(v);
+export const decimal = (v: number) => duasCasas.format(v);
+export const percentual = (parte: number, total: Talvez<number>) =>
   total ? `${((parte / total) * 100).toLocaleString('pt-BR', { maximumFractionDigits: 1 })}%` : '—';
 
 // Milhões com uma casa, sem unidade: 171092955.92 → "171,1".
-export const milhoes = (v) => umaCasa.format(Number(v) / 1e6);
-export const emMilhoes = (v) => `R$ ${milhoes(v)} mi`;
-export const porExtenso = (v) => `R$ ${milhoes(v)} milhões`;
-export const pct = (parte, total, casas = 1) =>
+export const milhoes = (v: Talvez<number>) => umaCasa.format(Number(v) / 1e6);
+export const emMilhoes = (v: Talvez<number>) => `R$ ${milhoes(v)} mi`;
+export const porExtenso = (v: Talvez<number>) => `R$ ${milhoes(v)} milhões`;
+export const pct = (parte: number, total: Talvez<number>, casas = 1) =>
   total
     ? `${((parte / total) * 100).toLocaleString('pt-BR', { minimumFractionDigits: casas, maximumFractionDigits: casas })}%`
     : '—';
 
-export const data = (iso) => (iso ? new Date(`${iso.slice(0, 10)}T12:00:00`).toLocaleDateString('pt-BR') : '—');
-export const dataHora = (iso) => (iso ? new Date(iso).toLocaleString('pt-BR') : '—');
-export const dataCurta = (iso) =>
+export const data = (iso: Talvez<string>) =>
+  iso ? new Date(`${iso.slice(0, 10)}T12:00:00`).toLocaleDateString('pt-BR') : '—';
+export const dataHora = (iso: Talvez<string>) => (iso ? new Date(iso).toLocaleString('pt-BR') : '—');
+export const dataCurta = (iso: Talvez<string>) =>
   iso ? new Date(iso).toLocaleDateString('pt-BR', { day: '2-digit', month: 'long', year: 'numeric' }) : '—';
 
 export const MESES = ['jan', 'fev', 'mar', 'abr', 'mai', 'jun', 'jul', 'ago', 'set', 'out', 'nov', 'dez'];
@@ -66,9 +69,9 @@ const SIGLAS = new Set([
 ]);
 
 // Textos da Betha vêm em caixa alta: "SECRETARIA MUNICIPAL DE EDUCAÇÃO" → "Secretaria Municipal de Educação".
-export function nomeProprio(texto) {
+export function nomeProprio<T extends Talvez<string>>(texto: T): T {
   if (!texto) return texto;
-  return texto
+  return (texto as string)
     .split(/(\s+|-|\/)/)
     .map((p, i) => {
       if (!p.trim() || p === '-' || p === '/') return p;
@@ -78,5 +81,5 @@ export function nomeProprio(texto) {
       if (i > 0 && MINUSCULAS.has(min)) return min;
       return min.charAt(0).toLocaleUpperCase('pt-BR') + min.slice(1);
     })
-    .join('');
+    .join('') as T;
 }

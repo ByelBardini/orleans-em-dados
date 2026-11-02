@@ -2,21 +2,21 @@
 
 // População de Orleans/SC (IBGE, código 4211702). Censo 2022 e estimativas anuais
 // (tabela 6579). Para um ano sem número, usa o mais próximo anterior.
-const POPULACAO = {
+const POPULACAO: Record<number, { pessoas: number; fonte: string }> = {
   2022: { pessoas: 23661, fonte: 'IBGE, Censo 2022' },
   2025: { pessoas: 24686, fonte: 'IBGE, estimativa 2025' },
 };
 
-export function populacao(ano) {
+export function populacao(ano: number) {
   const anos = Object.keys(POPULACAO)
     .map(Number)
     .sort((a, b) => a - b);
-  const escolhido = [...anos].reverse().find((a) => a <= ano) ?? anos[0];
-  return POPULACAO[escolhido];
+  const escolhido = [...anos].reverse().find((a) => a <= ano) ?? (anos[0] as number);
+  return POPULACAO[escolhido] as { pessoas: number; fonte: string };
 }
 
 // Origem da receita (dois primeiros dígitos da natureza) em linguagem do dia a dia.
-export const ORIGEM_CIDADAO = {
+export const ORIGEM_CIDADAO: Record<string, string> = {
   11: 'Impostos e taxas municipais',
   12: 'Contribuições (iluminação pública)',
   13: 'Rendimentos de aplicações',
@@ -35,7 +35,7 @@ export const ORIGEM_CIDADAO = {
 // Origens que são dinheiro vindo de fora (União, Estado, convênios).
 export const ORIGENS_DE_FORA = new Set(['17', '24']);
 
-export const GLOSSARIO = [
+export const GLOSSARIO: [string, string][] = [
   ['Previsto', 'Quanto o orçamento aprovado pela Câmara esperava arrecadar no ano.'],
   ['Arrecadado', 'O que de fato entrou nos cofres: impostos, taxas, tarifas e repasses.'],
   ['Empenhado', 'O valor reservado para uma despesa. É o primeiro passo, ainda não é pagamento.'],
@@ -45,12 +45,12 @@ export const GLOSSARIO = [
 ];
 
 // Como cada entidade entra numa frase ("Em 2025, o SAMAE arrecadou…").
-const SUJEITO = {
+const SUJEITO: Record<string, string> = {
   728: 'a Prefeitura',
   319: 'o Fundo Municipal de Saúde',
   2473: 'o SAMAE',
   320: 'a Fundação Ambiental',
 };
 
-export const sujeito = (entidade, entidades = []) =>
+export const sujeito = (entidade: string, entidades: readonly { codigo: string; sigla: string }[] = []) =>
   !entidade ? 'Orleans' : (SUJEITO[entidade] ?? entidades.find((e) => e.codigo === entidade)?.sigla ?? 'a entidade');

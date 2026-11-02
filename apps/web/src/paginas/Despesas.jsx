@@ -1,19 +1,10 @@
 import { useEffect, useRef, useState } from 'react';
 import { useApi } from '../api';
-import {
-  BarraDividida,
-  BarrasMensais,
-  Estado,
-  Filtros,
-  Fonte,
-  ListaPontos,
-  Mi,
-  Numero,
-  Numeros,
-} from '../components.jsx';
-import { data, decimal, emMilhoes, MESES, MESES_LONGOS, moeda, nomeProprio, numero, pct } from '../format.js';
-import { populacao } from '../referencias.js';
-import { Selo, seloDespesa, seloEmpenho, useConferencia } from '../selos.jsx';
+import { BarraDividida, BarrasMensais, Estado, Filtros, Fonte, ListaPontos, Mi, Numero, Numeros } from '../components';
+import { data, decimal, emMilhoes, MESES, MESES_LONGOS, moeda, nomeProprio, numero, pct } from '../format';
+import { populacao } from '../referencias';
+import { Selo, useConferencia } from '../selo';
+import { seloDespesa, seloEmpenho } from '../selos';
 
 const POR_PAGINA = 25;
 const N = Number;

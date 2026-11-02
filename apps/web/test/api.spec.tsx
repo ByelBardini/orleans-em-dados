@@ -88,6 +88,23 @@ describe('useApi', () => {
     await waitFor(() => expect(result.current).toEqual({ dados: { total: 2 }, erro: null, carregando: false }));
   });
 
+  it('ao trocar de caminho, o erro anterior some enquanto o novo carrega', async () => {
+    const fake = new FetchFake()
+      .responder('/api/a', { erro: 'falhou' }, 500)
+      .responder('/api/b', { total: 2 })
+      .instalar();
+    const { result, rerender } = renderHook(({ caminho }) => useApi(caminho, SCHEMA), {
+      initialProps: { caminho: '/api/a' },
+    });
+    await waitFor(() => expect(result.current.erro).toBe('falhou'));
+
+    fake.segurar = true;
+    rerender({ caminho: '/api/b' });
+
+    expect(result.current.erro).toBeNull();
+    await act(async () => fake.liberar('/api/b'));
+  });
+
   it('resposta antiga que chega depois da nova é descartada', async () => {
     const fake = new FetchFake()
       .responder('/api/lenta', { total: 1 })

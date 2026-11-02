@@ -1,5 +1,5 @@
 import { useApi } from '../api';
-import { BarrasMensais, Estado, Filtros, Fonte, ListaPontos, Mi, Numero, Numeros } from '../components.jsx';
+import { BarrasMensais, Estado, Filtros, Fonte, ListaPontos, Mi, Numero, Numeros } from '../components';
 import {
   data,
   decimal,
@@ -11,9 +11,10 @@ import {
   numero,
   pct,
   porExtenso,
-} from '../format.js';
-import { Selo, seloDespesa, seloReceita, useConferencia } from '../selos.jsx';
-import { GLOSSARIO, ORIGEM_CIDADAO, ORIGENS_DE_FORA, populacao, sujeito } from '../referencias.js';
+} from '../format';
+import { Selo, useConferencia } from '../selo';
+import { seloDespesa, seloReceita } from '../selos';
+import { GLOSSARIO, ORIGEM_CIDADAO, ORIGENS_DE_FORA, populacao, sujeito } from '../referencias';
 
 const qs = (ano, entidade) => new URLSearchParams({ ano, entidade }).toString();
 const N = Number;

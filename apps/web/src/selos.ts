@@ -1,57 +1,32 @@
-// Selos da conferência Betha × TCE-SC exibidos nas páginas de dados.
-// A conferência vem de /api/conferencias; sem as duas fontes publicadas, não há selo.
+// A regra dos selos da conferência Betha × TCE-SC, sem DOM.
 // Linguagem: "provável"/"possível" quando a causa não foi comprovada.
+import type { Conferencia } from '@orleans-em-dados/contracts';
+import { data, MESES_LONGOS, moeda, numero } from './format';
 
-import { useApi } from './api';
-import { data, MESES_LONGOS, moeda, numero } from './format.js';
+export type DadosDoSelo = { estado: 'confere' | 'diverge' | 'pendente'; titulo: string; motivo?: string | null };
 
 const N = Number;
-const centavos = (v) => Math.round(N(v ?? 0) * 100);
+const centavos = (v: number | null | undefined) => Math.round(N(v ?? 0) * 100);
 // Diferença Betha − TCE por extenso, sem sinal: o leitor não precisa saber a ordem da subtração.
-const sinal = (v) => `${moeda(Math.abs(v))} a mais ${v > 0 ? 'na Betha' : 'no TCE-SC'}`;
-const ICONES = { confere: '✓', diverge: '!', pendente: '…' };
-
-export function useConferencia(ano) {
-  const { dados } = useApi(ano ? `/api/conferencias?ano=${ano}` : null);
-  return dados?.disponivel ? dados : null;
-}
-
-// `compacto`: versão de linha de tabela, sem link.
-export function Selo({ selo, compacto = false }) {
-  if (!selo) return null;
-  return (
-    <span className={`selo ${selo.estado}${compacto ? ' compacto' : ''}`}>
-      <span className="selo-titulo">
-        <span className="selo-icone" aria-hidden="true">
-          {ICONES[selo.estado]}
-        </span>
-        {selo.titulo}
-      </span>
-      {selo.motivo && <span className="selo-motivo">{selo.motivo}</span>}
-      {!compacto && (
-        <a href="#conferencia" className="selo-link">
-          Ver conferência →
-        </a>
-      )}
-    </span>
-  );
-}
+const sinal = (v: number) => `${moeda(Math.abs(v))} a mais ${v > 0 ? 'na Betha' : 'no TCE-SC'}`;
+const mesDaReceita = (conf: Conferencia) => MESES_LONGOS[(conf.limites.mesReceita ?? 1) - 1];
 
 // No ano em curso, o TCE ainda não recebeu os últimos meses: isso é pendência, não divergência.
-const pendencia = (conf, tipo) =>
+const pendencia = (conf: Conferencia, tipo: 'receitas' | 'empenhos') =>
   !conf.parcial
     ? null
-    : `${tipo === 'empenhos' ? `Empenhos após ${data(conf.limites.dataEmpenho)}` : `Meses após ${MESES_LONGOS[conf.limites.mesReceita - 1]}`} ainda não conferidos: o TCE-SC recebe os dados com atraso.`;
+    : `${tipo === 'empenhos' ? `Empenhos após ${data(conf.limites.dataEmpenho)}` : `Meses após ${mesDaReceita(conf)}`} ainda não conferidos: o TCE-SC recebe os dados com atraso.`;
 
-const doRecorte = (linhas, entidade) => (entidade ? linhas.filter((l) => l.codigoEntidade === entidade) : linhas);
+const doRecorte = <L extends { codigoEntidade: string | null }>(linhas: readonly L[], entidade: string) =>
+  entidade ? linhas.filter((l) => l.codigoEntidade === entidade) : linhas;
 
 // Receita arrecadada da entidade (ou de todas) contra o TCE, com a maior causa apontada.
-export function seloReceita(conf, entidade) {
+export function seloReceita(conf: Conferencia | null, entidade: string): DadosDoSelo | null {
   if (!conf) return null;
   const linhas = doRecorte(conf.receitaPorEntidade, entidade);
   if (!linhas.length) return null;
   const dif = linhas.reduce((s, l) => s + centavos(l.diferenca), 0) / 100;
-  const ate = conf.parcial ? ` até ${MESES_LONGOS[conf.limites.mesReceita - 1]}` : '';
+  const ate = conf.parcial ? ` até ${mesDaReceita(conf)}` : '';
   if (dif === 0) {
     return { estado: 'confere', titulo: `Confere com o TCE-SC${ate}`, motivo: pendencia(conf, 'receitas') };
   }
@@ -73,11 +48,12 @@ export function seloReceita(conf, entidade) {
 }
 
 // Empenhos (57140) da entidade contra o TCE, registro a registro.
-export function seloEmpenhos(conf, entidade) {
+export function seloEmpenhos(conf: Conferencia | null, entidade: string): DadosDoSelo | null {
   if (!conf) return null;
   const linhas = doRecorte(conf.empenhos, entidade);
   if (!linhas.length) return null;
-  const soma = (k) => linhas.reduce((s, l) => s + N(l[k]), 0);
+  const soma = (k: 'soBetha' | 'soTce' | 'casados' | 'valorSoBetha' | 'valorSoTce') =>
+    linhas.reduce((s, l) => s + N(l[k]), 0);
   const soBetha = soma('soBetha');
   const soTce = soma('soTce');
   const ate = conf.parcial ? ` até ${data(conf.limites.dataEmpenho)}` : '';
@@ -110,12 +86,12 @@ export function seloEmpenhos(conf, entidade) {
 
 // Despesa orçamentária (57170) contra o TCE-SC por entidade, nas três etapas.
 // No ano em curso o TCE está incompleto: o selo usa a conferência empenho a empenho.
-export function seloDespesa(conf, entidade) {
+export function seloDespesa(conf: Conferencia | null, entidade: string): DadosDoSelo | null {
   if (!conf) return null;
   if (conf.parcial) return seloEmpenhos(conf, entidade);
   const linhas = conf.despesaPorEntidade.filter((l) => l.comparavel && (!entidade || l.entidadeBetha === entidade));
   if (!linhas.length) return null;
-  const dif = (k) => linhas.reduce((s, l) => s + centavos(l[k]), 0) / 100;
+  const dif = (k: 'difEmpenhado' | 'difLiquidado' | 'difPago') => linhas.reduce((s, l) => s + centavos(l[k]), 0) / 100;
   const [e, l, p] = [dif('difEmpenhado'), dif('difLiquidado'), dif('difPago')];
   if (!e && !l && !p) {
     return {
@@ -127,15 +103,15 @@ export function seloDespesa(conf, entidade) {
   const divergentes = linhas.filter((x) => x.difEmpenhado || x.difLiquidado || x.difPago).map((x) => x.sigla);
   const empenhos = seloEmpenhos(conf, entidade);
   // Cada etapa por extenso; a primeira que diverge vai para o título.
-  const etapas = [
+  const etapas: [string, number][] = [
     ['Empenhado', e],
     ['Liquidado', l],
     ['Pago', p],
   ];
-  const [nome, valor] = etapas.find(([, v]) => v !== 0);
+  const [nome, valor] = etapas.find(([, v]) => v !== 0) as [string, number];
   const demais = etapas
     .filter(([n]) => n !== nome)
-    .map(([n, v], i) => [i ? n.toLocaleLowerCase('pt-BR') : n, v])
+    .map(([n, v], i): [string, number] => [i ? n.toLocaleLowerCase('pt-BR') : n, v])
     .map(([n, v]) => (v === 0 ? `${n} igual` : `${n}: ${sinal(v)}`));
   return {
     estado: 'diverge',
@@ -151,10 +127,14 @@ export function seloDespesa(conf, entidade) {
 }
 
 // Selo de uma rubrica da Betha (código de 14 dígitos), comparada no nível de 8 dígitos.
-export function seloRubrica(conf, rubrica, siglas) {
+export function seloRubrica(
+  conf: Conferencia | null,
+  rubrica: string,
+  siglas: ReadonlySet<string | null>,
+): DadosDoSelo | null {
   const d = conf?.receitaPorNatureza.find((n) => n.natureza === rubrica.slice(0, 8) && siglas.has(n.entidade));
-  if (!d) return null;
-  const ate = conf.parcial ? ` até ${MESES_LONGOS[conf.limites.mesReceita - 1]}` : '';
+  if (!conf || !d) return null;
+  const ate = conf.parcial ? ` até ${mesDaReceita(conf)}` : '';
   return {
     estado: 'diverge',
     titulo: `Difere do TCE-SC: ${sinal(d.diferenca)}${ate}`,
@@ -163,7 +143,7 @@ export function seloRubrica(conf, rubrica, siglas) {
 }
 
 // Selo de um empenho da lista, pelo ID Betha.
-export function seloEmpenho(conf, id) {
+export function seloEmpenho(conf: Conferencia | null, id: string): DadosDoSelo | null {
   const e = conf?.empenhosSemPar.find((x) => x.fonte === 'betha' && x.id === id);
   if (!e) return null;
   return { estado: 'diverge', titulo: 'Não consta no TCE-SC', motivo: e.nota };

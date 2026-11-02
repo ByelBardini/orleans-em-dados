@@ -1,12 +1,13 @@
+import { anosSchema } from '@orleans-em-dados/contracts';
 import { useEffect, useState } from 'react';
 import { useApi } from './api';
-import { Estado, SeletorTema } from './components.jsx';
-import { dataCurta } from './format.js';
-import Conferencia from './paginas/Conferencia.jsx';
-import Despesas from './paginas/Despesas.jsx';
-import Metodologia from './paginas/Metodologia.jsx';
-import Receitas from './paginas/Receitas.jsx';
-import VisaoGeral from './paginas/VisaoGeral.jsx';
+import { Estado, SeletorTema } from './components';
+import { dataCurta } from './format';
+import Conferencia from './paginas/Conferencia';
+import Despesas from './paginas/Despesas';
+import Metodologia from './paginas/Metodologia';
+import Receitas from './paginas/Receitas';
+import VisaoGeral from './paginas/VisaoGeral';
 
 const ABAS = [
   { id: 'visao-geral', nome: 'Visão geral', Componente: VisaoGeral, caderno: null },
@@ -16,9 +17,10 @@ const ABAS = [
   { id: 'metodologia', nome: 'Sobre os dados', Componente: Metodologia, caderno: 'Fontes e metodologia' },
 ];
 
-const abaDoHash = () => ABAS.find((a) => `#${a.id}` === window.location.hash)?.id ?? ABAS[0].id;
+const PADRAO = ABAS[0]!;
+const abaDoHash = () => ABAS.find((a) => `#${a.id}` === window.location.hash)?.id ?? PADRAO.id;
 
-function Navegacao({ aba }) {
+function Navegacao({ aba }: { aba: string }) {
   return (
     <nav className="nav-principal" aria-label="Principal">
       {ABAS.map((a) => (
@@ -31,8 +33,9 @@ function Navegacao({ aba }) {
 }
 
 export default function App() {
-  const anos = useApi('/api/anos');
-  const [ano, setAno] = useState(null);
+  const anos = useApi('/api/anos', anosSchema);
+  const [anoEscolhido, setAno] = useState<number | null>(null);
+  const ano = anoEscolhido ?? anos.dados?.anos[0] ?? null;
   const [entidade, setEntidade] = useState('');
   const [aba, setAba] = useState(abaDoHash);
 
@@ -45,17 +48,13 @@ export default function App() {
     return () => window.removeEventListener('hashchange', ouvir);
   }, []);
 
-  useEffect(() => {
-    if (!ano && anos.dados?.anos.length) setAno(anos.dados.anos[0]);
-  }, [anos.dados, ano]);
-
-  const atual = ABAS.find((a) => a.id === aba);
+  const atual = ABAS.find((a) => a.id === aba) ?? PADRAO;
   const { Componente } = atual;
   useEffect(() => {
     document.title = aba === 'visao-geral' ? 'Orleans em Dados' : `${atual.nome} · Orleans em Dados`;
   }, [aba, atual.nome]);
 
-  const atualizado = anos.dados?.atualizadoEm?.[ano];
+  const atualizado = ano ? anos.dados?.atualizadoEm[ano] : undefined;
   const exercicio = ano ? `Exercício de ${ano}${atualizado ? ` · Atualizado em ${dataCurta(atualizado)}` : ''}` : ' ';
   const filtros = {
     anos: anos.dados?.anos ?? [],
@@ -106,12 +105,12 @@ export default function App() {
         {anos.dados?.exemplo && (
           <p className="aviso">
             Exibindo <strong>dados fictícios</strong> de <code>examples/</code>. Rode{' '}
-            <code>npm run coletar -- --ano 2025</code> para baixar os dados reais.
+            <code>pnpm importar betha --ano 2025</code> para baixar os dados reais.
           </p>
         )}
         <Estado carregando={anos.carregando} erro={anos.erro} />
         {anos.dados && !anos.dados.anos.length && <p className="aviso">Nenhum snapshot disponível.</p>}
-        {(ano || aba === 'metodologia') && <Componente ano={ano} entidade={entidade} filtros={filtros} />}
+        {(ano || aba === 'metodologia') && <Componente ano={ano as number} entidade={entidade} filtros={filtros} />}
       </main>
 
       <footer className="rodape">
