@@ -26,6 +26,11 @@ Um schema Zod estrito por rota da API (`src/api/`), espelhando o JSON de hoje (d
 
 - `test/api/respostas.spec.ts` valida as respostas gravadas de `apps/api/test/paridade/respostas/` contra os schemas.
 
+## Indicadores
+
+- `INDICADORES`, `validarRegistro(indicadores, conhecidas)` (`src/indicadores/registro.ts`) — cada indicador num lugar só: importador, consulta preferida, conferência e periodicidade. Indicador novo é uma entrada aqui; `apps/worker/test/indicadores.spec.ts` confere o registro contra os importadores reais.
+- `situacaoDaAtualizacao(periodicidade, ano, ultimaExtracao, agora)` (`src/indicadores/atraso.ts`) — `em_dia`, `atrasado`, `historico` (exercício mais antigo que o anterior, sem rodada agendada) ou `sem_dado`. Atrasado só depois de duas janelas: uma rodada perdida de madrugada não acende o aviso.
+
 ## Regras de arquitetura
 
 - Campo só é não nulo quando a coluna é obrigatória ou o SQL garante: soma sobre recorte vazio é `NULL`, e os `FULL JOIN` da conferência deixam um lado nulo. A fixture não mostra todos esses casos.

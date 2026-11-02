@@ -72,6 +72,9 @@ importers:
 
   apps/worker:
     dependencies:
+      '@orleans-em-dados/contracts':
+        specifier: workspace:*
+        version: link:../../packages/contracts
       '@orleans-em-dados/db':
         specifier: workspace:*
         version: link:../../packages/db
