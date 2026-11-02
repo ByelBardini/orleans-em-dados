@@ -222,6 +222,34 @@ describe('executar — falhas', () => {
   });
 });
 
+describe('executar — gancho do lote', () => {
+  it('aoMontarLote recebe o lote e a consulta antes de gravar, mesmo se reprovado', async () => {
+    const dependencias = preparar();
+    const vistos: string[] = [];
+    const consulta = consultaFake({ chave: 'reprovada', validar: () => ({ conferencia: [], erros: ['diverge'] }) });
+
+    await executar(importadorFake(consulta), 2025, {
+      ...dependencias,
+      aoMontarLote: async (lote, alvo) => {
+        vistos.push(`${alvo.chave}:${lote.status}:${dependencias.repositorio.gravados.length}`);
+      },
+    });
+
+    expect(vistos).toEqual(['reprovada:rejeitado:0']);
+  });
+});
+
+describe('executar — filtro de consultas', () => {
+  it('com chaves, só as consultas pedidas são executadas', async () => {
+    const dependencias = preparar();
+    const consultas = [consultaFake({ id: 1, chave: 'a' }), consultaFake({ id: 2, chave: 'b' })];
+
+    const resultado = await executar(importadorFake(...consultas), 2025, dependencias, ['b']);
+
+    expect(resultado.consultas.map((c) => c.chave)).toEqual(['b']);
+  });
+});
+
 describe('executar — idempotência', () => {
   it('o mesmo conteúdo executado de novo não grava outra coleta e só reconfirma a data', async () => {
     const dependencias = { repositorio: new RepositorioDeLotesFake(), relogio: relogioFake(INICIO) };

@@ -5,8 +5,8 @@ Lê os painéis municipais do Farol TCE-SC, publicados em Qlik Sense, pela
 em sessão anônima. Não usa navegador, cookies persistidos nem a exportação CSV do painel.
 
 ```bash
-pnpm coletar:tcesc --ano 2025                      # receitas e empenhos
-pnpm coletar:tcesc --ano 2025 --consulta empenhos --json
+pnpm importar tcesc --ano 2025                      # receitas e empenhos
+pnpm importar tcesc --ano 2025 --consulta empenhos --json
 ```
 
 | Consulta              | App Qlik                    | Granularidade                                                | Medidas                                                                                    |

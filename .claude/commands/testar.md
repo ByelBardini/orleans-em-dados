@@ -36,15 +36,18 @@ O fluxo é o da skill `testar`: driver → contexto da área → cenários do co
 
 ## Lente dos importadores
 
-| o que                                                                              | camada     | onde                                                    | fake                                                                                   |
-| ---------------------------------------------------------------------------------- | ---------- | ------------------------------------------------------- | -------------------------------------------------------------------------------------- |
-| Autenticação anônima e cliente de consulta da Betha (`betha/auth.js`, `client.js`) | unit       | `packages/importadores/test/betha/<x>.spec.js`          | `fetch` falso nomeado (`class FetchFake`) que guarda as requisições e devolve fixtures |
-| Cliente Qlik do TCE-SC (`tcesc/qlik-client.js`)                                    | unit       | `packages/importadores/test/tcesc/qlik-client.spec.js`  | transporte falso nomeado com as mensagens gravadas                                     |
-| Normalização do registro (o que vira linha, o que é descartado)                    | unit       | `packages/importadores/test/<x>.spec.js`                | nenhum; resposta de fixture → registro esperado escrito à mão                          |
-| `gravar.js` (coleta, snapshot, publicação)                                         | integração | `packages/importadores/test/integration/gravar.spec.js` | Postgres descartável                                                                   |
-| Pontos de entrada (`coletar.js`, `conferir.js`, `importar-arquivo.js`)             | —          | —                                                       | o que vale provar é a regra que eles chamam; CLI em si não ganha unit                  |
+| o que                                               | camada     | onde                                                             | fake                                                                                    |
+| --------------------------------------------------- | ---------- | ---------------------------------------------------------------- | --------------------------------------------------------------------------------------- |
+| Cliente da fonte (`auth`, `cliente`, `sessao-qlik`) | unit       | `packages/importadores/<fonte>/test/<x>.spec.ts`                 | transporte falso nomeado (`TransporteHttpFake`, socket falso) que guarda as requisições |
+| `normalizar` e `validar`                            | unit       | `packages/importadores/<fonte>/test/<x>.spec.ts`                 | nenhum; registro → linha ou reprovação escrita à mão                                    |
+| Consulta inteira (`coletar` → registros)            | unit       | `packages/importadores/<fonte>/test/importador.spec.ts`          | cliente falso nomeado                                                                   |
+| Executor                                            | unit       | `packages/importadores/nucleo/test/executor.service.spec.ts`     | `RepositorioDeLotesFake`, `relogioFake`                                                 |
+| Gravação e publicação                               | integração | `packages/importadores/nucleo/test/integration/lotes.spec.ts`    | Postgres descartável                                                                    |
+| Importador de ponta a ponta                         | integração | `packages/importadores/<fonte>/test/integration/<fonte>.spec.ts` | cliente falso + Postgres descartável                                                    |
+| Filas e agendamento                                 | integração | `apps/worker/test/integration/filas.spec.ts`                     | pg-boss de verdade no Postgres descartável                                              |
+| CLI (`apps/worker/src/cli.ts`)                      | —          | —                                                                | só argumentos e console; a lógica está em `comandos.ts`, com unit                       |
 
-- **Nunca a API real no teste.** A resposta vira fixture em `packages/importadores/test/support/`, sem dado pessoal de credor.
+- **Nunca a API real no teste.** A resposta vira fixture em `packages/importadores/fixtures`, sem dado pessoal de credor.
 - **Paginação e erro de rede são cenários**: página vazia, página repetida, `401` que pede novo token, resposta sem o campo esperado (erro citando consulta e campo, nada gravado).
 
 ## Lente da API

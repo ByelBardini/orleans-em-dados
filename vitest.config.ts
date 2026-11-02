@@ -19,11 +19,11 @@ export default defineConfig({
     projects: [
       unidade('packages/contracts'),
       unidade('packages/db'),
-      unidade('packages/importadores'),
       unidade('packages/importadores/nucleo', 'importador-nucleo'),
       unidade('packages/importadores/betha', 'importador-betha'),
       unidade('packages/importadores/tcesc', 'importador-tcesc'),
       unidade('apps/api'),
+      unidade('apps/worker'),
       { extends: './apps/web/vite.config.js', ...unidade('apps/web') },
       {
         test: {

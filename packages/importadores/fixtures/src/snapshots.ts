@@ -7,10 +7,12 @@
 // antiga de empenho na Betha (13), empenho sem liquidação e despesa da Câmara,
 // que só existe no TCE-SC. O TCE-SC tem dados só até fevereiro: exercício parcial.
 
+import type { RegistroBruto, Snapshot, StatusDoLote } from '@orleans-em-dados/importador-nucleo';
+
 export const ANO = 2025;
 const QUANDO = '2025-03-01T12:00:00.000Z';
 
-const FILTROS = {
+const FILTROS: Record<number, unknown> = {
   57153: { ano: [String(ANO)] },
   57140: { anoExercicio: [String(ANO)] },
   57170: { ano: [String(ANO)] },
@@ -22,7 +24,15 @@ const FILTROS = {
 };
 
 /** Monta o snapshot com meta coerente com os registros. */
-export function snapshot(consultaId, registros, { status = 'totalizador_conciliado', ano = ANO, erros = [] } = {}) {
+export function snapshot(
+  consultaId: number,
+  registros: RegistroBruto[],
+  {
+    status = 'totalizador_conciliado',
+    ano = ANO,
+    erros = [],
+  }: { status?: StatusDoLote; ano?: number; erros?: string[] } = {},
+): Snapshot {
   const ids = new Set(registros.map((r) => r.id));
   return {
     meta: {
@@ -43,7 +53,15 @@ export function snapshot(consultaId, registros, { status = 'totalizador_concilia
   };
 }
 
-const receita = (id, rubricaNatureza, descricaoNatureza, mes, arrecadado, acumulado, orcado = 0) => ({
+const receita = (
+  id: string,
+  rubricaNatureza: string,
+  descricaoNatureza: string,
+  mes: number,
+  arrecadado: number,
+  acumulado: number,
+  orcado = 0,
+) => ({
   id: `211:${id}_${mes}`,
   rubricaNatureza,
   descricaoNatureza,
@@ -67,12 +85,23 @@ export const receitas = () =>
     receita('319:201', '17135011000000', 'Transferência SUS (exemplo)', 2, 200000, 350000),
   ]);
 
-const empenho = (id, numero, data, orgao, credor, historico, valor, liquidado, pago, saldo) => ({
+const empenho = (
+  id: string,
+  numero: number,
+  data: string,
+  orgao: string,
+  credor: string,
+  historico: string,
+  valor: number,
+  liquidado: number | null,
+  pago: number | null,
+  saldo: number | null,
+) => ({
   id: `211:${id}`,
   numeroEmpenho: numero,
   dataEmpenho: data,
   descricaoOrgao: orgao,
-  credor: credor && { nomeCredor: credor },
+  credor: { nomeCredor: credor },
   historicoEmpenho: historico,
   valorEmpenho: valor,
   valorLiquidadoEmpenho: liquidado,
@@ -163,7 +192,15 @@ export const empenhos = () =>
     ),
   ]);
 
-const despesa = (id, natureza, acao, orcado, empenhado, liquidado, pago) => ({
+const despesa = (
+  id: string,
+  natureza: string,
+  acao: { numero: string; nome: string },
+  orcado: number,
+  empenhado: number,
+  liquidado: number,
+  pago: number,
+) => ({
   id: `211:${id}`,
   idNatureza: natureza,
   numero: acao.numero,
@@ -201,7 +238,7 @@ export const despesas = () =>
 const PREFEITURA_TCE = 'Prefeitura Municipal de Orleans';
 const FMS_TCE = 'Fundo Municipal de Saúde de Orleans';
 
-const receitaTce = (unidade, codigoreceita, natureza, mes, valor) => ({
+const receitaTce = (unidade: string, codigoreceita: string, natureza: string, mes: string, valor: string) => ({
   id: [unidade, codigoreceita, mes, ''].join('|'),
   nomeunidade: unidade,
   codigoreceita,
@@ -221,7 +258,16 @@ export const tcescReceitas = () =>
     receitaTce(FMS_TCE, '1.7.1.3.50.1.1', 'Transferência SUS', 'fev', '150000.00'),
   ]);
 
-const empenhoTce = (id, ug, numero, data, credor, valor, liquidado, pago) => ({
+const empenhoTce = (
+  id: number,
+  ug: string,
+  numero: number,
+  data: string,
+  credor: string,
+  valor: string,
+  liquidado: string,
+  pago: string,
+) => ({
   id: String(id),
   'ID Empenho': String(id),
   codigoUG: ug,
@@ -247,5 +293,3 @@ export const tcescEmpenhos = () =>
     // Câmara: só no TCE-SC.
     empenhoTce(5006, '1864', 1, '2025-01-05', 'GRAFICA EXEMPLO LTDA', '25000.00', '25000.00', '20000.00'),
   ]);
-
-export const TODOS = [receitas, empenhos, despesas, tcescReceitas, tcescEmpenhos];
