@@ -180,7 +180,7 @@ A migração terminou em 02/11/2026, depois de este plano ser escrito. Onde o te
    - valor mudou depois da confirmação → `rever`;
    - entrada com código de acompanhamento → recusada pela validação.
 2. Rodar e confirmar que falha pela asserção.
-3. Criar `packages/db/src/conferencia/conferencias-manuais.ts` com os casos desta conferência e o e-SIC 000/0000. Os números dos demais protocolos entram quando forem informados.
+3. Criar `packages/db/src/conferencia/conferencias-manuais.ts` com os casos desta conferência. Os números dos demais protocolos entram quando forem informados.
 4. Rodar e confirmar que passa; driver sem achado novo; suíte verde.
 5. Atualizar `docs/context/conferencia.md`: como registrar um caso.
 

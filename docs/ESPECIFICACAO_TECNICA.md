@@ -30,7 +30,7 @@ As páginas de dados só exibem como número principal o que foi conferido entre
 1. **Visão geral:** ano/entidade, receita arrecadada conferida, orçamento previsto/atualizado (fonte única), despesa empenhada líquida, liquidada e paga conferidas; gráficos mensais e distribuição por entidade.
 2. **Receitas:** receita conferida por natureza (rubrica de 14 dígitos quando todos os meses batem; natureza de 8 dígitos com mês divergente), evolução mensal, composição e orçamento versus realizado; preservar valores negativos (ajustes/reclassificações); a conta conferido + em discrepância + aguardando = total da fonte ao lado.
 3. **Despesas:** execução orçamentária conferida por entidade e categoria; consulta dos empenhos casados entre as fontes por órgão, credor, número, histórico e data.
-4. **Discrepâncias:** cada valor retirado, em Betha x TCE-SC, por área e tipo, com o valor de cada fonte, a diferença e o lado que registra mais, a situação do caso (confirmado no portal, em parte, calculado, a rever) e o protocolo, quando houver; o que aguarda o TCE-SC à parte; a comparação por entidade e mês; sem nome de credor nem histórico.
+4. **Discrepâncias:** cada valor retirado, em Betha x TCE-SC, por área e tipo, com o valor de cada fonte, a diferença e o lado que registra mais, a situação do caso (confirmado no portal, em parte, calculado, a rever), com a explicação de cada uma; o que aguarda o TCE-SC à parte; a comparação por entidade e mês; sem nome de credor nem histórico.
 5. **Metadados e transparência:** fonte, ID da consulta, URL de origem, filtro, exercício, data de coleta, entidade, versão do cálculo e nível da conferência.
 
 ### 2.2 Fora do escopo inicial / próximas etapas

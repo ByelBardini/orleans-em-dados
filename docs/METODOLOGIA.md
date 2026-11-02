@@ -28,7 +28,7 @@ Cada valor retirado aparece em `#discrepancias` (`#conferencia` continua abrindo
 - **Calculado (provável):** o tipo vem do padrão dos números; ninguém conferiu no portal.
 - **Rever:** foi conferido à mão, e o valor mudou depois.
 
-Se houver pedido de informação, o caso mostra só o número do protocolo. A seção nunca leva nome de credor nem histórico.
+A seção explica essas situações antes dos casos, e nunca leva nome de credor nem histórico.
 
 ## Coleta e conferência com o totalizador
 
