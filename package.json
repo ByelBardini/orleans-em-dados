@@ -8,25 +8,36 @@
   "engines": {
     "node": ">=22.9"
   },
-  "workspaces": [
-    "db",
-    "collectors",
-    "backend",
-    "frontend"
-  ],
   "scripts": {
     "db:subir": "docker compose up -d --wait",
-    "db:migrar": "npm run migrar -w db",
-    "db:exemplos": "npm run importar -w collectors -- --exemplos",
-    "coletar": "npm run coletar -w collectors --",
-    "coletar:tcesc": "npm run coletar:tcesc -w collectors --",
-    "conferir": "npm run conferir -w collectors --",
-    "importar": "npm run importar -w collectors --",
-    "dev": "concurrently -n api,web -c blue,green \"npm run dev -w backend\" \"npm run dev -w frontend\"",
-    "build": "npm run build -w frontend",
-    "start": "npm run start -w backend"
+    "db:migrar": "pnpm --filter @orleans-em-dados/db migrar",
+    "db:exemplos": "pnpm --filter @orleans-em-dados/collectors importar --exemplos",
+    "coletar": "pnpm --filter @orleans-em-dados/collectors coletar",
+    "coletar:tcesc": "pnpm --filter @orleans-em-dados/collectors coletar:tcesc",
+    "conferir": "pnpm --filter @orleans-em-dados/collectors conferir",
+    "importar": "pnpm --filter @orleans-em-dados/collectors importar",
+    "dev": "concurrently -n api,web -c blue,green \"pnpm --filter @orleans-em-dados/backend dev\" \"pnpm --filter @orleans-em-dados/frontend dev\"",
+    "build": "pnpm --filter @orleans-em-dados/frontend build",
+    "start": "pnpm --filter @orleans-em-dados/backend start",
+    "test": "vitest run",
+    "lint": "eslint .",
+    "typecheck": "pnpm -r --if-present typecheck",
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."
   },
   "devDependencies": {
-    "concurrently": "^9.1.2"
-  }
+    "@eslint/js": "^10.0.1",
+    "@types/node": "^26.6.6",
+    "concurrently": "^9.1.2",
+    "eslint": "^10.14.0",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-react-hooks": "^7.1.1",
+    "eslint-plugin-react-refresh": "^0.5.7",
+    "globals": "^17.13.0",
+    "prettier": "^3.9.10",
+    "typescript": "^6.0.3",
+    "typescript-eslint": "^8.72.1",
+    "vitest": "^5.0.5"
+  },
+  "packageManager": "pnpm@11.9.0"
 }

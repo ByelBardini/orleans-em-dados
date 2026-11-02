@@ -1,0 +1,7 @@
+packages:
+  - db
+  - collectors
+  - backend
+  - frontend
+allowBuilds:
+  esbuild: true

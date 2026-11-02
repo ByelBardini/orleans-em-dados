@@ -10,6 +10,6 @@
     "importar": "node --env-file-if-exists=../.env importar-arquivo.js"
   },
   "dependencies": {
-    "@orleans-em-dados/db": "*"
+    "@orleans-em-dados/db": "workspace:*"
   }
 }
