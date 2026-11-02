@@ -1,6 +1,6 @@
 # Conferência Betha × TCE-SC
 
-Compara as coletas publicadas das duas fontes num exercício. A regra mora em `packages/db/src/conferencia/`; a API (`/api/conferencias`) e o `pnpm conferir` só chamam. A metodologia pública está em `docs/CONFERENCIA_BETHA_TCE.md`.
+Compara as coletas publicadas das duas fontes num exercício. A regra mora em `packages/db/src/conferencia/`; a API (`/api/conferencias`) e o `pnpm conferir` só chamam. A metodologia pública está em `docs/METODOLOGIA.md`; o que foi achado e o que foi conferido à mão, em `docs/CONFERENCIA_BETHA_TCE.md`.
 
 ## Estrutura
 
@@ -67,6 +67,7 @@ Compara as coletas publicadas das duas fontes num exercício. A regra mora em `p
 2. `chave` é a natureza ou o número do empenho. `null` cobre todas as discrepâncias do tipo na entidade, pela soma: é o caso de `despesa_duplicada` e de um grupo de empenhos. `valor` é em módulo; `null` confirma sem total, como uma conferência parcial.
 3. `protocolo` é só o número (`e-SIC 000/0000`). Código de acompanhamento nunca: a validação recusa, e o import do módulo falha. Nada de nome de pessoa ou de credor na `evidencia`: ela sai na seção pública. A validação também recusa termo que afirma causa ("fantasma", "erro", "irregular", "fraude").
 4. Rode o spec, e confira em `dadosConferidos(ano).avisos` que o registro achou a discrepância.
+5. Acrescente o caso à tabela "Conferido à mão" de `docs/CONFERENCIA_BETHA_TCE.md`, com o que o portal mostra e o que não foi provado.
 
 - Com registro e o mesmo valor: `confirmada_no_portal`. Registro com `situacao: 'confirmada_em_parte'` (só um exemplo foi conferido, citado na evidência, com `valor: null`): fica assim, e nunca confirma o valor inteiro. Sem registro: `calculada`. Com registro e valor diferente, ou a soma do grupo: `rever`, com aviso. Registro sem discrepância do mesmo ano, entidade, tipo e chave: só um aviso.
 

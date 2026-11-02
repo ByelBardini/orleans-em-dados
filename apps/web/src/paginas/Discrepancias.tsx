@@ -10,7 +10,7 @@ import {
 import { useState } from 'react';
 import { useApi } from '../api';
 import { Estado, Filtros } from '../components';
-import { ContaDaDespesa, ContaDaReceita, ContaDosEmpenhos, SemConferencia } from '../conferido';
+import { ContaDaDespesa, ContaDaReceita, ContaDosEmpenhos, FRASE_DA_DIFERENCA, SemConferencia } from '../conferido';
 import { data, dataHora, MESES, MESES_LONGOS, moeda, numero } from '../format';
 import { Selo } from '../selo';
 import { seloDaSituacao } from '../selos';
@@ -18,9 +18,6 @@ import type { PropsDaPagina } from './props';
 
 const N = Number;
 const RELATORIO = 'https://github.com/ByelBardini/orleans-em-dados/blob/main/docs/CONFERENCIA_BETHA_TCE.md';
-// A especificação (§7.3) pede que a comparação diga isto. É a única frase da interface com estas palavras.
-const FRASE_DA_DIFERENCA =
-  'Diferença entre fontes pode decorrer de critério, abrangência ou atualização, e não indica, por si só, erro nem irregularidade.';
 const CASOS_INICIAIS = 10;
 
 type Grupo = DadosDaSecao['grupos'][number];

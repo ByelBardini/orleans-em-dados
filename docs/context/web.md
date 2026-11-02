@@ -8,7 +8,7 @@ Dashboard público em React 19 + Vite 6, em TSX. Vive em `apps/web/src/` (pacote
 - `apps/web/src/paginas/` — cada página recebe `PropsDaPagina` (`props.ts`): `VisaoGeral`, `Receitas`, `Despesas`, `Discrepancias`, `Metodologia`.
 - `apps/web/src/components.tsx` — componentes compartilhados.
 - `apps/web/src/selos.ts` — a regra dos selos, sem DOM. `apps/web/src/selo.tsx` — `Selo`, `AvisoDeAtraso`.
-- `apps/web/src/conferido.tsx` — o que as páginas dizem sobre a conferência: `ContaDaReceita`, `ContaDaDespesa`, `ContaDosEmpenhos`, `AvisoDaReceitaAguardando`, `SemConferencia`, `ateOMes`, `LINK_DISCREPANCIAS`.
+- `apps/web/src/conferido.tsx` — o que as páginas dizem sobre a conferência: `ContaDaReceita`, `ContaDaDespesa`, `ContaDosEmpenhos`, `AvisoDaReceitaAguardando`, `SemConferencia`, `ateOMes`, `LINK_DISCREPANCIAS`, `FRASE_DA_DIFERENCA`.
 - `apps/web/src/styles.css` — visual de "caderno de jornal" com tokens em `:root` (papel, tinta, vermelho, três famílias de fonte), tema claro/escuro por `data-theme`. Referência visual: `docs/screens/`.
 
 ## Funções e utilitários
@@ -30,6 +30,7 @@ Dashboard público em React 19 + Vite 6, em TSX. Vive em `apps/web/src/` (pacote
 - Percentual de realização e "por morador" usam o conferido. O orçamento tem o selo de fonte única e é do ano inteiro: no ano parcial, o texto diz "faltam", e não "faltaram".
 - Tabela de rubricas: `nivel` 8 e 14 convivem, e a linha de 8 dígitos diz que está agrupada porque há mês em discrepância.
 - Despesas: entidade não conferida fica na tabela "Por entidade" sem número, fora da soma, com aviso e link. A Câmara tem selo de fonte única, fica à parte e não soma com as entidades. A nota separa os empenhos que aguardam o TCE-SC dos que estão em discrepância.
+- Sobre os dados (`Metodologia`) define "conferido com o TCE-SC", "conferido com a Betha até DD/MM", "fonte única, sem conferência" e "aguardando TCE", diz que igualdade entre fontes não é auditoria e aponta para `#discrepancias`.
 - Situação do empenho na lista: a mesma regra do filtro da API (`sem` é "Sem liquidação"); saldo nulo sai com travessão, sem virar zero.
 - A aba é "Discrepâncias", em `#discrepancias`; `#conferencia` continua abrindo (`ALIASES`).
 - Discrepâncias lê `/api/discrepancias`: grupos em blocos por área (receita, despesa, empenhos, que não se somam), cada um com rótulo, explicação, o `total` da resposta e os casos. Grupo ou área sem caso não aparece. Até 10 casos abertos; o resto em "Ver todos os N". Em até 720 px, cada caso vira bloco, sem rolagem lateral.
@@ -38,7 +39,7 @@ Dashboard público em React 19 + Vite 6, em TSX. Vive em `apps/web/src/` (pacote
 - "Aguardando o TCE-SC" vem à parte, abaixo dos grupos, sem selo de situação e sem palavra de problema.
 - "Os totais, para conferir" lê `/api/conferencias`, por último e só com a seção disponível: despesa, receita e empenhos por entidade, receita mês a mês, Câmara, como ler e coletas, todos neutros.
 - Filtro de entidade do App: a seção mostra o alternador (quem chega com ele ligado precisa soltar). Casos e aguardando filtram por `codigoEntidade`, com o total refeito em centavos; as contas pedem o recorte à API; o total dos empenhos é a soma das partes, porque o totalizador é do município; os totais filtram por sigla, e a Câmara sai.
-- Texto proibido nas páginas de dados: "validado", "validação", "irregular", "fraude", "erro", "fantasma". Os specs buscam no container. Única exceção: a frase em negativa da abertura de Discrepâncias (`FRASE_DA_DIFERENCA`, §7.3), que o spec tira antes de buscar.
+- Texto proibido nas páginas de dados: "validado", "validação", "irregular", "fraude", "erro", "fantasma". Os specs buscam no container. Única exceção: a frase em negativa de Discrepâncias e de Sobre os dados (`FRASE_DA_DIFERENCA`, §7.3), que o spec tira antes de buscar.
 
 ## Testes
 

@@ -1,3 +1,5 @@
+import { FRASE_DA_DIFERENCA } from '../conferido';
+
 const REPO = 'https://github.com/ByelBardini/orleans-em-dados/blob/main/docs';
 
 export default function Metodologia() {
@@ -9,8 +11,8 @@ export default function Metodologia() {
         </h1>
         <div className="abertura-lado">
           <p className="capitular">
-            Os dados vêm do Portal da Transparência de Orleans. Antes de aparecer no site, cada coleta é somada centavo
-            por centavo e comparada com o total que o próprio portal informa.
+            Os dados vêm do Portal da Transparência de Orleans e do Farol do TCE-SC. O número principal do painel é só a
+            parte em que as duas fontes coincidem. O que difere fica listado na seção Discrepâncias.
           </p>
         </div>
       </div>
@@ -20,8 +22,10 @@ export default function Metodologia() {
           <h2 style={{ marginTop: 0 }}>De onde vêm os dados</h2>
           <p>
             Os valores são coletados do <strong>Portal da Transparência Betha</strong> de Orleans, nas consultas{' '}
-            <code>57153</code> (Receitas Orçamentárias) e <code>57140</code> (Execução Detalhada de Despesas). O site lê
-            cópias já validadas; não consulta o portal a cada acesso.
+            <code>57153</code> (Receitas Orçamentárias), <code>57140</code> (Execução Detalhada de Despesas) e{' '}
+            <code>57170</code> (Despesas Orçamentárias), e do <strong>Farol do TCE-SC</strong>, que reúne o que o
+            município envia ao Tribunal de Contas. O site lê cópias já conferidas com o total de cada fonte; não
+            consulta as fontes a cada acesso.
           </p>
           <p>
             Os valores por morador usam a população do IBGE (Censo 2022 e estimativas anuais). Os textos em linguagem
@@ -29,7 +33,38 @@ export default function Metodologia() {
             dígitos.
           </p>
 
-          <h2>Como os dados são validados</h2>
+          <h2>O que aparece no painel</h2>
+          <p>
+            O número principal é o conferido: a parte que as fontes sustentam. Por isso, ele pode ficar abaixo de cada
+            uma delas, e a página sempre mostra a conta: conferido + em discrepância = total da fonte. Cada número diz o
+            nível da conferência:
+          </p>
+          <ul>
+            <li>
+              <strong>conferido com o TCE-SC</strong>: o valor que as duas fontes registram, ao centavo, por entidade,
+              natureza e mês na receita, por entidade na despesa, e empenho a empenho na lista.
+            </li>
+            <li>
+              <strong>conferido com a Betha até DD/MM</strong>: no ano em curso, a despesa vem do TCE-SC, só nos
+              empenhos que têm par na Betha até a data do último dado que o Tribunal recebeu.
+            </li>
+            <li>
+              <strong>fonte única, sem conferência</strong>: Orçamento, órgão e Câmara vêm de uma fonte só. O valor
+              aparece com este rótulo, porque não há com o que comparar.
+            </li>
+            <li>
+              <strong>aguardando TCE</strong>: mês que o Tribunal ainda não recebeu. É pendência de remessa, e o valor
+              entra no conferido quando a remessa chegar.
+            </li>
+          </ul>
+          <p>
+            Igualdade entre as fontes não é auditoria nem homologação contábil: mostra que as duas publicam o mesmo
+            número. O que difere não some: fica em <a href="#discrepancias">Discrepâncias</a>, separado por tipo, com o
+            valor de cada fonte e a situação do caso. Cada caso diz se foi conferido à mão no portal, com a data, se foi
+            conferido só em parte, ou se é apenas cálculo, e aí o tipo é o mais provável. {FRASE_DA_DIFERENCA}
+          </p>
+
+          <h2>Como a coleta é conferida</h2>
           <ul>
             <li>A coleta pagina até alcançar o total de registros informado pela própria consulta.</li>
             <li>IDs repetidos ou mudança no total durante a coleta invalidam a cópia.</li>
@@ -46,12 +81,12 @@ export default function Metodologia() {
           <h2>Limitações conhecidas</h2>
           <ul>
             <li>
-              A Câmara Municipal não faz parte da seleção Betha; seus valores vêm do TCE-SC, na página{' '}
-              <a href="#conferencia">Conferência</a>.
+              A Câmara Municipal não faz parte da seleção Betha; seus valores vêm do TCE-SC, com o rótulo de fonte
+              única, e não somam com as entidades.
             </li>
             <li>
               O valor da consulta 57140 é o valor original dos empenhos, sem anulações. A despesa orçamentária líquida
-              (consulta 57170) é usada na conferência com o TCE-SC.
+              vem da consulta 57170, e liquidado e pago da lista de empenhos vêm do TCE-SC.
             </li>
             <li>
               O mês das receitas é inferido do sufixo do ID do registro. A comparação mês a mês com o TCE-SC confirma
@@ -69,9 +104,8 @@ export default function Metodologia() {
               O portal não informa CPF nem CNPJ dos credores, então não é possível separar pessoas físicas de empresas.
             </li>
             <li>
-              A comparação com o TCE-SC está na página <a href="#conferencia">Conferência</a>. O TCE recebe os dados com
-              cerca de um mês de atraso. Diferenças entre fontes podem decorrer de critério, classificação ou
-              atualização e não indicam, por si, erro ou irregularidade.
+              A comparação com o TCE-SC está em <a href="#discrepancias">Discrepâncias</a>. O TCE recebe os dados com
+              cerca de um mês de atraso: no ano em curso, o painel vai até o último mês recebido.
             </li>
           </ul>
         </article>

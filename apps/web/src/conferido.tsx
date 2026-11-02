@@ -12,6 +12,10 @@ export const ateOMes = (parcial: boolean | null | undefined, mes: number | null 
 
 export const LINK_DISCREPANCIAS = '#discrepancias';
 
+// A especificação (§7.3) pede que a comparação diga isto. É a única frase da interface com estas palavras.
+export const FRASE_DA_DIFERENCA =
+  'Diferença entre fontes pode decorrer de critério, abrangência ou atualização, e não indica, por si só, erro nem irregularidade.';
+
 // `semLink` e `titulo`: na própria seção, a conta não aponta para si mesma e diz de qual área é.
 type Apresentacao = { semLink?: boolean; titulo?: string };
 
