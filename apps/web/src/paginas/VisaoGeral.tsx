@@ -21,7 +21,7 @@ import {
   pct,
   porExtenso,
 } from '../format';
-import { Selo, useConferencia } from '../selo';
+import { AvisoDeAtraso, Selo, useConferencia } from '../selo';
 import { seloDespesa, seloReceita } from '../selos';
 import { GLOSSARIO, ORIGEM_CIDADAO, ORIGENS_DE_FORA, populacao, sujeito } from '../referencias';
 import type { PropsDaPagina } from './props';
@@ -169,14 +169,24 @@ function Conteudo({
           rotulo="Arrecadado"
           detalhe={previsto > 0 ? `${pct(arrecadado, previsto)} dos ${emMilhoes(previsto)} previstos` : 'sem previsão'}
           barra={previsto > 0 ? (arrecadado / previsto) * 100 : undefined}
-          selo={<Selo selo={seloReceita(conf, entidade)} />}
+          selo={
+            <>
+              <Selo selo={seloReceita(conf, entidade)} />
+              <AvisoDeAtraso indicador="receita-arrecadada" ano={ano} />
+            </>
+          }
         >
           <Mi valor={arrecadado} />
         </Numero>
         <Numero
           rotulo="Empenhado"
           detalhe={`já descontadas as anulações · ${numero(d.totais.quantidade)} empenhos, ${numero(d.totais.credores)} credores`}
-          selo={<Selo selo={seloDespesa(conf, entidade)} />}
+          selo={
+            <>
+              <Selo selo={seloDespesa(conf, entidade)} />
+              <AvisoDeAtraso indicador="despesa-empenhada-liquida" ano={ano} />
+            </>
+          }
         >
           <Mi valor={empenhado} />
         </Numero>

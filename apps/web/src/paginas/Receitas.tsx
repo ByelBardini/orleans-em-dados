@@ -3,7 +3,7 @@ import { useMemo, useState } from 'react';
 import { useApi } from '../api';
 import { BarraDividida, Estado, Filtros, Fonte, LinhaAcumulada, ListaPontos, Mi, Numero, Numeros } from '../components';
 import { emMilhoes, MESES, MESES_LONGOS, milhoes, moeda, numero, pct, porExtenso } from '../format';
-import { Selo, useConferencia } from '../selo';
+import { AvisoDeAtraso, Selo, useConferencia } from '../selo';
 import { seloReceita, seloRubrica } from '../selos';
 import { ORIGEM_CIDADAO, ORIGENS_DE_FORA, populacao, sujeito } from '../referencias';
 import type { PropsDaPagina } from './props';
@@ -165,7 +165,16 @@ function Conteudo({
         <Numero rotulo="Previsto" detalhe="orçamento atualizado do ano">
           <Mi valor={previsto} />
         </Numero>
-        <Numero rotulo="Arrecadado" detalhe={moeda(arrecadado)} selo={<Selo selo={seloReceita(conf, entidade)} />}>
+        <Numero
+          rotulo="Arrecadado"
+          detalhe={moeda(arrecadado)}
+          selo={
+            <>
+              <Selo selo={seloReceita(conf, entidade)} />
+              <AvisoDeAtraso indicador="receita-arrecadada" ano={ano} />
+            </>
+          }
+        >
           <Mi valor={arrecadado} />
         </Numero>
         <Numero rotulo="Realizado" vermelho barra={realizado ?? undefined}>

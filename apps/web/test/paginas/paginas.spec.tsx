@@ -10,6 +10,7 @@ import { FetchFake } from '../support/fetch-fake';
 import { ANO, FILTROS, respostaGravada, ROTAS } from '../support/respostas';
 
 const props = { ano: ANO, entidade: '', filtros: FILTROS };
+const ANO_CORRENTE = new Date().getUTCFullYear();
 
 const RECEITAS = respostaGravada('api_receitas_ano_2025');
 const EMPENHOS_RESUMO = respostaGravada('api_despesas_empenhos_resumo_ano_2025');
@@ -20,8 +21,27 @@ const BUSCA = respostaGravada('api_despesas_empenhos_ano_2025');
 const SEM_DADOS = { erro: 'Sem dados de receitas para 2025' };
 
 /** A API das fixtures: tudo respondendo, para o spec trocar só o que importa. */
+const IMPORTACOES_ATRASADAS = {
+  importadores: [
+    {
+      id: 'betha',
+      ultimaExecucao: null,
+      exercicios: [{ ano: ANO_CORRENTE, atualizadoEm: '2000-01-01T03:00:00.000Z' }],
+    },
+  ],
+};
+
 function apiCompleta() {
-  return new FetchFake()
+  const consultas = (ano: number) =>
+    [
+      [`/api/receitas?ano=${ano}&entidade=`, RECEITAS],
+      [`/api/despesas/empenhos/resumo?ano=${ano}&entidade=`, EMPENHOS_RESUMO],
+      [`/api/despesas/resumo?ano=${ano}&entidade=`, DESPESAS],
+      [`/api/conferencias?ano=${ano}`, CONFERENCIA],
+    ] as const;
+  const fake = new FetchFake();
+  for (const [caminho, corpo] of consultas(ANO_CORRENTE)) fake.responder(caminho, corpo);
+  return fake
     .responder(ROTAS.receitas, RECEITAS)
     .responder(ROTAS.empenhosResumo, EMPENHOS_RESUMO)
     .responder(ROTAS.despesas, DESPESAS)
@@ -58,12 +78,14 @@ describe('VisaoGeral', () => {
   });
 
   it('o total de empenhado é o da despesa orçamentária, não a soma dos empenhos originais', async () => {
-    apiCompleta().instalar();
+    const oficial = { ...DESPESAS, totais: { ...DESPESAS.totais, empenhado: 5_000_000 } };
+    apiCompleta().responder(ROTAS.despesas, oficial).instalar();
 
     render(<VisaoGeral {...props} />);
 
     const totais = await screen.findByRole('region', { name: 'Totais do ano' });
-    expect(within(totais).getByText('Empenhado').parentElement).toHaveTextContent('0,2 mi');
+    expect(within(totais).getByText('Empenhado').parentElement).toHaveTextContent('5,0 mi');
+    expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('empenhou R$ 5,0 milhões');
   });
 
   it('a Câmara aparece à parte, com a fonte TCE-SC', async () => {
@@ -112,6 +134,15 @@ describe('VisaoGeral', () => {
     expect(await screen.findByText(/Resposta inesperada de \/api\/receitas/)).toBeInTheDocument();
   });
 
+  it('dado atrasado aparece ao lado do selo da conferência, não no lugar dele', async () => {
+    apiCompleta().responder('/api/importacoes', IMPORTACOES_ATRASADAS).instalar();
+
+    render(<VisaoGeral {...props} ano={ANO_CORRENTE} />);
+
+    expect(await screen.findAllByText('Dado atrasado')).toHaveLength(2);
+    expect(screen.getAllByRole('link', { name: 'Ver conferência →' }).length).toBeGreaterThan(0);
+  });
+
   it('cada conjunto de números mostra de onde veio', async () => {
     apiCompleta().instalar();
 
@@ -140,6 +171,14 @@ describe('VisaoGeral', () => {
 });
 
 describe('Receitas', () => {
+  it('dado atrasado aparece junto do total arrecadado', async () => {
+    apiCompleta().responder('/api/importacoes', IMPORTACOES_ATRASADAS).instalar();
+
+    render(<Receitas {...props} ano={ANO_CORRENTE} />);
+
+    expect(await screen.findByText('Dado atrasado')).toBeInTheDocument();
+  });
+
   it('a manchete compara com o previsto', async () => {
     apiCompleta().instalar();
 
@@ -227,6 +266,14 @@ describe('Despesas', () => {
     await screen.findByRole('table');
     return fake;
   };
+
+  it('dado atrasado aparece junto do total empenhado', async () => {
+    apiCompleta().responder('/api/importacoes', IMPORTACOES_ATRASADAS).instalar();
+
+    render(<Despesas {...props} ano={ANO_CORRENTE} />);
+
+    expect(await screen.findByText('Dado atrasado')).toBeInTheDocument();
+  });
 
   it('a manchete diz quanto de cada R$ 100 já foi pago', async () => {
     await carregar();
