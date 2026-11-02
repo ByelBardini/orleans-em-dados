@@ -688,7 +688,7 @@ export type Discrepancia = {
   /** Empenho: de qual fonte é a linha, e como achá-la. Nunca credor nem histórico. */
   fonte?: 'betha' | 'tce';
   numero?: number | null;
-  data?: string | null;
+  dataEmpenho?: string | null;
   id?: string;
   nota: string;
 };
@@ -1166,7 +1166,7 @@ export function discrepanciasDeEmpenhos(
         codigoEntidade: e.codigoEntidade,
         fonte: e.fonte,
         numero: e.numero,
-        data: e.data,
+        dataEmpenho: e.data,
         id: e.id,
         betha: e.fonte === 'betha' ? valor : null,
         tce: e.fonte === 'tce' ? valor : null,
