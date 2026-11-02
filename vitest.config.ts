@@ -16,6 +16,7 @@ const unidade = (pasta: string) => ({
 export default defineConfig({
   test: {
     projects: [
+      unidade('packages/contracts'),
       unidade('packages/db'),
       unidade('packages/importadores'),
       unidade('apps/api'),

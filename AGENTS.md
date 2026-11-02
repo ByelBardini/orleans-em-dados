@@ -5,7 +5,7 @@ Dashboard público, rastreável, com dados de receitas e despesas do município 
 ## Stack
 
 - Node.js ≥ 22.9, pnpm (versão no `packageManager`), PostgreSQL 17 (`docker-compose.yml`, porta 5433).
-- Código em JavaScript (ESM). TypeScript 6 strict configurado em `tsconfig.base.json` para o código novo.
+- Migração em andamento de JavaScript (ESM) para TypeScript 6 strict (`tsconfig.base.json`, tsx); código novo é TypeScript, e `packages/contracts` já está.
 - `apps/api`: `node:http` sem framework, SQL direto pelo `pg`.
 - `apps/web`: React 19 + Vite 6, JSX, CSS próprio em `styles.css`.
 - Qualidade: Vitest 5 (`vitest.config.ts`, um projeto por workspace), ESLint flat (`eslint.config.js`), Prettier (`.prettierrc.json`, largura 120).
@@ -13,6 +13,7 @@ Dashboard público, rastreável, com dados de receitas e despesas do município 
 ## Layout do repositório
 
 - `packages/db/` — conexão, migrações SQL e a conferência Betha × TCE-SC.
+- `packages/contracts/` — valores do domínio e schemas Zod compartilhados.
 - `packages/importadores/` — coletores Betha e TCE-SC, gravação e publicação das coletas, CLIs.
 - `apps/api/src/` — API REST que lê só as coletas publicadas.
 - `apps/web/src/` — dashboard.
@@ -28,6 +29,7 @@ Leia o hub da área antes de abrir fonte. O driver do `/testar` indica qual (`le
 | ------------------- | ------------------------------------------------- | ---------------------------------------------------------------------- |
 | Banco e conferência | [`db.md`](docs/context/db.md)                     | tabelas, publicação por ponteiro, regras da conferência Betha × TCE-SC |
 | Coletores           | [`importadores.md`](docs/context/importadores.md) | clientes Betha e Qlik, validação das coletas, `gravarColeta`           |
+| Contratos           | [`contracts.md`](docs/context/contracts.md)       | dinheiro, exercício, rubrica e schemas das respostas                   |
 | API                 | [`api.md`](docs/context/api.md)                   | rotas, parâmetros, CSV                                                 |
 | Dashboard           | [`web.md`](docs/context/web.md)                   | páginas, componentes, formatação, selos                                |
 
