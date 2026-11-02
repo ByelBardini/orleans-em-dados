@@ -1,0 +1,20 @@
+{
+  "name": "@orleans-em-dados/api",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "tsx watch --env-file-if-exists=../../.env src/index.ts",
+    "start": "tsx --env-file-if-exists=../../.env src/index.ts",
+    "typecheck": "tsc"
+  },
+  "dependencies": {
+    "@orleans-em-dados/contracts": "workspace:*",
+    "@orleans-em-dados/db": "workspace:*",
+    "fastify": "^5.12.7",
+    "zod": "^4.6.7"
+  },
+  "devDependencies": {
+    "@orleans-em-dados/importador-nucleo": "workspace:*"
+  }
+}

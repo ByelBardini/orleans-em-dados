@@ -1,0 +1,53 @@
+# Banco de dados
+
+Esquema PostgreSQL, migrações e conexão. Vive em `packages/db/` (pacote `@orleans-em-dados/db`).
+
+## Estrutura
+
+- `packages/db/src/index.ts` — `pool` (`pg.Pool`, máx. 5), `db` (Drizzle), `transacao(fn)` (BEGIN/COMMIT/ROLLBACK) e `tabelas` (o esquema).
+- `packages/db/src/schema.ts` — todas as tabelas em Drizzle; fonte das migrações novas. As views `*_publicadas` existem só no SQL.
+- `packages/db/src/migrar.ts` — `migrar(url)`; `pnpm db:migrar` chama com `DATABASE_URL`.
+- `packages/db/drizzle/` — migrações. `0000_baseline.sql` é o conteúdo de `migrations/001` + `002`, com o catálogo inicial (fontes, consultas, entidades, unidades do TCE).
+- `packages/db/migrations/` — SQLs originais; não rodam mais, servem ao teste de equivalência.
+- `packages/db/src/conferencia/` — a conferência Betha × TCE-SC (ver [conferencia.md](conferencia.md)).
+
+## Contrato (tabelas)
+
+- `fontes`, `consultas` — catálogo. `consultas.id` é o id da consulta Betha (`57153`, `57140`, `57170`) ou um id interno ≥ `900001` para o TCE-SC (o UUID do app Qlik fica em `identificador_externo`). `consultas.chave` (`receitas`, `empenhos`, `despesas`, `tcesc_receitas`, `tcesc_empenhos`) é como o código se refere a cada uma.
+- `entidades` — chave `codigo_betha` (segmento do meio do id Betha: `728` Prefeitura, `319` FMS, `2473` SAMAE, `320` Fundação Ambiental), com `status_mapeamento` `inferido`/`confirmado`.
+- `unidades_tce` — UG do TCE-SC → `entidade_betha`; a Câmara (`1864`) não tem entidade Betha.
+- `coletas` — uma por execução de coleta (consulta × ano), com `status` `totalizador_conciliado` | `rejeitado` | `exemplo`, contagens, `erros` e `hash_payload`.
+- `totais_fonte` — totalizador da fonte × soma calculada, por campo.
+- `registros_brutos` — payload original de cada registro (`JSONB`), por coleta.
+- `execucoes` — cada execução de importador × ano: status, contagens, erro, `detalhes` por consulta.
+- `publicacoes` — ponteiro (consulta, ano) → coleta exibida. Trocar o ponteiro é publicar.
+- Normalizadas, por coleta: `receitas` (57153), `empenhos` (57140), `despesas` (57170), `tcesc_receitas` (900001), `tcesc_empenhos` (900002). Views `*_publicadas` juntam com `publicacoes`.
+
+## Funções e utilitários
+
+- `transacao(fn)` (`packages/db/src/index.ts`) — passa o cliente da transação para `fn`; desfaz tudo se `fn` lançar.
+
+## Regras de arquitetura
+
+- Mudança de banco: edita `src/schema.ts`, roda `pnpm --filter @orleans-em-dados/db gerar` e revisa o SQL em `drizzle/`. Catálogo (fontes, consultas) entra por `INSERT` à mão no SQL gerado.
+- Banco antigo (tabela `migracoes` com as duas migrações originais) recebe a baseline como aplicada, sem DDL. Só parte delas: `migrar` recusa citando o que falta.
+- Nomes de restrição e índice em `schema.ts` são os que o Postgres deu às migrações originais: `migracoes.spec.ts` compara o catálogo de três bancos (migrado, SQL original, DDL gerada do `schema.ts`).
+
+## Regras de negócio
+
+- Só coleta `totalizador_conciliado` é publicada; `rejeitado` fica gravada para análise. `exemplo` só é publicada se não houver dado real para o ano (regra em `publicar`, `packages/importadores/nucleo/src/lotes.dao.ts`).
+- Valor monetário é `NUMERIC(18,2)`; rubrica e natureza são texto (zeros à esquerda).
+
+## Testes
+
+- `packages/db/test/support/banco.ts` — `garantirBancoDescartavel(url)` (recusa a porta 5433), `recriarBanco()` (derruba o esquema e migra; é o `globalSetup` do projeto `integracao`) e `criarBancoTemporario(nome)`, para spec que precisa de banco próprio. `URL_TESTE` (porta 5434) mora em `url.ts`.
+
+## Armadilhas
+
+- O `.desc()` do Drizzle gera `DESC NULLS LAST`; para reproduzir um índice `DESC` puro é `.desc().nullsFirst()`.
+- `URL_PADRAO` em `packages/db/src/index.ts`: sem `DATABASE_URL`, conecta no banco de desenvolvimento (porta 5433, coletas reais). O projeto `integracao` do Vitest define a URL descartável e `setup-integracao.js` recusa a 5433 antes do primeiro `import` do pacote.
+- `NUMERIC` é lido como `number` (`setTypeParser`): somas exatas se fazem no SQL ou em centavos inteiros, nunca somando os `number` em JS.
+- Receita conferida usa `receitas.valor_arrecadado_mes` por mês; a soma de cada fonte é do Postgres, e a separação em centavos no JS (`conferencia.bo.ts`). `dadosConferidos(ano)` lê, nunca grava.
+- `conferencia(ano)` devolve `geradoEm: new Date()`: duas chamadas nunca são iguais. Comparação de resposta ignora ou fixa esse campo.
+- `receitas.valor_arrecadado_ate_mes` é acumulado: nunca somar entre meses. `receitas.mes` é inferido do sufixo `_N` do id (semântica não confirmada).
+- `empenhos.numero` não é único (repete entre entidades e, em 2025, dentro do SAMAE). `valor_liquidado` `NULL` é "não informado", diferente de zero.

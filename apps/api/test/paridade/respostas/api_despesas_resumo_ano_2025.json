@@ -1,0 +1,97 @@
+{
+  "status": 200,
+  "tipo": "application/json; charset=utf-8",
+  "disposicao": null,
+  "corpo": {
+    "meta": {
+      "coletaId": 3,
+      "fonte": "Portal da Transparência Betha — Orleans/SC",
+      "consultaId": 57170,
+      "consultaNome": "Despesas Orçamentárias",
+      "urlOrigem": "https://transparencia.betha.cloud/#/mJRAZlfGu2RI9KNBWj49aw==/consulta/57170",
+      "ano": 2025,
+      "filtro": {
+        "ano": [
+          "2025"
+        ]
+      },
+      "origem": "arquivo",
+      "iniciadoEm": "2025-03-01T12:00:00.000Z",
+      "coletadoEm": "2025-03-01T12:00:00.000Z",
+      "totalHits": 3,
+      "capturados": 3,
+      "idsUnicos": 3,
+      "camposAusentes": {},
+      "status": "totalizador_conciliado",
+      "exemplo": false,
+      "conferencia": []
+    },
+    "fonteUnica": [
+      "orcadoAtualizado"
+    ],
+    "conferencia": {
+      "disponivel": true,
+      "parcial": true,
+      "limites": {
+        "mesReceita": 2,
+        "dataEmpenho": "2025-02-05"
+      },
+      "aguardandoTce": 0,
+      "diferencaBetha": null,
+      "totalBetha": null,
+      "entidadesConferidas": 2,
+      "entidadesFora": 0
+    },
+    "totais": {
+      "orcadoAtualizado": 1600000,
+      "empenhado": 188000,
+      "liquidado": 113000,
+      "pago": 93000
+    },
+    "porEntidade": [
+      {
+        "chave": "728",
+        "entidade": {
+          "nome": "Prefeitura Municipal",
+          "sigla": "Prefeitura",
+          "status": "inferido"
+        },
+        "fonte": "tce",
+        "conferida": true,
+        "dataCorte": "2025-02-05",
+        "aguardandoTce": 0,
+        "empenhado": 173000,
+        "liquidado": 113000,
+        "pago": 93000
+      },
+      {
+        "chave": "319",
+        "entidade": {
+          "nome": "Fundo Municipal de Saúde",
+          "sigla": "FMS",
+          "status": "inferido"
+        },
+        "fonte": "tce",
+        "conferida": true,
+        "dataCorte": "2025-02-05",
+        "aguardandoTce": 0,
+        "empenhado": 15000,
+        "liquidado": 0,
+        "pago": 0
+      }
+    ],
+    "camara": {
+      "nome": "Câmara Municipal de Orleans",
+      "sigla": "Câmara",
+      "fonte": "tce",
+      "conferida": false,
+      "quantidade": 1,
+      "empenhado": 25000,
+      "liquidado": 25000,
+      "pago": 20000,
+      "ultimoEmpenho": "2025-01-05",
+      "coletadoEm": "2025-03-01T12:00:00.000Z",
+      "urlOrigem": "https://paineistransparencia.tce.sc.gov.br/extensions/appDespesasMunicipaisExternoNovo/index.html"
+    }
+  }
+}

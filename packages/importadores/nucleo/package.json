@@ -1,0 +1,17 @@
+{
+  "name": "@orleans-em-dados/importador-nucleo",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc"
+  },
+  "dependencies": {
+    "@orleans-em-dados/contracts": "workspace:*",
+    "@orleans-em-dados/db": "workspace:*",
+    "drizzle-orm": "^0.45.4"
+  }
+}

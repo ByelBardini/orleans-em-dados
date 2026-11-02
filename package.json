@@ -8,25 +8,41 @@
   "engines": {
     "node": ">=22.9"
   },
-  "workspaces": [
-    "db",
-    "collectors",
-    "backend",
-    "frontend"
-  ],
   "scripts": {
     "db:subir": "docker compose up -d --wait",
-    "db:migrar": "npm run migrar -w db",
-    "db:exemplos": "npm run importar -w collectors -- --exemplos",
-    "coletar": "npm run coletar -w collectors --",
-    "coletar:tcesc": "npm run coletar:tcesc -w collectors --",
-    "conferir": "npm run conferir -w collectors --",
-    "importar": "npm run importar -w collectors --",
-    "dev": "concurrently -n api,web -c blue,green \"npm run dev -w backend\" \"npm run dev -w frontend\"",
-    "build": "npm run build -w frontend",
-    "start": "npm run start -w backend"
+    "db:migrar": "pnpm --filter @orleans-em-dados/db migrar",
+    "db:exemplos": "pnpm --filter @orleans-em-dados/worker importar --exemplos",
+    "db:teste": "docker run -d --rm --name orleans-testar -e POSTGRES_USER=orleans -e POSTGRES_PASSWORD=orleans -e POSTGRES_DB=orleans_teste -p 5434:5432 --tmpfs /var/lib/postgresql/data postgres:17-alpine",
+    "db:teste:parar": "docker rm -f orleans-testar",
+    "conferir": "pnpm --filter @orleans-em-dados/worker conferir",
+    "importar": "pnpm --filter @orleans-em-dados/worker importar",
+    "dev": "concurrently -n api,web,worker -c blue,green,yellow \"pnpm --filter @orleans-em-dados/api dev\" \"pnpm --filter @orleans-em-dados/web dev\" \"pnpm --filter @orleans-em-dados/worker dev\"",
+    "build": "pnpm --filter @orleans-em-dados/web build",
+    "start": "pnpm --filter @orleans-em-dados/api start",
+    "test": "vitest run --project=!integracao",
+    "test:servidor": "vitest run --project=!integracao --project=!@orleans-em-dados/web",
+    "test:web": "vitest run --project=@orleans-em-dados/web",
+    "lint": "eslint .",
+    "typecheck": "pnpm -r --if-present typecheck",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "test:integracao": "vitest run --project=integracao",
+    "worker": "pnpm --filter @orleans-em-dados/worker start"
   },
   "devDependencies": {
-    "concurrently": "^9.1.2"
-  }
+    "@eslint/js": "^10.0.1",
+    "@types/node": "^26.6.6",
+    "concurrently": "^9.1.2",
+    "eslint": "^10.14.0",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-react-hooks": "^7.1.1",
+    "eslint-plugin-react-refresh": "^0.5.7",
+    "globals": "^17.13.0",
+    "prettier": "^3.9.10",
+    "tsx": "^4.23.15",
+    "typescript": "^6.0.3",
+    "typescript-eslint": "^8.72.1",
+    "vitest": "^5.0.5"
+  },
+  "packageManager": "pnpm@11.9.0"
 }

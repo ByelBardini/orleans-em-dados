@@ -1,0 +1,1 @@
+{ "name": "fixture-npm", "private": true, "type": "module", "workspaces": ["db", "web"] }

@@ -1,0 +1,1473 @@
+import { describe, expect, it } from 'vitest';
+import {
+  anotarEmpenho,
+  anotarNaturezas,
+  classificarEmpenho,
+  completarRubricas,
+  conferirDespesaEncerrada,
+  discrepanciasDeEmpenhos,
+  listarSemExplicacao,
+  montarConferencia,
+  montarDespesaConferida,
+  montarReceitaConferida,
+  ordenarDiscrepancias,
+  separarReceita,
+  separarValores,
+  type CruzamentoReceita,
+  type DadosDaConferencia,
+  type DespesaPorEntidade,
+  type Discrepancia,
+  type EmpenhoParaClassificar,
+  type EmpenhoSemPar,
+  type LinhaDeReceita,
+  type LinhaNatureza,
+  type Modalidade71,
+  type PistasDaReceita,
+} from '../../src/conferencia/conferencia.bo';
+
+const NBSP = ' ';
+
+const natureza = (campos: Partial<LinhaNatureza>): LinhaNatureza => ({
+  ent: '728',
+  entidade: 'Prefeitura',
+  natureza: '11125001',
+  descricao: 'IPTU',
+  betha: 100,
+  tce: 100,
+  diferenca: 0,
+  ...campos,
+});
+
+const semPar = (campos: Partial<EmpenhoSemPar>): EmpenhoSemPar => ({
+  fonte: 'betha',
+  entidade: 'Prefeitura',
+  codigoEntidade: '728',
+  numero: 10,
+  data: '2025-01-10',
+  valor: 100,
+  liquidado: 100,
+  ocorrencia: 1,
+  numeroNaOutra: null,
+  id: '211:728:1',
+  ...campos,
+});
+
+describe('anotarNaturezas', () => {
+  it('natureza sem diferença sai da lista', () => {
+    expect(anotarNaturezas([natureza({ diferenca: 0 })], [], [])).toEqual([]);
+  });
+
+  it('natureza só no TCE-SC é classificada e anotada como tal', () => {
+    const [linha] = anotarNaturezas([natureza({ betha: null, tce: 50, diferenca: -50 })], [], []);
+    expect(linha).toMatchObject({ tipo: 'soTce', nota: 'Registrado no TCE, sem lançamento correspondente na Betha.' });
+  });
+
+  it('natureza só na Betha lembra que pode estar em outro nível de detalhe', () => {
+    const [linha] = anotarNaturezas([natureza({ betha: 50, tce: null, diferenca: 50 })], [], []);
+    expect(linha?.tipo).toBe('soBetha');
+    expect(linha?.nota).toContain('pode estar classificado em outro nível de detalhe');
+  });
+
+  it.each([
+    [10, 'A Betha registra mais que o TCE nesta rubrica.'],
+    [-10, 'O TCE registra mais que a Betha nesta rubrica.'],
+  ])('diferença de %s sem pista diz só quem registra mais', (diferenca, nota) => {
+    const [linha] = anotarNaturezas([natureza({ diferenca })], [], []);
+    expect(linha).toMatchObject({ tipo: 'valor', nota });
+  });
+
+  it('incoerência do mês que explica toda a diferença é dita assim', () => {
+    const [linha] = anotarNaturezas(
+      [natureza({ diferenca: 50000 })],
+      [],
+      [{ ent: '728', nat: '11125001', mes: 2, excesso: 50000 }],
+    );
+    expect(linha?.incoerenciaBetha).toBe(50000);
+    expect(linha?.nota).toContain(`fevereiro (R$${NBSP}50.000,00)`);
+    expect(linha?.nota).toContain('Explica toda a diferença.');
+  });
+
+  it('incoerência aponta o mês em que o acumulado desencontra, sem dizer que a linha sobrando é desse mês', () => {
+    const [linha] = anotarNaturezas(
+      [natureza({ diferenca: 50000 })],
+      [],
+      [{ ent: '728', nat: '11125001', mes: 6, excesso: 50000 }],
+    );
+    expect(linha?.nota).toBe(
+      `Na própria Betha, o arrecadado no mês não fecha com o acumulado da rubrica em junho (R$${NBSP}50.000,00): é onde a conta desencontra. A linha que o acumulado provavelmente desconsidera pode ser de outro mês. Explica toda a diferença.`,
+    );
+  });
+
+  it('incoerência que explica parte diz quanto explica e quanto resta', () => {
+    const [linha] = anotarNaturezas(
+      [natureza({ diferenca: 100 })],
+      [],
+      [{ ent: '728', nat: '11125001', mes: 1, excesso: 30 }],
+    );
+    expect(linha?.nota).toContain(`Explica R$${NBSP}30,00; restam R$${NBSP}70,00.`);
+  });
+
+  it('incoerência de outra entidade não entra na conta', () => {
+    const [linha] = anotarNaturezas(
+      [natureza({ diferenca: 100 })],
+      [],
+      [{ ent: '319', nat: '11125001', mes: 1, excesso: 30 }],
+    );
+    expect(linha?.incoerenciaBetha).toBe(0);
+  });
+
+  it('mesmo valor lançado em outra rubrica que bate com o TCE é possível duplicidade', () => {
+    const linhas = [natureza({ diferenca: 500 }), natureza({ natureza: '17115101', diferenca: 0 })];
+    const repetidas = [{ ent: '728', nat: '11125001', outra: '17115101', mes: 3, v: 500 }];
+    const [linha] = anotarNaturezas(linhas, repetidas, []);
+    expect(linha?.nota).toBe(
+      `Em março, o mesmo valor (R$${NBSP}500,00) também foi lançado na rubrica 17115101, que bate com o TCE: possível lançamento em duplicidade na Betha.`,
+    );
+  });
+
+  it('repetição com valor diferente da diferença não é duplicidade', () => {
+    const repetidas = [{ ent: '728', nat: '11125001', outra: '17115101', mes: 3, v: 499 }];
+    const [linha] = anotarNaturezas([natureza({ diferenca: 500 })], repetidas, []);
+    expect(linha?.nota).toBe('A Betha registra mais que o TCE nesta rubrica.');
+  });
+
+  it('diferença que outra rubrica compensa exatamente é provável reclassificação', () => {
+    const [linha] = anotarNaturezas(
+      [natureza({ diferenca: 500 }), natureza({ natureza: '17115101', diferenca: -500 })],
+      [],
+      [],
+    );
+    expect(linha?.nota).toBe(
+      'Compensa exatamente a diferença da rubrica 17115101: provável reclassificação entre rubricas, sem efeito no total.',
+    );
+  });
+
+  it('incoerência tem prioridade sobre a compensação como explicação', () => {
+    const [linha] = anotarNaturezas(
+      [natureza({ diferenca: 500 }), natureza({ natureza: '17115101', diferenca: -500 })],
+      [],
+      [{ ent: '728', nat: '11125001', mes: 1, excesso: 500 }],
+    );
+    expect(linha?.nota).toContain('Explica toda a diferença.');
+  });
+
+  it('a linha anotada troca `ent` por `codigoEntidade`', () => {
+    const [linha] = anotarNaturezas([natureza({ diferenca: 1 })], [], []);
+    expect(linha?.codigoEntidade).toBe('728');
+    expect(linha).not.toHaveProperty('ent');
+  });
+});
+
+describe('anotarEmpenho', () => {
+  it('ocorrência repetida é registro repetido, mesmo com número na outra fonte', () => {
+    expect(anotarEmpenho(semPar({ ocorrencia: 2, numeroNaOutra: 112 })).nota).toBe(
+      'Registro repetido: mesmo número, data e valor de outro empenho.',
+    );
+  });
+
+  it('número diferente na outra fonte é provável renumeração', () => {
+    expect(anotarEmpenho(semPar({ numeroNaOutra: 112 })).nota).toBe(
+      'Na outra fonte, o empenho com esta data e valor é o nº 112: provável renumeração.',
+    );
+  });
+
+  it.each([
+    ['betha', 'Sem correspondente no TCE.'],
+    ['tce', 'Sem correspondente na Betha.'],
+  ] as const)('empenho da fonte %s sem pista diz que não tem correspondente', (fonte, nota) => {
+    expect(anotarEmpenho(semPar({ fonte })).nota).toBe(nota);
+  });
+
+  it('empenho da Betha sem liquidação ganha o aviso', () => {
+    expect(anotarEmpenho(semPar({ liquidado: null })).nota).toBe(
+      'Sem correspondente no TCE. Não tem liquidação registrada.',
+    );
+  });
+
+  it('empenho do TCE-SC sem liquidação não ganha o aviso', () => {
+    expect(anotarEmpenho(semPar({ fonte: 'tce', liquidado: null })).nota).toBe('Sem correspondente na Betha.');
+  });
+});
+
+const dados = (campos: Partial<DadosDaConferencia>): DadosDaConferencia => ({
+  coletas: [],
+  limites: { mesReceita: 12, dataEmpenho: '2025-12-31' },
+  despesa: [],
+  receitaEnt: [],
+  receitaMes: [],
+  naturezas: [],
+  repetidas: [],
+  incoerentes: [],
+  repetidasMeses: [],
+  mesPorRubrica: [],
+  outrosAnos: new Map(),
+  empenhos: [],
+  semPar: [],
+  camara: { empenhos: 0, empenhado: null, liquidado: null, pago: null, ultimo: null },
+  ...campos,
+});
+
+const despesa = (campos: object) => ({
+  sigla: 'Prefeitura',
+  nome: 'Prefeitura Municipal',
+  poder: 'Executivo',
+  entidadeBetha: '728',
+  bethaEmpenhado: 100,
+  tceEmpenhado: 100,
+  difEmpenhado: 0,
+  bethaLiquidado: 100,
+  tceLiquidado: 100,
+  difLiquidado: 0,
+  bethaPago: 100,
+  tcePago: 100,
+  difPago: 0,
+  ...campos,
+});
+
+describe('montarConferencia', () => {
+  const AGORA = new Date('2026-01-15T10:00:00.000Z');
+
+  it('leva o instante recebido em geradoEm', () => {
+    expect(montarConferencia(2025, dados({}), AGORA).geradoEm).toBe('2026-01-15T10:00:00.000Z');
+  });
+
+  it.each([
+    [12, false],
+    [11, true],
+  ])('TCE-SC com receita até o mês %s: parcial é %s', (mesReceita, parcial) => {
+    const conferencia = montarConferencia(2025, dados({ limites: { mesReceita, dataEmpenho: null } }), AGORA);
+    expect(conferencia.parcial).toBe(parcial);
+  });
+
+  it('despesa só é comparável em exercício completo', () => {
+    const parcial = dados({ limites: { mesReceita: 2, dataEmpenho: null }, despesa: [despesa({})] });
+    expect(montarConferencia(2025, parcial, AGORA).despesaPorEntidade[0]?.comparavel).toBe(false);
+    expect(montarConferencia(2025, dados({ despesa: [despesa({})] }), AGORA).despesaPorEntidade[0]?.comparavel).toBe(
+      true,
+    );
+  });
+
+  it('entidade que só existe no TCE-SC, como a Câmara, não é comparável', () => {
+    const camara = despesa({ bethaEmpenhado: null, entidadeBetha: null });
+    expect(montarConferencia(2025, dados({ despesa: [camara] }), AGORA).despesaPorEntidade[0]?.comparavel).toBe(false);
+  });
+
+  it('resumo conta como iguais só as entidades sem diferença nas três etapas', () => {
+    const lista = [
+      despesa({}),
+      despesa({ sigla: 'FMS', difPago: 0.01 }),
+      despesa({ sigla: 'Câmara', bethaEmpenhado: null }),
+    ];
+    const { resumo } = montarConferencia(2025, dados({ despesa: lista }), AGORA);
+    expect(resumo.despesaEntidadesComparadas).toBe(2);
+    expect(resumo.despesaEntidadesIguais).toBe(1);
+  });
+
+  it('resumo soma a receita em centavos, sem erro de ponto flutuante', () => {
+    const entidade = (betha: number, tce: number) => ({
+      sigla: 'X',
+      codigoEntidade: '728',
+      betha,
+      tce,
+      diferenca: betha - tce,
+    });
+    const { resumo } = montarConferencia(
+      2025,
+      dados({ receitaEnt: [entidade(0.1, 0.05), entidade(0.2, 0.05)] }),
+      AGORA,
+    );
+    expect(resumo.receitaBetha).toBe(0.3);
+    expect(resumo.receitaTce).toBe(0.1);
+    expect(resumo.receitaDiferenca).toBe(0.2);
+  });
+
+  it('receita da entidade recebe a incoerência da própria entidade', () => {
+    const conferencia = montarConferencia(
+      2025,
+      dados({
+        receitaEnt: [{ sigla: 'FMS', codigoEntidade: '319', betha: 10, tce: 5, diferenca: 5 }],
+        incoerentes: [
+          { ent: '319', nat: '1', mes: 1, excesso: 5 },
+          { ent: '728', nat: '1', mes: 1, excesso: 99 },
+        ],
+      }),
+      AGORA,
+    );
+    expect(conferencia.receitaPorEntidade[0]?.incoerenciaBetha).toBe(5);
+    expect(conferencia.resumo.receitaIncoerenteBetha).toBe(104);
+  });
+});
+
+describe('causa da natureza divergente', () => {
+  it('mesmo valor em duas rubricas do mês é possível duplicidade, com causa', () => {
+    const [linha] = anotarNaturezas(
+      [natureza({ diferenca: 500 })],
+      [{ ent: '728', nat: '11125001', outra: '17115121', mes: 7, v: 500 }],
+      [],
+    );
+    expect(linha).toMatchObject({ causa: 'Possível duplicidade', explicada: true });
+  });
+
+  it('mesmo valor em dois meses da mesma rubrica é possível duplicidade, e a nota cita os meses', () => {
+    const [linha] = anotarNaturezas(
+      [natureza({ diferenca: 500 })],
+      [],
+      [],
+      [{ ent: '728', nat: '11125001', mes: 7, outroMes: 8, v: 500 }],
+    );
+    expect(linha).toMatchObject({ causa: 'Possível duplicidade', explicada: true });
+    expect(linha?.nota).toContain('julho e em agosto');
+  });
+
+  it('mesmo valor em dois meses de outra entidade não explica', () => {
+    const [linha] = anotarNaturezas(
+      [natureza({ diferenca: 500 })],
+      [],
+      [],
+      [{ ent: '319', nat: '11125001', mes: 7, outroMes: 8, v: 500 }],
+    );
+    expect(linha).toMatchObject({ causa: null, explicada: false });
+  });
+
+  it('diferenças que compensam exatamente em outro grupo são provável reclassificação', () => {
+    const linhas = anotarNaturezas(
+      [natureza({ natureza: '17295101', diferenca: -20 }), natureza({ natureza: '24299901', diferenca: 20 })],
+      [],
+      [],
+    );
+    expect(linhas.map((l) => l.causa)).toEqual(['Provável reclassificação', 'Provável reclassificação']);
+  });
+
+  it('grupo de 6 dígitos que soma zero com três rubricas é provável reclassificação', () => {
+    const [primeira] = anotarNaturezas(
+      [
+        natureza({ natureza: '17135011', diferenca: 30 }),
+        natureza({ natureza: '17135021', diferenca: -10 }),
+        natureza({ natureza: '17135031', diferenca: -20 }),
+      ],
+      [],
+      [],
+    );
+    expect(primeira).toMatchObject({ causa: 'Provável reclassificação', explicada: true });
+    expect(primeira?.nota).toContain('No grupo 171350');
+  });
+
+  it('incoerência que explica toda a diferença é causa conhecida', () => {
+    const [linha] = anotarNaturezas(
+      [natureza({ diferenca: 500 })],
+      [],
+      [{ ent: '728', nat: '11125001', mes: 2, excesso: 500 }],
+    );
+    expect(linha).toMatchObject({ causa: 'Lançamento fora do acumulado', explicada: true });
+  });
+
+  it('incoerência que explica só parte deixa a diferença em aberto', () => {
+    const [linha] = anotarNaturezas(
+      [natureza({ diferenca: 500 })],
+      [],
+      [{ ent: '728', nat: '11125001', mes: 2, excesso: 300 }],
+    );
+    expect(linha).toMatchObject({ causa: null, explicada: false });
+  });
+
+  it('diferença sem padrão fica sem causa', () => {
+    const [linha] = anotarNaturezas([natureza({ diferenca: 10 })], [], []);
+    expect(linha).toMatchObject({ causa: null, explicada: false });
+  });
+});
+
+describe('causa do empenho sem par', () => {
+  it.each([
+    ['repetido', { ocorrencia: 2 }, 'Registro repetido', true],
+    ['renumerado', { numeroNaOutra: 112 }, 'Provável renumeração', true],
+    ['sem pista', {}, null, false],
+  ])('empenho %s recebe a causa certa', (_nome, campos, causa, explicada) => {
+    expect(anotarEmpenho(semPar(campos))).toMatchObject({ causa, explicada });
+  });
+});
+
+describe('completarRubricas', () => {
+  const aberta = () => anotarNaturezas([natureza({ diferenca: 10 })], [], []);
+  const parcela = (mes: number, diferenca: number) => ({
+    mes,
+    ent: '728',
+    entidade: 'Prefeitura',
+    natureza: '11125001',
+    diferenca,
+  });
+
+  it('rubrica em aberto diz em quais meses a diferença aparece e de que lado', () => {
+    const [linha] = completarRubricas(aberta(), [parcela(3, 4), parcela(5, 6)], new Map(), 2025);
+    expect(linha?.nota).toContain(`março (R$${NBSP}4,00 a mais na Betha) e maio (R$${NBSP}6,00 a mais na Betha)`);
+  });
+
+  it('diferença em mais de seis meses diz só quantos', () => {
+    const parcelas = [1, 2, 3, 4, 5, 6, 7].map((mes) => parcela(mes, 1));
+    const [linha] = completarRubricas(aberta(), parcelas, new Map(), 2025);
+    expect(linha?.nota).toContain('se repete em 7 meses');
+  });
+
+  it('parcela de outra natureza não entra na nota', () => {
+    const [linha] = completarRubricas(aberta(), [{ ...parcela(3, 4), natureza: '17135011' }], new Map(), 2025);
+    expect(linha?.nota).toBe('A Betha registra mais que o TCE nesta rubrica.');
+  });
+
+  it('mesma rubrica divergindo do mesmo lado em outro ano é conhecida, sem virar explicada', () => {
+    const outros = new Map([['728|11125001', [{ ano: 2024, diferenca: 7, parcial: false }]]]);
+    const [linha] = completarRubricas(aberta(), [], outros, 2025);
+    expect(linha).toMatchObject({
+      conhecida: true,
+      causa: 'Conhecida e recorrente',
+      explicada: false,
+      recorrenteEm: [2024, 2025],
+    });
+    expect(linha?.nota).toContain('Causa ainda não confirmada');
+  });
+
+  it('divergência do lado oposto em outro ano não torna a rubrica conhecida', () => {
+    const outros = new Map([['728|11125001', [{ ano: 2024, diferenca: -7, parcial: false }]]]);
+    const [linha] = completarRubricas(aberta(), [], outros, 2025);
+    expect(linha).toMatchObject({ causa: null, explicada: false });
+    expect(linha?.conhecida).toBeUndefined();
+  });
+
+  it('rubrica já explicada não recebe meses nem recorrência', () => {
+    const explicada = anotarNaturezas(
+      [natureza({ diferenca: 10 })],
+      [],
+      [{ ent: '728', nat: '11125001', mes: 2, excesso: 10 }],
+    );
+    const notaOriginal = explicada[0]?.nota;
+    const outros = new Map([['728|11125001', [{ ano: 2024, diferenca: 7, parcial: false }]]]);
+    const [linha] = completarRubricas(explicada, [parcela(2, 10)], outros, 2025);
+    expect(linha?.nota).toBe(notaOriginal);
+    expect(linha?.conhecida).toBeUndefined();
+  });
+});
+
+describe('listarSemExplicacao', () => {
+  const rubricaAberta = () =>
+    completarRubricas(anotarNaturezas([natureza({ diferenca: 10 })], [], []), [], new Map(), 2025);
+  const despesaComparavel = (difEmpenhado: number) => ({
+    ...despesa({ sigla: 'SAMAE', entidadeBetha: '2473', bethaEmpenhado: 110, tceEmpenhado: 100, difEmpenhado }),
+    comparavel: true,
+  });
+
+  it('entidade com despesa divergente entra na lista', () => {
+    const [item] = listarSemExplicacao([despesaComparavel(10)], [], []);
+    expect(item).toMatchObject({
+      onde: 'despesa',
+      entidade: 'SAMAE',
+      titulo: 'Despesa orçamentária (57170)',
+      diferenca: 10,
+    });
+  });
+
+  it('entidade com despesa igual fica de fora', () => {
+    expect(listarSemExplicacao([despesaComparavel(0)], [], [])).toEqual([]);
+  });
+
+  it('rubrica em aberto entra na lista', () => {
+    expect(listarSemExplicacao([], rubricaAberta(), []).map((i) => i.titulo)).toEqual(['Rubrica 11125001']);
+  });
+
+  it('rubrica conhecida fica de fora', () => {
+    const conhecida = completarRubricas(
+      anotarNaturezas([natureza({ diferenca: 10 })], [], []),
+      [],
+      new Map([['728|11125001', [{ ano: 2024, diferenca: 7, parcial: false }]]]),
+      2025,
+    );
+    expect(listarSemExplicacao([], conhecida, [])).toEqual([]);
+  });
+
+  it('rubrica explicada fica de fora', () => {
+    const explicada = anotarNaturezas(
+      [natureza({ diferenca: 10 })],
+      [],
+      [{ ent: '728', nat: '11125001', mes: 2, excesso: 10 }],
+    );
+    expect(listarSemExplicacao([], explicada, [])).toEqual([]);
+  });
+
+  it('empenho sem pista entra com o valor do lado da fonte, negativo quando é do TCE-SC', () => {
+    const lista = listarSemExplicacao(
+      [],
+      [],
+      [
+        anotarEmpenho(semPar({ valor: 40 })),
+        anotarEmpenho(semPar({ fonte: 'tce', valor: 25, numero: 11, id: '5001' })),
+      ],
+    );
+    expect(lista.map((i) => [i.titulo, i.betha, i.tce, i.diferenca])).toEqual([
+      ['Empenho nº 10', 40, null, 40],
+      ['Empenho nº 11', null, 25, -25],
+    ]);
+  });
+
+  it('empenho repetido fica de fora', () => {
+    expect(listarSemExplicacao([], [], [anotarEmpenho(semPar({ ocorrencia: 2 }))])).toEqual([]);
+  });
+});
+
+describe('montarConferencia com as causas', () => {
+  const AGORA = new Date('2026-01-15T10:00:00.000Z');
+
+  it('mês recebe as próprias parcelas e meses sem diferença ficam com lista vazia', () => {
+    const parcela = { mes: 2, ent: '728', entidade: 'Prefeitura', natureza: '11125001', diferenca: 10 };
+    const { receitaPorMes } = montarConferencia(
+      2025,
+      dados({
+        receitaMes: [
+          { mes: 1, betha: 5, tce: 5, diferenca: 0 },
+          { mes: 2, betha: 15, tce: 5, diferenca: 10 },
+        ],
+        mesPorRubrica: [parcela],
+      }),
+      AGORA,
+    );
+    expect(receitaPorMes.map((m) => m.parcelas)).toEqual([[], [parcela]]);
+  });
+
+  it('resumo separa sem explicação, causa provável e conhecidas', () => {
+    const { resumo, semExplicacao } = montarConferencia(
+      2025,
+      dados({
+        naturezas: [
+          natureza({ natureza: '11125001', diferenca: 10 }),
+          natureza({ natureza: '12000000', diferenca: 20 }),
+          natureza({ natureza: '13000000', diferenca: 30 }),
+        ],
+        incoerentes: [{ ent: '728', nat: '12000000', mes: 2, excesso: 20 }],
+        semPar: [semPar({ ocorrencia: 2 })],
+        outrosAnos: new Map([['728|13000000', [{ ano: 2024, diferenca: 1, parcial: false }]]]),
+      }),
+      AGORA,
+    );
+    expect(resumo).toMatchObject({ semExplicacao: 1, comCausaProvavel: 2, conhecidas: 1 });
+    expect(semExplicacao.map((i) => i.titulo)).toEqual(['Rubrica 11125001']);
+  });
+});
+
+describe('separarValores', () => {
+  it.each([
+    ['iguais', 100, 100, 100, 0, 0],
+    ['Betha maior', 150, 100, 100, 50, 0],
+    ['TCE maior', 100, 150, 100, 0, 50],
+    ['negativos de mesmo sinal', -100, -60, -60, -40, 0],
+    ['negativos com o TCE mais negativo', -60, -100, -60, 0, -40],
+    ['sinais opostos', 50, -50, 0, 50, -50],
+    ['só na Betha', 80, null, 0, 80, 0],
+    ['só no TCE', null, 80, 0, 0, 80],
+    ['linha negativa só na Betha', -15312.12, null, 0, -15312.12, 0],
+  ])('%s: Betha %s e TCE %s conferem %s', (_cenario, betha, tce, conferido, diferencaBetha, diferencaTce) => {
+    expect(separarValores(betha, tce)).toEqual({ conferido, diferencaBetha, diferencaTce });
+  });
+
+  it('valores quebrados saem em centavos exatos, sem erro de ponto flutuante', () => {
+    // Em number, 1234567.89 - 1234567.8 dá 0.08999999985.
+    expect(separarValores(1234567.89, 1234567.8)).toEqual({
+      conferido: 1234567.8,
+      diferencaBetha: 0.09,
+      diferencaTce: 0,
+    });
+  });
+});
+
+const cruzamento = (campos: Partial<CruzamentoReceita>): CruzamentoReceita => ({
+  ent: '728',
+  entidade: 'Prefeitura',
+  natureza: '11125001',
+  descricao: 'IPTU',
+  mes: 1,
+  betha: 100,
+  tce: 100,
+  ...campos,
+});
+
+const SEM_PISTAS: PistasDaReceita = { linhasRepetidas: [], incoerentes: [], repetidasMeses: [] };
+
+const linhaIgual = (id: string, nat: string, v: number, campos: Partial<LinhaDeReceita> = {}): LinhaDeReceita => ({
+  id,
+  ent: '728',
+  nat,
+  mes: 1,
+  v,
+  ...campos,
+});
+
+describe('separarReceita', () => {
+  it('cruzamento igual é todo conferido e fica sem tipo', () => {
+    const { linhas } = separarReceita([cruzamento({})], SEM_PISTAS, 12);
+    expect(linhas).toMatchObject([{ conferido: 100, diferencaBetha: 0, diferencaTce: 0, tipo: null }]);
+  });
+
+  it('natureza que só existe no TCE confere zero e é so_tce', () => {
+    const { linhas } = separarReceita([cruzamento({ betha: null, tce: 80 })], SEM_PISTAS, 12);
+    expect(linhas).toMatchObject([{ conferido: 0, diferencaBetha: 0, diferencaTce: 80, tipo: 'so_tce' }]);
+  });
+
+  it('mês sem Betha em natureza que a Betha tem em outro mês não é so_tce', () => {
+    const { linhas } = separarReceita(
+      [cruzamento({ mes: 1 }), cruzamento({ mes: 2, betha: null, tce: 80 })],
+      SEM_PISTAS,
+      12,
+    );
+    expect(linhas.map((l) => l.tipo)).toEqual([null, 'sem_causa']);
+  });
+
+  it('natureza cuja diferença o acumulado explica inteira é fora_do_acumulado, mesmo em outro mês', () => {
+    // A linha sobrando é de maio; o acumulado só desencontra em junho.
+    const { linhas } = separarReceita(
+      [cruzamento({ mes: 5, betha: 150, tce: 100 }), cruzamento({ mes: 6, betha: 100, tce: 100 })],
+      { ...SEM_PISTAS, incoerentes: [{ ent: '728', nat: '11125001', mes: 6, excesso: 50 }] },
+      12,
+    );
+    expect(linhas.map((l) => [l.mes, l.tipo])).toEqual([
+      [5, 'fora_do_acumulado'],
+      [6, null],
+    ]);
+  });
+
+  it('acumulado que explica só parte da natureza deixa o resto como sem_causa', () => {
+    const { linhas } = separarReceita(
+      [cruzamento({ betha: 150, tce: 100 })],
+      { ...SEM_PISTAS, incoerentes: [{ ent: '728', nat: '11125001', mes: 1, excesso: 30 }] },
+      12,
+    );
+    expect(linhas[0]?.tipo).toBe('sem_causa');
+  });
+
+  it('mesmo valor lançado em outra rubrica do mês é duas_rubricas', () => {
+    const { linhas } = separarReceita(
+      [cruzamento({ betha: 5000, tce: null })],
+      { ...SEM_PISTAS, linhasRepetidas: [linhaIgual('a', '11125001', 5000), linhaIgual('b', '11125002', 5000)] },
+      12,
+    );
+    expect(linhas).toMatchObject([{ conferido: 0, diferencaBetha: 5000, tipo: 'duas_rubricas' }]);
+  });
+
+  it('diferença anual zero com meses opostos é mes_diferente, com os dois lados fora do conferido', () => {
+    const { linhas } = separarReceita(
+      [cruzamento({ mes: 1, betha: 100, tce: null }), cruzamento({ mes: 2, betha: null, tce: 100 })],
+      SEM_PISTAS,
+      12,
+    );
+    expect(linhas).toMatchObject([
+      { mes: 1, conferido: 0, diferencaBetha: 100, diferencaTce: 0, tipo: 'mes_diferente' },
+      { mes: 2, conferido: 0, diferencaBetha: 0, diferencaTce: 100, tipo: 'mes_diferente' },
+    ]);
+  });
+
+  it('diferença sem padrão é sem_causa', () => {
+    const { linhas } = separarReceita([cruzamento({ betha: 150, tce: 100 })], SEM_PISTAS, 12);
+    expect(linhas[0]?.tipo).toBe('sem_causa');
+  });
+
+  it('pista de outra entidade não classifica a natureza', () => {
+    const { linhas } = separarReceita(
+      [cruzamento({ betha: 150, tce: 100 })],
+      { ...SEM_PISTAS, incoerentes: [{ ent: '319', nat: '11125001', mes: 1, excesso: 50 }] },
+      12,
+    );
+    expect(linhas[0]?.tipo).toBe('sem_causa');
+  });
+
+  it('mês além do que o TCE recebeu sai das linhas e vai para aguardando', () => {
+    const { linhas, aguardando } = separarReceita(
+      [cruzamento({ mes: 9 }), cruzamento({ mes: 10, betha: 700, tce: null })],
+      SEM_PISTAS,
+      9,
+    );
+    expect(linhas.map((l) => l.mes)).toEqual([9]);
+    expect(aguardando).toMatchObject([{ mes: 10, valor: 700 }]);
+  });
+
+  it('o mês do corte ainda é comparado, e linha sem mês na Betha nunca aguarda', () => {
+    const { linhas, aguardando } = separarReceita(
+      [cruzamento({ mes: 9 }), cruzamento({ mes: null, betha: 40, tce: null })],
+      SEM_PISTAS,
+      9,
+    );
+    expect(linhas.map((l) => l.mes)).toEqual([9, null]);
+    expect(aguardando).toEqual([]);
+  });
+
+  it('sem mês nenhum no TCE, toda linha aguarda', () => {
+    const { linhas, aguardando } = separarReceita([cruzamento({ mes: 1, tce: null })], SEM_PISTAS, null);
+    expect(linhas).toEqual([]);
+    expect(aguardando).toMatchObject([{ mes: 1, valor: 100 }]);
+  });
+});
+
+const despesaDaEntidade = (campos: Partial<DespesaPorEntidade>): DespesaPorEntidade => ({
+  sigla: 'SAMAE',
+  nome: 'Serviço de Água (exemplo)',
+  poder: 'Executivo',
+  entidadeBetha: '2473',
+  bethaEmpenhado: 1000,
+  tceEmpenhado: 1000,
+  difEmpenhado: 0,
+  bethaLiquidado: 900,
+  tceLiquidado: 900,
+  difLiquidado: 0,
+  bethaPago: 800,
+  tcePago: 800,
+  difPago: 0,
+  ...campos,
+});
+
+const comDiferenca = (empenhado: number, liquidado: number, pago: number) =>
+  despesaDaEntidade({
+    tceEmpenhado: 1000 - empenhado,
+    difEmpenhado: empenhado,
+    tceLiquidado: 900 - liquidado,
+    difLiquidado: liquidado,
+    tcePago: 800 - pago,
+    difPago: pago,
+  });
+
+const linhas71 = (empenhado: number, liquidado: number, pago: number): Modalidade71 => ({
+  ent: '2473',
+  linhas: 3,
+  empenhado,
+  liquidado,
+  pago,
+});
+
+describe('conferirDespesaEncerrada', () => {
+  it('igual nas três etapas: conferida com o valor da 57170, sem discrepância', () => {
+    const { entidade, discrepancia } = conferirDespesaEncerrada(despesaDaEntidade({}), undefined);
+    expect(entidade).toMatchObject({
+      empenhado: 1000,
+      liquidado: 900,
+      pago: 800,
+      fonte: 'betha_57170',
+      conferida: true,
+      tipo: null,
+    });
+    expect(discrepancia).toBeNull();
+  });
+
+  it('linhas de modalidade 71 sem diferença com o TCE ficam no valor', () => {
+    const { entidade } = conferirDespesaEncerrada(despesaDaEntidade({}), linhas71(100, 80, 80));
+    expect(entidade).toMatchObject({ empenhado: 1000, liquidado: 900, pago: 800, tipo: null });
+  });
+
+  it('diferença igual à modalidade 71 nas três etapas: valor sem essas linhas, tipo despesa_duplicada', () => {
+    const { entidade, discrepancia } = conferirDespesaEncerrada(comDiferenca(100, 80, 80), linhas71(100, 80, 80));
+    expect(entidade).toMatchObject({
+      empenhado: 900,
+      liquidado: 820,
+      pago: 720,
+      fonte: 'betha_57170',
+      conferida: true,
+      tipo: 'despesa_duplicada',
+    });
+    expect(discrepancia).toMatchObject({
+      area: 'despesa',
+      tipo: 'despesa_duplicada',
+      entidade: 'SAMAE',
+      betha: 1000,
+      tce: 900,
+      diferenca: 100,
+      etapas: {
+        empenhado: { betha: 1000, tce: 900, diferenca: 100 },
+        liquidado: { betha: 900, tce: 820, diferenca: 80 },
+        pago: { betha: 800, tce: 720, diferenca: 80 },
+      },
+    });
+    expect(discrepancia?.nota).toContain('provável');
+  });
+
+  it('valor sem as linhas 71 sai em centavos exatos', () => {
+    const { entidade } = conferirDespesaEncerrada(
+      despesaDaEntidade({
+        bethaEmpenhado: 10915539.85,
+        tceEmpenhado: 10791652.53,
+        difEmpenhado: 123887.32,
+        bethaLiquidado: 10216383.98,
+        tceLiquidado: 10127438.11,
+        difLiquidado: 88945.87,
+        bethaPago: 10213772.91,
+        tcePago: 10124827.04,
+        difPago: 88945.87,
+      }),
+      linhas71(123887.32, 88945.87, 88945.87),
+    );
+    expect(entidade).toMatchObject({ empenhado: 10791652.53, liquidado: 10127438.11, pago: 10124827.04 });
+  });
+
+  it.each([
+    ['liquidado', 100, 70, 80],
+    ['pago', 100, 80, 70],
+    ['empenhado', 90, 80, 80],
+  ])('modalidade 71 que não fecha no %s: não conferida, sem_causa', (_etapa, empenhado, liquidado, pago) => {
+    const { entidade, discrepancia } = conferirDespesaEncerrada(
+      comDiferenca(100, 80, 80),
+      linhas71(empenhado, liquidado, pago),
+    );
+    expect(entidade).toMatchObject({
+      empenhado: null,
+      liquidado: null,
+      pago: null,
+      fonte: null,
+      conferida: false,
+      tipo: 'sem_causa',
+    });
+    expect(discrepancia?.tipo).toBe('sem_causa');
+  });
+
+  it('entidade que só existe na Betha não é conferida', () => {
+    const { entidade, discrepancia } = conferirDespesaEncerrada(
+      despesaDaEntidade({
+        tceEmpenhado: null,
+        difEmpenhado: null,
+        tceLiquidado: null,
+        difLiquidado: null,
+        tcePago: null,
+        difPago: null,
+      }),
+      undefined,
+    );
+    expect(entidade).toMatchObject({ empenhado: null, conferida: false, tipo: 'sem_causa' });
+    expect(discrepancia).toMatchObject({ betha: 1000, tce: null, diferenca: 1000 });
+  });
+});
+
+describe('montarDespesaConferida', () => {
+  const CAMARA = { empenhos: 1, empenhado: 25000, liquidado: 25000, pago: 20000, ultimo: '2025-12-17' };
+  const VAZIO = { modalidade71: [], casadas: [], aguardando: [] };
+
+  it('diferença sem padrão tira só aquela entidade, sem zerar as demais', () => {
+    const { despesa, discrepancias } = montarDespesaConferida(
+      false,
+      { mesReceita: 12, dataEmpenho: '2025-12-30' },
+      {
+        ...VAZIO,
+        despesa: [
+          comDiferenca(10, 0, 0),
+          despesaDaEntidade({ sigla: 'Prefeitura', entidadeBetha: '728' }),
+          despesaDaEntidade({ sigla: 'FMS', entidadeBetha: '319' }),
+        ],
+        camara: CAMARA,
+      },
+    );
+    expect(despesa.porEntidade.map((e) => [e.entidade, e.empenhado, e.conferida])).toEqual([
+      ['SAMAE', null, false],
+      ['Prefeitura', 1000, true],
+      ['FMS', 1000, true],
+    ]);
+    expect(despesa.totais).toEqual({
+      empenhado: 2000,
+      liquidado: 1800,
+      pago: 1600,
+      aguardandoTce: 0,
+      entidadesConferidas: 2,
+      entidadesFora: 1,
+    });
+    expect(discrepancias.map((d) => [d.tipo, d.entidade])).toEqual([['sem_causa', 'SAMAE']]);
+  });
+
+  it('a Câmara fica à parte, fora da soma e das entidades conferidas', () => {
+    const { despesa } = montarDespesaConferida(
+      false,
+      { mesReceita: 12, dataEmpenho: '2025-12-30' },
+      {
+        ...VAZIO,
+        despesa: [
+          despesaDaEntidade({ sigla: 'Prefeitura', entidadeBetha: '728' }),
+          despesaDaEntidade({
+            sigla: 'Câmara',
+            entidadeBetha: null,
+            bethaEmpenhado: null,
+            difEmpenhado: null,
+            bethaLiquidado: null,
+            difLiquidado: null,
+            bethaPago: null,
+            difPago: null,
+          }),
+        ],
+        camara: CAMARA,
+      },
+    );
+    expect(despesa.porEntidade.map((e) => e.entidade)).toEqual(['Prefeitura']);
+    expect(despesa.totais.empenhado).toBe(1000);
+    expect(despesa.camara).toEqual({ ...CAMARA, fonte: 'tce', conferida: false });
+  });
+
+  it('ano em curso sem nenhum empenho no TCE: tudo aguarda, sem contar a Betha como sem par', () => {
+    const { despesa, discrepancias } = montarDespesaConferida(
+      true,
+      { mesReceita: 2, dataEmpenho: null },
+      {
+        ...VAZIO,
+        despesa: [despesaDaEntidade({ sigla: 'Prefeitura', entidadeBetha: '728' })],
+        aguardando: [{ ent: '728', quantidade: 1, valor: 500 }],
+        camara: CAMARA,
+      },
+    );
+    expect(despesa.porEntidade).toMatchObject([{ empenhado: null, conferida: false, tipo: null, aguardandoTce: 500 }]);
+    expect(discrepancias.map((d) => d.tipo)).toEqual(['aguardando_tce']);
+  });
+});
+
+const paraClassificar = (campos: Partial<EmpenhoParaClassificar>): EmpenhoParaClassificar => ({
+  fonte: 'betha',
+  entidade: 'SAMAE',
+  codigoEntidade: '2473',
+  numero: 340,
+  data: '2025-04-01',
+  valor: 20000,
+  ocorrencia: 1,
+  numeroNaOutra: null,
+  numeroExisteNaOutra: true,
+  semExecucao: true,
+  id: '211:2473:340',
+  ...campos,
+});
+
+const ENCERRADO = { parcial: false, corte: null };
+const EM_CURSO = { parcial: true, corte: '2025-09-30' };
+
+describe('classificarEmpenho', () => {
+  it('sem par, da Betha, sem execução e em ano encerrado é empenho_fantasma', () => {
+    expect(classificarEmpenho(paraClassificar({}), ENCERRADO)).toBe('empenho_fantasma');
+  });
+
+  it('com qualquer campo de execução, sem par na Betha fica sem_causa, e nunca fantasma', () => {
+    expect(classificarEmpenho(paraClassificar({ semExecucao: false }), ENCERRADO)).toBe('sem_causa');
+  });
+
+  it('cópia sem execução com a mesma chave de outro empenho é empenho_repetido, não fantasma', () => {
+    expect(classificarEmpenho(paraClassificar({ ocorrencia: 2 }), ENCERRADO)).toBe('empenho_repetido');
+  });
+
+  it('repetido com número na outra fonte continua empenho_repetido', () => {
+    expect(classificarEmpenho(paraClassificar({ ocorrencia: 2, numeroNaOutra: 12 }), ENCERRADO)).toBe(
+      'empenho_repetido',
+    );
+  });
+
+  it('sem execução com número confirmado na outra fonte é empenho_renumerado, não fantasma', () => {
+    expect(classificarEmpenho(paraClassificar({ numeroNaOutra: 12 }), ENCERRADO)).toBe('empenho_renumerado');
+  });
+
+  it('do TCE-SC com número que a Betha não tem é empenho_ausente', () => {
+    const e = paraClassificar({ fonte: 'tce', numeroExisteNaOutra: false, semExecucao: false });
+    expect(classificarEmpenho(e, ENCERRADO)).toBe('empenho_ausente');
+  });
+
+  it('do TCE-SC com o número na Betha, em outra data ou valor, fica sem_causa', () => {
+    const e = paraClassificar({ fonte: 'tce', numeroExisteNaOutra: true, semExecucao: false });
+    expect(classificarEmpenho(e, ENCERRADO)).toBe('sem_causa');
+  });
+
+  it('do TCE-SC renumerado é empenho_renumerado', () => {
+    const e = paraClassificar({ fonte: 'tce', numeroExisteNaOutra: false, numeroNaOutra: 12, semExecucao: false });
+    expect(classificarEmpenho(e, ENCERRADO)).toBe('empenho_renumerado');
+  });
+
+  it('ano em curso, depois do corte, é aguardando_tce, mesmo sem execução', () => {
+    expect(classificarEmpenho(paraClassificar({ data: '2025-10-01' }), EM_CURSO)).toBe('aguardando_tce');
+  });
+
+  it('ano em curso, no dia do corte, ainda é comparado, e sem execução nunca é fantasma', () => {
+    expect(classificarEmpenho(paraClassificar({ data: '2025-09-30' }), EM_CURSO)).toBe('sem_causa');
+  });
+
+  it('ano em curso sem nenhum empenho no TCE-SC: tudo aguarda', () => {
+    expect(classificarEmpenho(paraClassificar({}), { parcial: true, corte: null })).toBe('aguardando_tce');
+  });
+});
+
+describe('discrepanciasDeEmpenhos', () => {
+  it('cada empenho sem par vira uma discrepância, com os valores no lado da fonte', () => {
+    const lista = discrepanciasDeEmpenhos(
+      [
+        paraClassificar({}),
+        paraClassificar({ fonte: 'tce', numero: 761, valor: 160, numeroExisteNaOutra: false, id: '9001' }),
+      ],
+      ENCERRADO,
+    );
+    expect(lista).toMatchObject([
+      {
+        area: 'empenho',
+        tipo: 'empenho_fantasma',
+        entidade: 'SAMAE',
+        codigoEntidade: '2473',
+        numero: 340,
+        dataEmpenho: '2025-04-01',
+        fonte: 'betha',
+        id: '211:2473:340',
+        betha: 20000,
+        tce: null,
+        diferenca: 20000,
+      },
+      { area: 'empenho', tipo: 'empenho_ausente', numero: 761, fonte: 'tce', betha: null, tce: 160, diferenca: -160 },
+    ]);
+  });
+
+  it('o que aguarda o TCE-SC não sai um a um: já está na pendência por entidade', () => {
+    expect(discrepanciasDeEmpenhos([paraClassificar({})], { parcial: true, corte: null })).toEqual([]);
+  });
+
+  it('só entidade, número, data, valor, fonte e id passam, mesmo que a linha traga mais campos', () => {
+    const comNome = { ...paraClassificar({}), credor: 'FULANO EXEMPLO', historico: 'Pagamento (exemplo)' };
+    const [discrepancia] = discrepanciasDeEmpenhos([comNome], ENCERRADO);
+    expect(Object.keys(discrepancia ?? {}).sort()).toEqual(
+      [
+        'area',
+        'betha',
+        'codigoEntidade',
+        'dataEmpenho',
+        'diferenca',
+        'entidade',
+        'fonte',
+        'id',
+        'nota',
+        'numero',
+        'tce',
+        'tipo',
+      ].sort(),
+    );
+    expect(JSON.stringify(discrepancia)).not.toMatch(/FULANO|Pagamento/);
+  });
+
+  it.each([
+    ['empenho_fantasma', {}, /sem nenhum campo de execução/],
+    ['empenho_repetido', { ocorrencia: 2 }, /mesmo número, data e valor/],
+    ['empenho_renumerado', { numeroNaOutra: 112 }, /nº 112.*provável renumeração/],
+    ['empenho_ausente', { fonte: 'tce', numeroExisteNaOutra: false }, /número não aparece na Betha/],
+    ['sem_causa', { fonte: 'tce' }, /outra data ou valor/],
+  ] as const)('a nota de %s diz o padrão, sem termo proibido', (tipo, campos, texto) => {
+    const [discrepancia] = discrepanciasDeEmpenhos([paraClassificar(campos)], ENCERRADO);
+    expect(discrepancia?.tipo).toBe(tipo);
+    expect(discrepancia?.nota).toMatch(texto);
+    expect(discrepancia?.nota).not.toMatch(/irregular|fraude|fantasma/i);
+  });
+
+  it('os tipos de empenho vêm antes de sem_causa, e a pendência continua por último', () => {
+    const ordenada = ordenarDiscrepancias([
+      ...discrepanciasDeEmpenhos(
+        [
+          paraClassificar({ semExecucao: false, valor: 900 }),
+          paraClassificar({ valor: 1 }),
+          paraClassificar({ valor: 2, ocorrencia: 2 }),
+          paraClassificar({ valor: 3, numeroNaOutra: 12 }),
+          paraClassificar({ valor: 4, fonte: 'tce', numeroExisteNaOutra: false }),
+        ],
+        ENCERRADO,
+      ),
+      {
+        area: 'despesa',
+        tipo: 'aguardando_tce',
+        entidade: 'SAMAE',
+        codigoEntidade: '2473',
+        betha: 800,
+        tce: null,
+        diferenca: 800,
+        nota: '',
+      },
+    ]);
+    expect(ordenada.map((d) => d.tipo)).toEqual([
+      'empenho_fantasma',
+      'empenho_repetido',
+      'empenho_renumerado',
+      'empenho_ausente',
+      'sem_causa',
+      'aguardando_tce',
+    ]);
+  });
+});
+
+const receitaConferida = (cruzamentos: CruzamentoReceita[], pistas: Partial<PistasDaReceita> = {}) =>
+  montarReceitaConferida(2025, 12, {
+    cruzamentos,
+    rubricas: [],
+    totais: { totalBetha: 0, totalTce: 0 },
+    pistas: { ...SEM_PISTAS, ...pistas },
+    outrosAnos: new Map(),
+  });
+
+const excesso = (valor: number, nat = '11125001') => ({
+  incoerentes: [{ ent: '728', nat, mes: 1, excesso: valor }],
+});
+
+const tiposDe = (lista: readonly Discrepancia[]) => lista.map((d) => [d.tipo, d.diferenca]);
+
+describe('diferença explicada só em parte pelo acumulado', () => {
+  // Regressão: FMS 2025, natureza 17135011, ficava inteira como sem_causa (conferência de 01/11/2026).
+  it('vira fora_do_acumulado com o excesso e sem_causa com o resto', () => {
+    const { discrepancias } = receitaConferida(
+      [cruzamento({ betha: 13635187.54, tce: 13315050.74 })],
+      excesso(306503.9),
+    );
+    expect(tiposDe(discrepancias)).toEqual([
+      ['fora_do_acumulado', 306503.9],
+      ['sem_causa', 13632.9],
+    ]);
+  });
+
+  // Regressão: FMS 2025, 17135011: os R$ 306.503,90 de maio saíam como "maio e novembro" (conferência de 02/11/2026).
+  it('mês com a diferença igual à da parte fica só nela, e o outro mês vai para o resto', () => {
+    const { discrepancias } = receitaConferida(
+      [
+        cruzamento({ mes: 5, betha: 852811.63, tce: 546307.73 }),
+        cruzamento({ mes: 11, betha: 862887.22, tce: 849254.32 }),
+      ],
+      excesso(306503.9),
+    );
+    expect(discrepancias.map((d) => [d.tipo, d.mes, d.meses?.map((m) => m.mes)])).toEqual([
+      ['fora_do_acumulado', 5, [5]],
+      ['sem_causa', 11, [11]],
+    ]);
+  });
+
+  it('nenhum mês igual à parte: as duas partes citam todos os meses, sem escolher um', () => {
+    const { discrepancias } = receitaConferida(
+      [cruzamento({ mes: 1, betha: 140, tce: 100 }), cruzamento({ mes: 2, betha: 110, tce: 100 })],
+      excesso(20),
+    );
+    expect(discrepancias.map((d) => [d.mes, d.meses?.map((m) => m.mes)])).toEqual([
+      [undefined, [1, 2]],
+      [undefined, [1, 2]],
+    ]);
+  });
+
+  it('um mês só: as duas partes ficam nele', () => {
+    const { discrepancias } = receitaConferida([cruzamento({ mes: 5, betha: 150, tce: 100 })], excesso(30));
+    expect(discrepancias.map((d) => [d.mes, d.meses?.map((m) => m.mes)])).toEqual([
+      [5, [5]],
+      [5, [5]],
+    ]);
+  });
+
+  it('as partes dizem o total da natureza, e a soma em centavos bate com ele', () => {
+    const { discrepancias } = receitaConferida(
+      [cruzamento({ betha: 13635187.54, tce: 13315050.74 })],
+      excesso(306503.9),
+    );
+    expect(discrepancias.map((d) => d.diferencaDaNatureza)).toEqual([320136.8, 320136.8]);
+    expect(discrepancias.reduce((soma, d) => soma + Math.round(d.diferenca * 100), 0)).toBe(32013680);
+    expect(discrepancias.map((d) => d.diferencaBetha)).toEqual([306503.9, 13632.9]);
+    expect(discrepancias.map((d) => d.diferencaTce)).toEqual([0, 0]);
+  });
+
+  it('com o TCE maior, a divisão fica do lado do TCE', () => {
+    const { discrepancias } = receitaConferida([cruzamento({ betha: 100, tce: 150 })], excesso(-30));
+    expect(tiposDe(discrepancias)).toEqual([
+      ['fora_do_acumulado', -30],
+      ['sem_causa', -20],
+    ]);
+    expect(discrepancias.map((d) => [d.diferencaBetha, d.diferencaTce])).toEqual([
+      [0, 30],
+      [0, 20],
+    ]);
+  });
+
+  it('a soma das partes de cada lado continua sendo a diferença de cada lado da natureza', () => {
+    // Janeiro: 40 a mais na Betha. Fevereiro: 10 a mais no TCE. Na natureza, +30; o excesso é 20.
+    const { discrepancias, receita } = receitaConferida(
+      [cruzamento({ mes: 1, betha: 140, tce: 100 }), cruzamento({ mes: 2, betha: 100, tce: 110 })],
+      excesso(20),
+    );
+    expect(discrepancias.map((d) => [d.tipo, d.diferencaBetha, d.diferencaTce])).toEqual([
+      ['fora_do_acumulado', 20, 0],
+      ['sem_causa', 20, 10],
+    ]);
+    expect(receita.totais).toMatchObject({ conferido: 200, diferencaBetha: 40, diferencaTce: 10 });
+  });
+
+  it.each([
+    ['maior que a diferença', 70],
+    ['de sinal oposto', -30],
+  ])('excesso %s não divide: fica um único sem_causa com a nota do acumulado', (_, valor) => {
+    const { discrepancias } = receitaConferida([cruzamento({ betha: 150, tce: 100 })], excesso(valor));
+    expect(tiposDe(discrepancias)).toEqual([['sem_causa', 50]]);
+    expect(discrepancias[0]?.diferencaDaNatureza).toBeUndefined();
+    expect(discrepancias[0]?.nota).toContain('restam');
+  });
+
+  it('natureza inteira explicada continua uma discrepância só, sem total à parte', () => {
+    const { discrepancias } = receitaConferida([cruzamento({ betha: 150, tce: 100 })], excesso(50));
+    expect(tiposDe(discrepancias)).toEqual([['fora_do_acumulado', 50]]);
+    expect(discrepancias[0]?.diferencaDaNatureza).toBeUndefined();
+  });
+
+  it('na tabela, a natureza com resto em aberto segue sem_causa', () => {
+    const { receita } = receitaConferida([cruzamento({ betha: 150, tce: 100 })], excesso(30));
+    expect(receita.naturezas[0]?.tipo).toBe('sem_causa');
+  });
+});
+
+describe('repetição linha a linha entre rubricas', () => {
+  const PROVISORIA = '13210300';
+  const DEFINITIVA = '13210111';
+  const sobrando = (betha: number, tce: number | null = null) => cruzamento({ natureza: PROVISORIA, betha, tce });
+  const definitiva = cruzamento({ natureza: DEFINITIVA, betha: 700, tce: 700 });
+  const provisoria = (id: string, v: number, campos: Partial<LinhaDeReceita> = {}) =>
+    linhaIgual(`p${id}`, PROVISORIA, v, campos);
+  const naDefinitiva = (id: string, v: number, campos: Partial<LinhaDeReceita> = {}) =>
+    linhaIgual(`d${id}`, DEFINITIVA, v, campos);
+  const partes = (cruzamentos: CruzamentoReceita[], linhasRepetidas: LinhaDeReceita[]) =>
+    tiposDe(receitaConferida(cruzamentos, { linhasRepetidas }).discrepancias.filter((d) => d.natureza === PROVISORIA));
+
+  it('três linhas iguais a três da outra rubrica, que somam a diferença, são duas_rubricas inteira', () => {
+    const iguais = [
+      provisoria('1', 300),
+      provisoria('2', 200),
+      provisoria('3', 100),
+      naDefinitiva('1', 300),
+      naDefinitiva('2', 200),
+      naDefinitiva('3', 100),
+    ];
+    expect(partes([sobrando(600), definitiva], iguais)).toEqual([['duas_rubricas', 600]]);
+  });
+
+  it('o que não tem linha igual fica no resto sem_causa, e as partes somam a natureza', () => {
+    // Real: 13210300 da Prefeitura em 2026, com janeiro casando e fevereiro sem par.
+    const { discrepancias } = receitaConferida(
+      [
+        cruzamento({ natureza: PROVISORIA, mes: 1, betha: 372.08, tce: null }),
+        definitiva,
+        cruzamento({ natureza: PROVISORIA, mes: 2, betha: 7.92, tce: null }),
+      ],
+      { linhasRepetidas: [provisoria('1', 300), naDefinitiva('1', 300)] },
+    );
+    const daNatureza = discrepancias.filter((d) => d.natureza === PROVISORIA);
+    expect(tiposDe(daNatureza)).toEqual([
+      ['duas_rubricas', 300],
+      ['sem_causa', 80],
+    ]);
+    expect(daNatureza.map((d) => d.diferencaDaNatureza)).toEqual([380, 380]);
+    expect(daNatureza.map((d) => [d.diferencaBetha, d.diferencaTce])).toEqual([
+      [300, 0],
+      [80, 0],
+    ]);
+  });
+
+  it('a mesma linha da outra rubrica não casa duas vezes', () => {
+    const iguais = [provisoria('1', 100), provisoria('2', 100), naDefinitiva('1', 100)];
+    expect(partes([sobrando(200), definitiva], iguais)).toEqual([
+      ['duas_rubricas', 100],
+      ['sem_causa', 100],
+    ]);
+  });
+
+  it('duas naturezas sobrando não dividem a mesma linha', () => {
+    const { discrepancias } = receitaConferida(
+      [
+        cruzamento({ natureza: '13210300', betha: 100, tce: null }),
+        cruzamento({ natureza: '13110200', betha: 100, tce: null }),
+        cruzamento({ natureza: DEFINITIVA, betha: 100, tce: 100 }),
+      ],
+      {
+        linhasRepetidas: [
+          linhaIgual('a', '13210300', 100),
+          linhaIgual('b', '13110200', 100),
+          linhaIgual('c', DEFINITIVA, 100),
+        ],
+      },
+    );
+    expect(discrepancias.map((d) => [d.natureza, d.tipo]).sort()).toEqual([
+      ['13110200', 'duas_rubricas'],
+      ['13210300', 'sem_causa'],
+    ]);
+  });
+
+  it('o par preferido é o da natureza que bate com o TCE, e não outra que também sobra', () => {
+    const { discrepancias } = receitaConferida(
+      [
+        cruzamento({ natureza: '13210300', betha: 100, tce: null }),
+        cruzamento({ natureza: '13110200', betha: 100, tce: null }),
+        cruzamento({ natureza: DEFINITIVA, betha: 200, tce: 200 }),
+      ],
+      {
+        linhasRepetidas: [
+          linhaIgual('a', '13210300', 100),
+          linhaIgual('b', '13110200', 100),
+          linhaIgual('c', DEFINITIVA, 100),
+          linhaIgual('d', DEFINITIVA, 100),
+        ],
+      },
+    );
+    expect(discrepancias.map((d) => d.tipo)).toEqual(['duas_rubricas', 'duas_rubricas']);
+  });
+
+  it('linha maior que a diferença da natureza não conta', () => {
+    const iguais = [provisoria('1', 1000), naDefinitiva('1', 1000)];
+    expect(partes([sobrando(1000, 900), definitiva], iguais)).toEqual([['sem_causa', 100]]);
+  });
+
+  it('linha que cabe no mês, mas não na diferença do ano, não conta', () => {
+    // Janeiro: 100 a mais na Betha. Fevereiro: 50 a mais no TCE. No ano, sobram 50.
+    const cruzamentos = [
+      cruzamento({ natureza: PROVISORIA, mes: 1, betha: 100, tce: null }),
+      cruzamento({ natureza: PROVISORIA, mes: 2, betha: null, tce: 50 }),
+      definitiva,
+    ];
+    expect(partes(cruzamentos, [provisoria('1', 100), naDefinitiva('1', 100)])).toEqual([['sem_causa', 50]]);
+  });
+
+  it('a parte em duas rubricas nunca passa da diferença: a linha que não cabe fica de fora', () => {
+    const iguais = [provisoria('1', 100), provisoria('2', 100), naDefinitiva('1', 100), naDefinitiva('2', 100)];
+    expect(partes([sobrando(350, 200), definitiva], iguais)).toEqual([
+      ['duas_rubricas', 100],
+      ['sem_causa', 50],
+    ]);
+  });
+
+  it('linha de um mês em que a natureza bate com o TCE não conta', () => {
+    const iguais = [provisoria('1', 100, { mes: 1 }), naDefinitiva('1', 100, { mes: 1 })];
+    const cruzamentos = [
+      cruzamento({ natureza: PROVISORIA, mes: 1, betha: 100, tce: 100 }),
+      cruzamento({ natureza: PROVISORIA, mes: 2, betha: 100, tce: null }),
+      definitiva,
+    ];
+    expect(partes(cruzamentos, iguais)).toEqual([['sem_causa', 100]]);
+  });
+
+  it('linha igual na mesma natureza não conta', () => {
+    const iguais = [provisoria('1', 100), provisoria('2', 100)];
+    expect(partes([sobrando(200), definitiva], iguais)).toEqual([['sem_causa', 200]]);
+  });
+
+  it.each([
+    ['em outra entidade', { ent: '319' }],
+    ['em outro mês', { mes: 2 }],
+  ])('linha igual %s não conta', (_, campos) => {
+    const iguais = [provisoria('1', 100), naDefinitiva('1', 100, campos)];
+    expect(partes([sobrando(100), definitiva], iguais)).toEqual([['sem_causa', 100]]);
+  });
+
+  it('natureza em que o TCE é maior não casa linhas', () => {
+    const iguais = [provisoria('1', 50), naDefinitiva('1', 50)];
+    expect(partes([sobrando(100, 150), definitiva], iguais)).toEqual([['sem_causa', -50]]);
+  });
+
+  it('explicação inteira vence a parcial: mesmo valor em dois meses, antes das linhas iguais', () => {
+    const { discrepancias } = receitaConferida([sobrando(100), definitiva], {
+      linhasRepetidas: [provisoria('1', 40), naDefinitiva('1', 40)],
+      repetidasMeses: [{ ent: '728', nat: PROVISORIA, mes: 1, outroMes: 2, v: 100 }],
+    });
+    expect(tiposDe(discrepancias)).toEqual([['mes_repetido', 100]]);
+  });
+
+  it('a nota de uma linha diz o mês, o valor e a rubrica, e que a outra bate com o TCE', () => {
+    const { discrepancias } = receitaConferida([sobrando(100), definitiva], {
+      linhasRepetidas: [provisoria('1', 100), naDefinitiva('1', 100)],
+    });
+    expect(discrepancias[0]?.nota).toBe(
+      `Em janeiro, o mesmo valor (R$${NBSP}100,00) também foi lançado na rubrica 13210111, que bate com o TCE: possível lançamento em duplicidade na Betha.`,
+    );
+  });
+
+  it('a nota da natureza dividida diz quantas linhas, quanto e o que resta, nas duas partes', () => {
+    const { discrepancias } = receitaConferida([sobrando(380), definitiva], {
+      linhasRepetidas: [provisoria('1', 200), provisoria('2', 100), naDefinitiva('1', 200), naDefinitiva('2', 100)],
+    });
+    const esperada = `2 linhas de janeiro (R$${NBSP}300,00) têm o mesmo valor, no mesmo mês, na rubrica 13210111, que bate com o TCE: possível lançamento em duplicidade na Betha. Restam R$${NBSP}80,00 sem padrão.`;
+    expect(discrepancias.map((d) => d.nota)).toEqual([esperada, esperada]);
+  });
+});
+
+describe('tipos de padrão conhecido', () => {
+  const EM_DOIS_MESES = { repetidasMeses: [{ ent: '728', nat: '11125001', mes: 1, outroMes: 2, v: 50 }] };
+
+  it('diferença que compensa outra rubrica de grupo diferente é reclassificacao', () => {
+    const { discrepancias } = receitaConferida([
+      cruzamento({ natureza: '11125001', betha: 150, tce: 100 }),
+      cruzamento({ natureza: '17115101', betha: 100, tce: 150 }),
+    ]);
+    expect(discrepancias.map((d) => [d.natureza, d.tipo])).toEqual([
+      ['11125001', 'reclassificacao'],
+      ['17115101', 'reclassificacao'],
+    ]);
+  });
+
+  it('diferenças que somam zero no grupo de 6 dígitos são reclassificacao', () => {
+    const { discrepancias } = receitaConferida([
+      cruzamento({ natureza: '11125001', betha: 150, tce: 100 }),
+      cruzamento({ natureza: '11125002', betha: 100, tce: 120 }),
+      cruzamento({ natureza: '11125003', betha: 100, tce: 130 }),
+    ]);
+    expect(discrepancias.map((d) => d.tipo)).toEqual(['reclassificacao', 'reclassificacao', 'reclassificacao']);
+  });
+
+  it('natureza só no TCE que compensa outra é reclassificacao, não so_tce', () => {
+    const { discrepancias } = receitaConferida([
+      cruzamento({ natureza: '11125001', betha: null, tce: 50 }),
+      cruzamento({ natureza: '17115101', betha: 50, tce: null }),
+    ]);
+    expect(discrepancias.map((d) => d.tipo)).toEqual(['reclassificacao', 'reclassificacao']);
+  });
+
+  it('o mesmo valor em dois meses da rubrica é mes_repetido', () => {
+    const { discrepancias } = receitaConferida([cruzamento({ betha: 150, tce: 100 })], EM_DOIS_MESES);
+    expect(tiposDe(discrepancias)).toEqual([['mes_repetido', 50]]);
+  });
+
+  it('repetição em dois meses com valor diferente da diferença não classifica', () => {
+    const { discrepancias } = receitaConferida([cruzamento({ betha: 150, tce: 100 })], {
+      repetidasMeses: [{ ent: '728', nat: '11125001', mes: 1, outroMes: 2, v: 49.99 }],
+    });
+    expect(tiposDe(discrepancias)).toEqual([['sem_causa', 50]]);
+  });
+
+  it('diferença sem nenhum padrão é sem_causa', () => {
+    const { discrepancias } = receitaConferida([
+      cruzamento({ natureza: '11125001', betha: 150, tce: 100 }),
+      cruzamento({ natureza: '17115101', betha: 100, tce: 149.99 }),
+    ]);
+    expect(discrepancias.map((d) => d.tipo)).toEqual(['sem_causa', 'sem_causa']);
+  });
+
+  describe('a prioridade é a de anotarNaturezas', () => {
+    const NATUREZAS = [
+      cruzamento({ natureza: '11125001', betha: 150, tce: 100 }),
+      cruzamento({ natureza: '17115101', betha: 100, tce: 150 }),
+    ];
+    const linhasRepetidas = [linhaIgual('a', '11125001', 50), linhaIgual('b', '11125002', 50)];
+    const daPrimeira = (pistas: Partial<PistasDaReceita>) =>
+      receitaConferida(NATUREZAS, pistas).discrepancias.find((d) => d.natureza === '11125001')?.tipo;
+
+    it('dois meses vence a compensação', () => {
+      expect(daPrimeira(EM_DOIS_MESES)).toBe('mes_repetido');
+    });
+
+    it('duas rubricas vence dois meses', () => {
+      expect(daPrimeira({ ...EM_DOIS_MESES, linhasRepetidas })).toBe('duas_rubricas');
+    });
+
+    it('o acumulado vence duas rubricas', () => {
+      expect(daPrimeira({ linhasRepetidas, ...excesso(50) })).toBe('fora_do_acumulado');
+    });
+  });
+
+  it('a nota de mes_repetido e a de reclassificacao dizem o padrão', () => {
+    const repetido = receitaConferida([cruzamento({ betha: 150, tce: 100 })], EM_DOIS_MESES).discrepancias[0];
+    expect(repetido?.nota).toContain('aparece em janeiro e em fevereiro');
+    const reclassificada = receitaConferida([
+      cruzamento({ natureza: '11125001', betha: 150, tce: 100 }),
+      cruzamento({ natureza: '17115101', betha: 100, tce: 150 }),
+    ]).discrepancias[0];
+    expect(reclassificada?.nota).toContain('provável reclassificação');
+  });
+
+  it('a tabela usa o tipo novo', () => {
+    const { receita } = receitaConferida([cruzamento({ betha: 150, tce: 100 })], EM_DOIS_MESES);
+    expect(receita.naturezas[0]?.tipo).toBe('mes_repetido');
+  });
+
+  it('os tipos de padrão vêm antes de sem_causa, e a pendência continua por último', () => {
+    const base = { area: 'receita', entidade: 'FMS', codigoEntidade: '319', betha: 0, tce: 0, nota: '' } as const;
+    const ordenada = ordenarDiscrepancias([
+      { ...base, tipo: 'aguardando_tce', diferenca: 900 },
+      { ...base, tipo: 'sem_causa', diferenca: 800 },
+      { ...base, tipo: 'mes_repetido', diferenca: 1 },
+      { ...base, tipo: 'reclassificacao', diferenca: 2 },
+    ]);
+    expect(ordenada.map((d) => d.tipo)).toEqual(['reclassificacao', 'mes_repetido', 'sem_causa', 'aguardando_tce']);
+  });
+});
