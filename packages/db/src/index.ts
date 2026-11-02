@@ -1,4 +1,6 @@
+import { drizzle } from 'drizzle-orm/node-postgres';
 import pg from 'pg';
+import * as schema from './schema';
 
 const URL_PADRAO = 'postgres://orleans:orleans@localhost:5433/orleans_em_dados';
 
@@ -8,7 +10,11 @@ pg.types.setTypeParser(pg.types.builtins.NUMERIC, (v) => Number(v));
 
 export const pool = new pg.Pool({ connectionString: process.env.DATABASE_URL ?? URL_PADRAO, max: 5 });
 
-export async function transacao(fn) {
+export const db = drizzle(pool, { schema });
+
+export type ClienteDeTransacao = pg.PoolClient;
+
+export async function transacao<T>(fn: (cliente: ClienteDeTransacao) => Promise<T>): Promise<T> {
   const cliente = await pool.connect();
   try {
     await cliente.query('BEGIN');
@@ -22,3 +28,5 @@ export async function transacao(fn) {
     cliente.release();
   }
 }
+
+export * as tabelas from './schema';

@@ -4,10 +4,10 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "coletar": "node --env-file-if-exists=../../.env betha/coletar.js",
-    "coletar:tcesc": "node --env-file-if-exists=../../.env tcesc/coletar.js",
-    "conferir": "node --env-file-if-exists=../../.env conferir.js",
-    "importar": "node --env-file-if-exists=../../.env importar-arquivo.js"
+    "coletar": "tsx --env-file-if-exists=../../.env betha/coletar.js",
+    "coletar:tcesc": "tsx --env-file-if-exists=../../.env tcesc/coletar.js",
+    "conferir": "tsx --env-file-if-exists=../../.env conferir.js",
+    "importar": "tsx --env-file-if-exists=../../.env importar-arquivo.js"
   },
   "dependencies": {
     "@orleans-em-dados/db": "workspace:*"

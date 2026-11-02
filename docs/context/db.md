@@ -4,10 +4,12 @@ Esquema PostgreSQL, conexão e a conferência Betha × TCE-SC. Vive em `packages
 
 ## Estrutura
 
-- `packages/db/index.js` — `pool` (`pg.Pool`, máx. 5) e `transacao(fn)` (BEGIN/COMMIT/ROLLBACK).
-- `packages/db/migrar.js` — aplica em ordem os `.sql` de `packages/db/migrations/` ainda não registrados na tabela `migracoes`.
-- `packages/db/migrations/001_inicial.sql`, `002_despesas_e_tcesc.sql` — esquema e catálogo inicial (fontes, consultas, entidades, unidades do TCE).
-- `packages/db/conferencias.js` — `conferencia(ano)`, usada pela API (`/api/conferencias`) e pelo `pnpm conferir`. Exportado como `@orleans-em-dados/db/conferencias`.
+- `packages/db/src/index.ts` — `pool` (`pg.Pool`, máx. 5), `db` (Drizzle), `transacao(fn)` (BEGIN/COMMIT/ROLLBACK) e `tabelas` (o esquema).
+- `packages/db/src/schema.ts` — todas as tabelas em Drizzle; fonte das migrações novas. As views `*_publicadas` existem só no SQL.
+- `packages/db/src/migrar.ts` — `migrar(url)`; `pnpm db:migrar` chama com `DATABASE_URL`.
+- `packages/db/drizzle/` — migrações. `0000_baseline.sql` é o conteúdo de `migrations/001` + `002`, com o catálogo inicial (fontes, consultas, entidades, unidades do TCE).
+- `packages/db/migrations/` — SQLs originais; não rodam mais, servem ao teste de equivalência.
+- `packages/db/src/conferencias.js` — `conferencia(ano)`, usada pela API (`/api/conferencias`) e pelo `pnpm conferir`. Exportado como `@orleans-em-dados/db/conferencias`.
 
 ## Contrato (tabelas)
 
@@ -22,9 +24,15 @@ Esquema PostgreSQL, conexão e a conferência Betha × TCE-SC. Vive em `packages
 
 ## Funções e utilitários
 
-- `transacao(fn)` (`packages/db/index.js`) — passa o cliente da transação para `fn`; desfaz tudo se `fn` lançar.
-- `conferencia(ano)` (`packages/db/conferencias.js`) — `{ disponivel: false, faltando }` sem as cinco coletas publicadas; senão despesa/receita por entidade, receita por mês e natureza (com nota do padrão encontrado), empenhos casados e sem par, Câmara e um `resumo`.
-- `anotarNaturezas`, `anotarEmpenho` (`packages/db/conferencias.js`, não exportadas) — a regra pura da conferência: classificam cada diferença (duplicidade, reclassificação, incoerência mês × acumulado, renumeração, registro repetido).
+- `transacao(fn)` (`packages/db/src/index.ts`) — passa o cliente da transação para `fn`; desfaz tudo se `fn` lançar.
+- `conferencia(ano)` (`packages/db/src/conferencias.js`) — `{ disponivel: false, faltando }` sem as cinco coletas publicadas; senão despesa/receita por entidade, receita por mês e natureza (com nota do padrão encontrado), empenhos casados e sem par, Câmara e um `resumo`.
+- `anotarNaturezas`, `anotarEmpenho` (`packages/db/src/conferencias.js`, não exportadas) — a regra pura da conferência: classificam cada diferença (duplicidade, reclassificação, incoerência mês × acumulado, renumeração, registro repetido).
+
+## Regras de arquitetura
+
+- Mudança de banco: edita `src/schema.ts`, roda `pnpm --filter @orleans-em-dados/db gerar` e revisa o SQL em `drizzle/`. Catálogo (fontes, consultas) entra por `INSERT` à mão no SQL gerado.
+- Banco antigo (tabela `migracoes` com as duas migrações originais) recebe a baseline como aplicada, sem DDL. Só parte delas: `migrar` recusa citando o que falta.
+- Nomes de restrição e índice em `schema.ts` são os que o Postgres deu às migrações originais: `migracoes.spec.ts` compara o catálogo de três bancos (migrado, SQL original, DDL gerada do `schema.ts`).
 
 ## Regras de negócio
 
@@ -37,11 +45,12 @@ Esquema PostgreSQL, conexão e a conferência Betha × TCE-SC. Vive em `packages
 
 ## Testes
 
-- `packages/db/test/support/banco.js` — `URL_TESTE` (porta 5434), `garantirBancoDescartavel(url)` (recusa a porta 5433) e `recriarBanco()` (derruba o esquema e aplica as migrações); é o `globalSetup` do projeto `integracao`.
+- `packages/db/test/support/banco.ts` — `garantirBancoDescartavel(url)` (recusa a porta 5433), `recriarBanco()` (derruba o esquema e migra; é o `globalSetup` do projeto `integracao`) e `criarBancoTemporario(nome)`, para spec que precisa de banco próprio. `URL_TESTE` (porta 5434) mora em `url.ts`.
 
 ## Armadilhas
 
-- `URL_PADRAO` em `packages/db/index.js`: sem `DATABASE_URL`, conecta no banco de desenvolvimento (porta 5433, coletas reais). O projeto `integracao` do Vitest define a URL descartável e `setup-integracao.js` recusa a 5433 antes do primeiro `import` do pacote.
+- O `.desc()` do Drizzle gera `DESC NULLS LAST`; para reproduzir um índice `DESC` puro é `.desc().nullsFirst()`.
+- `URL_PADRAO` em `packages/db/src/index.ts`: sem `DATABASE_URL`, conecta no banco de desenvolvimento (porta 5433, coletas reais). O projeto `integracao` do Vitest define a URL descartável e `setup-integracao.js` recusa a 5433 antes do primeiro `import` do pacote.
 - `NUMERIC` é lido como `number` (`setTypeParser`): somas exatas se fazem no SQL ou em centavos inteiros, nunca somando os `number` em JS.
 - `conferencia(ano)` devolve `geradoEm: new Date()`: duas chamadas nunca são iguais. Comparação de resposta ignora ou fixa esse campo.
 - `receitas.valor_arrecadado_ate_mes` é acumulado: nunca somar entre meses. `receitas.mes` é inferido do sufixo `_N` do id (semântica não confirmada).

@@ -7,3 +7,4 @@ data
 docs/screens
 .claude/skills/*/fixtures
 apps/api/test/paridade/respostas
+packages/db/drizzle
