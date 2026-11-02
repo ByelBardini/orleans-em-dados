@@ -20,6 +20,8 @@
     "build": "pnpm --filter @orleans-em-dados/web build",
     "start": "pnpm --filter @orleans-em-dados/api start",
     "test": "vitest run --project=!integracao",
+    "test:servidor": "vitest run --project=!integracao --project=!@orleans-em-dados/web",
+    "test:web": "vitest run --project=@orleans-em-dados/web",
     "lint": "eslint .",
     "typecheck": "pnpm -r --if-present typecheck",
     "format": "prettier --write .",
