@@ -2,6 +2,8 @@
 // Não consulta a Betha a cada acesso.
 
 import { createServer } from 'node:http';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { conferencia } from '@orleans-em-dados/db/conferencias';
 import { anosDisponiveis, coletaPublicada } from './dados.js';
 import { buscarEmpenhos, resumoDespesas, resumoEmpenhos, resumoReceitas, todosEmpenhos } from './indicadores.js';
@@ -144,14 +146,19 @@ const rotas = {
   },
 };
 
-createServer(async (req, res) => {
-  const url = new URL(req.url, 'http://localhost');
-  const rota = req.method === 'GET' && rotas[url.pathname];
-  if (!rota) return json(res, 404, { erro: 'Rota não encontrada' });
-  try {
-    await rota(url.searchParams, res);
-  } catch (err) {
-    console.error(err);
-    json(res, 500, { erro: 'Erro interno' });
-  }
-}).listen(PORT, () => console.log(`API em http://localhost:${PORT}`));
+export const criarServidor = () =>
+  createServer(async (req, res) => {
+    const url = new URL(req.url, 'http://localhost');
+    const rota = req.method === 'GET' && rotas[url.pathname];
+    if (!rota) return json(res, 404, { erro: 'Rota não encontrada' });
+    try {
+      await rota(url.searchParams, res);
+    } catch (err) {
+      console.error(err);
+      json(res, 500, { erro: 'Erro interno' });
+    }
+  });
+
+if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
+  criarServidor().listen(PORT, () => console.log(`API em http://localhost:${PORT}`));
+}

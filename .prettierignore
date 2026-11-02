@@ -6,3 +6,4 @@ coverage
 data
 docs/screens
 .claude/skills/*/fixtures
+backend/test/paridade/respostas

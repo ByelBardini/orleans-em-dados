@@ -1,0 +1,73 @@
+{
+  "status": 200,
+  "tipo": "application/json; charset=utf-8",
+  "disposicao": null,
+  "corpo": {
+    "meta": {
+      "coletaId": 3,
+      "fonte": "Portal da Transparência Betha — Orleans/SC",
+      "consultaId": 57170,
+      "consultaNome": "Despesas Orçamentárias",
+      "urlOrigem": "https://transparencia.betha.cloud/#/mJRAZlfGu2RI9KNBWj49aw==/consulta/57170",
+      "ano": 2025,
+      "filtro": {
+        "ano": [
+          "2025"
+        ]
+      },
+      "origem": "arquivo",
+      "iniciadoEm": "2025-03-01T12:00:00.000Z",
+      "coletadoEm": "2025-03-01T12:00:00.000Z",
+      "totalHits": 3,
+      "capturados": 3,
+      "idsUnicos": 3,
+      "camposAusentes": {},
+      "status": "totalizador_conciliado",
+      "exemplo": false,
+      "conferencia": []
+    },
+    "totais": {
+      "orcadoAtualizado": 1600000,
+      "empenhado": 195000,
+      "liquidado": 120000,
+      "pago": 100000
+    },
+    "porEntidade": [
+      {
+        "chave": "728",
+        "entidade": {
+          "nome": "Prefeitura Municipal",
+          "sigla": "Prefeitura",
+          "status": "inferido"
+        },
+        "fonte": "betha",
+        "empenhado": 180000,
+        "liquidado": 120000,
+        "pago": 100000
+      },
+      {
+        "chave": "319",
+        "entidade": {
+          "nome": "Fundo Municipal de Saúde",
+          "sigla": "FMS",
+          "status": "inferido"
+        },
+        "fonte": "betha",
+        "empenhado": 15000,
+        "liquidado": 0,
+        "pago": 0
+      }
+    ],
+    "camara": {
+      "nome": "Câmara Municipal de Orleans",
+      "sigla": "Câmara",
+      "quantidade": 1,
+      "empenhado": 25000,
+      "liquidado": 25000,
+      "pago": 20000,
+      "ultimoEmpenho": "2025-01-05",
+      "coletadoEm": "2025-03-01T12:00:00.000Z",
+      "urlOrigem": "https://paineistransparencia.tce.sc.gov.br/extensions/appDespesasMunicipaisExternoNovo/index.html"
+    }
+  }
+}

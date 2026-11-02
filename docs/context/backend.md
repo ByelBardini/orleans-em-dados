@@ -29,7 +29,14 @@ Todas as rotas recebem `ano` e respondem `404 { erro }` quando o ano não tem co
 - Grafias da Betha sem acento ("SERVIO") são agrupadas pela chave sem não-alfanuméricos; o nome exibido é a grafia mais frequente.
 - A busca de empenhos ignora acento e caixa em número, credor, histórico e órgão.
 
+## Testes
+
+- `backend/test/integration/paridade.spec.js` — compara cada pedido de `backend/test/paridade/casos.js` (`CASOS`) com a resposta gravada em `backend/test/paridade/respostas/` (status, tipo, `Content-Disposition`, corpo; CSV com BOM), sobre o banco de `popularBancoDeTeste()`. Traz também valores escritos à mão, que provam que o gravado está certo.
+- Regravar só com motivo no commit: `REGRAVAR_PARIDADE=1 pnpm exec vitest run --project=integracao backend/test/integration/paridade.spec.js`.
+- `criarServidor()` (`server.js`) devolve o servidor sem `listen`; o teste sobe em porta efêmera.
+
 ## Armadilhas
 
+- `/api/receitas` sem `ano` responde `404 { erro: 'Sem dados de receitas para null' }`: a mensagem cita o parâmetro cru.
 - O CSV é contrato com o Excel em português: BOM (`﻿`), `;`, vírgula decimal, aspas escapadas e `\r\n`.
 - `empenhosExcluidos(ano)` guarda a lista por 5 minutos: uma conferência nova só se reflete nas somas depois disso.

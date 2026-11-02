@@ -1,0 +1,38 @@
+{
+  "status": 200,
+  "tipo": "application/json; charset=utf-8",
+  "disposicao": null,
+  "corpo": {
+    "total": 6,
+    "offset": 2,
+    "limit": 2,
+    "itens": [
+      {
+        "id": "211:728:1003",
+        "entidade": "Prefeitura",
+        "numero": 12,
+        "data": "2025-02-01",
+        "orgao": "SECRETARIA MUNICIPAL DE OBRAS",
+        "credor": "CONSTRUTORA FICTICIA S.A.",
+        "historico": "Drenagem\nsegunda linha (exemplo)",
+        "empenhado": 7000,
+        "liquidado": 7000,
+        "pago": 7000,
+        "saldoAPagar": 0
+      },
+      {
+        "id": "211:319:2001",
+        "entidade": "FMS",
+        "numero": 5,
+        "data": "2025-01-20",
+        "orgao": "FUNDO MUNICIPAL DE SAÚDE",
+        "credor": "LABORATORIO EXEMPLO LTDA",
+        "historico": "Exames (exemplo)",
+        "empenhado": 15000,
+        "liquidado": null,
+        "pago": null,
+        "saldoAPagar": 15000
+      }
+    ]
+  }
+}

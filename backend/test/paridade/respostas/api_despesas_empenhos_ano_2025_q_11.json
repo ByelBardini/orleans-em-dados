@@ -1,0 +1,25 @@
+{
+  "status": 200,
+  "tipo": "application/json; charset=utf-8",
+  "disposicao": null,
+  "corpo": {
+    "total": 1,
+    "offset": 0,
+    "limit": 50,
+    "itens": [
+      {
+        "id": "211:728:1002",
+        "entidade": "Prefeitura",
+        "numero": 11,
+        "data": "2025-01-15",
+        "orgao": "SECRETARIA MUNICIPAL DE OBRAS",
+        "credor": "CONSTRUTORA FICTICIA S.A.",
+        "historico": "Pavimentação; trecho \"A\" (exemplo)",
+        "empenhado": 120000,
+        "liquidado": 60000,
+        "pago": 40000,
+        "saldoAPagar": 80000
+      }
+    ]
+  }
+}

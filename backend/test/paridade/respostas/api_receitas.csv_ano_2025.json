@@ -1,0 +1,6 @@
+{
+  "status": 200,
+  "tipo": "text/csv; charset=utf-8",
+  "disposicao": "attachment; filename=\"receitas-2025.csv\"",
+  "corpo": "﻿Rubrica;Descrição;Entidade;Orçado atualizado;Arrecadado\r\n17115101000000;Cota-parte FPM (exemplo);Prefeitura;6000000;994999,75\r\n11125001000000;IPTU (exemplo);Prefeitura;1000000;550000,5\r\n17135011000000;Transferência SUS (exemplo);FMS;2400000;400000\r\n"
+}

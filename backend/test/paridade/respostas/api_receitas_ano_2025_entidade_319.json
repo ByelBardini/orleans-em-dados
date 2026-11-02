@@ -1,0 +1,94 @@
+{
+  "status": 200,
+  "tipo": "application/json; charset=utf-8",
+  "disposicao": null,
+  "corpo": {
+    "meta": {
+      "coletaId": 1,
+      "fonte": "Portal da Transparência Betha — Orleans/SC",
+      "consultaId": 57153,
+      "consultaNome": "Receitas Orçamentárias",
+      "urlOrigem": "https://transparencia.betha.cloud/#/mJRAZlfGu2RI9KNBWj49aw==/consulta/57153",
+      "ano": 2025,
+      "filtro": {
+        "ano": [
+          "2025"
+        ]
+      },
+      "origem": "arquivo",
+      "iniciadoEm": "2025-03-01T12:00:00.000Z",
+      "coletadoEm": "2025-03-01T12:00:00.000Z",
+      "totalHits": 6,
+      "capturados": 6,
+      "idsUnicos": 6,
+      "camposAusentes": {},
+      "status": "totalizador_conciliado",
+      "exemplo": false,
+      "conferencia": []
+    },
+    "totais": {
+      "quantidade": 2,
+      "orcadoAtualizado": 2400000,
+      "orcadoDeducoes": 0,
+      "arrecadadoNoMes": 400000,
+      "negativos": 0,
+      "rubricas": 1
+    },
+    "porMes": [
+      {
+        "chave": 1,
+        "quantidade": 1,
+        "arrecadadoNoMes": 200000
+      },
+      {
+        "chave": 2,
+        "quantidade": 1,
+        "arrecadadoNoMes": 200000
+      }
+    ],
+    "porEntidade": [
+      {
+        "chave": "728",
+        "entidade": {
+          "nome": "Prefeitura Municipal",
+          "sigla": "Prefeitura",
+          "status": "inferido"
+        },
+        "quantidade": 4,
+        "orcadoAtualizado": 7000000,
+        "arrecadadoNoMes": 1545000.25
+      },
+      {
+        "chave": "319",
+        "entidade": {
+          "nome": "Fundo Municipal de Saúde",
+          "sigla": "FMS",
+          "status": "inferido"
+        },
+        "quantidade": 2,
+        "orcadoAtualizado": 2400000,
+        "arrecadadoNoMes": 400000
+      }
+    ],
+    "porOrigem": [
+      {
+        "chave": "17",
+        "quantidade": 2,
+        "orcadoAtualizado": 2400000,
+        "arrecadadoNoMes": 400000,
+        "descricao": "Transferências correntes"
+      }
+    ],
+    "naturezas": [
+      {
+        "chave": "319|17135011000000",
+        "rubrica": "17135011000000",
+        "descricao": "Transferência SUS (exemplo)",
+        "entidade": "FMS",
+        "quantidade": 2,
+        "orcadoAtualizado": 2400000,
+        "arrecadadoNoMes": 400000
+      }
+    ]
+  }
+}

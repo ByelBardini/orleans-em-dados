@@ -1,0 +1,15 @@
+{
+  "status": 404,
+  "tipo": "application/json; charset=utf-8",
+  "disposicao": null,
+  "corpo": {
+    "erro": "Sem as duas fontes publicadas para 2019",
+    "faltando": [
+      "receitas",
+      "empenhos",
+      "despesas",
+      "tcesc_receitas",
+      "tcesc_empenhos"
+    ]
+  }
+}

@@ -1,0 +1,8 @@
+{
+  "status": 404,
+  "tipo": "application/json; charset=utf-8",
+  "disposicao": null,
+  "corpo": {
+    "erro": "Rota não encontrada"
+  }
+}
