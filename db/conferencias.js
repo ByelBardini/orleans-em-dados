@@ -1,5 +1,5 @@
 // Conferência Betha × TCE-SC sobre as coletas publicadas de um exercício.
-// Usada pelo script `npm run conferir` e pela API (/api/conferencias).
+// Usada pelo script `pnpm conferir` e pela API (/api/conferencias).
 //
 // Só compara indicadores de mesmo conceito. As notas apontam padrões
 // (duplicidade, renumeração, reclassificação); não são explicações contábeis.
