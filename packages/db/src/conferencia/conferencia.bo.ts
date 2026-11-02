@@ -32,6 +32,33 @@ export type EmpenhoSemPar = {
   id: string;
 };
 
+/** Só o que a classificação usa. O SQL compara credor e histórico sem devolvê-los: a seção é pública. */
+export type EmpenhoParaClassificar = {
+  fonte: 'betha' | 'tce';
+  entidade: string | null;
+  codigoEntidade: string | null;
+  numero: number | null;
+  data: string | null;
+  valor: number | null;
+  ocorrencia: number;
+  numeroNaOutra: number | null;
+  /** O mesmo número aparece na outra fonte, com outra data ou outro valor. */
+  numeroExisteNaOutra: boolean;
+  /** Na Betha: liquidado, pago e saldo a pagar nulos. */
+  semExecucao: boolean;
+  id: string;
+};
+
+/** Um empenho casado 1:1: o id da Betha, o do TCE-SC e a execução do TCE-SC. */
+export type EmpenhoConferido = {
+  id: string;
+  idTce: string;
+  codigoEntidade: string;
+  empenhado: number | null;
+  liquidado: number | null;
+  pago: number | null;
+};
+
 export type Limites = { mesReceita: number | null; dataEmpenho: string | null };
 
 export type ColetaDaConferencia = {
@@ -403,6 +430,10 @@ export type TipoDiscrepancia =
   | 'so_tce'
   | 'reclassificacao'
   | 'mes_repetido'
+  | 'empenho_fantasma'
+  | 'empenho_repetido'
+  | 'empenho_renumerado'
+  | 'empenho_ausente'
   | 'despesa_duplicada'
   | 'aguardando_tce'
   | 'sem_causa';
@@ -543,7 +574,7 @@ export function separarReceita(
 // --- A receita conferida: as agregações e as discrepâncias que saem da separação. ---
 
 export type Discrepancia = {
-  area: 'receita' | 'despesa';
+  area: 'receita' | 'despesa' | 'empenho';
   tipo: TipoDiscrepancia;
   entidade: string;
   codigoEntidade: string | null;
@@ -567,6 +598,11 @@ export type Discrepancia = {
   >;
   /** Despesa em empenhos: quantos empenhos a linha resume. */
   quantidade?: number;
+  /** Empenho: de qual fonte é a linha, e como achá-la. Nunca credor nem histórico. */
+  fonte?: 'betha' | 'tce';
+  numero?: number | null;
+  data?: string | null;
+  id?: string;
   nota: string;
 };
 
@@ -900,12 +936,12 @@ export function conferirDespesaEncerrada(l: DespesaPorEntidade, modalidade71: Mo
 const dataBr = (data: string) => data.split('-').reverse().join('/');
 
 /** Ano em curso: a 57170 não tem data, então a soma é a do líquido do TCE-SC nos empenhos casados
- *  com a Betha até o corte. O que não casa fica de fora; o que vem depois do corte é pendência. */
+ *  com a Betha até o corte. O que não casa sai um a um (`discrepanciasDeEmpenhos`); o que vem
+ *  depois do corte é pendência. */
 function conferirDespesaEmCurso(
   l: DespesaPorEntidade,
   corte: string | null,
   casada: DespesaCasada | undefined,
-  empenhos: EmpenhosPorEntidade | undefined,
   aguardando: EmpenhosAguardando | undefined,
 ) {
   const casou = (casada?.casados ?? 0) > 0;
@@ -923,23 +959,6 @@ function conferirDespesaEmCurso(
     ...(corte ? { dataCorte: corte } : {}),
   };
   const discrepancias: Discrepancia[] = [];
-  const soBetha = empenhos?.soBetha ?? 0;
-  const soTce = empenhos?.soTce ?? 0;
-  if (corte && (soBetha || soTce)) {
-    const valorBetha = empenhos?.valorSoBetha ?? 0;
-    const valorTce = empenhos?.valorSoTce ?? 0;
-    discrepancias.push({
-      area: 'despesa',
-      tipo: 'sem_causa',
-      entidade: l.sigla,
-      codigoEntidade: l.entidadeBetha,
-      betha: soBetha ? valorBetha : null,
-      tce: soTce ? valorTce : null,
-      diferenca: (centavos(valorBetha) - centavos(valorTce)) / 100,
-      quantidade: soBetha + soTce,
-      nota: `Até ${dataBr(corte)}, ${soBetha} empenho(s) só na Betha (${fmt(valorBetha)}) e ${soTce} só no TCE (${fmt(valorTce)}) ficam fora do conferido: não têm par na outra fonte.`,
-    });
-  }
   if (aguardando) {
     discrepancias.push({
       area: 'despesa',
@@ -962,13 +981,12 @@ export type DadosDaDespesaConferida = {
   despesa: readonly DespesaPorEntidade[];
   modalidade71: readonly Modalidade71[];
   casadas: readonly DespesaCasada[];
-  empenhos: readonly EmpenhosPorEntidade[];
   aguardando: readonly EmpenhosAguardando[];
   camara: CamaraDaConferencia;
 };
 
 export function montarDespesaConferida(parcial: boolean, limites: Limites, dados: DadosDaDespesaConferida) {
-  const { despesa, modalidade71, casadas, empenhos, aguardando, camara } = dados;
+  const { despesa, modalidade71, casadas, aguardando, camara } = dados;
   // A Câmara só existe no TCE-SC: é fonte única, sempre à parte.
   const resultados = despesa
     .filter((l) => l.entidadeBetha !== null)
@@ -985,7 +1003,6 @@ export function montarDespesaConferida(parcial: boolean, limites: Limites, dados
         l,
         limites.dataEmpenho,
         casadas.find((c) => c.ent === ent),
-        empenhos.find((e) => e.codigoEntidade === ent),
         aguardando.find((a) => a.ent === ent),
       );
     });
@@ -1008,6 +1025,70 @@ export function montarDespesaConferida(parcial: boolean, limites: Limites, dados
   };
 }
 
+// --- Os empenhos sem par: um a um, sem nome de credor nem histórico. ---
+
+export type ExercicioDoEmpenho = { parcial: boolean; corte: string | null };
+type TipoDoEmpenho = Extract<
+  TipoDiscrepancia,
+  'empenho_fantasma' | 'empenho_repetido' | 'empenho_renumerado' | 'empenho_ausente' | 'aguardando_tce' | 'sem_causa'
+>;
+
+/** Repetido e renumerado vêm antes de fantasma: as cópias antigas da 57140 também não têm execução.
+ *  Só o exercício encerrado permite dizer que um empenho da Betha nunca chegou ao TCE-SC. */
+export function classificarEmpenho(e: EmpenhoParaClassificar, { parcial, corte }: ExercicioDoEmpenho): TipoDoEmpenho {
+  if (parcial && (corte === null || (e.data !== null && e.data > corte))) return 'aguardando_tce';
+  if (e.ocorrencia > 1) return 'empenho_repetido';
+  if (e.numeroNaOutra) return 'empenho_renumerado';
+  if (e.fonte === 'tce') return e.numeroExisteNaOutra ? 'sem_causa' : 'empenho_ausente';
+  return !parcial && e.semExecucao ? 'empenho_fantasma' : 'sem_causa';
+}
+
+function notaDoEmpenho(e: EmpenhoParaClassificar, tipo: TipoDoEmpenho) {
+  switch (tipo) {
+    case 'empenho_repetido':
+      return 'Registro repetido: mesmo número, data e valor de outro empenho.';
+    case 'empenho_renumerado':
+      return `Na outra fonte, o empenho com esta data, este valor e o mesmo credor ou histórico é o nº ${e.numeroNaOutra}: provável renumeração.`;
+    case 'empenho_fantasma':
+      return 'Na Betha, sem correspondente no TCE e sem nenhum campo de execução (liquidado, pago ou saldo a pagar): provável registro sem efeito.';
+    case 'empenho_ausente':
+      return 'Registrado no TCE; o número não aparece na Betha.';
+    default:
+      if (e.fonte === 'tce') return 'Registrado no TCE; o número existe na Betha, com outra data ou valor.';
+      return e.semExecucao
+        ? 'Na Betha, sem correspondente no TCE até a data de corte.'
+        : 'Na Betha, com execução registrada e sem correspondente no TCE.';
+  }
+}
+
+/** O que aguarda o TCE-SC já está na pendência por entidade: não sai um a um. */
+export function discrepanciasDeEmpenhos(
+  semPar: readonly EmpenhoParaClassificar[],
+  exercicio: ExercicioDoEmpenho,
+): Discrepancia[] {
+  return semPar.flatMap((e): Discrepancia[] => {
+    const tipo = classificarEmpenho(e, exercicio);
+    if (tipo === 'aguardando_tce') return [];
+    const valor = e.valor ?? 0;
+    return [
+      {
+        area: 'empenho',
+        tipo,
+        entidade: e.entidade ?? e.codigoEntidade ?? '',
+        codigoEntidade: e.codigoEntidade,
+        fonte: e.fonte,
+        numero: e.numero,
+        data: e.data,
+        id: e.id,
+        betha: e.fonte === 'betha' ? valor : null,
+        tce: e.fonte === 'tce' ? valor : null,
+        diferenca: e.fonte === 'betha' ? valor : -valor,
+        nota: notaDoEmpenho(e, tipo),
+      },
+    ];
+  });
+}
+
 const ORDEM_DOS_TIPOS: readonly TipoDiscrepancia[] = [
   'fora_do_acumulado',
   'duas_rubricas',
@@ -1016,6 +1097,10 @@ const ORDEM_DOS_TIPOS: readonly TipoDiscrepancia[] = [
   'reclassificacao',
   'mes_repetido',
   'despesa_duplicada',
+  'empenho_fantasma',
+  'empenho_repetido',
+  'empenho_renumerado',
+  'empenho_ausente',
   'sem_causa',
   'aguardando_tce',
 ];

@@ -2,8 +2,10 @@ import { describe, expect, it } from 'vitest';
 import {
   anotarEmpenho,
   anotarNaturezas,
+  classificarEmpenho,
   completarRubricas,
   conferirDespesaEncerrada,
+  discrepanciasDeEmpenhos,
   empenhosForaDaSoma,
   listarSemExplicacao,
   montarConferencia,
@@ -16,6 +18,7 @@ import {
   type DadosDaConferencia,
   type DespesaPorEntidade,
   type Discrepancia,
+  type EmpenhoParaClassificar,
   type EmpenhoSemPar,
   type LinhaNatureza,
   type Modalidade71,
@@ -837,7 +840,7 @@ describe('conferirDespesaEncerrada', () => {
 
 describe('montarDespesaConferida', () => {
   const CAMARA = { empenhos: 1, empenhado: 25000, liquidado: 25000, pago: 20000, ultimo: '2025-12-17' };
-  const VAZIO = { modalidade71: [], casadas: [], empenhos: [], aguardando: [] };
+  const VAZIO = { modalidade71: [], casadas: [], aguardando: [] };
 
   it('diferença sem padrão tira só aquela entidade, sem zerar as demais', () => {
     const { despesa, discrepancias } = montarDespesaConferida(
@@ -903,25 +906,181 @@ describe('montarDespesaConferida', () => {
       {
         ...VAZIO,
         despesa: [despesaDaEntidade({ sigla: 'Prefeitura', entidadeBetha: '728' })],
-        empenhos: [
-          {
-            entidade: 'Prefeitura',
-            codigoEntidade: '728',
-            betha: 1,
-            tce: 0,
-            casados: 0,
-            soBetha: 1,
-            valorSoBetha: 500,
-            soTce: 0,
-            valorSoTce: 0,
-          },
-        ],
         aguardando: [{ ent: '728', quantidade: 1, valor: 500 }],
         camara: CAMARA,
       },
     );
     expect(despesa.porEntidade).toMatchObject([{ empenhado: null, conferida: false, tipo: null, aguardandoTce: 500 }]);
     expect(discrepancias.map((d) => d.tipo)).toEqual(['aguardando_tce']);
+  });
+});
+
+const paraClassificar = (campos: Partial<EmpenhoParaClassificar>): EmpenhoParaClassificar => ({
+  fonte: 'betha',
+  entidade: 'SAMAE',
+  codigoEntidade: '2473',
+  numero: 340,
+  data: '2025-04-01',
+  valor: 20000,
+  ocorrencia: 1,
+  numeroNaOutra: null,
+  numeroExisteNaOutra: true,
+  semExecucao: true,
+  id: '211:2473:340',
+  ...campos,
+});
+
+const ENCERRADO = { parcial: false, corte: null };
+const EM_CURSO = { parcial: true, corte: '2025-09-30' };
+
+describe('classificarEmpenho', () => {
+  it('sem par, da Betha, sem execução e em ano encerrado é empenho_fantasma', () => {
+    expect(classificarEmpenho(paraClassificar({}), ENCERRADO)).toBe('empenho_fantasma');
+  });
+
+  it('com qualquer campo de execução, sem par na Betha fica sem_causa, e nunca fantasma', () => {
+    expect(classificarEmpenho(paraClassificar({ semExecucao: false }), ENCERRADO)).toBe('sem_causa');
+  });
+
+  it('cópia sem execução com a mesma chave de outro empenho é empenho_repetido, não fantasma', () => {
+    expect(classificarEmpenho(paraClassificar({ ocorrencia: 2 }), ENCERRADO)).toBe('empenho_repetido');
+  });
+
+  it('repetido com número na outra fonte continua empenho_repetido', () => {
+    expect(classificarEmpenho(paraClassificar({ ocorrencia: 2, numeroNaOutra: 12 }), ENCERRADO)).toBe(
+      'empenho_repetido',
+    );
+  });
+
+  it('sem execução com número confirmado na outra fonte é empenho_renumerado, não fantasma', () => {
+    expect(classificarEmpenho(paraClassificar({ numeroNaOutra: 12 }), ENCERRADO)).toBe('empenho_renumerado');
+  });
+
+  it('do TCE-SC com número que a Betha não tem é empenho_ausente', () => {
+    const e = paraClassificar({ fonte: 'tce', numeroExisteNaOutra: false, semExecucao: false });
+    expect(classificarEmpenho(e, ENCERRADO)).toBe('empenho_ausente');
+  });
+
+  it('do TCE-SC com o número na Betha, em outra data ou valor, fica sem_causa', () => {
+    const e = paraClassificar({ fonte: 'tce', numeroExisteNaOutra: true, semExecucao: false });
+    expect(classificarEmpenho(e, ENCERRADO)).toBe('sem_causa');
+  });
+
+  it('do TCE-SC renumerado é empenho_renumerado', () => {
+    const e = paraClassificar({ fonte: 'tce', numeroExisteNaOutra: false, numeroNaOutra: 12, semExecucao: false });
+    expect(classificarEmpenho(e, ENCERRADO)).toBe('empenho_renumerado');
+  });
+
+  it('ano em curso, depois do corte, é aguardando_tce, mesmo sem execução', () => {
+    expect(classificarEmpenho(paraClassificar({ data: '2025-10-01' }), EM_CURSO)).toBe('aguardando_tce');
+  });
+
+  it('ano em curso, no dia do corte, ainda é comparado, e sem execução nunca é fantasma', () => {
+    expect(classificarEmpenho(paraClassificar({ data: '2025-09-30' }), EM_CURSO)).toBe('sem_causa');
+  });
+
+  it('ano em curso sem nenhum empenho no TCE-SC: tudo aguarda', () => {
+    expect(classificarEmpenho(paraClassificar({}), { parcial: true, corte: null })).toBe('aguardando_tce');
+  });
+});
+
+describe('discrepanciasDeEmpenhos', () => {
+  it('cada empenho sem par vira uma discrepância, com os valores no lado da fonte', () => {
+    const lista = discrepanciasDeEmpenhos(
+      [
+        paraClassificar({}),
+        paraClassificar({ fonte: 'tce', numero: 761, valor: 160, numeroExisteNaOutra: false, id: '9001' }),
+      ],
+      ENCERRADO,
+    );
+    expect(lista).toMatchObject([
+      {
+        area: 'empenho',
+        tipo: 'empenho_fantasma',
+        entidade: 'SAMAE',
+        codigoEntidade: '2473',
+        numero: 340,
+        data: '2025-04-01',
+        fonte: 'betha',
+        id: '211:2473:340',
+        betha: 20000,
+        tce: null,
+        diferenca: 20000,
+      },
+      { area: 'empenho', tipo: 'empenho_ausente', numero: 761, fonte: 'tce', betha: null, tce: 160, diferenca: -160 },
+    ]);
+  });
+
+  it('o que aguarda o TCE-SC não sai um a um: já está na pendência por entidade', () => {
+    expect(discrepanciasDeEmpenhos([paraClassificar({})], { parcial: true, corte: null })).toEqual([]);
+  });
+
+  it('só entidade, número, data, valor, fonte e id passam, mesmo que a linha traga mais campos', () => {
+    const comNome = { ...paraClassificar({}), credor: 'FULANO EXEMPLO', historico: 'Pagamento (exemplo)' };
+    const [discrepancia] = discrepanciasDeEmpenhos([comNome], ENCERRADO);
+    expect(Object.keys(discrepancia ?? {}).sort()).toEqual(
+      [
+        'area',
+        'betha',
+        'codigoEntidade',
+        'data',
+        'diferenca',
+        'entidade',
+        'fonte',
+        'id',
+        'nota',
+        'numero',
+        'tce',
+        'tipo',
+      ].sort(),
+    );
+    expect(JSON.stringify(discrepancia)).not.toMatch(/FULANO|Pagamento/);
+  });
+
+  it.each([
+    ['empenho_fantasma', {}, /sem nenhum campo de execução/],
+    ['empenho_repetido', { ocorrencia: 2 }, /mesmo número, data e valor/],
+    ['empenho_renumerado', { numeroNaOutra: 112 }, /nº 112.*provável renumeração/],
+    ['empenho_ausente', { fonte: 'tce', numeroExisteNaOutra: false }, /número não aparece na Betha/],
+    ['sem_causa', { fonte: 'tce' }, /outra data ou valor/],
+  ] as const)('a nota de %s diz o padrão, sem termo proibido', (tipo, campos, texto) => {
+    const [discrepancia] = discrepanciasDeEmpenhos([paraClassificar(campos)], ENCERRADO);
+    expect(discrepancia?.tipo).toBe(tipo);
+    expect(discrepancia?.nota).toMatch(texto);
+    expect(discrepancia?.nota).not.toMatch(/irregular|fraude|fantasma/i);
+  });
+
+  it('os tipos de empenho vêm antes de sem_causa, e a pendência continua por último', () => {
+    const ordenada = ordenarDiscrepancias([
+      ...discrepanciasDeEmpenhos(
+        [
+          paraClassificar({ semExecucao: false, valor: 900 }),
+          paraClassificar({ valor: 1 }),
+          paraClassificar({ valor: 2, ocorrencia: 2 }),
+          paraClassificar({ valor: 3, numeroNaOutra: 12 }),
+          paraClassificar({ valor: 4, fonte: 'tce', numeroExisteNaOutra: false }),
+        ],
+        ENCERRADO,
+      ),
+      {
+        area: 'despesa',
+        tipo: 'aguardando_tce',
+        entidade: 'SAMAE',
+        codigoEntidade: '2473',
+        betha: 800,
+        tce: null,
+        diferenca: 800,
+        nota: '',
+      },
+    ]);
+    expect(ordenada.map((d) => d.tipo)).toEqual([
+      'empenho_fantasma',
+      'empenho_repetido',
+      'empenho_renumerado',
+      'empenho_ausente',
+      'sem_causa',
+      'aguardando_tce',
+    ]);
   });
 });
 

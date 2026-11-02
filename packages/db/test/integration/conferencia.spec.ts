@@ -17,7 +17,7 @@ import {
   snapshot,
   tcescEmpenhos,
 } from '../../../importadores/fixtures/src/snapshots';
-import { conferencia, dadosConferidos } from '../../src/conferencia/conferencia.service';
+import { conferencia, dadosConferidos, empenhosConferidos } from '../../src/conferencia/conferencia.service';
 import { pool } from '../../src/index';
 
 const GRAVADA = path.resolve(
@@ -277,7 +277,8 @@ describe('dadosConferidos: natureza explicada em parte pelo acumulado', () => {
   );
 
   it('vira duas discrepâncias, e a conta com os totais das fontes não muda', async () => {
-    const { discrepancias, receita: r } = await disponiveis(2025);
+    const { discrepancias: todas, receita: r } = await disponiveis(2025);
+    const discrepancias = todas.filter((d) => d.area === 'receita');
     expect(discrepancias.map((d) => [d.tipo, d.natureza, d.diferenca, d.diferencaDaNatureza])).toEqual([
       ['fora_do_acumulado', '17135011', 30, 50],
       ['sem_causa', '17135011', 20, 50],
@@ -433,6 +434,156 @@ describe('dadosConferidos: despesa de exercício encerrado', () => {
   });
 });
 
+const DEZEMBRO = () => snapshot(900001, [receitaTce(PREFEITURA_TCE, '1.1.1.2.50.0.1', 'IPTU', 'dez', '1.00')]);
+const SETOR = 'SETOR (exemplo)';
+const SAMAE = '524';
+const comHistorico = (e: ReturnType<typeof empenhoTce>, historico: string) => ({ ...e, historico });
+
+describe('empenhos de exercício encerrado', () => {
+  beforeAll(() =>
+    popularCenario({
+      tcescReceitas: DEZEMBRO(),
+      empenhos: snapshot(57140, [
+        empenho('2473:1', 1, '2025-03-10', SETOR, 'AGUA EXEMPLO LTDA', 'Casado (exemplo)', 1000, 1000, 1000, 0),
+        // Sem nenhum campo de execução e sem par.
+        empenho('2473:2', 340, '2025-04-01', SETOR, 'FROTA EXEMPLO LTDA', 'Frota (exemplo)', 20000, null, null, null),
+        // Sem par, mas com execução.
+        empenho('2473:3', 234, '2025-03-28', SETOR, 'AGUA EXEMPLO LTDA', 'Obra (exemplo)', 214179.3, 214179.3, 0, null),
+        // Um só campo de execução já basta.
+        empenho('2473:11', 701, '2025-06-01', SETOR, 'AGUA EXEMPLO LTDA', 'Só liquidado', 100, 100, null, null),
+        empenho('2473:12', 702, '2025-06-02', SETOR, 'AGUA EXEMPLO LTDA', 'Só pago', 100, null, 100, null),
+        empenho('2473:13', 703, '2025-06-03', SETOR, 'AGUA EXEMPLO LTDA', 'Só saldo', 100, null, null, 100),
+        // O id maior, com execução, é o válido; a cópia antiga sobra.
+        empenho('2473:5', 5, '2025-04-02', SETOR, 'AGUA EXEMPLO LTDA', 'Cópia (exemplo)', 48.72, 48.72, 48.72, 0),
+        empenho('2473:4', 5, '2025-04-02', SETOR, 'AGUA EXEMPLO LTDA', 'Cópia (exemplo)', 48.72, null, null, null),
+        // Credor com outra grafia, histórico diferente.
+        empenho('2473:6', 59, '2025-05-01', SETOR, 'João Exemplo-da Silva.', 'Serviço A', 500, null, null, null),
+        // Credor diferente, histórico igual.
+        empenho('2473:7', 60, '2025-05-02', SETOR, 'CREDOR UM LTDA', 'Mesma descrição', 600, null, null, null),
+        // Mesma data e valor, com credor e histórico diferentes.
+        empenho('2473:8', 61, '2025-05-03', SETOR, 'CREDOR DOIS LTDA', 'Compra B', 700, null, null, null),
+        // Histórico vazio dos dois lados não confirma nada.
+        empenho('2473:9', 62, '2025-05-04', SETOR, 'CREDOR TRES LTDA', '', 800, null, null, null),
+        // O número existe no TCE-SC, com outro valor.
+        empenho('2473:10', 611, '2025-07-26', SETOR, 'AGUA EXEMPLO LTDA', 'Conta (exemplo)', 794.72, 4060.44, 0, null),
+      ]),
+      tcescEmpenhos: snapshot(900002, [
+        empenhoTce(1, SAMAE, 1, '2025-03-10', 'AGUA EXEMPLO LTDA', '1000.00', '900.00', '800.00'),
+        empenhoTce(2, SAMAE, 5, '2025-04-02', 'AGUA EXEMPLO LTDA', '48.72', '48.72', '48.72'),
+        empenhoTce(3, SAMAE, 159, '2025-05-01', 'JOAO EXEMPLO DA  SILVA', '500.00', '500.00', '500.00'),
+        comHistorico(
+          empenhoTce(4, SAMAE, 160, '2025-05-02', 'OUTRO CREDOR LTDA', '600.00', '600.00', '600.00'),
+          'MESMA DESCRIÇÃO',
+        ),
+        empenhoTce(5, SAMAE, 161, '2025-05-03', 'OUTRO CREDOR LTDA', '700.00', '700.00', '700.00'),
+        comHistorico(empenhoTce(6, SAMAE, 162, '2025-05-04', 'OUTRO CREDOR LTDA', '800.00', '800.00', '800.00'), ''),
+        empenhoTce(7, SAMAE, 761, '2025-08-29', 'AGUA EXEMPLO LTDA', '160.00', '160.00', '160.00'),
+        empenhoTce(8, SAMAE, 611, '2025-07-26', 'AGUA EXEMPLO LTDA', '4060.44', '4060.44', '4060.44'),
+      ]),
+    }),
+  );
+
+  const daBetha = async (numero: number) =>
+    (await disponiveis(2025)).discrepancias.find(
+      (d) => d.area === 'empenho' && d.fonte === 'betha' && d.numero === numero,
+    );
+  const doTce = async (numero: number) =>
+    (await disponiveis(2025)).discrepancias.find(
+      (d) => d.area === 'empenho' && d.fonte === 'tce' && d.numero === numero,
+    );
+
+  it('sem par e sem execução é fantasma, com o valor no lado da Betha', async () => {
+    expect(await daBetha(340)).toMatchObject({
+      tipo: 'empenho_fantasma',
+      entidade: 'SAMAE',
+      data: '2025-04-01',
+      betha: 20000,
+      tce: null,
+      diferenca: 20000,
+      id: '211:2473:2',
+    });
+  });
+
+  it('sem par com execução fica sem_causa', async () => {
+    expect((await daBetha(234))?.tipo).toBe('sem_causa');
+  });
+
+  it.each([
+    ['liquidado', 701],
+    ['pago', 702],
+    ['saldo a pagar', 703],
+  ])('só com %s preenchido, nunca é fantasma', async (_, numero) => {
+    expect((await daBetha(numero))?.tipo).toBe('sem_causa');
+  });
+
+  it('a cópia antiga é repetida, e a válida casa', async () => {
+    const lista = (await disponiveis(2025)).discrepancias.filter((d) => d.numero === 5);
+    expect(lista.map((d) => [d.tipo, d.id])).toEqual([['empenho_repetido', '211:2473:4']]);
+  });
+
+  it('mesma data e valor, com o credor em outra grafia, é renumerado nos dois lados', async () => {
+    expect(await daBetha(59)).toMatchObject({ tipo: 'empenho_renumerado', nota: expect.stringContaining('nº 159') });
+    expect(await doTce(159)).toMatchObject({ tipo: 'empenho_renumerado', nota: expect.stringContaining('nº 59') });
+  });
+
+  it('mesma data e valor, com outro credor e o mesmo histórico, é renumerado', async () => {
+    expect((await daBetha(60))?.tipo).toBe('empenho_renumerado');
+  });
+
+  it('mesma data e valor, com credor e histórico diferentes, não tem pista de renumeração', async () => {
+    expect((await daBetha(61))?.tipo).toBe('empenho_fantasma');
+    expect((await doTce(161))?.tipo).toBe('empenho_ausente');
+  });
+
+  it('histórico vazio nos dois lados não confirma a renumeração', async () => {
+    expect((await daBetha(62))?.tipo).toBe('empenho_fantasma');
+  });
+
+  it('só no TCE, com número que a Betha não tem, é ausente', async () => {
+    expect(await doTce(761)).toMatchObject({ tipo: 'empenho_ausente', betha: null, tce: 160, diferenca: -160 });
+  });
+
+  it('só no TCE, com o número na Betha em outro valor, fica sem_causa', async () => {
+    expect((await doTce(611))?.tipo).toBe('sem_causa');
+  });
+
+  it('a comparação antiga usa a mesma pista de número na outra fonte', async () => {
+    const resultado = await conferencia(2025);
+    if (!resultado.disponivel) throw new Error('fixture deveria estar disponível');
+    const pista = (numero: number) => resultado.empenhosSemPar.find((e) => e.numero === numero)?.numeroNaOutra;
+    expect([pista(59), pista(60), pista(61), pista(62)]).toEqual([159, 160, null, null]);
+  });
+
+  it('nenhuma discrepância de empenho carrega credor ou histórico', async () => {
+    const lista = (await disponiveis(2025)).discrepancias.filter((d) => d.area === 'empenho');
+    expect(lista.length).toBe(17);
+    expect(JSON.stringify(lista)).not.toMatch(
+      /AGUA EXEMPLO|FROTA EXEMPLO|Exemplo-da|EXEMPLO DA|CREDOR|Serviço A|Compra B|Só liquidado|Só pago|Só saldo|Mesma descri|MESMA DESCRI|\(exemplo\)/,
+    );
+    const permitidas = ['area', 'betha', 'codigoEntidade', 'data', 'diferenca', 'entidade', 'fonte', 'id'];
+    permitidas.push('nota', 'numero', 'tce', 'tipo');
+    expect(lista.filter((d) => Object.keys(d).some((k) => !permitidas.includes(k)))).toEqual([]);
+  });
+
+  it('o conjunto casado traz os ids e a execução do TCE-SC, e deixa de fora quem não casou', async () => {
+    const conjunto = await empenhosConferidos(2025);
+    if (!conjunto.disponivel) throw new Error('o cenário deveria ter as cinco coletas');
+    expect(conjunto.parcial).toBe(false);
+    expect(conjunto.dataCorte).toBeNull();
+    expect(conjunto.empenhos).toEqual([
+      { id: '211:2473:1', idTce: '1', codigoEntidade: '2473', empenhado: 1000, liquidado: 900, pago: 800 },
+      { id: '211:2473:5', idTce: '2', codigoEntidade: '2473', empenhado: 48.72, liquidado: 48.72, pago: 48.72 },
+    ]);
+  });
+
+  it('sem as coletas, o conjunto casado diz o que falta, sem nenhum empenho', async () => {
+    await pool.query(`DELETE FROM publicacoes WHERE consulta_id = 900002`);
+    const conjunto = await empenhosConferidos(2025);
+    await popularCenario();
+    expect(conjunto).toEqual({ ano: 2025, disponivel: false, faltando: ['tcesc_empenhos'], exemplo: false });
+  });
+});
+
 describe('dadosConferidos: despesa no ano em curso', () => {
   beforeAll(() =>
     popularCenario({
@@ -506,12 +657,33 @@ describe('dadosConferidos: despesa no ano em curso', () => {
     expect(pendentes[0]?.nota).toContain('05/02/2025');
   });
 
-  it('empenho sem par até o corte fica fora da soma e é listado, sem nome de credor', async () => {
+  it('empenho sem par até o corte fica fora da soma e é listado um a um, sem nome de credor', async () => {
     const { discrepancias } = await disponiveis(2025);
-    const semPar = discrepancias.filter((x) => x.tipo === 'sem_causa' && x.area === 'despesa');
-    // Só na Betha: o 12 (7000) e a cópia do 13 (3000). Só no TCE: o 112 (7000).
-    expect(semPar).toMatchObject([{ entidade: 'Prefeitura', betha: 10000, tce: 7000, diferenca: 3000 }]);
-    expect(semPar[0]?.nota).not.toMatch(/CONSTRUTORA|PAPELARIA/);
+    const semPar = discrepancias.filter((x) => x.area === 'empenho');
+    // O 12 da Betha é o 112 do TCE, com o mesmo credor; o 13 tem uma cópia antiga.
+    expect(semPar.map((x) => [x.tipo, x.fonte, x.numero, x.diferenca])).toEqual([
+      ['empenho_repetido', 'betha', 13, 3000],
+      ['empenho_renumerado', 'betha', 12, 7000],
+      ['empenho_renumerado', 'tce', 112, -7000],
+    ]);
+    expect(JSON.stringify(semPar)).not.toMatch(/CONSTRUTORA|PAPELARIA/);
+    expect(discrepancias.filter((x) => x.area === 'despesa' && x.tipo === 'sem_causa')).toEqual([]);
+  });
+
+  it('o conjunto casado para no corte, com a execução do TCE-SC de cada um', async () => {
+    const conjunto = await empenhosConferidos(2025);
+    if (!conjunto.disponivel) throw new Error('o cenário deveria ter as cinco coletas');
+    expect(conjunto.parcial).toBe(true);
+    expect(conjunto.dataCorte).toBe('2025-02-05');
+    expect(conjunto.empenhos.map((e) => e.id)).not.toContain('211:728:1005');
+    expect(conjunto.empenhos.find((e) => e.idTce === '5002')).toEqual({
+      id: '211:728:1002',
+      idTce: '5002',
+      codigoEntidade: '728',
+      empenhado: 100000,
+      liquidado: 60000,
+      pago: 40000,
+    });
   });
 
   it('a Câmara fica à parte, fora da soma das entidades', async () => {

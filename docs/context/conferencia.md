@@ -6,7 +6,7 @@ Compara as coletas publicadas das duas fontes num exercício. A regra mora em `p
 
 - `conferencia.bo.ts` — regra pura e os tipos de cada linha.
 - `conferencia.dao.ts` — as consultas, em SQL com o tipo da linha declarado (CTEs e `FULL JOIN` que reaproveitam `$1`/`$2`; a soma é do Postgres em `NUMERIC`).
-- `conferencia.service.ts` — `conferencia(ano, agora?)` (a comparação) e `dadosConferidos(ano)` (só o que as fontes sustentam); exportado como `@orleans-em-dados/db/conferencias`, junto com `empenhosForaDaSoma` e os tipos `Discrepancia` e `TipoDiscrepancia`.
+- `conferencia.service.ts` — `conferencia(ano, agora?)` (a comparação), `dadosConferidos(ano)` (só o que as fontes sustentam) e `empenhosConferidos(ano)` (o conjunto casado, para a lista); exportado como `@orleans-em-dados/db/conferencias`, junto com `empenhosForaDaSoma` e os tipos `Discrepancia`, `EmpenhoConferido` e `TipoDiscrepancia`.
 
 ## Funções e utilitários
 
@@ -14,7 +14,8 @@ Compara as coletas publicadas das duas fontes num exercício. A regra mora em `p
 - `completarRubricas(rubricas, parcelas, outrosAnos, ano)` — em rubrica sem causa, cita os meses da diferença e marca `conhecida` quando ela se repete do mesmo lado em outro exercício; conhecida não vira `explicada`.
 - `listarSemExplicacao(despesas, rubricas, empenhos)` — o que sobra em aberto: despesa divergente, rubrica nem explicada nem conhecida, empenho sem causa.
 - `anotarEmpenho(e)` — nota, `causa` e `explicada` do empenho sem par: repetido, renumerado ou sem correspondente.
-- `empenhosForaDaSoma(semPar)` — ids Betha repetidos ou renumerados, que a API tira das somas.
+- `empenhosForaDaSoma(semPar)` — ids Betha repetidos ou renumerados, que `apps/api/src/modules/empenhos/exclusoes.service.ts` ainda tira das somas, até a Fase 8 trocar por `empenhosConferidos`.
+- `classificarEmpenho(e, { parcial, corte })` — o tipo de um empenho sem par. `discrepanciasDeEmpenhos(semPar, exercicio)` — uma discrepância por empenho, copiando só os campos permitidos.
 - `ehParcial(limites)` — o TCE-SC ainda não tem dezembro de receita.
 - `montarConferencia(ano, dados, agora)` — junta tudo e calcula o `resumo` em centavos.
 - `conferirDespesaEncerrada(linha, modalidade71)` — o valor conferido de uma entidade em exercício completo, ou a discrepância que a tira da soma.
@@ -41,8 +42,12 @@ Compara as coletas publicadas das duas fontes num exercício. A regra mora em `p
 - A Câmara não entra na separação da receita: não tem par na Betha.
 - Mês depois do último que o TCE-SC recebeu é pendência (`aguardando_tce`), fora da separação; linha sem mês na Betha é sempre comparada.
 - Despesa encerrada (fonte `betha_57170`): igual ao TCE nas três etapas, fica o valor da 57170, mesmo com linhas de modalidade 71 (dígitos 3-4 da natureza). Diferença igual à soma dessas linhas nas três etapas: valor sem elas, `despesa_duplicada`, conferida. Qualquer outro caso, inclusive fechar em só uma etapa: valores `null`, `conferida: false`, `sem_causa`, e as outras entidades seguem.
-- Despesa no ano em curso (fonte `tce`, com `dataCorte`): soma de `valor_empenhado` (líquido de estorno), liquidado e pago do TCE-SC nos empenhos casados com a 57140 até o corte. Empenho sem par até o corte fica fora, em um `sem_causa` agregado por entidade, até a Fase 5 classificar um a um. Empenho da Betha depois do corte é `aguardando_tce`, com `quantidade`.
+- Despesa no ano em curso (fonte `tce`, com `dataCorte`): soma de `valor_empenhado` (líquido de estorno), liquidado e pago do TCE-SC nos empenhos casados com a 57140 até o corte. Empenho sem par até o corte fica fora, e sai um a um na área `empenho`. Empenho da Betha depois do corte é `aguardando_tce`, agregado por entidade, com `quantidade`.
 - A Câmara fica em `despesa.camara` (`fonte: 'tce'`, `conferida: false`), fora de `porEntidade` e dos totais.
+- Empenho sem par (área `empenho`), nesta ordem: depois do corte do ano em curso, `aguardando_tce` (fica só na pendência por entidade); `empenho_repetido` (ocorrência > 1, a mesma chave de outro); `empenho_renumerado` (`numeroNaOutra` confirmado); do TCE-SC, `empenho_ausente` se o número não existe na Betha, senão `sem_causa`; da Betha, `empenho_fantasma` se o ano está encerrado e liquidado, pago e saldo são nulos, senão `sem_causa`. Repetido e renumerado vêm antes de fantasma porque as cópias antigas da 57140 também não têm execução.
+- `OUTRO_NUMERO` exige data, valor e credor ou histórico iguais, comparados por `CHAVE_DE_TEXTO` (maiúsculas, sem acento, só letras e dígitos). Texto vazio não confirma nada.
+- Discrepância de empenho só leva entidade, número, data, valor, fonte, id e nota. Credor e histórico ficam no SQL, para comparar, e nunca saem de `empenhosParaClassificar`: a seção é pública, e credor pode ser pessoa física.
+- `empenhosConferidos(ano)` devolve `{ ano, disponivel: false, faltando, exemplo }` ou `{ ano, disponivel: true, parcial, dataCorte, empenhos }`, com `empenhos[]` do tipo `EmpenhoConferido`: `id` (`id_externo` da Betha), `idTce`, `codigoEntidade`, e `empenhado` (líquido), `liquidado` e `pago` do TCE-SC.
 - Diferença entre fontes é informação, nunca rotulada como irregularidade; as notas dizem "provável"/"possível".
 
 ## Retorno de `dadosConferidos(ano)`
@@ -51,7 +56,7 @@ Compara as coletas publicadas das duas fontes num exercício. A regra mora em `p
 - `{ ano, disponivel: true, parcial, limites, receita, despesa, discrepancias }`:
   - `receita`: `porMes[]` (`mes`, `betha`, `tce`, `conferido`, `diferencaBetha`, `diferencaTce`, `aguardandoTce`), `porEntidade[]` (`codigoEntidade`, `entidade`, partes, `aguardandoTce`, `totalBetha`, `totalTce`), `porOrigem[]` (`origem`, partes, `aguardandoTce`), `naturezas[]` (tipo `LinhaNaturezaConferida`), `totais` (partes, `aguardandoTce`, `totalBetha`, `totalTce`);
   - `despesa`: `porEntidade[]` (tipo `DespesaConferida`), `camara`, `totais` (`empenhado`, `liquidado`, `pago`, `aguardandoTce`, `entidadesConferidas`, `entidadesFora`);
-  - `discrepancias[]`: tipo `Discrepancia`, com `area` (`receita` ou `despesa`). Na despesa, `betha`, `tce` e `diferenca` são do empenhado; as três etapas ficam em `etapas`.
+  - `discrepancias[]`: tipo `Discrepancia`, com `area` (`receita`, `despesa` ou `empenho`). Na despesa, `betha`, `tce` e `diferenca` são do empenhado; as três etapas ficam em `etapas`. No empenho, `fonte`, `numero`, `data` e `id`, com o valor no lado da fonte. A área `empenho` é outra visão da mesma execução: não some com `despesa`.
 
 ## Testes
 
@@ -60,5 +65,7 @@ Compara as coletas publicadas das duas fontes num exercício. A regra mora em `p
 ## Armadilhas
 
 - `receitaIncoerente` aponta o mês em que o acumulado desencontra, que pode não ser o da linha sobrando (a linha é de maio, o desencontro aparece em junho). Por isso a classificação é por natureza, e `mes` vem do cruzamento com o TCE, nunca da incoerência.
+- Credor diverge muito entre as fontes: no SAMAE 2024, dos 32 empenhos sem par com a mesma data e valor em outro número, 12 têm o credor igual e 32 têm o histórico igual, mesmo com a chave sem acento. Sem o histórico, 20 deles perderiam a pista.
+- O número repete entre os empenhos sem par (nº 336 é repetido e renumerado no SAMAE 2024, com ids diferentes): a chave de um registro manual pode cobrir mais de uma linha.
 - Regravar a paridade pode reordenar chaves em `api_despesas_empenhos_*`, sem mudar conteúdo: revise o diff e restaure os arquivos que só mudaram a ordem.
 - `geradoEm` é a hora da chamada: duas respostas nunca são iguais. A paridade fixa esse campo.
