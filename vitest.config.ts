@@ -24,7 +24,14 @@ export default defineConfig({
       unidade('packages/importadores/tcesc', 'importador-tcesc'),
       unidade('apps/api'),
       unidade('apps/worker'),
-      { extends: './apps/web/vite.config.js', ...unidade('apps/web') },
+      {
+        extends: './apps/web/vite.config.js',
+        test: {
+          ...unidade('apps/web').test,
+          environment: 'jsdom',
+          setupFiles: ['./test/setup.ts'],
+        },
+      },
       {
         test: {
           name: 'integracao',
