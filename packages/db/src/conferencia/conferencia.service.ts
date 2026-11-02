@@ -20,6 +20,7 @@ import {
   lerReceitaConferida,
   temColetaDeExemplo,
 } from './conferencia.dao';
+import { cruzarConferenciasManuais } from './conferencias-manuais';
 
 export { empenhosForaDaSoma } from './conferencia.bo';
 export type {
@@ -29,6 +30,7 @@ export type {
   LinhaNaturezaConferida,
   TipoDiscrepancia,
 } from './conferencia.bo';
+export type { DiscrepanciaConferida, SituacaoDaDiscrepancia } from './conferencias-manuais';
 
 export async function conferencia(ano: number, agora = new Date()) {
   const coletas = await lerColetas(ano);
@@ -68,6 +70,11 @@ export async function dadosConferidos(ano: number) {
     outrosAnos,
   });
   const { despesa, discrepancias: daDespesa } = montarDespesaConferida(parcial, limites, dadosDaDespesa);
+  // `avisos` é interno, para quem mantém os registros: não é conteúdo da seção pública.
+  const { discrepancias, avisos } = cruzarConferenciasManuais(
+    ano,
+    ordenarDiscrepancias([...daReceita, ...daDespesa, ...discrepanciasDeEmpenhos(empenhosSemPar, { parcial, corte })]),
+  );
   return {
     ano,
     disponivel: true as const,
@@ -75,11 +82,8 @@ export async function dadosConferidos(ano: number) {
     limites,
     receita,
     despesa,
-    discrepancias: ordenarDiscrepancias([
-      ...daReceita,
-      ...daDespesa,
-      ...discrepanciasDeEmpenhos(empenhosSemPar, { parcial, corte }),
-    ]),
+    discrepancias,
+    avisos,
   };
 }
 

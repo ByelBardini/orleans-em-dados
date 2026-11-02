@@ -5,6 +5,7 @@ Compara as coletas publicadas das duas fontes num exercício. A regra mora em `p
 ## Estrutura
 
 - `conferencia.bo.ts` — regra pura e os tipos de cada linha.
+- `conferencias-manuais.ts` — os casos conferidos à mão (`CONFERENCIAS_MANUAIS`), a validação e o cruzamento com as discrepâncias.
 - `conferencia.dao.ts` — as consultas, em SQL com o tipo da linha declarado (CTEs e `FULL JOIN` que reaproveitam `$1`/`$2`; a soma é do Postgres em `NUMERIC`).
 - `conferencia.service.ts` — `conferencia(ano, agora?)` (a comparação), `dadosConferidos(ano)` (só o que as fontes sustentam) e `empenhosConferidos(ano)` (o conjunto casado, para a lista); exportado como `@orleans-em-dados/db/conferencias`, junto com `empenhosForaDaSoma` e os tipos `Discrepancia`, `EmpenhoConferido` e `TipoDiscrepancia`.
 
@@ -20,6 +21,7 @@ Compara as coletas publicadas das duas fontes num exercício. A regra mora em `p
 - `montarConferencia(ano, dados, agora)` — junta tudo e calcula o `resumo` em centavos.
 - `conferirDespesaEncerrada(linha, modalidade71)` — o valor conferido de uma entidade em exercício completo, ou a discrepância que a tira da soma.
 - `montarDespesaConferida(parcial, limites, dados)` — aplica a regra do exercício (encerrado ou em curso) por entidade, deixa a Câmara à parte e soma só as conferidas.
+- `cruzarConferenciasManuais(ano, discrepancias, registros?)` — dá a cada discrepância `situacao`, e `data`, `evidencia` e `protocolo` quando há registro, e devolve os `avisos`. `validarConferenciaManual(registro)` — recusa o que não pode ser versionado; o erro nunca repete o valor.
 - `ordenarDiscrepancias(lista)` — por tipo, com `aguardando_tce` por último; dentro do tipo, o maior valor primeiro.
 - `separarValores(betha, tce)` — a parte comum a um cruzamento e o que sobra de cada lado, em centavos.
 - `montarReceitaConferida(ano, mesLimite, dados)` — agrega a separação em `porMes`, `porEntidade`, `porOrigem` (chave `origem`, os dois primeiros dígitos; o nome da origem é da API), a tabela mista `naturezas` e os `totais`, e lista as `discrepancias`.
@@ -54,19 +56,30 @@ Compara as coletas publicadas das duas fontes num exercício. A regra mora em `p
 ## Retorno de `dadosConferidos(ano)`
 
 - `{ ano, disponivel: false, faltando, exemplo }`, ou
-- `{ ano, disponivel: true, parcial, limites, receita, despesa, discrepancias }`:
+- `{ ano, disponivel: true, parcial, limites, receita, despesa, discrepancias, avisos }`:
   - `receita`: `porMes[]` (`mes`, `betha`, `tce`, `conferido`, `diferencaBetha`, `diferencaTce`, `aguardandoTce`), `porEntidade[]` (`codigoEntidade`, `entidade`, partes, `aguardandoTce`, `totalBetha`, `totalTce`), `porOrigem[]` (`origem`, partes, `aguardandoTce`), `naturezas[]` (tipo `LinhaNaturezaConferida`), `totais` (partes, `aguardandoTce`, `totalBetha`, `totalTce`);
   - `despesa`: `porEntidade[]` (tipo `DespesaConferida`), `camara`, `totais` (`empenhado`, `liquidado`, `pago`, `aguardandoTce`, `entidadesConferidas`, `entidadesFora`);
-  - `discrepancias[]`: tipo `Discrepancia`, com `area` (`receita`, `despesa` ou `empenho`). Na despesa, `betha`, `tce` e `diferenca` são do empenhado; as três etapas ficam em `etapas`. No empenho, `fonte`, `numero`, `data` e `id`, com o valor no lado da fonte. A área `empenho` é outra visão da mesma execução: não some com `despesa`.
+  - `avisos[]`: interno, para quem mantém os registros manuais. A rota pública não devolve;
+  - `discrepancias[]`: tipo `DiscrepanciaConferida` (`Discrepancia` + `situacao`, `data`, `evidencia`, `protocolo`), com `area` (`receita`, `despesa` ou `empenho`). Na despesa, `betha`, `tce` e `diferenca` são do empenhado; as três etapas ficam em `etapas`. No empenho, `fonte`, `numero`, `dataEmpenho` e `id`, com o valor no lado da fonte; `data` é sempre a da conferência manual. A área `empenho` é outra visão da mesma execução: não some com `despesa`.
+
+## Como registrar um caso conferido à mão
+
+1. Acrescente um item em `CONFERENCIAS_MANUAIS` (`conferencias-manuais.ts`), com `{ ano, entidade, tipo, chave, valor, evidencia }`. `situacao` e `data` vêm de `NO_PORTAL`; caso de outra data leva a própria `data`.
+2. `chave` é a natureza ou o número do empenho. `null` cobre todas as discrepâncias do tipo na entidade, pela soma: é o caso de `despesa_duplicada` e de um grupo de empenhos. `valor` é em módulo; `null` confirma sem total, como uma conferência parcial.
+3. `protocolo` é só o número (`e-SIC 000/0000`). Código de acompanhamento nunca: a validação recusa, e o import do módulo falha. Nada de nome de pessoa ou de credor na `evidencia`: ela sai na seção pública.
+4. Rode o spec, e confira em `dadosConferidos(ano).avisos` que o registro achou a discrepância.
+
+- Com registro e o mesmo valor: `confirmada_no_portal`. Sem registro: `calculada`. Com registro e valor diferente, ou a soma do grupo: `rever`, com aviso. Registro sem discrepância do mesmo ano, entidade, tipo e chave: só um aviso.
 
 ## Testes
 
-- Unit em `packages/db/test/conferencia/conferencia.bo.spec.ts`; integração em `packages/db/test/integration/conferencia.spec.ts`, sobre as fixtures de `popularBancoDeTeste()`. `popularCenario({ receitas, despesas, ... })` troca só os lotes que o cenário informa.
+- Unit em `packages/db/test/conferencia/conferencia.bo.spec.ts` e `conferencias-manuais.spec.ts`; integração em `packages/db/test/integration/conferencia.spec.ts`, sobre as fixtures de `popularBancoDeTeste()`. `popularCenario({ receitas, despesas, ... })` troca só os lotes que o cenário informa.
 
 ## Armadilhas
 
 - `receitaIncoerente` aponta o mês em que o acumulado desencontra, que pode não ser o da linha sobrando (a linha é de maio, o desencontro aparece em junho). Por isso a classificação é por natureza, e `mes` vem do cruzamento com o TCE, nunca da incoerência.
 - Credor diverge muito entre as fontes: no SAMAE 2024, dos 32 empenhos sem par com a mesma data e valor em outro número, 12 têm o credor igual e 32 têm o histórico igual, mesmo com a chave sem acento. Sem o histórico, 20 deles perderiam a pista.
 - O número repete entre os empenhos sem par (nº 336 é repetido e renumerado no SAMAE 2024, com ids diferentes): a chave de um registro manual pode cobrir mais de uma linha.
+- Os registros manuais são reais e valem nas fixtures: um cenário de teste com o mesmo ano, entidade, tipo e chave recebe `situacao` de um deles.
 - Regravar a paridade pode reordenar chaves em `api_despesas_empenhos_*`, sem mudar conteúdo: revise o diff e restaure os arquivos que só mudaram a ordem.
 - `geradoEm` é a hora da chamada: duas respostas nunca são iguais. A paridade fixa esse campo.

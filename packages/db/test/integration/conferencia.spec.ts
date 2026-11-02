@@ -566,7 +566,7 @@ describe('empenhos de exercício encerrado', () => {
     expect(await daBetha(340)).toMatchObject({
       tipo: 'empenho_fantasma',
       entidade: 'SAMAE',
-      data: '2025-04-01',
+      dataEmpenho: '2025-04-01',
       betha: 20000,
       tce: null,
       diferenca: 20000,
@@ -630,8 +630,8 @@ describe('empenhos de exercício encerrado', () => {
     expect(JSON.stringify(lista)).not.toMatch(
       /AGUA EXEMPLO|FROTA EXEMPLO|Exemplo-da|EXEMPLO DA|CREDOR|Serviço A|Compra B|Só liquidado|Só pago|Só saldo|Mesma descri|MESMA DESCRI|\(exemplo\)/,
     );
-    const permitidas = ['area', 'betha', 'codigoEntidade', 'data', 'diferenca', 'entidade', 'fonte', 'id'];
-    permitidas.push('nota', 'numero', 'tce', 'tipo');
+    const permitidas = ['area', 'betha', 'codigoEntidade', 'dataEmpenho', 'diferenca', 'entidade', 'fonte', 'id'];
+    permitidas.push('nota', 'numero', 'tce', 'tipo', 'situacao', 'data', 'evidencia');
     expect(lista.filter((d) => Object.keys(d).some((k) => !permitidas.includes(k)))).toEqual([]);
   });
 
@@ -651,6 +651,68 @@ describe('empenhos de exercício encerrado', () => {
     const conjunto = await empenhosConferidos(2025);
     await popularCenario();
     expect(conjunto).toEqual({ ano: 2025, disponivel: false, faltando: ['tcesc_empenhos'], exemplo: false });
+  });
+});
+
+describe('dadosConferidos: conferências manuais', () => {
+  beforeAll(() =>
+    popularCenario({
+      tcescReceitas: snapshot(900001, [
+        receitaTce(PREFEITURA_TCE, '1.1.1.2.50.0.1', 'IPTU', 'dez', '1.00'),
+        // Fixture com o mesmo caso real, e o mesmo valor, do registro de 2025.
+        receitaTce(SAMAE_TCE, '1.1.1.3.03.1.1', 'Imposto retido', 'dez', '428717.37'),
+      ]),
+      empenhos: snapshot(57140, [
+        // O nº 340 tem registro com 20000; o nº 342, com 48,72, e aqui mudou.
+        empenho('2473:1', 340, '2025-04-01', SETOR, 'AGUA EXEMPLO LTDA', 'Um (exemplo)', 20000, null, null, null),
+        empenho('2473:2', 342, '2025-04-02', SETOR, 'AGUA EXEMPLO LTDA', 'Dois (exemplo)', 48.72, 48.72, 48.72, 0),
+        empenho('2473:3', 342, '2025-04-02', SETOR, 'AGUA EXEMPLO LTDA', 'Dois (exemplo)', 48.72, 48.72, 48.72, 0),
+        empenho('2473:4', 342, '2025-04-03', SETOR, 'AGUA EXEMPLO LTDA', 'Três (exemplo)', 10, 10, 10, 0),
+        empenho('2473:5', 342, '2025-04-03', SETOR, 'AGUA EXEMPLO LTDA', 'Três (exemplo)', 10, 10, 10, 0),
+      ]),
+      tcescEmpenhos: snapshot(900002, [
+        empenhoTce(1, SAMAE, 342, '2025-04-02', 'AGUA EXEMPLO LTDA', '48.72', '48.72', '48.72'),
+        empenhoTce(2, SAMAE, 342, '2025-04-03', 'AGUA EXEMPLO LTDA', '10.00', '10.00', '10.00'),
+      ]),
+    }),
+  );
+
+  it('caso com registro traz situação, data, evidência e protocolo', async () => {
+    const { discrepancias } = await disponiveis(2025);
+    const caso = discrepancias.find((d) => d.natureza === '11130311');
+    expect(caso).toMatchObject({
+      tipo: 'so_tce',
+      situacao: 'confirmada_no_portal',
+      data: '2026-11-01',
+      protocolo: 'e-SIC 000/0000',
+    });
+    expect(caso?.evidencia).toContain('portal');
+  });
+
+  it('empenho com registro é confirmado pelo número, e a data do empenho não vira a da conferência', async () => {
+    const { discrepancias } = await disponiveis(2025);
+    expect(discrepancias.find((d) => d.numero === 340)).toMatchObject({
+      tipo: 'empenho_fantasma',
+      situacao: 'confirmada_no_portal',
+      dataEmpenho: '2025-04-01',
+      data: '2026-11-01',
+    });
+  });
+
+  it('valor que mudou fica rever, e o aviso é interno', async () => {
+    const { discrepancias, avisos } = await disponiveis(2025);
+    expect(discrepancias.filter((d) => d.numero === 342).map((d) => d.situacao)).toEqual(['rever', 'rever']);
+    expect(avisos).toContain(
+      'Registro manual com valor diferente: 2025, SAMAE, empenho_repetido, 342: confirmado 48.72, agora 58.72.',
+    );
+  });
+
+  it('o que não tem registro é calculada, e registro sem caso vira aviso sem quebrar', async () => {
+    const { discrepancias, avisos } = await disponiveis(2025);
+    const semRegistro = discrepancias.filter((d) => d.tipo === 'despesa_duplicada' || d.tipo === 'sem_causa');
+    expect(semRegistro.length).toBeGreaterThan(0);
+    expect(new Set(semRegistro.map((d) => d.situacao))).toEqual(new Set(['calculada']));
+    expect(avisos).toContain('Registro manual sem discrepância: 2025, SAMAE, fora_do_acumulado, 22130101.');
   });
 });
 
