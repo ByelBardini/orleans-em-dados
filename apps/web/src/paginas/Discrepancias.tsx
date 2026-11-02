@@ -345,6 +345,16 @@ function quandoFoi(item: Item) {
 }
 
 function Identificacao({ item }: { item: Item }) {
+  if (item.compensacao) {
+    return (
+      <strong>
+        <span className="mono">
+          {item.compensacao.aMenos.natureza} e {item.compensacao.aMais.natureza}
+        </span>{' '}
+        · {item.entidade}
+      </strong>
+    );
+  }
   if (item.area === 'empenho') {
     return (
       <>
@@ -367,6 +377,14 @@ function Identificacao({ item }: { item: Item }) {
 }
 
 function DiferencaDoCaso({ item }: { item: Item }) {
+  if (item.compensacao) {
+    return (
+      <>
+        <span>{moeda(item.valor)} entre rubricas</span>
+        <div className="sub">sem efeito no total</div>
+      </>
+    );
+  }
   // Em meses diferentes, a soma do ano é igual: nenhum lado registra mais.
   if (item.diferenca === 0) return <span>{moeda(item.valor)} em meses diferentes</span>;
   return (
@@ -385,6 +403,16 @@ function DiferencaDoCaso({ item }: { item: Item }) {
   );
 }
 
+// O valor do caso na fonte: em rubricas que se compensam, um por rubrica.
+function ValorNaFonte({ item, fonte }: { item: Item; fonte: 'betha' | 'tce' }) {
+  if (!item.compensacao) return moeda(item[fonte]);
+  return [item.compensacao.aMenos, item.compensacao.aMais].map((r) => (
+    <div key={r.natureza} className="valor-da-rubrica">
+      <span className="sub">{r.natureza}:</span> {moeda(r[fonte])}
+    </div>
+  ));
+}
+
 function Caso({ item }: { item: Item }) {
   return (
     <tr>
@@ -395,10 +423,10 @@ function Caso({ item }: { item: Item }) {
       </td>
       <td data-rotulo="Quando">{quandoFoi(item)}</td>
       <td className="num" data-rotulo="Betha">
-        {moeda(item.betha)}
+        <ValorNaFonte item={item} fonte="betha" />
       </td>
       <td className="num" data-rotulo="TCE-SC">
-        {moeda(item.tce)}
+        <ValorNaFonte item={item} fonte="tce" />
       </td>
       <td className="num caso-diferenca" data-rotulo="Diferença">
         <DiferencaDoCaso item={item} />

@@ -1668,6 +1668,13 @@ tr.expansivel {
 .tabela-casos td.caso-diferenca .sub {
   margin-top: 2px;
 }
+/* Rubricas que se compensam: o código em cima, para o valor caber na coluna. */
+.valor-da-rubrica + .valor-da-rubrica {
+  margin-top: 6px;
+}
+.valor-da-rubrica .sub {
+  display: block;
+}
 
 .significado-situacoes {
   display: grid;
