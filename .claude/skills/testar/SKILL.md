@@ -33,11 +33,11 @@ O runner é o **Vitest 5**, na raiz, com um projeto por workspace (`vitest.confi
 
 Se `$ARGUMENTS` estiver vazio, pergunte o alvo. Ele define o modo:
 
-| alvo                                                                               | modo          | produto                                                                                  |
-| ---------------------------------------------------------------------------------- | ------------- | ---------------------------------------------------------------------------------------- |
-| arquivo/pasta de produção sem spec, ou comportamento novo descrito no argumento    | **cobrir**    | specs novos com os cenários do contrato (vermelhos primeiro se a fonte ainda não existe) |
-| arquivo/pasta de produção com spec                                                 | **completar** | os cenários que faltam + correção dos `it` que não provam nada                           |
-| spec ou pasta de `test/`                                                           | **auditar**   | diagnóstico dos `it` + correção dos achados confirmados                                  |
+| alvo                                                                            | modo          | produto                                                                                  |
+| ------------------------------------------------------------------------------- | ------------- | ---------------------------------------------------------------------------------------- |
+| arquivo/pasta de produção sem spec, ou comportamento novo descrito no argumento | **cobrir**    | specs novos com os cenários do contrato (vermelhos primeiro se a fonte ainda não existe) |
+| arquivo/pasta de produção com spec                                              | **completar** | os cenários que faltam + correção dos `it` que não provam nada                           |
+| spec ou pasta de `test/`                                                        | **auditar**   | diagnóstico dos `it` + correção dos achados confirmados                                  |
 
 O comando `/testar` acrescenta a lente de cada workspace (em qual camada cada cenário é provado); se esta skill foi invocada direto, leia a seção "Testes" do `AGENTS.md` (quando existir) antes de escrever.
 
@@ -69,24 +69,24 @@ Exit code `0` com achados, `1` erro de execução, `2` sem alvo. Uma rodada leva
 
 **Categorias e o que cada regra significa**
 
-| categoria  | regras                                                                                                                                                                                                                                               | o que olhar                                                                                                                                                         |
-| ---------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `lugar`    | `teste-fora-de-test` (erro), `spec-importa-src-relativo` (só em workspace com alias), `mock-da-unidade-sob-teste` (erro), `spec-sem-espelho` (info)                                                                                                  | o spec está em `test/` espelhando as fontes e não mocka a própria unidade?                                                                                          |
+| categoria  | regras                                                                                                                                                                                                                                               | o que olhar                                                                                                                                                      |
+| ---------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `lugar`    | `teste-fora-de-test` (erro), `spec-importa-src-relativo` (só em workspace com alias), `mock-da-unidade-sob-teste` (erro), `spec-sem-espelho` (info)                                                                                                  | o spec está em `test/` espelhando as fontes e não mocka a própria unidade?                                                                                       |
 | `espelho`  | `fonte-sem-spec`                                                                                                                                                                                                                                     | a seção `## espelho src ↔ test` lista cada fonte do alvo e quem a espelha (pelo nome ou por importar o arquivo); a sugestão traz o caminho canônico do spec novo |
-| `prova`    | `teste-sem-assercao` (erro), `assercao-tautologica` (erro; aviso quando é chamada dos dois lados), `eco-do-mock`, `so-verifica-chamada`, `so-snapshot`, `assercao-fraca`, `teste-pulado`, `teste-exclusivo` (erro), `dependencia-fake-inline` (info) | o `it` observa um resultado que a unidade produziu, ou só confere que algo existe, foi chamado ou voltou o que o mock deu?                                          |
-| `cenarios` | `nome-sem-cenario`, `nome-repetido`, `describe-sem-teste`, `cenario-longo` (info), `regressao-sem-referencia` (info)                                                                                                                                 | o nome diz situação + resultado? cada `it` é um cenário? a regressão diz de onde veio?                                                                              |
+| `prova`    | `teste-sem-assercao` (erro), `assercao-tautologica` (erro; aviso quando é chamada dos dois lados), `eco-do-mock`, `so-verifica-chamada`, `so-snapshot`, `assercao-fraca`, `teste-pulado`, `teste-exclusivo` (erro), `dependencia-fake-inline` (info) | o `it` observa um resultado que a unidade produziu, ou só confere que algo existe, foi chamado ou voltou o que o mock deu?                                       |
+| `cenarios` | `nome-sem-cenario`, `nome-repetido`, `describe-sem-teste`, `cenario-longo` (info), `regressao-sem-referencia` (info)                                                                                                                                 | o nome diz situação + resultado? cada `it` é um cenário? a regressão diz de onde veio?                                                                           |
 
 ### 3. Levantar os cenários do contrato
 
 Antes de escrever ou julgar qualquer `it`, abra a fonte e liste **o que ela promete**, em tabela, no scratchpad ou na própria resposta:
 
-| cenário                                     | entrada                                                     | resultado observável                                   | tipo      |
-| ------------------------------------------- | ----------------------------------------------------------- | ------------------------------------------------------ | --------- |
-| valores iguais nas duas fontes conferem     | Betha `1.234,56`, TCE-SC `1.234,56`                         | status `confere`                                        | feliz     |
-| diferença de centavo é arredondamento       | Betha `100,00`, TCE-SC `100,01`                             | status de arredondamento, não de divergência            | borda     |
-| empenho renumerado não soma duas vezes      | empenho antigo e a cópia nova no mesmo ano                  | só a cópia nova entra no acumulado                      | borda     |
-| ano sem coleta publicada                    | `GET /api/receitas?ano=2019` sem snapshot                   | `404` com `{ erro: 'Sem dados de receitas para 2019' }` | erro      |
-| resposta da Betha sem o campo esperado      | página sem `content`                                        | erro citando a consulta e o campo, nada gravado         | erro      |
+| cenário                                 | entrada                                    | resultado observável                                    | tipo  |
+| --------------------------------------- | ------------------------------------------ | ------------------------------------------------------- | ----- |
+| valores iguais nas duas fontes conferem | Betha `1.234,56`, TCE-SC `1.234,56`        | status `confere`                                        | feliz |
+| diferença de centavo é arredondamento   | Betha `100,00`, TCE-SC `100,01`            | status de arredondamento, não de divergência            | borda |
+| empenho renumerado não soma duas vezes  | empenho antigo e a cópia nova no mesmo ano | só a cópia nova entra no acumulado                      | borda |
+| ano sem coleta publicada                | `GET /api/receitas?ano=2019` sem snapshot  | `404` com `{ erro: 'Sem dados de receitas para 2019' }` | erro  |
+| resposta da Betha sem o campo esperado  | página sem `content`                       | erro citando a consulta e o campo, nada gravado         | erro  |
 
 Fontes dos cenários, nesta ordem: o doc da área e a especificação (regra de negócio: o que é fonte preferida, quando um valor é "validado", o que sai da soma), a assinatura (o que entra, o que sai), os `throw` e os `if` da fonte (bordas e recusas), o spec existente (o que já está provado). Todo cenário de **erro** e de **borda** entra na lista; o feliz sozinho não é contrato. Cenário que a fonte promete e não cumpre é **bug**: regra 7.
 
@@ -126,18 +126,18 @@ describe('classificarDiferenca', () => {
 
 Anti-padrões que saem (o "testa por testar"):
 
-| cheiro                                                                              | por que não prova                     | o que fazer                               |
-| ----------------------------------------------------------------------------------- | ------------------------------------- | ----------------------------------------- |
-| sem `expect`                                                                        | passa sempre                          | asserir o resultado ou apagar             |
-| `expect(x).toBe(x)`                                                                 | compara a coisa com ela mesma         | esperado à mão                            |
-| confere o que o mock devolveu                                                       | prova só que a chamada passou adiante | asserir a transformação                   |
-| só `toHaveBeenCalled()`                                                             | qualquer argumento passa              | `toHaveBeenCalledWith` ou o efeito        |
-| só `toBeDefined`/`toBeTruthy`                                                       | `{}` e `'x'` passam igual             | `toBe`/`toEqual` do valor                 |
-| só snapshot                                                                         | não diz qual comportamento importa    | asserir o texto/valor prometido           |
-| testa a lib (`pg` devolve linha, `Intl.NumberFormat` formata, React renderiza)      | prova a lib, não o projeto            | testar o que o projeto acrescenta         |
-| testa detalhe interno (ordem de funções privadas, nome de variável de estado)      | quebra em refatoração sem bug         | testar o comportamento pela porta pública |
-| só o caminho feliz                                                                  | o bug mora na borda e no erro         | um `it` por recusa e por limite           |
-| `it` criado para "cobrir a linha"                                                   | não corresponde a cenário nenhum      | achar o cenário; sem cenário, é código morto |
+| cheiro                                                                         | por que não prova                     | o que fazer                                  |
+| ------------------------------------------------------------------------------ | ------------------------------------- | -------------------------------------------- |
+| sem `expect`                                                                   | passa sempre                          | asserir o resultado ou apagar                |
+| `expect(x).toBe(x)`                                                            | compara a coisa com ela mesma         | esperado à mão                               |
+| confere o que o mock devolveu                                                  | prova só que a chamada passou adiante | asserir a transformação                      |
+| só `toHaveBeenCalled()`                                                        | qualquer argumento passa              | `toHaveBeenCalledWith` ou o efeito           |
+| só `toBeDefined`/`toBeTruthy`                                                  | `{}` e `'x'` passam igual             | `toBe`/`toEqual` do valor                    |
+| só snapshot                                                                    | não diz qual comportamento importa    | asserir o texto/valor prometido              |
+| testa a lib (`pg` devolve linha, `Intl.NumberFormat` formata, React renderiza) | prova a lib, não o projeto            | testar o que o projeto acrescenta            |
+| testa detalhe interno (ordem de funções privadas, nome de variável de estado)  | quebra em refatoração sem bug         | testar o comportamento pela porta pública    |
+| só o caminho feliz                                                             | o bug mora na borda e no erro         | um `it` por recusa e por limite              |
+| `it` criado para "cobrir a linha"                                              | não corresponde a cenário nenhum      | achar o cenário; sem cenário, é código morto |
 
 ### 6. Verificar
 

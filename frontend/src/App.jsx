@@ -119,7 +119,8 @@ export default function App() {
           <p className="rotulo">Sobre os dados</p>
           <p>
             Portal da Transparência de Orleans (Betha), conferido com o Farol do TCE-SC.{' '}
-            <a href="#conferencia">Onde as fontes divergem</a> · <a href="#metodologia">Como os números são conferidos</a>.
+            <a href="#conferencia">Onde as fontes divergem</a> ·{' '}
+            <a href="#metodologia">Como os números são conferidos</a>.
           </p>
         </div>
         <div>

@@ -158,7 +158,20 @@ const igual = (a, b) => a !== null && b !== null && Math.round(a * 100) === Math
 const fmt = (v) => v.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
 
 // Classifica cada natureza divergente e aponta padrões verificáveis nos próprios números.
-const MESES = ['janeiro', 'fevereiro', 'março', 'abril', 'maio', 'junho', 'julho', 'agosto', 'setembro', 'outubro', 'novembro', 'dezembro'];
+const MESES = [
+  'janeiro',
+  'fevereiro',
+  'março',
+  'abril',
+  'maio',
+  'junho',
+  'julho',
+  'agosto',
+  'setembro',
+  'outubro',
+  'novembro',
+  'dezembro',
+];
 
 const centavos = (v) => Math.round(v * 100);
 
@@ -168,7 +181,8 @@ function anotarNaturezas(linhas, repetidas, incoerentes) {
     .map((r) => {
       const tipo = r.betha === null ? 'soTce' : r.tce === null ? 'soBetha' : 'valor';
       const mesmaEntidade = linhas.filter((o) => o.ent === r.ent && o.natureza !== r.natureza);
-      const duplicada = r.diferenca > 0 && repetidas.find((d) => d.ent === r.ent && d.nat === r.natureza && igual(d.v, r.diferenca));
+      const duplicada =
+        r.diferenca > 0 && repetidas.find((d) => d.ent === r.ent && d.nat === r.natureza && igual(d.v, r.diferenca));
       const compensa = mesmaEntidade.find((o) => o.diferenca !== 0 && igual(o.diferenca, -r.diferenca));
       const incoerencias = incoerentes.filter((i) => i.ent === r.ent && i.nat === r.natureza);
       const excesso = incoerencias.reduce((s, i) => s + centavos(i.excesso), 0) / 100;
@@ -188,9 +202,13 @@ function anotarNaturezas(linhas, repetidas, incoerentes) {
       } else if (tipo === 'soTce') {
         nota = 'Registrado no TCE, sem lançamento correspondente na Betha.';
       } else if (tipo === 'soBetha') {
-        nota = 'Lançado na Betha, sem correspondente no TCE neste código (pode estar classificado em outro nível de detalhe).';
+        nota =
+          'Lançado na Betha, sem correspondente no TCE neste código (pode estar classificado em outro nível de detalhe).';
       } else {
-        nota = r.diferenca > 0 ? 'A Betha registra mais que o TCE nesta rubrica.' : 'O TCE registra mais que a Betha nesta rubrica.';
+        nota =
+          r.diferenca > 0
+            ? 'A Betha registra mais que o TCE nesta rubrica.'
+            : 'O TCE registra mais que a Betha nesta rubrica.';
       }
       const { ent, ...resto } = r;
       return { ...resto, codigoEntidade: ent, tipo, incoerenciaBetha: excesso, nota };
@@ -200,7 +218,8 @@ function anotarNaturezas(linhas, repetidas, incoerentes) {
 function anotarEmpenho(e) {
   let nota;
   if (e.ocorrencia > 1) nota = 'Registro repetido: mesmo número, data e valor de outro empenho.';
-  else if (e.numeroNaOutra) nota = `Na outra fonte, o empenho com esta data e valor é o nº ${e.numeroNaOutra}: provável renumeração.`;
+  else if (e.numeroNaOutra)
+    nota = `Na outra fonte, o empenho com esta data e valor é o nº ${e.numeroNaOutra}: provável renumeração.`;
   else nota = e.fonte === 'betha' ? 'Sem correspondente no TCE.' : 'Sem correspondente na Betha.';
   if (e.fonte === 'betha' && e.liquidado === null) nota += ' Não tem liquidação registrada.';
   return { ...e, nota };
@@ -217,17 +236,18 @@ export async function conferencia(ano) {
   const mes = limites.mesReceita;
   const dataLimite = parcial ? limites.dataEmpenho : null;
 
-  const [despesa, receitaEnt, receitaMes, naturezas, repetidas, incoerentes, empenhos, semPar, [camara]] = await Promise.all([
-    consultar(CONSULTAS.despesaPorEntidade, [ano]),
-    consultar(CONSULTAS.receitaPorEntidade, [ano, mes]),
-    consultar(CONSULTAS.receitaPorMes, [ano, mes]),
-    consultar(CONSULTAS.receitaPorNatureza, [ano, mes]),
-    consultar(CONSULTAS.receitaRepetida, [ano, mes]),
-    consultar(CONSULTAS.receitaIncoerente, [ano, mes]),
-    consultar(CONSULTAS.empenhos, [ano, dataLimite]),
-    consultar(CONSULTAS.empenhosSemPar, [ano, dataLimite]),
-    consultar(CONSULTAS.camara, [ano]),
-  ]);
+  const [despesa, receitaEnt, receitaMes, naturezas, repetidas, incoerentes, empenhos, semPar, [camara]] =
+    await Promise.all([
+      consultar(CONSULTAS.despesaPorEntidade, [ano]),
+      consultar(CONSULTAS.receitaPorEntidade, [ano, mes]),
+      consultar(CONSULTAS.receitaPorMes, [ano, mes]),
+      consultar(CONSULTAS.receitaPorNatureza, [ano, mes]),
+      consultar(CONSULTAS.receitaRepetida, [ano, mes]),
+      consultar(CONSULTAS.receitaIncoerente, [ano, mes]),
+      consultar(CONSULTAS.empenhos, [ano, dataLimite]),
+      consultar(CONSULTAS.empenhosSemPar, [ano, dataLimite]),
+      consultar(CONSULTAS.camara, [ano]),
+    ]);
 
   const despesaPorEntidade = despesa.map((r) => ({
     ...r,
@@ -247,7 +267,8 @@ export async function conferencia(ano) {
     despesaPorEntidade,
     receitaPorEntidade: receitaEnt.map((r) => ({
       ...r,
-      incoerenciaBetha: incoerentes.filter((i) => i.ent === r.codigoEntidade).reduce((s, i) => s + centavos(i.excesso), 0) / 100,
+      incoerenciaBetha:
+        incoerentes.filter((i) => i.ent === r.codigoEntidade).reduce((s, i) => s + centavos(i.excesso), 0) / 100,
     })),
     receitaPorMes: receitaMes,
     receitaPorNatureza: anotarNaturezas(naturezas, repetidas, incoerentes),
@@ -256,7 +277,8 @@ export async function conferencia(ano) {
     empenhosSemPar: semPar.map(anotarEmpenho),
     resumo: {
       despesaEntidadesComparadas: comparadas.length,
-      despesaEntidadesIguais: comparadas.filter((r) => r.difEmpenhado === 0 && r.difLiquidado === 0 && r.difPago === 0).length,
+      despesaEntidadesIguais: comparadas.filter((r) => r.difEmpenhado === 0 && r.difLiquidado === 0 && r.difPago === 0)
+        .length,
       receitaBetha: receitaEnt.reduce((s, r) => s + Math.round((r.betha ?? 0) * 100), 0) / 100,
       receitaTce: receitaEnt.reduce((s, r) => s + Math.round((r.tce ?? 0) * 100), 0) / 100,
       receitaDiferenca: receitaEnt.reduce((s, r) => s + Math.round(r.diferenca * 100), 0) / 100,

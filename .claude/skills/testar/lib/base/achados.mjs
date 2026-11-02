@@ -26,7 +26,5 @@ export function linhasUteis(ficha, linhaInicial, linhaFinal) {
 
 export function ordenarAchados(achados) {
   const peso = (achadoAtual) => SEVERIDADES.indexOf(achadoAtual.severidade);
-  return [...achados].sort(
-    (a, b) => peso(a) - peso(b) || a.arquivo.localeCompare(b.arquivo) || a.linha - b.linha,
-  );
+  return [...achados].sort((a, b) => peso(a) - peso(b) || a.arquivo.localeCompare(b.arquivo) || a.linha - b.linha);
 }

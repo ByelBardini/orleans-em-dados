@@ -1,6 +1,17 @@
 import { useApi } from '../api.js';
 import { BarrasMensais, Estado, Filtros, Fonte, ListaPontos, Mi, Numero, Numeros } from '../components.jsx';
-import { data, decimal, emMilhoes, MESES, MESES_LONGOS, milhoes, nomeProprio, numero, pct, porExtenso } from '../format.js';
+import {
+  data,
+  decimal,
+  emMilhoes,
+  MESES,
+  MESES_LONGOS,
+  milhoes,
+  nomeProprio,
+  numero,
+  pct,
+  porExtenso,
+} from '../format.js';
 import { Selo, seloDespesa, seloReceita, useConferencia } from '../selos.jsx';
 import { GLOSSARIO, ORIGEM_CIDADAO, ORIGENS_DE_FORA, populacao, sujeito } from '../referencias.js';
 
@@ -20,7 +31,10 @@ export default function VisaoGeral({ ano, entidade, filtros }) {
   return (
     <>
       <Filtros {...filtros} />
-      <Estado carregando={rec.carregando || emp.carregando || desp.carregando} erro={rec.erro || emp.erro || desp.erro} />
+      <Estado
+        carregando={rec.carregando || emp.carregando || desp.carregando}
+        erro={rec.erro || emp.erro || desp.erro}
+      />
       {r && d && o && (
         <Conteudo ano={ano} entidade={entidade} r={r} d={d} o={o} pop={pop} entidades={filtros.entidades} conf={conf} />
       )}
@@ -84,7 +98,12 @@ function Conteudo({ ano, entidade, r, d, o, pop, entidades, conf }) {
         </h1>
         <div className="abertura-lado">
           <p className="capitular">
-            {principalOrigem && <>O dinheiro veio principalmente de {principalOrigem.charAt(0).toLocaleLowerCase('pt-BR') + principalOrigem.slice(1)}. </>}
+            {principalOrigem && (
+              <>
+                O dinheiro veio principalmente de{' '}
+                {principalOrigem.charAt(0).toLocaleLowerCase('pt-BR') + principalOrigem.slice(1)}.{' '}
+              </>
+            )}
             {org1 && (
               <>
                 {org2 ? (
@@ -101,7 +120,8 @@ function Conteudo({ ano, entidade, r, d, o, pop, entidades, conf }) {
               <>
                 {' '}
                 Com a Câmara Municipal ({porExtenso(N(camara.empenhado))}, dados do TCE-SC
-                {anoEncerrado ? '' : ` até ${data(camara.ultimoEmpenho)}`}), o município empenhou {porExtenso(comCamara)}.
+                {anoEncerrado ? '' : ` até ${data(camara.ultimoEmpenho)}`}), o município empenhou{' '}
+                {porExtenso(comCamara)}.
               </>
             )}
           </p>
@@ -127,7 +147,12 @@ function Conteudo({ ano, entidade, r, d, o, pop, entidades, conf }) {
         >
           <Mi valor={empenhado} />
         </Numero>
-        <Numero rotulo="Pago" detalhe={`${pct(pago, empenhado)} do empenhado`} barra={(pago / empenhado) * 100} vermelho>
+        <Numero
+          rotulo="Pago"
+          detalhe={`${pct(pago, empenhado)} do empenhado`}
+          barra={(pago / empenhado) * 100}
+          vermelho
+        >
           <Mi valor={pago} />
         </Numero>
         <Numero
@@ -201,7 +226,10 @@ function Conteudo({ ano, entidade, r, d, o, pop, entidades, conf }) {
               <div className="trilho" aria-hidden="true">
                 <span
                   className={o.outro ? '' : 'vermelho'}
-                  style={{ width: `${(o.valor / cada100[0].valor) * 100}%`, background: o.outro ? 'var(--pontilhado)' : undefined }}
+                  style={{
+                    width: `${(o.valor / cada100[0].valor) * 100}%`,
+                    background: o.outro ? 'var(--pontilhado)' : undefined,
+                  }}
                 />
               </div>
               <span className="lp-extra">

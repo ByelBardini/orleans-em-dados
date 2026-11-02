@@ -98,7 +98,9 @@ export function seloEmpenhos(conf, entidade) {
     motivo: [
       antigos &&
         `${numero(antigos)} deles parecem versões antigas de empenhos renumerados ou registros repetidos: aparecem na lista, mas ficam fora das somas desta página.`,
-      soBetha && soTce && `Outros ${numero(soTce)} empenhos do TCE-SC (${moeda(soma('valorSoTce'))}) não aparecem na Betha.`,
+      soBetha &&
+        soTce &&
+        `Outros ${numero(soTce)} empenhos do TCE-SC (${moeda(soma('valorSoTce'))}) não aparecem na Betha.`,
       pendencia(conf, 'empenhos'),
     ]
       .filter(Boolean)
@@ -111,19 +113,25 @@ export function seloEmpenhos(conf, entidade) {
 export function seloDespesa(conf, entidade) {
   if (!conf) return null;
   if (conf.parcial) return seloEmpenhos(conf, entidade);
-  const linhas = conf.despesaPorEntidade.filter(
-    (l) => l.comparavel && (!entidade || l.entidadeBetha === entidade),
-  );
+  const linhas = conf.despesaPorEntidade.filter((l) => l.comparavel && (!entidade || l.entidadeBetha === entidade));
   if (!linhas.length) return null;
   const dif = (k) => linhas.reduce((s, l) => s + centavos(l[k]), 0) / 100;
   const [e, l, p] = [dif('difEmpenhado'), dif('difLiquidado'), dif('difPago')];
   if (!e && !l && !p) {
-    return { estado: 'confere', titulo: 'Confere com o TCE-SC', motivo: 'Empenhado, liquidado e pago iguais ao centavo.' };
+    return {
+      estado: 'confere',
+      titulo: 'Confere com o TCE-SC',
+      motivo: 'Empenhado, liquidado e pago iguais ao centavo.',
+    };
   }
   const divergentes = linhas.filter((x) => x.difEmpenhado || x.difLiquidado || x.difPago).map((x) => x.sigla);
   const empenhos = seloEmpenhos(conf, entidade);
   // Cada etapa por extenso; a primeira que diverge vai para o título.
-  const etapas = [['Empenhado', e], ['Liquidado', l], ['Pago', p]];
+  const etapas = [
+    ['Empenhado', e],
+    ['Liquidado', l],
+    ['Pago', p],
+  ];
   const [nome, valor] = etapas.find(([, v]) => v !== 0);
   const demais = etapas
     .filter(([n]) => n !== nome)
@@ -134,7 +142,8 @@ export function seloDespesa(conf, entidade) {
     titulo: `${nome} difere do TCE-SC: ${sinal(valor)}`,
     motivo: [
       `${demais.join('; ')}. Diferença em: ${divergentes.join(', ')}.`,
-      empenhos?.estado === 'diverge' && `Na comparação empenho a empenho: ${empenhos.titulo.charAt(0).toLocaleLowerCase('pt-BR') + empenhos.titulo.slice(1)}.`,
+      empenhos?.estado === 'diverge' &&
+        `Na comparação empenho a empenho: ${empenhos.titulo.charAt(0).toLocaleLowerCase('pt-BR') + empenhos.titulo.slice(1)}.`,
     ]
       .filter(Boolean)
       .join(' '),

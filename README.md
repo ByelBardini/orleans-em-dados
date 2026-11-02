@@ -68,14 +68,14 @@ data/         snapshots JSON opcionais (fora do git)
 
 ## Banco de dados
 
-| Tabela | Conteúdo |
-|---|---|
-| `fontes`, `consultas`, `entidades` | Catálogo: origens, consultas Betha e mapeamento de entidades |
-| `coletas` | Cada execução: filtro, datas, contagens, campos ausentes, erros, status e hash |
-| `totais_fonte` | Totalizador da fonte × soma calculada, por campo |
-| `registros_brutos` | Registro original (`sourceAsMap`) em JSONB, imutável por coleta |
-| `receitas`, `empenhos` | Dados normalizados (`NUMERIC(18,2)`, rubricas como texto, nulos preservados) |
-| `publicacoes` | Qual coleta o dashboard exibe para cada consulta e ano |
+| Tabela                             | Conteúdo                                                                       |
+| ---------------------------------- | ------------------------------------------------------------------------------ |
+| `fontes`, `consultas`, `entidades` | Catálogo: origens, consultas Betha e mapeamento de entidades                   |
+| `coletas`                          | Cada execução: filtro, datas, contagens, campos ausentes, erros, status e hash |
+| `totais_fonte`                     | Totalizador da fonte × soma calculada, por campo                               |
+| `registros_brutos`                 | Registro original (`sourceAsMap`) em JSONB, imutável por coleta                |
+| `receitas`, `empenhos`             | Dados normalizados (`NUMERIC(18,2)`, rubricas como texto, nulos preservados)   |
+| `publicacoes`                      | Qual coleta o dashboard exibe para cada consulta e ano                         |
 
 Views `receitas_publicadas` e `empenhos_publicados` dão acesso direto ao conjunto exibido. Os campos estão
 descritos em [docs/DICIONARIO_DE_DADOS.md](docs/DICIONARIO_DE_DADOS.md).

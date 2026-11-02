@@ -25,47 +25,47 @@ O fluxo é o da skill `testar`: driver → contexto da área → cenários do co
 
 ## Lente do db
 
-| o que                                                                                     | camada     | onde                                       | fake                                                      |
-| ----------------------------------------------------------------------------------------- | ---------- | ------------------------------------------ | --------------------------------------------------------- |
-| Regra da conferência Betha × TCE-SC (o que confere, o que é arredondamento, o que diverge) | unit       | `db/test/conferencias.spec.js`             | nenhum; linhas de entrada de fábrica → status             |
-| Consulta SQL da conferência e das cópias antigas de empenhos/receitas                     | integração | `db/test/integration/conferencias.spec.js` | Postgres descartável migrado, linhas inseridas pelo `it` |
-| Migrações (`db/migrations/*.sql`)                                                         | integração | `db/test/integration/migrar.spec.js`       | Postgres descartável vazio: migrar duas vezes não quebra |
+| o que                                                                                      | camada     | onde                                       | fake                                                     |
+| ------------------------------------------------------------------------------------------ | ---------- | ------------------------------------------ | -------------------------------------------------------- |
+| Regra da conferência Betha × TCE-SC (o que confere, o que é arredondamento, o que diverge) | unit       | `db/test/conferencias.spec.js`             | nenhum; linhas de entrada de fábrica → status            |
+| Consulta SQL da conferência e das cópias antigas de empenhos/receitas                      | integração | `db/test/integration/conferencias.spec.js` | Postgres descartável migrado, linhas inseridas pelo `it` |
+| Migrações (`db/migrations/*.sql`)                                                          | integração | `db/test/integration/migrar.spec.js`       | Postgres descartável vazio: migrar duas vezes não quebra |
 
 - **Regra misturada com SQL** no mesmo arquivo: prove pela integração o que só existe na query, e registre a extração da regra pura como débito (refatoração é outra entrega).
 - **Dinheiro é cenário de borda**: centavo de diferença, valor negativo (estorno, anulação), soma do ano com mês faltando.
 
 ## Lente dos collectors
 
-| o que                                                                          | camada     | onde                                           | fake                                                                                     |
-| ------------------------------------------------------------------------------ | ---------- | ---------------------------------------------- | ---------------------------------------------------------------------------------------- |
-| Autenticação anônima e cliente de consulta da Betha (`betha/auth.js`, `client.js`) | unit       | `collectors/test/betha/<x>.spec.js`            | `fetch` falso nomeado (`class FetchFake`) que guarda as requisições e devolve fixtures  |
-| Cliente Qlik do TCE-SC (`tcesc/qlik-client.js`)                                | unit       | `collectors/test/tcesc/qlik-client.spec.js`    | transporte falso nomeado com as mensagens gravadas                                       |
-| Normalização do registro (o que vira linha, o que é descartado)               | unit       | `collectors/test/<x>.spec.js`                  | nenhum; resposta de fixture → registro esperado escrito à mão                            |
-| `gravar.js` (coleta, snapshot, publicação)                                     | integração | `collectors/test/integration/gravar.spec.js`   | Postgres descartável                                                                     |
-| Pontos de entrada (`coletar.js`, `conferir.js`, `importar-arquivo.js`)         | —          | —                                              | o que vale provar é a regra que eles chamam; CLI em si não ganha unit                    |
+| o que                                                                              | camada     | onde                                         | fake                                                                                   |
+| ---------------------------------------------------------------------------------- | ---------- | -------------------------------------------- | -------------------------------------------------------------------------------------- |
+| Autenticação anônima e cliente de consulta da Betha (`betha/auth.js`, `client.js`) | unit       | `collectors/test/betha/<x>.spec.js`          | `fetch` falso nomeado (`class FetchFake`) que guarda as requisições e devolve fixtures |
+| Cliente Qlik do TCE-SC (`tcesc/qlik-client.js`)                                    | unit       | `collectors/test/tcesc/qlik-client.spec.js`  | transporte falso nomeado com as mensagens gravadas                                     |
+| Normalização do registro (o que vira linha, o que é descartado)                    | unit       | `collectors/test/<x>.spec.js`                | nenhum; resposta de fixture → registro esperado escrito à mão                          |
+| `gravar.js` (coleta, snapshot, publicação)                                         | integração | `collectors/test/integration/gravar.spec.js` | Postgres descartável                                                                   |
+| Pontos de entrada (`coletar.js`, `conferir.js`, `importar-arquivo.js`)             | —          | —                                            | o que vale provar é a regra que eles chamam; CLI em si não ganha unit                  |
 
 - **Nunca a API real no teste.** A resposta vira fixture em `collectors/test/support/`, sem dado pessoal de credor.
 - **Paginação e erro de rede são cenários**: página vazia, página repetida, `401` que pede novo token, resposta sem o campo esperado (erro citando consulta e campo, nada gravado).
 
 ## Lente do backend
 
-| o que                                                                    | camada     | onde                                           | fake                                                                   |
-| ------------------------------------------------------------------------ | ---------- | ---------------------------------------------- | ---------------------------------------------------------------------- |
-| Indicadores e leitura de coletas (`indicadores.js`, `dados.js`)          | integração | `backend/test/integration/<x>.spec.js`         | Postgres descartável com uma coleta publicada inserida pelo `it`       |
-| Rotas de `server.js`: status, shape do JSON, `404` de ano sem dado, CSV  | integração | `backend/test/integration/server.spec.js`      | o servidor real em porta efêmera (`listen(0)`) + `fetch` de verdade    |
-| Função pura que sair de `server.js`/`indicadores.js` (formato do CSV, filtro) | unit  | `backend/test/<x>.spec.js`                     | nenhum                                                                 |
+| o que                                                                         | camada     | onde                                      | fake                                                                |
+| ----------------------------------------------------------------------------- | ---------- | ----------------------------------------- | ------------------------------------------------------------------- |
+| Indicadores e leitura de coletas (`indicadores.js`, `dados.js`)               | integração | `backend/test/integration/<x>.spec.js`    | Postgres descartável com uma coleta publicada inserida pelo `it`    |
+| Rotas de `server.js`: status, shape do JSON, `404` de ano sem dado, CSV       | integração | `backend/test/integration/server.spec.js` | o servidor real em porta efêmera (`listen(0)`) + `fetch` de verdade |
+| Função pura que sair de `server.js`/`indicadores.js` (formato do CSV, filtro) | unit       | `backend/test/<x>.spec.js`                | nenhum                                                              |
 
 - **O CSV é contrato**: BOM, `;`, vírgula decimal e aspas escapadas são cenários, porque é o que faz o Excel em português abrir direto.
 - **Integração é cara**: um cenário por regra de contrato (status, shape, exclusão de cópias antigas, filtro por entidade); a combinatória de valores fica no unit.
 
 ## Lente do frontend
 
-| o que                                                                | camada     | onde                                      | fake                                                                  |
-| -------------------------------------------------------------------- | ---------- | ----------------------------------------- | --------------------------------------------------------------------- |
-| Formatação e referências (`format.js`, `referencias.js`)             | sem DOM    | `frontend/test/<x>.spec.js`               | nenhum                                                                |
-| Regra dos selos (`seloReceita`, `seloDespesa`… em `selos.jsx`)        | sem DOM    | `frontend/test/selos.spec.jsx`            | nenhum; conferência de fábrica → selo                                 |
-| `api.js` (`getJSON`, `useApi`): erro do servidor vira mensagem       | sem DOM / componente | `frontend/test/api.spec.js`     | `fetch` falso nomeado, nunca `vi.fn()` solto em `globalThis.fetch`    |
-| Componentes e páginas (`components.jsx`, `paginas/`)                 | componente | `frontend/test/paginas/<X>.spec.jsx`      | Testing Library + jsdom (não instalados: dependência nova é pergunta) |
+| o que                                                          | camada               | onde                                 | fake                                                                  |
+| -------------------------------------------------------------- | -------------------- | ------------------------------------ | --------------------------------------------------------------------- |
+| Formatação e referências (`format.js`, `referencias.js`)       | sem DOM              | `frontend/test/<x>.spec.js`          | nenhum                                                                |
+| Regra dos selos (`seloReceita`, `seloDespesa`… em `selos.jsx`) | sem DOM              | `frontend/test/selos.spec.jsx`       | nenhum; conferência de fábrica → selo                                 |
+| `api.js` (`getJSON`, `useApi`): erro do servidor vira mensagem | sem DOM / componente | `frontend/test/api.spec.js`          | `fetch` falso nomeado, nunca `vi.fn()` solto em `globalThis.fetch`    |
+| Componentes e páginas (`components.jsx`, `paginas/`)           | componente           | `frontend/test/paginas/<X>.spec.jsx` | Testing Library + jsdom (não instalados: dependência nova é pergunta) |
 
 - **`Intl` é sensível ao ambiente**: o separador do `pt-BR` é espaço não separável (`R$ 1.234,56`). O esperado escrito à mão usa o caractere certo, e o cenário diz qual formato prova.
 - **Asserção pelo que o usuário vê**: `getByRole`/`getByText` + `toHaveTextContent`, não `container.querySelector` nem classe CSS.

@@ -42,11 +42,11 @@ e roda em segundos.
 
 ### Despesa por entidade (Betha 57170 × TCE por unidade gestora)
 
-| Exercício | Prefeitura | FMS | SAMAE | Fundação Ambiental | Câmara (só TCE) |
-|---|---|---|---|---|---:|
-| 2024 | igual | igual | **Betha +R$ 123.887,32** | igual | R$ 2.718.927,41 |
-| 2025 | igual | igual | igual | igual | R$ 2.981.800,76 |
-| 2026 até 30/09 | — | — | — | — | R$ 2.560.486,37 |
+| Exercício      | Prefeitura | FMS   | SAMAE                    | Fundação Ambiental | Câmara (só TCE) |
+| -------------- | ---------- | ----- | ------------------------ | ------------------ | --------------: |
+| 2024           | igual      | igual | **Betha +R$ 123.887,32** | igual              | R$ 2.718.927,41 |
+| 2025           | igual      | igual | igual                    | igual              | R$ 2.981.800,76 |
+| 2026 até 30/09 | —          | —     | —                        | —                  | R$ 2.560.486,37 |
 
 "Igual" significa empenhado, liquidado e pago idênticos ao centavo. Em 2025, o UG 1864 do TCE
 (Câmara) confirma **diretamente** o valor que antes era só inferido por diferença. Betha (4
@@ -54,11 +54,11 @@ entidades) + Câmara = total TCE, sem dupla contagem.
 
 ### Receita arrecadada
 
-| Exercício | Betha 57153 | TCE | Diferença | Naturezas iguais (8 díg. × entidade) |
-|---|---:|---:|---:|---:|
-| 2024 | R$ 150.576.666,82 | R$ 149.487.031,78 | +R$ 1.089.635,04 | 73 de 76 |
-| 2025 | R$ 171.092.955,92 | R$ 170.915.184,25 | +R$ 177.771,67 | 73 de 81 |
-| 2026, jan.–set. | — | R$ 140.848.635,73 | — | 78 de 85 |
+| Exercício       |       Betha 57153 |               TCE |        Diferença | Naturezas iguais (8 díg. × entidade) |
+| --------------- | ----------------: | ----------------: | ---------------: | -----------------------------------: |
+| 2024            | R$ 150.576.666,82 | R$ 149.487.031,78 | +R$ 1.089.635,04 |                             73 de 76 |
+| 2025            | R$ 171.092.955,92 | R$ 170.915.184,25 |   +R$ 177.771,67 |                             73 de 81 |
+| 2026, jan.–set. |                 — | R$ 140.848.635,73 |                — |                             78 de 85 |
 
 A série mensal confirma que o sufixo `_N` do ID Betha é o mês. Em 2024, 9 dos 12 meses são
 idênticos.
@@ -67,11 +67,11 @@ idênticos.
 
 Casamento 1:1 por entidade + número + data + valor original:
 
-| Exercício | Casados | Só na Betha | Só no TCE (fora Câmara) |
-|---|---:|---:|---:|
-| 2024 | 9.069 | 41 (SAMAE, R$ 495.222,16) | 37 (SAMAE, R$ 147.994,62) |
-| 2025 | 9.738 | 19 (SAMAE, R$ 36.742,61) | 0 |
-| 2026 até 30/09 | **8.376 (100%)** | 0 | 0 |
+| Exercício      |          Casados |               Só na Betha |   Só no TCE (fora Câmara) |
+| -------------- | ---------------: | ------------------------: | ------------------------: |
+| 2024           |            9.069 | 41 (SAMAE, R$ 495.222,16) | 37 (SAMAE, R$ 147.994,62) |
+| 2025           |            9.738 |  19 (SAMAE, R$ 36.742,61) |                         0 |
+| 2026 até 30/09 | **8.376 (100%)** |                         0 |                         0 |
 
 Prefeitura, FMS e Fundação Ambiental casam 100% em todos os anos.
 
@@ -124,26 +124,26 @@ Betha pode ser "carimbado" contra o TCE.
 
 ## O que cada fonte tem que a outra não tem
 
-| Só na Betha | Só no TCE |
-|---|---|
-| Dados do mês corrente | Câmara Municipal |
-| Orçamento atualizado por rubrica (57153) e por ação (57170) | Liquidação e pagamento reais por empenho, com estornos |
-| Órgão/secretaria do empenho | Função, subfunção, elemento, fonte de recurso, projeto/atividade |
-| Consultas de pessoal, programas etc. (não integradas) | Nº de licitação/contrato/convênio, situação cadastral do credor |
-| | Todos os municípios de SC, com o mesmo modelo (permite comparações) |
+| Só na Betha                                                 | Só no TCE                                                           |
+| ----------------------------------------------------------- | ------------------------------------------------------------------- |
+| Dados do mês corrente                                       | Câmara Municipal                                                    |
+| Orçamento atualizado por rubrica (57153) e por ação (57170) | Liquidação e pagamento reais por empenho, com estornos              |
+| Órgão/secretaria do empenho                                 | Função, subfunção, elemento, fonte de recurso, projeto/atividade    |
+| Consultas de pessoal, programas etc. (não integradas)       | Nº de licitação/contrato/convênio, situação cadastral do credor     |
+|                                                             | Todos os municípios de SC, com o mesmo modelo (permite comparações) |
 
 ## Recomendação por indicador
 
-| Indicador | Fonte exibida | Papel da outra fonte |
-|---|---|---|
-| Ano corrente (receitas, despesas) | Betha | TCE confere os meses já remetidos |
-| Exercício encerrado: totais por entidade | Betha, com selo da conferência | TCE é a referência; divergência vira alerta visível |
-| Despesa da Câmara | **TCE** (fonte explícita) | — |
-| Total municipal com Legislativo | Betha + Câmara/TCE, quando a conferência das 4 entidades fechar | — |
-| Lista de empenhos | Betha 57140, sem os registros que o TCE não reconhece em ano encerrado | TCE |
-| Execução orçamentária (empenhado líquido) | Betha 57170 | TCE |
-| Orçamento atualizado | Betha | — |
-| Classificação funcional e fonte de recurso | TCE (expansão futura) | — |
+| Indicador                                  | Fonte exibida                                                          | Papel da outra fonte                                |
+| ------------------------------------------ | ---------------------------------------------------------------------- | --------------------------------------------------- |
+| Ano corrente (receitas, despesas)          | Betha                                                                  | TCE confere os meses já remetidos                   |
+| Exercício encerrado: totais por entidade   | Betha, com selo da conferência                                         | TCE é a referência; divergência vira alerta visível |
+| Despesa da Câmara                          | **TCE** (fonte explícita)                                              | —                                                   |
+| Total municipal com Legislativo            | Betha + Câmara/TCE, quando a conferência das 4 entidades fechar        | —                                                   |
+| Lista de empenhos                          | Betha 57140, sem os registros que o TCE não reconhece em ano encerrado | TCE                                                 |
+| Execução orçamentária (empenhado líquido)  | Betha 57170                                                            | TCE                                                 |
+| Orçamento atualizado                       | Betha                                                                  | —                                                   |
+| Classificação funcional e fonte de recurso | TCE (expansão futura)                                                  | —                                                   |
 
 ## Como a validação deve funcionar
 

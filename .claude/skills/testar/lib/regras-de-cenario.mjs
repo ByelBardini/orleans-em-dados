@@ -19,11 +19,7 @@ export function analisarCenarios(contexto) {
 }
 
 function regrasDoTeste(ficha, teste) {
-  return [
-    ...nomeSemCenario(ficha, teste),
-    ...cenarioLongo(ficha, teste),
-    ...regressaoSemReferencia(ficha, teste),
-  ];
+  return [...nomeSemCenario(ficha, teste), ...cenarioLongo(ficha, teste), ...regressaoSemReferencia(ficha, teste)];
 }
 
 function nomeSemCenario(ficha, teste) {

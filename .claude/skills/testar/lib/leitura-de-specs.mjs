@@ -124,12 +124,9 @@ function contemExpect(ts, no) {
 function percorrer(ts, fonte, no, ficha, pilhaDeDescribes) {
   if (ts.isCallExpression(no)) {
     const chamada = descreverChamada(ts, no.expression);
-    if (chamada?.base === 'describe')
-      return registrarDescribe(ts, fonte, no, chamada, ficha, pilhaDeDescribes);
-    if (chamada?.base === 'it')
-      return registrarTeste(ts, fonte, no, chamada, ficha, pilhaDeDescribes);
-    if (ts.isIdentifier(no.expression) && GANCHOS.has(no.expression.text))
-      return registrarGancho(ts, fonte, no, ficha);
+    if (chamada?.base === 'describe') return registrarDescribe(ts, fonte, no, chamada, ficha, pilhaDeDescribes);
+    if (chamada?.base === 'it') return registrarTeste(ts, fonte, no, chamada, ficha, pilhaDeDescribes);
+    if (ts.isIdentifier(no.expression) && GANCHOS.has(no.expression.text)) return registrarGancho(ts, fonte, no, ficha);
     registrarMockDeModulo(ts, fonte, no, ficha);
   }
   if (ts.isNewExpression(no)) registrarFakeInline(ts, fonte, no, ficha);
@@ -175,8 +172,7 @@ function registrarDescribe(ts, fonte, no, chamada, ficha, pilha) {
   };
   ficha.describes.push(describe);
   const corpo = no.arguments[1];
-  if (corpo)
-    ts.forEachChild(corpo, (filho) => percorrer(ts, fonte, filho, ficha, [...pilha, describe]));
+  if (corpo) ts.forEachChild(corpo, (filho) => percorrer(ts, fonte, filho, ficha, [...pilha, describe]));
 }
 
 function registrarTeste(ts, fonte, no, chamada, ficha, pilha) {
@@ -216,8 +212,7 @@ function colherCorpo(ts, fonte, corpo, teste, ficha) {
       if (expect) teste.expects.push(expect);
       const valor = valorDeMock(ts, no);
       if (valor) teste.valoresDeMock.push(valor);
-      if (ts.isIdentifier(no.expression) && ficha.asseguradoras.has(no.expression.text))
-        teste.chamaAsseguradora = true;
+      if (ts.isIdentifier(no.expression) && ficha.asseguradoras.has(no.expression.text)) teste.chamaAsseguradora = true;
     }
     if (ts.isNewExpression(no)) registrarFakeInline(ts, fonte, no, ficha);
     ts.forEachChild(no, visitar);
@@ -268,9 +263,7 @@ function raizDaCadeiaDeExpect(ts, expressao) {
     atual = atual.expression;
   }
   const ehChamadaDeExpect =
-    ts.isCallExpression(atual) &&
-    ts.isIdentifier(atual.expression) &&
-    /^expect(TypeOf)?$/.test(atual.expression.text);
+    ts.isCallExpression(atual) && ts.isIdentifier(atual.expression) && /^expect(TypeOf)?$/.test(atual.expression.text);
   if (ehChamadaDeExpect && elos.length > 0) return { chamada: atual, elos, estatico: false };
   if (ts.isIdentifier(atual) && atual.text === 'expect' && elos.length > 0)
     return { chamada: null, elos, estatico: true };
@@ -278,15 +271,11 @@ function raizDaCadeiaDeExpect(ts, expressao) {
 }
 
 function valorDeMock(ts, no) {
-  if (
-    !ts.isPropertyAccessExpression(no.expression) ||
-    !DEVOLVEM_VALOR_DE_MOCK.has(no.expression.name.text)
-  )
+  if (!ts.isPropertyAccessExpression(no.expression) || !DEVOLVEM_VALOR_DE_MOCK.has(no.expression.name.text))
     return null;
   const argumento = no.arguments[0];
   if (!argumento) return null;
-  if (!no.expression.name.text.startsWith('mockImplementation'))
-    return normalizar(argumento.getText());
+  if (!no.expression.name.text.startsWith('mockImplementation')) return normalizar(argumento.getText());
   const ehSetaComExpressao = ts.isArrowFunction(argumento) && !ts.isBlock(argumento.body);
   return ehSetaComExpressao ? normalizar(argumento.body.getText()) : null;
 }

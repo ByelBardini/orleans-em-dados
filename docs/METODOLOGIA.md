@@ -18,13 +18,13 @@ município nem a equivalência com TCE-SC/SICONFI.
 
 ### Resultado da coleta de 2025 (31/10/2026)
 
-| Consulta | Registros | Campo | Soma = totalizador |
-|---|---:|---|---:|
-| `57153` | 1.469 | `valorOrcadoAtualizado` | R$ 149.083.697,04 |
-| | | `valorArrecadadoNoMes` | R$ 171.092.955,92 |
-| `57140` | 9.757 | `valorEmpenho` | R$ 160.833.350,29 |
-| | | `valorLiquidadoEmpenho` | R$ 142.524.230,52 |
-| | | `valorPagoEmpenho` | R$ 142.524.230,52 |
+| Consulta | Registros | Campo                   | Soma = totalizador |
+| -------- | --------: | ----------------------- | -----------------: |
+| `57153`  |     1.469 | `valorOrcadoAtualizado` |  R$ 149.083.697,04 |
+|          |           | `valorArrecadadoNoMes`  |  R$ 171.092.955,92 |
+| `57140`  |     9.757 | `valorEmpenho`          |  R$ 160.833.350,29 |
+|          |           | `valorLiquidadoEmpenho` |  R$ 142.524.230,52 |
+|          |           | `valorPagoEmpenho`      |  R$ 142.524.230,52 |
 
 ## Regras de apresentação
 
