@@ -4,6 +4,7 @@ import {
   seloConferidoComBetha,
   seloConferidoComTce,
   seloDaDespesa,
+  seloDaSituacao,
   SELO_EXEMPLO,
   SELO_FONTE_UNICA,
 } from '../src/selos';
@@ -57,5 +58,36 @@ describe('selo do nível da conferência', () => {
       seloAguardando(),
     ]);
     expect(texto).not.toMatch(/validad|irregular|fraude|\berros?\b|fantasma/i);
+  });
+});
+
+describe('selo da situação de um caso', () => {
+  it('confirmado no portal diz a data da conferência', () => {
+    expect(seloDaSituacao('confirmada_no_portal', '2026-11-01')).toEqual({
+      estado: 'confere',
+      titulo: 'Confirmado no portal em 01/11/2026',
+    });
+  });
+
+  it('confirmado em parte não leva o selo de confirmado, mesmo com data', () => {
+    expect(seloDaSituacao('confirmada_em_parte', '2026-11-01')).toEqual({
+      estado: 'pendente',
+      titulo: 'Confirmado em parte',
+    });
+  });
+
+  it('calculado diz que é provável', () => {
+    expect(seloDaSituacao('calculada').titulo).toBe('Calculado (provável)');
+  });
+
+  it('valor que mudou depois da conferência é "Rever", e não confirmado', () => {
+    expect(seloDaSituacao('rever', '2026-11-01')).toEqual({ estado: 'pendente', titulo: 'Rever' });
+  });
+
+  it('o protocolo vai como motivo, só quando existe', () => {
+    expect(seloDaSituacao('confirmada_no_portal', '2026-11-01', 'e-SIC 999/2026').motivo).toBe(
+      'Protocolo e-SIC 999/2026',
+    );
+    expect(seloDaSituacao('confirmada_no_portal', '2026-11-01', null)).not.toHaveProperty('motivo');
   });
 });

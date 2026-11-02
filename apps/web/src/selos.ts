@@ -1,6 +1,6 @@
 // A regra dos selos, sem DOM: o nível da conferência de um número e o atraso da coleta.
 import { INDICADORES, situacaoDaAtualizacao, type Importacoes } from '@orleans-em-dados/contracts';
-import { dataCurta, diaEMes, MESES_LONGOS } from './format';
+import { data, dataCurta, diaEMes, MESES_LONGOS } from './format';
 
 export type DadosDoSelo = {
   estado: 'confere' | 'pendente' | 'fonte-unica';
@@ -30,6 +30,27 @@ export const seloAguardando = (motivo?: string): DadosDoSelo => ({
   titulo: 'aguardando TCE',
   ...(motivo ? { motivo } : {}),
 });
+
+// O que se sabe de um caso da seção: conferido à mão, em parte, só calculado, ou a rever. Só o número do
+// protocolo, nunca o código de acompanhamento.
+export type SituacaoDoCaso = 'confirmada_no_portal' | 'confirmada_em_parte' | 'calculada' | 'rever';
+
+const NA_SITUACAO: Record<SituacaoDoCaso, Pick<DadosDoSelo, 'estado' | 'titulo'>> = {
+  confirmada_no_portal: { estado: 'confere', titulo: 'Confirmado no portal' },
+  confirmada_em_parte: { estado: 'pendente', titulo: 'Confirmado em parte' },
+  calculada: { estado: 'fonte-unica', titulo: 'Calculado (provável)' },
+  rever: { estado: 'pendente', titulo: 'Rever' },
+};
+
+export function seloDaSituacao(
+  situacao: SituacaoDoCaso,
+  conferidoEm?: string | null,
+  protocolo?: string | null,
+): DadosDoSelo {
+  const { estado, titulo } = NA_SITUACAO[situacao];
+  const comData = situacao === 'confirmada_no_portal' && conferidoEm ? `${titulo} em ${data(conferidoEm)}` : titulo;
+  return { estado, titulo: comData, ...(protocolo ? { motivo: `Protocolo ${protocolo}` } : {}) };
+}
 
 // A despesa: no ano em curso, valores do TCE-SC conferidos com a Betha até o corte.
 export const seloDaDespesa = (conferencia: {
