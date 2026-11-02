@@ -1,7 +1,7 @@
 // A regra dos selos da conferência Betha × TCE-SC, sem DOM.
 // Linguagem: "provável"/"possível" quando a causa não foi comprovada.
-import type { Conferencia } from '@orleans-em-dados/contracts';
-import { data, MESES_LONGOS, moeda, numero } from './format';
+import { INDICADORES, situacaoDaAtualizacao, type Conferencia, type Importacoes } from '@orleans-em-dados/contracts';
+import { data, dataCurta, MESES_LONGOS, moeda, numero } from './format';
 
 export type DadosDoSelo = { estado: 'confere' | 'diverge' | 'pendente'; titulo: string; motivo?: string | null };
 
@@ -147,4 +147,20 @@ export function seloEmpenho(conf: Conferencia | null, id: string): DadosDoSelo |
   const e = conf?.empenhosSemPar.find((x) => x.fonte === 'betha' && x.id === id);
   if (!e) return null;
   return { estado: 'diverge', titulo: 'Não consta no TCE-SC', motivo: e.nota };
+}
+
+// Dado que passou da periodicidade do indicador: fica ao lado do selo de conferência, não no lugar dele.
+export function seloDeAtraso(
+  importacoes: Importacoes | null,
+  idDoIndicador: string,
+  ano: number,
+  agora: Date,
+): DadosDoSelo | null {
+  const indicador = INDICADORES.find((i) => i.id === idDoIndicador);
+  const importador = importacoes?.importadores.find((i) => i.id === indicador?.importador);
+  if (!indicador || !importador) return null;
+  const ultimaExtracao = importador.exercicios.find((e) => e.ano === ano)?.atualizadoEm ?? null;
+  const { situacao } = situacaoDaAtualizacao(indicador.periodicidade, ano, ultimaExtracao, agora);
+  if (situacao !== 'atrasado') return null;
+  return { estado: 'pendente', titulo: 'Dado atrasado', motivo: `Última atualização em ${dataCurta(ultimaExtracao)}.` };
 }

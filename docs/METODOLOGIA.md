@@ -41,6 +41,10 @@ município nem a equivalência com TCE-SC/SICONFI.
 - Uma diferença entre fontes é informação de transparência. Pode decorrer de critério, abrangência ou atualização e
   não prova, por si, erro ou irregularidade.
 
+## Dado atrasado
+
+Os importadores rodam todo dia, sobre o exercício corrente e o anterior. O painel avisa "Dado atrasado", com a data da última atualização, quando a fonte passa de dois dias sem atualizar no exercício corrente, ou de dois meses no anterior: uma rodada que falhe de madrugada não acende o aviso. Exercícios mais antigos não são atualizados automaticamente e não recebem o aviso. Enquanto isso, o painel continua mostrando o último dado validado.
+
 ## Níveis de validação
 
 Conforme a seção 7.2 da [especificação](ESPECIFICACAO_TECNICA.md): `coletado` → `integridade_validada` →

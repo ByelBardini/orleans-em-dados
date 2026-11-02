@@ -12,7 +12,7 @@ import { useApi } from '../api';
 import { BarraDividida, BarrasMensais, Estado, Filtros, Fonte, ListaPontos, Mi, Numero, Numeros } from '../components';
 import { data, decimal, emMilhoes, MESES, MESES_LONGOS, moeda, nomeProprio, numero, pct } from '../format';
 import { populacao } from '../referencias';
-import { Selo, useConferencia } from '../selo';
+import { AvisoDeAtraso, Selo, useConferencia } from '../selo';
 import { seloDespesa, seloEmpenho } from '../selos';
 import type { PropsDaPagina } from './props';
 
@@ -149,7 +149,12 @@ function Conteudo({
         <Numero
           rotulo="Empenhado"
           detalhe={`já descontadas as anulações · ${numero(t.quantidade)} empenhos somavam ${emMilhoes(original)} no valor original`}
-          selo={<Selo selo={seloDespesa(conf, entidade)} />}
+          selo={
+            <>
+              <Selo selo={seloDespesa(conf, entidade)} />
+              <AvisoDeAtraso indicador="despesa-empenhada-liquida" ano={ano} />
+            </>
+          }
         >
           <Mi valor={empenhado} />
         </Numero>
