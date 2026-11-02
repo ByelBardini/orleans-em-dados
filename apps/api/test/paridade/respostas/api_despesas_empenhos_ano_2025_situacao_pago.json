@@ -3,7 +3,7 @@
   "tipo": "application/json; charset=utf-8",
   "disposicao": null,
   "corpo": {
-    "total": 3,
+    "total": 2,
     "offset": 0,
     "limit": 50,
     "itens": [
@@ -19,20 +19,6 @@
         "empenhadoLiquido": 3000,
         "pago": 3000,
         "liquidado": 3000,
-        "saldoAPagar": 0
-      },
-      {
-        "id": "211:319:2001",
-        "entidade": "FMS",
-        "numero": 5,
-        "data": "2025-01-20",
-        "orgao": "FUNDO MUNICIPAL DE SAÚDE",
-        "credor": "LABORATORIO EXEMPLO LTDA",
-        "historico": "Exames (exemplo)",
-        "empenhado": 15000,
-        "empenhadoLiquido": 15000,
-        "pago": 0,
-        "liquidado": 0,
         "saldoAPagar": 0
       },
       {

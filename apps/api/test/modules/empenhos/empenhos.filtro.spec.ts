@@ -19,9 +19,9 @@ describe('filtroBusca', () => {
   });
 
   it.each([
-    ['pago', 'e.liquidado IS NOT NULL AND e.saldo = 0'],
+    ['pago', 'e.liquidado > 0 AND e.saldo = 0'],
     ['apagar', 'e.saldo > 0'],
-    ['sem', 'e.liquidado IS NULL'],
+    ['sem', '(e.liquidado IS NULL OR e.liquidado = 0)'],
   ])('situação %s acrescenta a própria cláusula', (situacao, clausula) => {
     expect(filtroBusca({ situacao }).filtro).toContain(`AND ${clausula}`);
   });

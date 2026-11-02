@@ -2,11 +2,12 @@
 // Roda sobre o conjunto de `empenhos.dao.ts`, em que `liquidado` e `saldo` são os publicados.
 import { chaveTexto } from '../../lib/consultas';
 
-// NULL no liquidado é ausência de informação na fonte, não zero.
+// `sem` é "sem liquidação": liquidado nulo ou zero. Saldo nulo é falta de informação na fonte, não
+// zero: não entra em `pago` (o `=` do SQL já recusa NULL).
 const SITUACOES = new Map([
-  ['pago', 'e.liquidado IS NOT NULL AND e.saldo = 0'],
+  ['pago', 'e.liquidado > 0 AND e.saldo = 0'],
   ['apagar', 'e.saldo > 0'],
-  ['sem', 'e.liquidado IS NULL'],
+  ['sem', '(e.liquidado IS NULL OR e.liquidado = 0)'],
 ]);
 
 export type OpcoesDaBusca = { q?: string; entidade?: string; orgao?: string; situacao?: string };
