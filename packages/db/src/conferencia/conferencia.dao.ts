@@ -8,6 +8,8 @@ import type {
   DespesaCasada,
   DespesaPorEntidade,
   DivergenciaEmOutroAno,
+  EmpenhoConferido,
+  EmpenhoParaClassificar,
   EmpenhoSemPar,
   EmpenhosAguardando,
   EmpenhosPorEntidade,
@@ -44,28 +46,48 @@ const ATE_DATA = '($2::date IS NULL OR data_empenho <= $2::date)';
 // primeiro é o que tem execução e o ID mais recente; as cópias antigas da 57140
 // vêm sem os campos de liquidação e com ID menor, e ficam como "só na Betha".
 const EMPENHOS_CASADOS = `
-    WITH b AS (SELECT entidade_codigo ent, numero, data_empenho, valor_empenho v, valor_liquidado l, valor_pago p, id_externo,
+    WITH b AS (SELECT entidade_codigo ent, numero, data_empenho, valor_empenho v, valor_liquidado l, valor_pago p, saldo_a_pagar s,
+                      credor, historico, id_externo,
                       row_number() OVER (PARTITION BY entidade_codigo, numero, data_empenho, valor_empenho
                                          ORDER BY saldo_a_pagar IS NULL, split_part(id_externo, ':', 3)::bigint DESC) ocorrencia
                FROM empenhos WHERE coleta_id = ${coleta('empenhos')} AND ${ATE_DATA}),
-         t AS (SELECT u.entidade_betha ent, u.sigla, numero, data_empenho, valor_original v, valor_empenhado e, valor_liquidado l, valor_pago p, id_externo,
+         t AS (SELECT u.entidade_betha ent, u.sigla, numero, data_empenho, valor_original v, valor_empenhado e, valor_liquidado l, valor_pago p,
+                      credor, historico, id_externo,
                       row_number() OVER (PARTITION BY codigo_ug, numero, data_empenho, valor_original ORDER BY id_externo) ocorrencia
                FROM tcesc_empenhos e JOIN unidades_tce u USING (codigo_ug)
                WHERE coleta_id = ${coleta('tcesc_empenhos')} AND u.entidade_betha IS NOT NULL AND ${ATE_DATA}),
          m AS (SELECT ent, coalesce(t.sigla, en.sigla) AS entidade, numero, data_empenho, v, ocorrencia,
-                      b.id_externo bid, t.id_externo tid, b.v bv, t.v tv, t.e te, b.l bl, t.l tl, b.p bp, t.p tp
+                      b.id_externo bid, t.id_externo tid, b.v bv, t.v tv, t.e te, b.l bl, t.l tl, b.p bp, t.p tp, b.s bs,
+                      coalesce(b.credor, t.credor) AS credor, coalesce(b.historico, t.historico) AS historico
                FROM b FULL JOIN t USING (ent, numero, data_empenho, v, ocorrencia)
                LEFT JOIN entidades en ON en.codigo_betha = ent)`;
 
-// Para um empenho sem par, procura na outra fonte o mesmo empenho com outro número.
+// As fontes escrevem o mesmo nome de formas diferentes (acento, pontuação, espaços). Vazio não confirma nada.
+const CHAVE_DE_TEXTO = (coluna: string) =>
+  `nullif(regexp_replace(upper(unaccent(${coluna})), '[^A-Z0-9]', '', 'g'), '')`;
+const MESMO_CREDOR_OU_HISTORICO = `(${CHAVE_DE_TEXTO('x.credor')} = ${CHAVE_DE_TEXTO('m.credor')}
+          OR ${CHAVE_DE_TEXTO('x.historico')} = ${CHAVE_DE_TEXTO('m.historico')})`;
+
+// Para um empenho sem par, procura na outra fonte o mesmo empenho com outro número. Data e valor
+// sozinhos não bastam: dois empenhos no mesmo dia e valor, de credores diferentes, não são o mesmo.
 const OUTRO_NUMERO = (fonte: 'tce' | 'betha') =>
   fonte === 'tce'
     ? `(SELECT min(x.numero) FROM tcesc_empenhos x JOIN unidades_tce ux USING (codigo_ug)
         WHERE x.coleta_id = ${coleta('tcesc_empenhos')} AND ux.entidade_betha = m.ent
-          AND x.data_empenho = m.data_empenho AND x.valor_original = m.v AND x.numero <> m.numero)`
+          AND x.data_empenho = m.data_empenho AND x.valor_original = m.v AND x.numero <> m.numero
+          AND ${MESMO_CREDOR_OU_HISTORICO})`
     : `(SELECT min(x.numero) FROM empenhos x
         WHERE x.coleta_id = ${coleta('empenhos')} AND x.entidade_codigo = m.ent
-          AND x.data_empenho = m.data_empenho AND x.valor_empenho = m.v AND x.numero <> m.numero)`;
+          AND x.data_empenho = m.data_empenho AND x.valor_empenho = m.v AND x.numero <> m.numero
+          AND ${MESMO_CREDOR_OU_HISTORICO})`;
+
+// O mesmo número na outra fonte, em qualquer data ou valor.
+const NUMERO_NA_OUTRA = (fonte: 'tce' | 'betha') =>
+  fonte === 'tce'
+    ? `EXISTS (SELECT 1 FROM tcesc_empenhos x JOIN unidades_tce ux USING (codigo_ug)
+               WHERE x.coleta_id = ${coleta('tcesc_empenhos')} AND ux.entidade_betha = m.ent AND x.numero = m.numero)`
+    : `EXISTS (SELECT 1 FROM empenhos x
+               WHERE x.coleta_id = ${coleta('empenhos')} AND x.entidade_codigo = m.ent AND x.numero = m.numero)`;
 
 const CONSULTAS = {
   coletas: `
@@ -135,6 +157,21 @@ const CONSULTAS = {
            CASE WHEN tid IS NULL THEN ${OUTRO_NUMERO('tce')} ELSE ${OUTRO_NUMERO('betha')} END AS "numeroNaOutra",
            coalesce(bid, tid) AS id
     FROM m WHERE tid IS NULL OR bid IS NULL ORDER BY 2, 3, ocorrencia`,
+
+  // Os mesmos empenhos sem par, para a classificação da seção pública: nunca selecione credor nem histórico.
+  empenhosParaClassificar: `${EMPENHOS_CASADOS}
+    SELECT CASE WHEN tid IS NULL THEN 'betha' ELSE 'tce' END AS fonte, entidade, ent AS "codigoEntidade", numero,
+           to_char(data_empenho, 'YYYY-MM-DD') AS data, coalesce(bv, tv) AS valor, ocorrencia::int,
+           CASE WHEN tid IS NULL THEN ${OUTRO_NUMERO('tce')} ELSE ${OUTRO_NUMERO('betha')} END AS "numeroNaOutra",
+           CASE WHEN tid IS NULL THEN ${NUMERO_NA_OUTRA('tce')} ELSE ${NUMERO_NA_OUTRA('betha')} END AS "numeroExisteNaOutra",
+           (tid IS NULL AND bl IS NULL AND bp IS NULL AND bs IS NULL) AS "semExecucao",
+           coalesce(bid, tid) AS id
+    FROM m WHERE tid IS NULL OR bid IS NULL ORDER BY 2, 3, ocorrencia`,
+
+  // O conjunto casado 1:1, com a execução do TCE-SC de cada empenho.
+  empenhosConferidos: `${EMPENHOS_CASADOS}
+    SELECT bid AS id, tid AS "idTce", ent AS "codigoEntidade", te AS empenhado, tl AS liquidado, tp AS pago
+    FROM m WHERE bid IS NOT NULL AND tid IS NOT NULL ORDER BY ent, numero, ocorrencia`,
 
   // Diferença de cada mês decomposta por rubrica: o total do mês nunca é a causa,
   // só a soma destas parcelas (inclusive rubricas que batem no ano e mudam de mês).
@@ -298,17 +335,23 @@ export async function lerReceitaConferida(ano: number, mes: number | null) {
 }
 
 export async function lerDespesaConferida(ano: number, dataCorte: string | null) {
-  const [despesa, modalidade71, casadas, empenhos, aguardando, [camara]] = await Promise.all([
+  const [despesa, modalidade71, casadas, aguardando, [camara]] = await Promise.all([
     consultar<DespesaPorEntidade>(CONSULTAS.despesaPorEntidade, [ano]),
     consultar<Modalidade71>(CONSULTAS.modalidade71, [ano]),
     consultar<DespesaCasada>(CONSULTAS.despesaCasada, [ano, dataCorte]),
-    consultar<EmpenhosPorEntidade>(CONSULTAS.empenhos, [ano, dataCorte]),
     consultar<EmpenhosAguardando>(CONSULTAS.empenhosAguardando, [ano, dataCorte]),
     consultar<CamaraDaConferencia>(CONSULTAS.camara, [ano]),
   ]);
   if (!camara) throw new Error(`Consulta da Câmara sem linha para ${ano}`);
-  return { despesa, modalidade71, casadas, empenhos, aguardando, camara };
+  return { despesa, modalidade71, casadas, aguardando, camara };
 }
+
+/** `dataCorte` NULL: exercício encerrado, sem corte. */
+export const lerEmpenhosParaClassificar = (ano: number, dataCorte: string | null) =>
+  consultar<EmpenhoParaClassificar>(CONSULTAS.empenhosParaClassificar, [ano, dataCorte]);
+
+export const lerEmpenhosConferidos = (ano: number, dataCorte: string | null) =>
+  consultar<EmpenhoConferido>(CONSULTAS.empenhosConferidos, [ano, dataCorte]);
 
 // A publicação de exemplo nunca é conferida, mas continua dita como exemplo.
 export async function temColetaDeExemplo(ano: number) {

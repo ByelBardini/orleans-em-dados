@@ -1,6 +1,7 @@
 // Conferência Betha × TCE-SC sobre as coletas publicadas de um exercício.
 // Usada pela API (/api/conferencias) e pelo script `pnpm conferir`.
 import {
+  discrepanciasDeEmpenhos,
   ehParcial,
   montarConferencia,
   montarDespesaConferida,
@@ -13,13 +14,21 @@ import {
   lerDados,
   lerDespesaConferida,
   lerDivergenciasEmOutrosAnos,
+  lerEmpenhosConferidos,
+  lerEmpenhosParaClassificar,
   lerLimites,
   lerReceitaConferida,
   temColetaDeExemplo,
 } from './conferencia.dao';
 
 export { empenhosForaDaSoma } from './conferencia.bo';
-export type { DespesaConferida, Discrepancia, LinhaNaturezaConferida, TipoDiscrepancia } from './conferencia.bo';
+export type {
+  DespesaConferida,
+  Discrepancia,
+  EmpenhoConferido,
+  LinhaNaturezaConferida,
+  TipoDiscrepancia,
+} from './conferencia.bo';
 
 export async function conferencia(ano: number, agora = new Date()) {
   const coletas = await lerColetas(ano);
@@ -47,10 +56,12 @@ export async function dadosConferidos(ano: number) {
 
   const limites = await lerLimites(ano);
   const parcial = ehParcial(limites);
-  const [dadosDaReceita, outrosAnos, dadosDaDespesa] = await Promise.all([
+  const corte = parcial ? limites.dataEmpenho : null;
+  const [dadosDaReceita, outrosAnos, dadosDaDespesa, empenhosSemPar] = await Promise.all([
     lerReceitaConferida(ano, limites.mesReceita),
     lerDivergenciasEmOutrosAnos(ano),
     lerDespesaConferida(ano, limites.dataEmpenho),
+    lerEmpenhosParaClassificar(ano, corte),
   ]);
   const { receita, discrepancias: daReceita } = montarReceitaConferida(ano, limites.mesReceita, {
     ...dadosDaReceita,
@@ -64,6 +75,24 @@ export async function dadosConferidos(ano: number) {
     limites,
     receita,
     despesa,
-    discrepancias: ordenarDiscrepancias([...daReceita, ...daDespesa]),
+    discrepancias: ordenarDiscrepancias([
+      ...daReceita,
+      ...daDespesa,
+      ...discrepanciasDeEmpenhos(empenhosSemPar, { parcial, corte }),
+    ]),
   };
+}
+
+/** Os empenhos casados 1:1 com o TCE-SC, com a execução do TCE-SC de cada um. No ano em curso,
+ *  só até o corte. É o conjunto que a lista de empenhos publica: `id` é o `id_externo` da Betha. */
+export async function empenhosConferidos(ano: number) {
+  const coletas = await lerColetas(ano);
+  const faltando = CONSULTAS_NECESSARIAS.filter((chave) => !coletas.some((c) => c.chave === chave));
+  if (faltando.length) {
+    return { ano, disponivel: false as const, faltando, exemplo: await temColetaDeExemplo(ano) };
+  }
+  const limites = await lerLimites(ano);
+  const parcial = ehParcial(limites);
+  const dataCorte = parcial ? limites.dataEmpenho : null;
+  return { ano, disponivel: true as const, parcial, dataCorte, empenhos: await lerEmpenhosConferidos(ano, dataCorte) };
 }
