@@ -35,7 +35,7 @@ Esquema PostgreSQL, migrações e conexão. Vive em `packages/db/` (pacote `@orl
 
 ## Regras de negócio
 
-- Só coleta `totalizador_conciliado` é publicada; `rejeitado` fica gravada para análise. `exemplo` só é publicada se não houver dado real para o ano (regra em `packages/importadores/gravar.js`).
+- Só coleta `totalizador_conciliado` é publicada; `rejeitado` fica gravada para análise. `exemplo` só é publicada se não houver dado real para o ano (regra em `publicar`, `packages/importadores/nucleo/src/lotes.dao.ts`).
 - Valor monetário é `NUMERIC(18,2)`; rubrica e natureza são texto (zeros à esquerda).
 
 ## Testes
