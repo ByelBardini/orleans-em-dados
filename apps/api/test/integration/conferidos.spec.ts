@@ -370,18 +370,27 @@ describe('exercício encerrado', () => {
       expect(grupo.itens[0].evidencia).toContain('portal');
     });
 
-    it('caso só calculado sai sem data, protocolo nem evidência', async () => {
+    it('caso só calculado sai sem data nem evidência', async () => {
       const grupo = await doTipo('duas_rubricas');
-      expect(grupo.itens[0]).toMatchObject({ situacao: 'calculada', data: null, protocolo: null, evidencia: null });
+      expect(grupo.itens[0]).toMatchObject({ situacao: 'calculada', data: null, evidencia: null });
     });
 
-    it.each(['avisos', 'credor', 'historico', 'FROTA', 'Abastecimento', 'fantasma', 'irregular', 'fraude'])(
-      'o corpo não contém %s',
-      async (termo) => {
-        const { corpo } = await get('/api/discrepancias?ano=2025');
-        expect(JSON.stringify(corpo).toLowerCase()).not.toContain(termo.toLowerCase());
-      },
-    );
+    it.each([
+      'avisos',
+      'credor',
+      'historico',
+      'FROTA',
+      'Abastecimento',
+      'fantasma',
+      'irregular',
+      'fraude',
+      'protocolo',
+      'e-SIC',
+      'pedido de informação',
+    ])('o corpo não contém %s', async (termo) => {
+      const { corpo } = await get('/api/discrepancias?ano=2025');
+      expect(JSON.stringify(corpo).toLowerCase()).not.toContain(termo.toLowerCase());
+    });
 
     it('o resumo conta por situação e por área, sem somar áreas entre si', async () => {
       const { corpo } = await get('/api/discrepancias?ano=2025');
@@ -562,7 +571,18 @@ describe('situação do empenho', () => {
           ),
           // Regressão: sem liquidação e com saldo, caía em `apagar` e em `sem` ao mesmo tempo (02/11/2026).
           empenho('728:6', 6, '2025-01-15', SETOR, 'CREDOR F EXEMPLO LTDA', 'Saldo sem liq. (exemplo)', 100, 0, 0, 70),
-          empenho('728:7', 7, '2025-01-16', SETOR, 'CREDOR G EXEMPLO LTDA', 'Saldo, nulo (exemplo)', 100, null, null, 80),
+          empenho(
+            '728:7',
+            7,
+            '2025-01-16',
+            SETOR,
+            'CREDOR G EXEMPLO LTDA',
+            'Saldo, nulo (exemplo)',
+            100,
+            null,
+            null,
+            80,
+          ),
         ]),
       });
       await pool.query(`UPDATE coletas SET status = 'exemplo'`);

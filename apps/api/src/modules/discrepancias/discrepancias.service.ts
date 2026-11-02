@@ -100,7 +100,6 @@ const paraItem = (d: DiscrepanciaConferida): Item => ({
   area: d.area,
   situacao: d.situacao,
   data: d.data ?? null,
-  protocolo: d.protocolo ?? null,
   evidencia: d.evidencia ?? null,
   entidade: d.entidade,
   codigoEntidade: d.codigoEntidade,

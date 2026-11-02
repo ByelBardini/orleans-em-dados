@@ -8,7 +8,6 @@ export const caso = (campos: Partial<Item> = {}): Item => ({
   area: 'receita',
   situacao: 'calculada',
   data: null,
-  protocolo: null,
   evidencia: null,
   entidade: 'FMS',
   codigoEntidade: '319',
@@ -95,7 +94,6 @@ export const SO_TCE = grupo('so_tce', 'Só no TCE-SC', 428.37, [
   caso({
     situacao: 'confirmada_no_portal',
     data: '2026-11-01',
-    protocolo: 'e-SIC 999/2026',
     entidade: 'SAMAE',
     codigoEntidade: '2473',
     natureza: '11130311',

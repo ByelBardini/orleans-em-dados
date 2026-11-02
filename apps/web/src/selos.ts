@@ -31,8 +31,7 @@ export const seloAguardando = (motivo?: string): DadosDoSelo => ({
   ...(motivo ? { motivo } : {}),
 });
 
-// O que se sabe de um caso da seção: conferido à mão, em parte, só calculado, ou a rever. Só o número do
-// protocolo, nunca o código de acompanhamento.
+// O que se sabe de um caso da seção: conferido à mão, em parte, só calculado, ou a rever.
 export type SituacaoDoCaso = 'confirmada_no_portal' | 'confirmada_em_parte' | 'calculada' | 'rever';
 
 const NA_SITUACAO: Record<SituacaoDoCaso, Pick<DadosDoSelo, 'estado' | 'titulo'>> = {
@@ -42,14 +41,10 @@ const NA_SITUACAO: Record<SituacaoDoCaso, Pick<DadosDoSelo, 'estado' | 'titulo'>
   rever: { estado: 'pendente', titulo: 'Rever' },
 };
 
-export function seloDaSituacao(
-  situacao: SituacaoDoCaso,
-  conferidoEm?: string | null,
-  protocolo?: string | null,
-): DadosDoSelo {
+export function seloDaSituacao(situacao: SituacaoDoCaso, conferidoEm?: string | null): DadosDoSelo {
   const { estado, titulo } = NA_SITUACAO[situacao];
   const comData = situacao === 'confirmada_no_portal' && conferidoEm ? `${titulo} em ${data(conferidoEm)}` : titulo;
-  return { estado, titulo: comData, ...(protocolo ? { motivo: `Protocolo ${protocolo}` } : {}) };
+  return { estado, titulo: comData };
 }
 
 // A despesa: no ano em curso, valores do TCE-SC conferidos com a Betha até o corte.

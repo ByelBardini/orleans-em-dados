@@ -36,26 +36,20 @@ const cruzar = (lista: Discrepancia[], registros: ConferenciaManual[]) =>
   cruzarConferenciasManuais(2025, lista, registros);
 
 describe('cruzarConferenciasManuais', () => {
-  it('caso com registro fica confirmado, com data, protocolo e evidência', () => {
-    const { discrepancias, avisos } = cruzar([discrepancia({})], [registro({ protocolo: 'e-SIC 000/0000' })]);
+  it('caso com registro fica confirmado, com data e evidência', () => {
+    const { discrepancias, avisos } = cruzar([discrepancia({})], [registro({})]);
     expect(discrepancias).toEqual([
       {
         ...discrepancia({}),
         situacao: 'confirmada_no_portal',
         data: '2026-11-01',
-        protocolo: 'e-SIC 000/0000',
         evidencia: 'Conferido no portal (exemplo).',
       },
     ]);
     expect(avisos).toEqual([]);
   });
 
-  it('protocolo que não foi informado fica de fora', () => {
-    const { discrepancias } = cruzar([discrepancia({})], [registro({})]);
-    expect(discrepancias[0]).not.toHaveProperty('protocolo');
-  });
-
-  it('caso sem registro é calculada, sem data, protocolo nem evidência', () => {
+  it('caso sem registro é calculada, sem data nem evidência', () => {
     const { discrepancias, avisos } = cruzar([discrepancia({})], []);
     expect(discrepancias).toEqual([{ ...discrepancia({}), situacao: 'calculada' }]);
     expect(avisos).toEqual([]);
@@ -144,18 +138,18 @@ describe('cruzarConferenciasManuais', () => {
 });
 
 describe('validarConferenciaManual', () => {
-  it('aceita o número do protocolo', () => {
-    const certo = registro({ protocolo: 'e-SIC 000/0000' });
-    expect(validarConferenciaManual(certo)).toEqual(certo);
+  it('recusa o campo protocolo: pedido aberto não sai em lugar nenhum', () => {
+    const comProtocolo = { ...registro({}), protocolo: 'e-SIC 999/2026' };
+    expect(() => validarConferenciaManual(comProtocolo)).toThrow(/campo desconhecido protocolo/);
   });
 
   it.each([
-    ['código solto', 'ABC123XYZ9'],
-    ['número seguido do código', 'e-SIC 000/0000 código 8F3A'],
-    ['número sem ano', 'e-SIC 000'],
-  ])('recusa protocolo com %s, sem repetir o valor no erro', (_, protocolo) => {
-    expect(() => validarConferenciaManual(registro({ protocolo }))).toThrow(/protocolo/);
-    expect(() => validarConferenciaManual(registro({ protocolo }))).not.toThrow(protocolo);
+    ['o número', 'Conferido à mão: ver e-SIC 999/2026.'],
+    ['a palavra protocolo', 'Conferido à mão, com protocolo aberto.'],
+    ['o pedido de informação', 'Conferido à mão. Pedido de informação registrado.'],
+  ])('recusa evidência que cita %s, sem repetir o valor no erro', (_, evidencia) => {
+    expect(() => validarConferenciaManual(registro({ evidencia }))).toThrow(/evidência cita pedido/);
+    expect(() => validarConferenciaManual(registro({ evidencia }))).not.toThrow(evidencia);
   });
 
   it('recusa um campo a mais, como o código de acompanhamento', () => {
@@ -246,14 +240,6 @@ describe('CONFERENCIAS_MANUAIS', () => {
   it('nenhuma evidência usa termo que afirma causa', () => {
     const textos = CONFERENCIAS_MANUAIS.map((r) => r.evidencia).join(' ');
     expect(textos).not.toMatch(/fantasma|\berros?\b|irregular|fraude/i);
-  });
-
-  it('só a natureza 11130311 do SAMAE tem protocolo, e é o número do e-SIC', () => {
-    const comProtocolo = CONFERENCIAS_MANUAIS.filter((r) => r.protocolo !== undefined);
-    expect(comProtocolo.map((r) => [r.ano, r.chave, r.protocolo])).toEqual([
-      [2025, '11130311', 'e-SIC 000/0000'],
-      [2026, '11130311', 'e-SIC 000/0000'],
-    ]);
   });
 
   it('o exemplo parcial da 13210300 fica na evidência', () => {

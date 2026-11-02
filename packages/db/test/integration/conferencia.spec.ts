@@ -677,15 +677,15 @@ describe('dadosConferidos: conferências manuais', () => {
     }),
   );
 
-  it('caso com registro traz situação, data, evidência e protocolo', async () => {
+  it('caso com registro traz situação, data e evidência, sem protocolo', async () => {
     const { discrepancias } = await disponiveis(2025);
     const caso = discrepancias.find((d) => d.natureza === '11130311');
     expect(caso).toMatchObject({
       tipo: 'so_tce',
       situacao: 'confirmada_no_portal',
       data: '2026-11-01',
-      protocolo: 'e-SIC 000/0000',
     });
+    expect(caso).not.toHaveProperty('protocolo');
     expect(caso?.evidencia).toContain('portal');
   });
 
