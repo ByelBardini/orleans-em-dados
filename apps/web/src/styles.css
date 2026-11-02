@@ -1657,6 +1657,10 @@ tr.expansivel {
   min-width: 240px;
 }
 
+.tabela-casos strong .mono {
+  font-weight: 500;
+}
+
 .tabela-casos td.caso-diferenca {
   white-space: normal;
 }
