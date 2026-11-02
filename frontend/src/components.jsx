@@ -286,7 +286,9 @@ export function SeletorTema() {
     document.documentElement.dataset.theme = novo;
     try {
       localStorage.setItem('tema', novo);
-    } catch {}
+    } catch {
+      // localStorage indisponível (modo privado, bloqueado): o tema vale só nesta visita.
+    }
     setTema(novo);
   };
   return (
