@@ -1,13 +1,23 @@
-// Conferência Betha × TCE-SC sobre as coletas publicadas de um exercício.
-// Usada pelo script `pnpm conferir` e pela API (/api/conferencias).
-//
-// Só compara indicadores de mesmo conceito. As notas apontam padrões
-// (duplicidade, renumeração, reclassificação); não são explicações contábeis.
+// As consultas da conferência. SQL em texto, com o tipo de cada linha declarado: são
+// CTEs e FULL JOINs que reaproveitam os parâmetros, e o Postgres é quem soma em NUMERIC.
+import { pool } from '../index';
+import type {
+  CamaraDaConferencia,
+  ColetaDaConferencia,
+  DespesaPorEntidade,
+  EmpenhoSemPar,
+  EmpenhosPorEntidade,
+  Limites,
+  LinhaNatureza,
+  ReceitaIncoerente,
+  ReceitaPorEntidade,
+  ReceitaPorMes,
+  ReceitaRepetida,
+} from './conferencia.bo';
 
-import { pool } from './index';
+const consultar = async <T>(sql: string, params: unknown[]) => (await pool.query(sql, params)).rows as T[];
 
-const consultar = async (sql, params) => (await pool.query(sql, params)).rows;
-const coleta = (chave) =>
+const coleta = (chave: string) =>
   `(SELECT p.coleta_id FROM publicacoes p JOIN consultas q ON q.id = p.consulta_id WHERE q.chave = '${chave}' AND p.ano = $1)`;
 
 // Natureza da receita no nível comum às duas fontes: 8 dígitos
@@ -39,7 +49,7 @@ const EMPENHOS_CASADOS = `
                LEFT JOIN entidades en ON en.codigo_betha = ent)`;
 
 // Para um empenho sem par, procura na outra fonte o mesmo empenho com outro número.
-const OUTRO_NUMERO = (fonte) =>
+const OUTRO_NUMERO = (fonte: 'tce' | 'betha') =>
   fonte === 'tce'
     ? `(SELECT min(x.numero) FROM tcesc_empenhos x JOIN unidades_tce ux USING (codigo_ug)
         WHERE x.coleta_id = ${coleta('tcesc_empenhos')} AND ux.entidade_betha = m.ent
@@ -152,142 +162,29 @@ const LIMITES = `
          (SELECT to_char(max(data_empenho), 'YYYY-MM-DD') FROM tcesc_empenhos e JOIN unidades_tce u USING (codigo_ug)
           WHERE coleta_id = ${coleta('tcesc_empenhos')} AND u.entidade_betha IS NOT NULL) AS "dataEmpenho"`;
 
-const NECESSARIAS = ['receitas', 'empenhos', 'despesas', 'tcesc_receitas', 'tcesc_empenhos'];
+export const CONSULTAS_NECESSARIAS = ['receitas', 'empenhos', 'despesas', 'tcesc_receitas', 'tcesc_empenhos'];
 
-const igual = (a, b) => a !== null && b !== null && Math.round(a * 100) === Math.round(b * 100);
-const fmt = (v) => v.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+export const lerColetas = (ano: number) => consultar<ColetaDaConferencia>(CONSULTAS.coletas, [ano]);
 
-// Classifica cada natureza divergente e aponta padrões verificáveis nos próprios números.
-const MESES = [
-  'janeiro',
-  'fevereiro',
-  'março',
-  'abril',
-  'maio',
-  'junho',
-  'julho',
-  'agosto',
-  'setembro',
-  'outubro',
-  'novembro',
-  'dezembro',
-];
-
-const centavos = (v) => Math.round(v * 100);
-
-function anotarNaturezas(linhas, repetidas, incoerentes) {
-  return linhas
-    .filter((r) => r.diferenca !== 0)
-    .map((r) => {
-      const tipo = r.betha === null ? 'soTce' : r.tce === null ? 'soBetha' : 'valor';
-      const mesmaEntidade = linhas.filter((o) => o.ent === r.ent && o.natureza !== r.natureza);
-      const duplicada =
-        r.diferenca > 0 && repetidas.find((d) => d.ent === r.ent && d.nat === r.natureza && igual(d.v, r.diferenca));
-      const compensa = mesmaEntidade.find((o) => o.diferenca !== 0 && igual(o.diferenca, -r.diferenca));
-      const incoerencias = incoerentes.filter((i) => i.ent === r.ent && i.nat === r.natureza);
-      const excesso = incoerencias.reduce((s, i) => s + centavos(i.excesso), 0) / 100;
-      let nota;
-      if (excesso !== 0) {
-        const porMes = new Map();
-        for (const i of incoerencias) porMes.set(i.mes, (porMes.get(i.mes) ?? 0) + centavos(i.excesso));
-        const meses = [...porMes].map(([m, v]) => `${MESES[m - 1]} (${fmt(v / 100)})`).join(', ');
-        const resto = centavos(r.diferenca) - centavos(excesso);
-        nota = `Na própria Betha, o arrecadado no mês não fecha com o acumulado da rubrica em ${meses}: lançamento que a consulta mantém e o acumulado desconsidera. `;
-        nota += resto === 0 ? 'Explica toda a diferença.' : `Explica ${fmt(excesso)}; restam ${fmt(resto / 100)}.`;
-      } else if (duplicada) {
-        const outraBate = linhas.some((o) => o.ent === r.ent && o.natureza === duplicada.outra && o.diferenca === 0);
-        nota = `Em ${MESES[duplicada.mes - 1]}, o mesmo valor (${fmt(duplicada.v)}) também foi lançado na rubrica ${duplicada.outra}${outraBate ? ', que bate com o TCE' : ''}: possível lançamento em duplicidade na Betha.`;
-      } else if (compensa) {
-        nota = `Compensa exatamente a diferença da rubrica ${compensa.natureza}: provável reclassificação entre rubricas, sem efeito no total.`;
-      } else if (tipo === 'soTce') {
-        nota = 'Registrado no TCE, sem lançamento correspondente na Betha.';
-      } else if (tipo === 'soBetha') {
-        nota =
-          'Lançado na Betha, sem correspondente no TCE neste código (pode estar classificado em outro nível de detalhe).';
-      } else {
-        nota =
-          r.diferenca > 0
-            ? 'A Betha registra mais que o TCE nesta rubrica.'
-            : 'O TCE registra mais que a Betha nesta rubrica.';
-      }
-      const { ent, ...resto } = r;
-      return { ...resto, codigoEntidade: ent, tipo, incoerenciaBetha: excesso, nota };
-    });
+export async function lerLimites(ano: number): Promise<Limites> {
+  const [limites] = await consultar<Limites>(LIMITES, [ano]);
+  if (!limites) throw new Error(`Consulta de limites sem linha para ${ano}`);
+  return limites;
 }
 
-function anotarEmpenho(e) {
-  let nota;
-  if (e.ocorrencia > 1) nota = 'Registro repetido: mesmo número, data e valor de outro empenho.';
-  else if (e.numeroNaOutra)
-    nota = `Na outra fonte, o empenho com esta data e valor é o nº ${e.numeroNaOutra}: provável renumeração.`;
-  else nota = e.fonte === 'betha' ? 'Sem correspondente no TCE.' : 'Sem correspondente na Betha.';
-  if (e.fonte === 'betha' && e.liquidado === null) nota += ' Não tem liquidação registrada.';
-  return { ...e, nota };
-}
-
-export async function conferencia(ano) {
-  const coletas = await consultar(CONSULTAS.coletas, [ano]);
-  const faltando = NECESSARIAS.filter((c) => !coletas.some((x) => x.chave === c));
-  if (faltando.length) return { ano, disponivel: false, faltando, coletas };
-
-  const [limites] = await consultar(LIMITES, [ano]);
-  // Exercício completo no TCE quando a receita já chega a dezembro.
-  const parcial = limites.mesReceita < 12;
-  const mes = limites.mesReceita;
-  const dataLimite = parcial ? limites.dataEmpenho : null;
-
+export async function lerDados(ano: number, mes: number | null, dataLimite: string | null) {
   const [despesa, receitaEnt, receitaMes, naturezas, repetidas, incoerentes, empenhos, semPar, [camara]] =
     await Promise.all([
-      consultar(CONSULTAS.despesaPorEntidade, [ano]),
-      consultar(CONSULTAS.receitaPorEntidade, [ano, mes]),
-      consultar(CONSULTAS.receitaPorMes, [ano, mes]),
-      consultar(CONSULTAS.receitaPorNatureza, [ano, mes]),
-      consultar(CONSULTAS.receitaRepetida, [ano, mes]),
-      consultar(CONSULTAS.receitaIncoerente, [ano, mes]),
-      consultar(CONSULTAS.empenhos, [ano, dataLimite]),
-      consultar(CONSULTAS.empenhosSemPar, [ano, dataLimite]),
-      consultar(CONSULTAS.camara, [ano]),
+      consultar<DespesaPorEntidade>(CONSULTAS.despesaPorEntidade, [ano]),
+      consultar<ReceitaPorEntidade>(CONSULTAS.receitaPorEntidade, [ano, mes]),
+      consultar<ReceitaPorMes>(CONSULTAS.receitaPorMes, [ano, mes]),
+      consultar<LinhaNatureza>(CONSULTAS.receitaPorNatureza, [ano, mes]),
+      consultar<ReceitaRepetida>(CONSULTAS.receitaRepetida, [ano, mes]),
+      consultar<ReceitaIncoerente>(CONSULTAS.receitaIncoerente, [ano, mes]),
+      consultar<EmpenhosPorEntidade>(CONSULTAS.empenhos, [ano, dataLimite]),
+      consultar<EmpenhoSemPar>(CONSULTAS.empenhosSemPar, [ano, dataLimite]),
+      consultar<CamaraDaConferencia>(CONSULTAS.camara, [ano]),
     ]);
-
-  const despesaPorEntidade = despesa.map((r) => ({
-    ...r,
-    comparavel: !parcial && r.bethaEmpenhado !== null && r.tceEmpenhado !== null,
-  }));
-  const comparadas = despesaPorEntidade.filter((r) => r.comparavel);
-  const totalEmp = (k) => empenhos.reduce((s, e) => s + e[k], 0);
-
-  return {
-    ano,
-    disponivel: true,
-    geradoEm: new Date().toISOString(),
-    parcial,
-    limites,
-    coletas,
-    camara,
-    despesaPorEntidade,
-    receitaPorEntidade: receitaEnt.map((r) => ({
-      ...r,
-      incoerenciaBetha:
-        incoerentes.filter((i) => i.ent === r.codigoEntidade).reduce((s, i) => s + centavos(i.excesso), 0) / 100,
-    })),
-    receitaPorMes: receitaMes,
-    receitaPorNatureza: anotarNaturezas(naturezas, repetidas, incoerentes),
-    receitaIncoerente: incoerentes,
-    empenhos,
-    empenhosSemPar: semPar.map(anotarEmpenho),
-    resumo: {
-      despesaEntidadesComparadas: comparadas.length,
-      despesaEntidadesIguais: comparadas.filter((r) => r.difEmpenhado === 0 && r.difLiquidado === 0 && r.difPago === 0)
-        .length,
-      receitaBetha: receitaEnt.reduce((s, r) => s + Math.round((r.betha ?? 0) * 100), 0) / 100,
-      receitaTce: receitaEnt.reduce((s, r) => s + Math.round((r.tce ?? 0) * 100), 0) / 100,
-      receitaDiferenca: receitaEnt.reduce((s, r) => s + Math.round(r.diferenca * 100), 0) / 100,
-      receitaIncoerenteBetha: incoerentes.reduce((s, i) => s + centavos(i.excesso), 0) / 100,
-      naturezasComparadas: naturezas.length,
-      naturezasIguais: naturezas.filter((r) => r.diferenca === 0).length,
-      empenhosBetha: totalEmp('betha'),
-      empenhosTce: totalEmp('tce'),
-      empenhosCasados: totalEmp('casados'),
-    },
-  };
+  if (!camara) throw new Error(`Consulta da Câmara sem linha para ${ano}`);
+  return { despesa, receitaEnt, receitaMes, naturezas, repetidas, incoerentes, empenhos, semPar, camara };
 }
