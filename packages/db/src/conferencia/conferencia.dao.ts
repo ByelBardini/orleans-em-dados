@@ -5,14 +5,17 @@ import type {
   CamaraDaConferencia,
   ColetaDaConferencia,
   DespesaPorEntidade,
+  DivergenciaEmOutroAno,
   EmpenhoSemPar,
   EmpenhosPorEntidade,
   Limites,
   LinhaNatureza,
+  ParcelaDoMes,
   ReceitaIncoerente,
   ReceitaPorEntidade,
   ReceitaPorMes,
   ReceitaRepetida,
+  ReceitaRepetidaMeses,
 } from './conferencia.bo';
 
 const consultar = async <T>(sql: string, params: unknown[]) => (await pool.query(sql, params)).rows as T[];
@@ -127,6 +130,19 @@ const CONSULTAS = {
            coalesce(bid, tid) AS id
     FROM m WHERE tid IS NULL OR bid IS NULL ORDER BY 2, 3, ocorrencia`,
 
+  // Diferença de cada mês decomposta por rubrica: o total do mês nunca é a causa,
+  // só a soma destas parcelas (inclusive rubricas que batem no ano e mudam de mês).
+  receitaMesPorRubrica: `
+    WITH b AS (SELECT entidade_codigo ent, ${NAT_BETHA} nat, mes, sum(valor_arrecadado_mes) v
+               FROM receitas WHERE coleta_id = ${coleta('receitas')} AND mes <= $2 GROUP BY 1, 2, 3),
+         t AS (SELECT u.entidade_betha ent, ${NAT_TCE} nat, mes, sum(valor_arrecadado) v
+               FROM tcesc_receitas r JOIN unidades_tce u ON u.nome = r.unidade
+               WHERE coleta_id = ${coleta('tcesc_receitas')} AND mes <= $2 GROUP BY 1, 2, 3)
+    SELECT mes, ent, coalesce(en.sigla, ent) AS entidade, nat AS natureza, coalesce(b.v, 0) - coalesce(t.v, 0) AS diferenca
+    FROM b FULL JOIN t USING (ent, nat, mes) LEFT JOIN entidades en ON en.codigo_betha = ent
+    WHERE coalesce(b.v, 0) <> coalesce(t.v, 0)
+    ORDER BY mes, abs(coalesce(b.v, 0) - coalesce(t.v, 0)) DESC`,
+
   // Lançamentos Betha com o mesmo valor, na mesma entidade e mês, em duas
   // rubricas diferentes: pista para diferenças do tipo "só na Betha".
   receitaRepetida: `
@@ -147,6 +163,14 @@ const CONSULTAS = {
                FROM receitas WHERE coleta_id = ${coleta('receitas')} AND mes IS NOT NULL)
     SELECT ent, nat, mes, m - variacao AS excesso FROM r
     WHERE m <> variacao AND mes <= $2 ORDER BY ent, nat, mes`,
+
+  // Mesma rubrica com o mesmo valor em dois meses diferentes na Betha.
+  receitaRepetidaMeses: `
+    SELECT a.entidade_codigo ent, ${NAT_BETHA.replace('rubrica', 'a.rubrica')} nat, a.mes, o.mes AS "outroMes", a.valor_arrecadado_mes v
+    FROM receitas a JOIN receitas o
+      ON o.coleta_id = a.coleta_id AND o.entidade_codigo = a.entidade_codigo AND o.mes > a.mes
+     AND o.valor_arrecadado_mes = a.valor_arrecadado_mes AND left(o.rubrica, 8) = left(a.rubrica, 8)
+    WHERE a.coleta_id = ${coleta('receitas')} AND a.valor_arrecadado_mes >= 1000 AND o.mes <= $2`,
 
   // Câmara: só existe no TCE.
   camara: `
@@ -173,18 +197,70 @@ export async function lerLimites(ano: number): Promise<Limites> {
 }
 
 export async function lerDados(ano: number, mes: number | null, dataLimite: string | null) {
-  const [despesa, receitaEnt, receitaMes, naturezas, repetidas, incoerentes, empenhos, semPar, [camara]] =
-    await Promise.all([
-      consultar<DespesaPorEntidade>(CONSULTAS.despesaPorEntidade, [ano]),
-      consultar<ReceitaPorEntidade>(CONSULTAS.receitaPorEntidade, [ano, mes]),
-      consultar<ReceitaPorMes>(CONSULTAS.receitaPorMes, [ano, mes]),
-      consultar<LinhaNatureza>(CONSULTAS.receitaPorNatureza, [ano, mes]),
-      consultar<ReceitaRepetida>(CONSULTAS.receitaRepetida, [ano, mes]),
-      consultar<ReceitaIncoerente>(CONSULTAS.receitaIncoerente, [ano, mes]),
-      consultar<EmpenhosPorEntidade>(CONSULTAS.empenhos, [ano, dataLimite]),
-      consultar<EmpenhoSemPar>(CONSULTAS.empenhosSemPar, [ano, dataLimite]),
-      consultar<CamaraDaConferencia>(CONSULTAS.camara, [ano]),
-    ]);
+  const [
+    despesa,
+    receitaEnt,
+    receitaMes,
+    naturezas,
+    repetidas,
+    incoerentes,
+    repetidasMeses,
+    mesPorRubrica,
+    empenhos,
+    semPar,
+    [camara],
+  ] = await Promise.all([
+    consultar<DespesaPorEntidade>(CONSULTAS.despesaPorEntidade, [ano]),
+    consultar<ReceitaPorEntidade>(CONSULTAS.receitaPorEntidade, [ano, mes]),
+    consultar<ReceitaPorMes>(CONSULTAS.receitaPorMes, [ano, mes]),
+    consultar<LinhaNatureza>(CONSULTAS.receitaPorNatureza, [ano, mes]),
+    consultar<ReceitaRepetida>(CONSULTAS.receitaRepetida, [ano, mes]),
+    consultar<ReceitaIncoerente>(CONSULTAS.receitaIncoerente, [ano, mes]),
+    consultar<ReceitaRepetidaMeses>(CONSULTAS.receitaRepetidaMeses, [ano, mes]),
+    consultar<ParcelaDoMes>(CONSULTAS.receitaMesPorRubrica, [ano, mes]),
+    consultar<EmpenhosPorEntidade>(CONSULTAS.empenhos, [ano, dataLimite]),
+    consultar<EmpenhoSemPar>(CONSULTAS.empenhosSemPar, [ano, dataLimite]),
+    consultar<CamaraDaConferencia>(CONSULTAS.camara, [ano]),
+  ]);
   if (!camara) throw new Error(`Consulta da Câmara sem linha para ${ano}`);
-  return { despesa, receitaEnt, receitaMes, naturezas, repetidas, incoerentes, empenhos, semPar, camara };
+  return {
+    despesa,
+    receitaEnt,
+    receitaMes,
+    naturezas,
+    repetidas,
+    incoerentes,
+    repetidasMeses,
+    mesPorRubrica,
+    empenhos,
+    semPar,
+    camara,
+  };
+}
+
+// Exercícios em que as duas fontes de receita estão publicadas, com o último mês recebido pelo TCE.
+const ANOS_COMPARAVEIS = `
+  SELECT p.ano, (SELECT max(mes) FROM tcesc_receitas r WHERE r.coleta_id = p.coleta_id) AS mes
+  FROM publicacoes p JOIN consultas q ON q.id = p.consulta_id JOIN coletas c ON c.id = p.coleta_id
+  WHERE q.chave = 'tcesc_receitas' AND c.status <> 'exemplo'
+    AND EXISTS (SELECT 1 FROM publicacoes p2 JOIN consultas q2 ON q2.id = p2.consulta_id
+                WHERE q2.chave = 'receitas' AND p2.ano = p.ano)
+  ORDER BY p.ano`;
+
+// Rubricas que divergem em outros exercícios, por "entidade|natureza": base para dizer
+// se uma diferença já é conhecida.
+export async function lerDivergenciasEmOutrosAnos(ano: number) {
+  const anos = (await consultar<{ ano: number; mes: number }>(ANOS_COMPARAVEIS, [])).filter((a) => a.ano !== ano);
+  const porRubrica = new Map<string, DivergenciaEmOutroAno[]>();
+  for (const { ano: outro, mes } of anos) {
+    for (const r of await consultar<LinhaNatureza>(CONSULTAS.receitaPorNatureza, [outro, mes])) {
+      if (r.diferenca === 0) continue;
+      const chave = `${r.ent}|${r.natureza}`;
+      porRubrica.set(chave, [
+        ...(porRubrica.get(chave) ?? []),
+        { ano: outro, diferenca: r.diferenca, parcial: mes < 12 },
+      ]);
+    }
+  }
+  return porRubrica;
 }

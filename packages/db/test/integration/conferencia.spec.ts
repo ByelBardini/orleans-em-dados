@@ -23,6 +23,32 @@ describe('conferencia(ano)', () => {
     expect({ ...JSON.parse(JSON.stringify(resultado)), geradoEm: corpo.geradoEm }).toEqual(corpo);
   });
 
+  it('mês divergente decompõe a diferença por rubrica, e o mês igual fica sem parcela', async () => {
+    const resultado = await conferencia(2025);
+    if (!resultado.disponivel) throw new Error('fixture deveria estar disponível');
+    expect(resultado.receitaPorMes.map((m) => [m.mes, m.parcelas])).toEqual([
+      [1, []],
+      [2, [{ mes: 2, ent: '319', entidade: 'FMS', natureza: '17135011', diferenca: 50000 }]],
+    ]);
+  });
+
+  it('rubrica explicada pelo acumulado recebe causa e sai da lista sem explicação', async () => {
+    const resultado = await conferencia(2025);
+    if (!resultado.disponivel) throw new Error('fixture deveria estar disponível');
+    expect(resultado.receitaPorNatureza[0]).toMatchObject({
+      natureza: '17135011',
+      causa: 'Lançamento fora do acumulado',
+      explicada: true,
+    });
+    expect(resultado.semExplicacao.filter((i) => i.onde === 'receita')).toEqual([]);
+  });
+
+  it('sem outro exercício publicado, nenhuma rubrica é conhecida', async () => {
+    const resultado = await conferencia(2025);
+    if (!resultado.disponivel) throw new Error('fixture deveria estar disponível');
+    expect(resultado.resumo.conhecidas).toBe(0);
+  });
+
   it('ano sem coleta nenhuma lista as cinco que faltam', async () => {
     expect(await conferencia(2019)).toEqual({
       ano: 2019,

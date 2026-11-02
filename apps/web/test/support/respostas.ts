@@ -2,6 +2,7 @@
 import { readFileSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { conferenciaSchema, type Conferencia } from '@orleans-em-dados/contracts';
 
 const PASTA = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../../api/test/paridade/respostas');
 
@@ -30,3 +31,80 @@ export const ROTAS = {
   busca: (q = '', orgao = '', situacao = '', offset = 0) =>
     `/api/despesas/empenhos?ano=2025&q=${q}&entidade=&orgao=${orgao}&situacao=${situacao}&offset=${offset}&limit=25`,
 };
+
+type CamposDeCausa = { causa: string | null; explicada: boolean };
+type LinhaDeMes = Omit<Conferencia['receitaPorMes'][number], 'parcelas'> & { parcelas?: unknown };
+
+const CAUSA_DA_RUBRICA: Record<string, CamposDeCausa> = {
+  // A nota gravada diz que o lançamento fora do acumulado "explica toda a diferença".
+  '17135011': { causa: 'Lançamento fora do acumulado', explicada: true },
+};
+const CAUSA_DO_EMPENHO: Record<string, CamposDeCausa> = {
+  '211:728:1003': { causa: 'Provável renumeração', explicada: true },
+  '5003': { causa: 'Provável renumeração', explicada: true },
+  '211:728:900': { causa: 'Registro repetido', explicada: true },
+};
+const PARCELAS_DO_MES: Record<number, Conferencia['receitaPorMes'][number]['parcelas']> = {
+  2: [{ mes: 2, ent: '319', entidade: 'FMS', natureza: '17135011', diferenca: 50000 }],
+};
+
+/**
+ * A conferência gravada, com os campos de causa que a gravação da paridade ainda não traz.
+ * O que a gravação já tiver vale sobre o escrito aqui, e o schema recusa fixture fora do contrato.
+ */
+export function conferenciaGravada(campos: Partial<Conferencia> = {}): Conferencia {
+  const gravada = respostaGravada('api_conferencias_ano_2025');
+  return conferenciaSchema.parse({
+    semExplicacao: [],
+    ...gravada,
+    receitaPorNatureza: gravada.receitaPorNatureza.map((r: { natureza: string }) => ({
+      ...CAUSA_DA_RUBRICA[r.natureza],
+      ...r,
+    })),
+    empenhosSemPar: gravada.empenhosSemPar.map((e: { id: string }) => ({ ...CAUSA_DO_EMPENHO[e.id], ...e })),
+    receitaPorMes: gravada.receitaPorMes.map((m: LinhaDeMes) => ({
+      parcelas: PARCELAS_DO_MES[m.mes ?? 0] ?? [],
+      ...m,
+    })),
+    resumo: { semExplicacao: 0, comCausaProvavel: 4, conhecidas: 0, ...gravada.resumo },
+    ...campos,
+  });
+}
+
+type Rubrica = Conferencia['receitaPorNatureza'][number];
+type EmpenhoSemPar = Conferencia['empenhosSemPar'][number];
+
+/** Rubrica em aberto, com o nome fictício; o `it` mostra só o campo que importa. */
+export const rubricaDaConferencia = (campos: Partial<Rubrica> = {}): Rubrica => ({
+  entidade: 'Prefeitura',
+  natureza: '11125011',
+  descricao: 'IPTU (exemplo) - Principal',
+  betha: 2200,
+  tce: 1000,
+  diferenca: 1200,
+  codigoEntidade: '728',
+  tipo: 'valor',
+  incoerenciaBetha: 0,
+  nota: 'A Betha registra mais que o TCE nesta rubrica.',
+  causa: null,
+  explicada: false,
+  ...campos,
+});
+
+/** Empenho sem par e sem causa, só na Betha. */
+export const empenhoSemParDaConferencia = (campos: Partial<EmpenhoSemPar> = {}): EmpenhoSemPar => ({
+  fonte: 'betha',
+  entidade: 'Prefeitura',
+  codigoEntidade: '728',
+  numero: 77,
+  data: '2025-02-03',
+  valor: 500.1,
+  liquidado: null,
+  ocorrencia: 1,
+  numeroNaOutra: null,
+  id: '211:728:77',
+  nota: 'Sem correspondente no TCE.',
+  causa: null,
+  explicada: false,
+  ...campos,
+});

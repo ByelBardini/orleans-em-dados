@@ -1,6 +1,43 @@
 import { z } from 'zod';
 import { valorSchema } from './comuns';
 
+const camposDeCausa = {
+  causa: z.string().nullable(),
+  explicada: z.boolean(),
+};
+
+const camposDaRubrica = {
+  entidade: z.string().nullable(),
+  natureza: z.string(),
+  descricao: z.string().nullable(),
+  betha: valorSchema,
+  tce: valorSchema,
+  diferenca: z.number(),
+  codigoEntidade: z.string().nullable(),
+  tipo: z.enum(['valor', 'soBetha', 'soTce']),
+  incoerenciaBetha: z.number(),
+  nota: z.string(),
+  ...camposDeCausa,
+  // Conhecida: diverge do mesmo lado em outro exercício, sem causa confirmada.
+  conhecida: z.literal(true).optional(),
+  recorrenteEm: z.array(z.number()).optional(),
+};
+
+const camposDoEmpenho = {
+  fonte: z.enum(['betha', 'tce']),
+  entidade: z.string().nullable(),
+  codigoEntidade: z.string().nullable(),
+  numero: z.number().nullable(),
+  data: z.string().nullable(),
+  valor: valorSchema,
+  liquidado: valorSchema,
+  ocorrencia: z.number(),
+  numeroNaOutra: z.number().nullable(),
+  id: z.string(),
+  nota: z.string(),
+  ...camposDeCausa,
+};
+
 export const conferenciaSchema = z.strictObject({
   ano: z.number(),
   disponivel: z.literal(true),
@@ -55,22 +92,23 @@ export const conferenciaSchema = z.strictObject({
     }),
   ),
   receitaPorMes: z.array(
-    z.strictObject({ mes: z.number().nullable(), betha: valorSchema, tce: valorSchema, diferenca: valorSchema }),
-  ),
-  receitaPorNatureza: z.array(
     z.strictObject({
-      entidade: z.string().nullable(),
-      natureza: z.string(),
-      descricao: z.string().nullable(),
+      mes: z.number().nullable(),
       betha: valorSchema,
       tce: valorSchema,
-      diferenca: z.number(),
-      codigoEntidade: z.string().nullable(),
-      tipo: z.enum(['valor', 'soBetha', 'soTce']),
-      incoerenciaBetha: z.number(),
-      nota: z.string(),
+      diferenca: valorSchema,
+      parcelas: z.array(
+        z.strictObject({
+          mes: z.number(),
+          ent: z.string(),
+          entidade: z.string(),
+          natureza: z.string(),
+          diferenca: z.number(),
+        }),
+      ),
     }),
   ),
+  receitaPorNatureza: z.array(z.strictObject(camposDaRubrica)),
   receitaIncoerente: z.array(
     z.strictObject({ ent: z.string(), nat: z.string(), mes: z.number(), excesso: z.number() }),
   ),
@@ -87,20 +125,30 @@ export const conferenciaSchema = z.strictObject({
       valorSoTce: z.number(),
     }),
   ),
-  empenhosSemPar: z.array(
-    z.strictObject({
-      fonte: z.enum(['betha', 'tce']),
-      entidade: z.string().nullable(),
-      codigoEntidade: z.string().nullable(),
-      numero: z.number().nullable(),
-      data: z.string().nullable(),
-      valor: valorSchema,
-      liquidado: valorSchema,
-      ocorrencia: z.number(),
-      numeroNaOutra: z.number().nullable(),
-      id: z.string(),
-      nota: z.string(),
-    }),
+  empenhosSemPar: z.array(z.strictObject(camposDoEmpenho)),
+  // O que sobra sem padrão que aponte a causa provável.
+  semExplicacao: z.array(
+    z.discriminatedUnion('onde', [
+      z.strictObject({
+        onde: z.literal('despesa'),
+        entidade: z.string(),
+        codigoEntidade: z.string().nullable(),
+        titulo: z.string(),
+        betha: valorSchema,
+        tce: valorSchema,
+        diferenca: valorSchema,
+        nota: z.string(),
+      }),
+      z.strictObject({ onde: z.literal('receita'), titulo: z.string(), ...camposDaRubrica }),
+      z.strictObject({
+        onde: z.literal('empenho'),
+        titulo: z.string(),
+        ...camposDoEmpenho,
+        betha: valorSchema,
+        tce: valorSchema,
+        diferenca: z.number(),
+      }),
+    ]),
   ),
   resumo: z.strictObject({
     despesaEntidadesComparadas: z.number(),
@@ -114,6 +162,9 @@ export const conferenciaSchema = z.strictObject({
     empenhosBetha: z.number(),
     empenhosTce: z.number(),
     empenhosCasados: z.number(),
+    semExplicacao: z.number(),
+    comCausaProvavel: z.number(),
+    conhecidas: z.number(),
   }),
 });
 
