@@ -8,9 +8,14 @@ import {
   FUNDACAO_TCE,
   PREFEITURA_TCE,
   SAMAE_TCE,
+  despesa,
+  empenho,
+  empenhoTce,
+  empenhos,
   receita,
   receitaTce,
   snapshot,
+  tcescEmpenhos,
 } from '../../../importadores/fixtures/src/snapshots';
 import { conferencia, dadosConferidos } from '../../src/conferencia/conferencia.service';
 import { pool } from '../../src/index';
@@ -324,6 +329,168 @@ describe('dadosConferidos: sem conferência', () => {
       disponivel: false,
       faltando: ['receitas', 'empenhos', 'despesas', 'tcesc_receitas', 'tcesc_empenhos'],
       exemplo: true,
+    });
+  });
+});
+
+const ACAO = { numero: '2001', nome: 'Ação (exemplo)' };
+
+describe('dadosConferidos: despesa de exercício encerrado', () => {
+  beforeAll(() =>
+    popularCenario({
+      // Dezembro no TCE-SC: o exercício está completo.
+      tcescReceitas: snapshot(900001, [receitaTce(PREFEITURA_TCE, '1.1.1.2.50.0.1', 'IPTU', 'dez', '1.00')]),
+      despesas: snapshot(57170, [
+        // SAMAE: a linha de modalidade 71 é a diferença nas três etapas.
+        despesa('2473:1', '33903900000000', ACAO, 0, 900, 800, 700),
+        // 71 no elemento (dígitos 5-6), não na modalidade: fica.
+        despesa('2473:2', '33907100000000', ACAO, 0, 50, 50, 50),
+        despesa('2473:3', '33713300000000', ACAO, 0, 100, 80, 80),
+        // Prefeitura: tem modalidade 71 e bate com o TCE, então nada sai.
+        despesa('728:1', '33903000000000', ACAO, 0, 4000, 3000, 2000),
+        despesa('728:2', '44710000000000', ACAO, 0, 200, 200, 200),
+        // FMS: diferença sem padrão.
+        despesa('319:1', '33903900000000', ACAO, 0, 15000, 15000, 15000),
+      ]),
+      tcescEmpenhos: snapshot(900002, [
+        empenhoTce(1, '524', 1, '2025-03-10', 'SANEAMENTO EXEMPLO LTDA', '950.00', '850.00', '750.00'),
+        empenhoTce(2, '204', 1, '2025-03-10', 'CONSTRUTORA FICTICIA S.A.', '4200.00', '3200.00', '2200.00'),
+        empenhoTce(3, '486', 1, '2025-03-10', 'LABORATORIO EXEMPLO LTDA', '14000.00', '15000.00', '15000.00'),
+        empenhoTce(4, '1864', 1, '2025-03-10', 'GRAFICA EXEMPLO LTDA', '25000.00', '25000.00', '20000.00'),
+      ]),
+    }),
+  );
+
+  it('diferença igual à modalidade 71 tira só essas linhas, e a do elemento 71 fica', async () => {
+    const { despesa: d } = await disponiveis(2025);
+    expect(d.porEntidade.find((e) => e.entidade === 'SAMAE')).toMatchObject({
+      codigoEntidade: '2473',
+      empenhado: 950,
+      liquidado: 850,
+      pago: 750,
+      fonte: 'betha_57170',
+      conferida: true,
+      tipo: 'despesa_duplicada',
+    });
+  });
+
+  it('modalidade 71 igual ao TCE fica no valor, e diferença sem padrão sai da soma', async () => {
+    const { despesa: d } = await disponiveis(2025);
+    expect(d.porEntidade.find((e) => e.entidade === 'Prefeitura')).toMatchObject({ empenhado: 4200, tipo: null });
+    expect(d.porEntidade.find((e) => e.entidade === 'FMS')).toMatchObject({ empenhado: null, tipo: 'sem_causa' });
+    expect(d.totais).toEqual({
+      empenhado: 5150,
+      liquidado: 4050,
+      pago: 2950,
+      aguardandoTce: 0,
+      entidadesConferidas: 2,
+      entidadesFora: 1,
+    });
+  });
+
+  it('as discrepâncias de despesa saem com o tipo, a entidade e as etapas, e sem data de corte', async () => {
+    const { discrepancias, despesa: d } = await disponiveis(2025);
+    const daDespesa = discrepancias.filter((x) => x.area === 'despesa');
+    expect(daDespesa.map((x) => [x.tipo, x.entidade, x.diferenca])).toEqual([
+      ['despesa_duplicada', 'SAMAE', 100],
+      ['sem_causa', 'FMS', 1000],
+    ]);
+    expect(d.porEntidade.every((e) => e.dataCorte === undefined)).toBe(true);
+  });
+});
+
+describe('dadosConferidos: despesa no ano em curso', () => {
+  beforeAll(() =>
+    popularCenario({
+      empenhos: snapshot(57140, [
+        ...empenhos().registros,
+        // Depois do último empenho que o TCE-SC recebeu.
+        empenho(
+          '728:1005',
+          14,
+          '2025-03-10',
+          'SECRETARIA (exemplo)',
+          'PAPELARIA MODELO ME',
+          'Compra',
+          900,
+          null,
+          null,
+          900,
+        ),
+      ]),
+      tcescEmpenhos: snapshot(900002, [
+        ...tcescEmpenhos().registros.filter((r) => r.id !== '5002'),
+        // Casa pelo valor original, 120000; a soma usa o líquido do estorno.
+        {
+          ...empenhoTce(
+            5002,
+            '204',
+            11,
+            '2025-01-15',
+            'CONSTRUTORA FICTICIA S.A.',
+            '120000.00',
+            '60000.00',
+            '40000.00',
+          ),
+          valorEstorno: '20000.00',
+          valorEmpenhado: '100000.00',
+        },
+        // A Câmara remete à parte: não move a data de corte.
+        empenhoTce(5007, '1864', 2, '2025-03-20', 'GRAFICA EXEMPLO LTDA', '1000.00', '1000.00', '1000.00'),
+      ]),
+    }),
+  );
+
+  it('empenhos casados até o corte somam o líquido do TCE, com a data do corte', async () => {
+    const { despesa: d, parcial, limites } = await disponiveis(2025);
+    expect(parcial).toBe(true);
+    expect(limites.dataEmpenho).toBe('2025-02-05');
+    expect(d.porEntidade.map((e) => [e.entidade, e.empenhado, e.liquidado, e.pago, e.fonte, e.dataCorte])).toEqual(
+      expect.arrayContaining([
+        // 50000 + 100000 + 3000; o 112 do TCE não casa com o 12 da Betha
+        ['Prefeitura', 153000, 113000, 93000, 'tce', '2025-02-05'],
+        ['FMS', 15000, 0, 0, 'tce', '2025-02-05'],
+      ]),
+    );
+    expect(d.totais).toEqual({
+      empenhado: 168000,
+      liquidado: 113000,
+      pago: 93000,
+      aguardandoTce: 900,
+      entidadesConferidas: 2,
+      entidadesFora: 0,
+    });
+  });
+
+  it('empenho depois do corte fica como aguardando_tce e fora da soma', async () => {
+    const { despesa: d, discrepancias } = await disponiveis(2025);
+    expect(d.porEntidade.find((e) => e.entidade === 'Prefeitura')?.aguardandoTce).toBe(900);
+    const pendentes = discrepancias.filter((x) => x.tipo === 'aguardando_tce' && x.area === 'despesa');
+    expect(pendentes).toMatchObject([
+      { entidade: 'Prefeitura', codigoEntidade: '728', betha: 900, tce: null, diferenca: 900, quantidade: 1 },
+    ]);
+    expect(pendentes[0]?.nota).toContain('05/02/2025');
+  });
+
+  it('empenho sem par até o corte fica fora da soma e é listado, sem nome de credor', async () => {
+    const { discrepancias } = await disponiveis(2025);
+    const semPar = discrepancias.filter((x) => x.tipo === 'sem_causa' && x.area === 'despesa');
+    // Só na Betha: o 12 (7000) e a cópia do 13 (3000). Só no TCE: o 112 (7000).
+    expect(semPar).toMatchObject([{ entidade: 'Prefeitura', betha: 10000, tce: 7000, diferenca: 3000 }]);
+    expect(semPar[0]?.nota).not.toMatch(/CONSTRUTORA|PAPELARIA/);
+  });
+
+  it('a Câmara fica à parte, fora da soma das entidades', async () => {
+    const { despesa: d } = await disponiveis(2025);
+    expect(d.porEntidade.map((e) => e.entidade)).not.toContain('Câmara');
+    expect(d.camara).toEqual({
+      empenhos: 2,
+      empenhado: 26000,
+      liquidado: 26000,
+      pago: 21000,
+      ultimo: '2025-03-20',
+      fonte: 'tce',
+      conferida: false,
     });
   });
 });

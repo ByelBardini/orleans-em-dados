@@ -5,12 +5,15 @@ import type {
   CamaraDaConferencia,
   ColetaDaConferencia,
   CruzamentoReceita,
+  DespesaCasada,
   DespesaPorEntidade,
   DivergenciaEmOutroAno,
   EmpenhoSemPar,
+  EmpenhosAguardando,
   EmpenhosPorEntidade,
   Limites,
   LinhaNatureza,
+  Modalidade71,
   ParcelaDoMes,
   ReceitaIncoerente,
   ReceitaPorEntidade,
@@ -45,12 +48,12 @@ const EMPENHOS_CASADOS = `
                       row_number() OVER (PARTITION BY entidade_codigo, numero, data_empenho, valor_empenho
                                          ORDER BY saldo_a_pagar IS NULL, split_part(id_externo, ':', 3)::bigint DESC) ocorrencia
                FROM empenhos WHERE coleta_id = ${coleta('empenhos')} AND ${ATE_DATA}),
-         t AS (SELECT u.entidade_betha ent, u.sigla, numero, data_empenho, valor_original v, valor_liquidado l, valor_pago p, id_externo,
+         t AS (SELECT u.entidade_betha ent, u.sigla, numero, data_empenho, valor_original v, valor_empenhado e, valor_liquidado l, valor_pago p, id_externo,
                       row_number() OVER (PARTITION BY codigo_ug, numero, data_empenho, valor_original ORDER BY id_externo) ocorrencia
                FROM tcesc_empenhos e JOIN unidades_tce u USING (codigo_ug)
                WHERE coleta_id = ${coleta('tcesc_empenhos')} AND u.entidade_betha IS NOT NULL AND ${ATE_DATA}),
          m AS (SELECT ent, coalesce(t.sigla, en.sigla) AS entidade, numero, data_empenho, v, ocorrencia,
-                      b.id_externo bid, t.id_externo tid, b.v bv, t.v tv, b.l bl, t.l tl, b.p bp, t.p tp
+                      b.id_externo bid, t.id_externo tid, b.v bv, t.v tv, t.e te, b.l bl, t.l tl, b.p bp, t.p tp
                FROM b FULL JOIN t USING (ent, numero, data_empenho, v, ocorrencia)
                LEFT JOIN entidades en ON en.codigo_betha = ent)`;
 
@@ -199,6 +202,22 @@ const CONSULTAS = {
            (SELECT sum(valor_arrecadado) FROM tcesc_receitas r JOIN unidades_tce u ON u.nome = r.unidade
             WHERE coleta_id = ${coleta('tcesc_receitas')} AND u.entidade_betha IS NOT NULL) AS "totalTce"`,
 
+  // Modalidade de aplicação 71: dígitos 3-4 da natureza da despesa (33713300000000).
+  modalidade71: `
+    SELECT entidade_codigo ent, count(*)::int linhas, sum(valor_empenhado) empenhado, sum(valor_liquidado) liquidado,
+           sum(valor_pago) pago
+    FROM despesas WHERE coleta_id = ${coleta('despesas')} AND substring(natureza FROM 3 FOR 2) = '71' GROUP BY 1`,
+
+  // Ano em curso: líquido do TCE-SC nos empenhos casados até o corte.
+  despesaCasada: `${EMPENHOS_CASADOS}
+    SELECT ent, count(*)::int casados, sum(te) empenhado, sum(tl) liquidado, sum(tp) pago
+    FROM m WHERE bid IS NOT NULL AND tid IS NOT NULL GROUP BY 1`,
+
+  // Empenhos da Betha depois do corte: pendência. $2 NULL: o TCE-SC não recebeu nenhum.
+  empenhosAguardando: `
+    SELECT entidade_codigo ent, count(*)::int quantidade, sum(valor_empenho) valor
+    FROM empenhos WHERE coleta_id = ${coleta('empenhos')} AND ($2::date IS NULL OR data_empenho > $2::date) GROUP BY 1`,
+
   // Câmara: só existe no TCE.
   camara: `
     SELECT count(*)::int AS empenhos, sum(valor_empenhado) AS empenhado, sum(valor_liquidado) AS liquidado,
@@ -276,6 +295,19 @@ export async function lerReceitaConferida(ano: number, mes: number | null) {
   ]);
   if (!totais) throw new Error(`Consulta de totais da receita sem linha para ${ano}`);
   return { cruzamentos, rubricas, totais, pistas: { repetidas, incoerentes, repetidasMeses } };
+}
+
+export async function lerDespesaConferida(ano: number, dataCorte: string | null) {
+  const [despesa, modalidade71, casadas, empenhos, aguardando, [camara]] = await Promise.all([
+    consultar<DespesaPorEntidade>(CONSULTAS.despesaPorEntidade, [ano]),
+    consultar<Modalidade71>(CONSULTAS.modalidade71, [ano]),
+    consultar<DespesaCasada>(CONSULTAS.despesaCasada, [ano, dataCorte]),
+    consultar<EmpenhosPorEntidade>(CONSULTAS.empenhos, [ano, dataCorte]),
+    consultar<EmpenhosAguardando>(CONSULTAS.empenhosAguardando, [ano, dataCorte]),
+    consultar<CamaraDaConferencia>(CONSULTAS.camara, [ano]),
+  ]);
+  if (!camara) throw new Error(`Consulta da Câmara sem linha para ${ano}`);
+  return { despesa, modalidade71, casadas, empenhos, aguardando, camara };
 }
 
 // A publicação de exemplo nunca é conferida, mas continua dita como exemplo.

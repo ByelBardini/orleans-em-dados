@@ -3,15 +3,19 @@ import {
   anotarEmpenho,
   anotarNaturezas,
   completarRubricas,
+  conferirDespesaEncerrada,
   empenhosForaDaSoma,
   listarSemExplicacao,
   montarConferencia,
+  montarDespesaConferida,
   separarReceita,
   separarValores,
   type CruzamentoReceita,
   type DadosDaConferencia,
+  type DespesaPorEntidade,
   type EmpenhoSemPar,
   type LinhaNatureza,
+  type Modalidade71,
   type PistasDaReceita,
 } from '../../src/conferencia/conferencia.bo';
 
@@ -690,5 +694,230 @@ describe('separarReceita', () => {
     const { linhas, aguardando } = separarReceita([cruzamento({ mes: 1, tce: null })], SEM_PISTAS, null);
     expect(linhas).toEqual([]);
     expect(aguardando).toMatchObject([{ mes: 1, valor: 100 }]);
+  });
+});
+
+const despesaDaEntidade = (campos: Partial<DespesaPorEntidade>): DespesaPorEntidade => ({
+  sigla: 'SAMAE',
+  nome: 'Serviço de Água (exemplo)',
+  poder: 'Executivo',
+  entidadeBetha: '2473',
+  bethaEmpenhado: 1000,
+  tceEmpenhado: 1000,
+  difEmpenhado: 0,
+  bethaLiquidado: 900,
+  tceLiquidado: 900,
+  difLiquidado: 0,
+  bethaPago: 800,
+  tcePago: 800,
+  difPago: 0,
+  ...campos,
+});
+
+const comDiferenca = (empenhado: number, liquidado: number, pago: number) =>
+  despesaDaEntidade({
+    tceEmpenhado: 1000 - empenhado,
+    difEmpenhado: empenhado,
+    tceLiquidado: 900 - liquidado,
+    difLiquidado: liquidado,
+    tcePago: 800 - pago,
+    difPago: pago,
+  });
+
+const linhas71 = (empenhado: number, liquidado: number, pago: number): Modalidade71 => ({
+  ent: '2473',
+  linhas: 3,
+  empenhado,
+  liquidado,
+  pago,
+});
+
+describe('conferirDespesaEncerrada', () => {
+  it('igual nas três etapas: conferida com o valor da 57170, sem discrepância', () => {
+    const { entidade, discrepancia } = conferirDespesaEncerrada(despesaDaEntidade({}), undefined);
+    expect(entidade).toMatchObject({
+      empenhado: 1000,
+      liquidado: 900,
+      pago: 800,
+      fonte: 'betha_57170',
+      conferida: true,
+      tipo: null,
+    });
+    expect(discrepancia).toBeNull();
+  });
+
+  it('linhas de modalidade 71 sem diferença com o TCE ficam no valor', () => {
+    const { entidade } = conferirDespesaEncerrada(despesaDaEntidade({}), linhas71(100, 80, 80));
+    expect(entidade).toMatchObject({ empenhado: 1000, liquidado: 900, pago: 800, tipo: null });
+  });
+
+  it('diferença igual à modalidade 71 nas três etapas: valor sem essas linhas, tipo despesa_duplicada', () => {
+    const { entidade, discrepancia } = conferirDespesaEncerrada(comDiferenca(100, 80, 80), linhas71(100, 80, 80));
+    expect(entidade).toMatchObject({
+      empenhado: 900,
+      liquidado: 820,
+      pago: 720,
+      fonte: 'betha_57170',
+      conferida: true,
+      tipo: 'despesa_duplicada',
+    });
+    expect(discrepancia).toMatchObject({
+      area: 'despesa',
+      tipo: 'despesa_duplicada',
+      entidade: 'SAMAE',
+      betha: 1000,
+      tce: 900,
+      diferenca: 100,
+      etapas: {
+        empenhado: { betha: 1000, tce: 900, diferenca: 100 },
+        liquidado: { betha: 900, tce: 820, diferenca: 80 },
+        pago: { betha: 800, tce: 720, diferenca: 80 },
+      },
+    });
+    expect(discrepancia?.nota).toContain('provável');
+  });
+
+  it('valor sem as linhas 71 sai em centavos exatos', () => {
+    const { entidade } = conferirDespesaEncerrada(
+      despesaDaEntidade({
+        bethaEmpenhado: 10915539.85,
+        tceEmpenhado: 10791652.53,
+        difEmpenhado: 123887.32,
+        bethaLiquidado: 10216383.98,
+        tceLiquidado: 10127438.11,
+        difLiquidado: 88945.87,
+        bethaPago: 10213772.91,
+        tcePago: 10124827.04,
+        difPago: 88945.87,
+      }),
+      linhas71(123887.32, 88945.87, 88945.87),
+    );
+    expect(entidade).toMatchObject({ empenhado: 10791652.53, liquidado: 10127438.11, pago: 10124827.04 });
+  });
+
+  it.each([
+    ['liquidado', 100, 70, 80],
+    ['pago', 100, 80, 70],
+    ['empenhado', 90, 80, 80],
+  ])('modalidade 71 que não fecha no %s: não conferida, sem_causa', (_etapa, empenhado, liquidado, pago) => {
+    const { entidade, discrepancia } = conferirDespesaEncerrada(
+      comDiferenca(100, 80, 80),
+      linhas71(empenhado, liquidado, pago),
+    );
+    expect(entidade).toMatchObject({
+      empenhado: null,
+      liquidado: null,
+      pago: null,
+      fonte: null,
+      conferida: false,
+      tipo: 'sem_causa',
+    });
+    expect(discrepancia?.tipo).toBe('sem_causa');
+  });
+
+  it('entidade que só existe na Betha não é conferida', () => {
+    const { entidade, discrepancia } = conferirDespesaEncerrada(
+      despesaDaEntidade({
+        tceEmpenhado: null,
+        difEmpenhado: null,
+        tceLiquidado: null,
+        difLiquidado: null,
+        tcePago: null,
+        difPago: null,
+      }),
+      undefined,
+    );
+    expect(entidade).toMatchObject({ empenhado: null, conferida: false, tipo: 'sem_causa' });
+    expect(discrepancia).toMatchObject({ betha: 1000, tce: null, diferenca: 1000 });
+  });
+});
+
+describe('montarDespesaConferida', () => {
+  const CAMARA = { empenhos: 1, empenhado: 25000, liquidado: 25000, pago: 20000, ultimo: '2025-12-17' };
+  const VAZIO = { modalidade71: [], casadas: [], empenhos: [], aguardando: [] };
+
+  it('diferença sem padrão tira só aquela entidade, sem zerar as demais', () => {
+    const { despesa, discrepancias } = montarDespesaConferida(
+      false,
+      { mesReceita: 12, dataEmpenho: '2025-12-30' },
+      {
+        ...VAZIO,
+        despesa: [
+          comDiferenca(10, 0, 0),
+          despesaDaEntidade({ sigla: 'Prefeitura', entidadeBetha: '728' }),
+          despesaDaEntidade({ sigla: 'FMS', entidadeBetha: '319' }),
+        ],
+        camara: CAMARA,
+      },
+    );
+    expect(despesa.porEntidade.map((e) => [e.entidade, e.empenhado, e.conferida])).toEqual([
+      ['SAMAE', null, false],
+      ['Prefeitura', 1000, true],
+      ['FMS', 1000, true],
+    ]);
+    expect(despesa.totais).toEqual({
+      empenhado: 2000,
+      liquidado: 1800,
+      pago: 1600,
+      aguardandoTce: 0,
+      entidadesConferidas: 2,
+      entidadesFora: 1,
+    });
+    expect(discrepancias.map((d) => [d.tipo, d.entidade])).toEqual([['sem_causa', 'SAMAE']]);
+  });
+
+  it('a Câmara fica à parte, fora da soma e das entidades conferidas', () => {
+    const { despesa } = montarDespesaConferida(
+      false,
+      { mesReceita: 12, dataEmpenho: '2025-12-30' },
+      {
+        ...VAZIO,
+        despesa: [
+          despesaDaEntidade({ sigla: 'Prefeitura', entidadeBetha: '728' }),
+          despesaDaEntidade({
+            sigla: 'Câmara',
+            entidadeBetha: null,
+            bethaEmpenhado: null,
+            difEmpenhado: null,
+            bethaLiquidado: null,
+            difLiquidado: null,
+            bethaPago: null,
+            difPago: null,
+          }),
+        ],
+        camara: CAMARA,
+      },
+    );
+    expect(despesa.porEntidade.map((e) => e.entidade)).toEqual(['Prefeitura']);
+    expect(despesa.totais.empenhado).toBe(1000);
+    expect(despesa.camara).toEqual({ ...CAMARA, fonte: 'tce', conferida: false });
+  });
+
+  it('ano em curso sem nenhum empenho no TCE: tudo aguarda, sem contar a Betha como sem par', () => {
+    const { despesa, discrepancias } = montarDespesaConferida(
+      true,
+      { mesReceita: 2, dataEmpenho: null },
+      {
+        ...VAZIO,
+        despesa: [despesaDaEntidade({ sigla: 'Prefeitura', entidadeBetha: '728' })],
+        empenhos: [
+          {
+            entidade: 'Prefeitura',
+            codigoEntidade: '728',
+            betha: 1,
+            tce: 0,
+            casados: 0,
+            soBetha: 1,
+            valorSoBetha: 500,
+            soTce: 0,
+            valorSoTce: 0,
+          },
+        ],
+        aguardando: [{ ent: '728', quantidade: 1, valor: 500 }],
+        camara: CAMARA,
+      },
+    );
+    expect(despesa.porEntidade).toMatchObject([{ empenhado: null, conferida: false, tipo: null, aguardandoTce: 500 }]);
+    expect(discrepancias.map((d) => d.tipo)).toEqual(['aguardando_tce']);
   });
 });

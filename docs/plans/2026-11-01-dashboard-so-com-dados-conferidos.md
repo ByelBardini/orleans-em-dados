@@ -1,6 +1,6 @@
 # Plano: dashboard só com dados conferidos e seção de discrepâncias
 
-> **Status:** aprovado em 2026-11-01; em execução. Fase 1 implementada na branch `dashboard-so-conferidos`
+> **Status:** aprovado em 2026-11-01; em execução. Fases 1 a 4 implementadas na branch `dashboard-so-conferidos`
 > **Data:** 2026-11-01
 > **Pedido original:** o dashboard exibe só dados verificados, e os dados com problema vão para a seção de discrepâncias, separados por tipo.
 > **Na especificação:** §2.1 (itens 1 a 5), §7.1 e §7.2 (fontes e confiabilidade, a atualizar), Etapa C do §9, critérios de aceite do §11 (dupla contagem e comparação com o TCE-SC).

@@ -1,10 +1,17 @@
 // Conferência Betha × TCE-SC sobre as coletas publicadas de um exercício.
 // Usada pela API (/api/conferencias) e pelo script `pnpm conferir`.
-import { ehParcial, montarConferencia, montarReceitaConferida } from './conferencia.bo';
+import {
+  ehParcial,
+  montarConferencia,
+  montarDespesaConferida,
+  montarReceitaConferida,
+  ordenarDiscrepancias,
+} from './conferencia.bo';
 import {
   CONSULTAS_NECESSARIAS,
   lerColetas,
   lerDados,
+  lerDespesaConferida,
   lerDivergenciasEmOutrosAnos,
   lerLimites,
   lerReceitaConferida,
@@ -12,7 +19,7 @@ import {
 } from './conferencia.dao';
 
 export { empenhosForaDaSoma } from './conferencia.bo';
-export type { Discrepancia, TipoDiscrepancia } from './conferencia.bo';
+export type { DespesaConferida, Discrepancia, LinhaNaturezaConferida, TipoDiscrepancia } from './conferencia.bo';
 
 export async function conferencia(ano: number, agora = new Date()) {
   const coletas = await lerColetas(ano);
@@ -39,15 +46,24 @@ export async function dadosConferidos(ano: number) {
   }
 
   const limites = await lerLimites(ano);
-  const [receita, outrosAnos] = await Promise.all([
+  const parcial = ehParcial(limites);
+  const [dadosDaReceita, outrosAnos, dadosDaDespesa] = await Promise.all([
     lerReceitaConferida(ano, limites.mesReceita),
     lerDivergenciasEmOutrosAnos(ano),
+    lerDespesaConferida(ano, limites.dataEmpenho),
   ]);
+  const { receita, discrepancias: daReceita } = montarReceitaConferida(ano, limites.mesReceita, {
+    ...dadosDaReceita,
+    outrosAnos,
+  });
+  const { despesa, discrepancias: daDespesa } = montarDespesaConferida(parcial, limites, dadosDaDespesa);
   return {
     ano,
     disponivel: true as const,
-    parcial: ehParcial(limites),
+    parcial,
     limites,
-    ...montarReceitaConferida(ano, limites.mesReceita, { ...receita, outrosAnos }),
+    receita,
+    despesa,
+    discrepancias: ordenarDiscrepancias([...daReceita, ...daDespesa]),
   };
 }

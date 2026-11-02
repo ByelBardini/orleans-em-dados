@@ -17,6 +17,9 @@ Compara as coletas publicadas das duas fontes num exercício. A regra mora em `p
 - `empenhosForaDaSoma(semPar)` — ids Betha repetidos ou renumerados, que a API tira das somas.
 - `ehParcial(limites)` — o TCE-SC ainda não tem dezembro de receita.
 - `montarConferencia(ano, dados, agora)` — junta tudo e calcula o `resumo` em centavos.
+- `conferirDespesaEncerrada(linha, modalidade71)` — o valor conferido de uma entidade em exercício completo, ou a discrepância que a tira da soma.
+- `montarDespesaConferida(parcial, limites, dados)` — aplica a regra do exercício (encerrado ou em curso) por entidade, deixa a Câmara à parte e soma só as conferidas.
+- `ordenarDiscrepancias(lista)` — por tipo, com `aguardando_tce` por último; dentro do tipo, o maior valor primeiro.
 - `separarValores(betha, tce)` — a parte comum a um cruzamento e o que sobra de cada lado, em centavos.
 - `montarReceitaConferida(ano, mesLimite, dados)` — agrega a separação em `porMes`, `porEntidade`, `porOrigem` (chave `origem`, os dois primeiros dígitos; o nome da origem é da API), a tabela mista `naturezas` e os `totais`, e lista as `discrepancias`.
 - `separarReceita(cruzamentos, pistas, mesLimite)` — separa cada entidade × natureza de 8 dígitos × mês em conferido + diferença com `TipoDiscrepancia`, e devolve à parte os meses depois de `mesLimite`.
@@ -33,10 +36,21 @@ Compara as coletas publicadas das duas fontes num exercício. A regra mora em `p
 - Conta da receita, sempre: `conferido + diferencaBetha + aguardandoTce = totalBetha` e `conferido + diferencaTce = totalTce`. Os totais vêm de uma soma à parte no banco, não da separação.
 - Tabela mista: natureza com todos os meses iguais sai nas rubricas de 14 dígitos da Betha até o corte (`nivel: 14`, `tce: null`, porque o TCE só desce a 8); com um mês divergente, uma linha de 8 dígitos, sem rateio. Rubrica com soma zero não aparece.
 - Discrepância de receita: uma por natureza, com `meses` (onde as fontes diferem) e `mes` quando é um só. O mês em que o acumulado desencontra fica só na nota, que não o afirma como o da linha sobrando. Em `mes_diferente`, `diferenca` é zero: a conta usa `diferencaBetha` e `diferencaTce`.
-- Sem as cinco coletas não reais, `dadosConferidos` devolve `{ ano, disponivel: false, faltando, exemplo }`, sem número; `exemplo` diz se há publicação fictícia no ano.
+- Sem as cinco coletas reais, `dadosConferidos` devolve `{ ano, disponivel: false, faltando, exemplo }`, sem número; `exemplo` diz se há publicação fictícia no ano.
 - A Câmara não entra na separação da receita: não tem par na Betha.
 - Mês depois do último que o TCE-SC recebeu é pendência (`aguardando_tce`), fora da separação; linha sem mês na Betha é sempre comparada.
+- Despesa encerrada (fonte `betha_57170`): igual ao TCE nas três etapas, fica o valor da 57170, mesmo com linhas de modalidade 71 (dígitos 3-4 da natureza). Diferença igual à soma dessas linhas nas três etapas: valor sem elas, `despesa_duplicada`, conferida. Qualquer outro caso, inclusive fechar em só uma etapa: valores `null`, `conferida: false`, `sem_causa`, e as outras entidades seguem.
+- Despesa no ano em curso (fonte `tce`, com `dataCorte`): soma de `valor_empenhado` (líquido de estorno), liquidado e pago do TCE-SC nos empenhos casados com a 57140 até o corte. Empenho sem par até o corte fica fora, em um `sem_causa` agregado por entidade, até a Fase 5 classificar um a um. Empenho da Betha depois do corte é `aguardando_tce`, com `quantidade`.
+- A Câmara fica em `despesa.camara` (`fonte: 'tce'`, `conferida: false`), fora de `porEntidade` e dos totais.
 - Diferença entre fontes é informação, nunca rotulada como irregularidade; as notas dizem "provável"/"possível".
+
+## Retorno de `dadosConferidos(ano)`
+
+- `{ ano, disponivel: false, faltando, exemplo }`, ou
+- `{ ano, disponivel: true, parcial, limites, receita, despesa, discrepancias }`:
+  - `receita`: `porMes[]` (`mes`, `betha`, `tce`, `conferido`, `diferencaBetha`, `diferencaTce`, `aguardandoTce`), `porEntidade[]` (`codigoEntidade`, `entidade`, partes, `aguardandoTce`, `totalBetha`, `totalTce`), `porOrigem[]` (`origem`, partes, `aguardandoTce`), `naturezas[]` (tipo `LinhaNaturezaConferida`), `totais` (partes, `aguardandoTce`, `totalBetha`, `totalTce`);
+  - `despesa`: `porEntidade[]` (tipo `DespesaConferida`), `camara`, `totais` (`empenhado`, `liquidado`, `pago`, `aguardandoTce`, `entidadesConferidas`, `entidadesFora`);
+  - `discrepancias[]`: tipo `Discrepancia`, com `area` (`receita` ou `despesa`). Na despesa, `betha`, `tce` e `diferenca` são do empenhado; as três etapas ficam em `etapas`.
 
 ## Testes
 

@@ -506,6 +506,13 @@ export type Discrepancia = {
   diferenca: number;
   diferencaBetha?: number;
   diferencaTce?: number;
+  /** Despesa: Betha, TCE e diferença em cada etapa. `betha`, `tce` e `diferenca` são do empenhado. */
+  etapas?: Record<
+    'empenhado' | 'liquidado' | 'pago',
+    { betha: number | null; tce: number | null; diferenca: number | null }
+  >;
+  /** Despesa em empenhos: quantos empenhos a linha resume. */
+  quantidade?: number;
   nota: string;
 };
 
@@ -671,7 +678,7 @@ function discrepanciasDaReceita(
     ];
   });
 
-  return [...daNatureza, ...pendentes.sort((a, b) => (a.mes ?? 0) - (b.mes ?? 0) || (b.betha ?? 0) - (a.betha ?? 0))];
+  return [...daNatureza, ...pendentes];
 }
 
 export type DadosDaReceitaConferida = {
@@ -741,3 +748,225 @@ export function montarReceitaConferida(ano: number, mesLimite: number | null, da
     discrepancias: discrepanciasDaReceita(linhas, aguardando, pistas, outrosAnos, ano),
   };
 }
+
+// --- A despesa conferida: um valor por entidade, ou a entidade sai para as discrepâncias. ---
+
+type Etapas = { empenhado: number; liquidado: number; pago: number };
+export type Modalidade71 = Etapas & { ent: string; linhas: number };
+export type DespesaCasada = Etapas & { ent: string; casados: number };
+export type EmpenhosAguardando = { ent: string; quantidade: number; valor: number };
+
+export type DespesaConferida = {
+  entidade: string;
+  nome: string;
+  codigoEntidade: string | null;
+  empenhado: number | null;
+  liquidado: number | null;
+  pago: number | null;
+  fonte: 'betha_57170' | 'tce' | null;
+  conferida: boolean;
+  tipo: TipoDiscrepancia | null;
+  aguardandoTce: number;
+  dataCorte?: string;
+};
+
+const ETAPAS = ['Empenhado', 'Liquidado', 'Pago'] as const;
+
+const etapasDaLinha = (l: DespesaPorEntidade) => ({
+  empenhado: { betha: l.bethaEmpenhado, tce: l.tceEmpenhado, diferenca: l.difEmpenhado },
+  liquidado: { betha: l.bethaLiquidado, tce: l.tceLiquidado, diferenca: l.difLiquidado },
+  pago: { betha: l.bethaPago, tce: l.tcePago, diferenca: l.difPago },
+});
+
+const discrepanciaDeDespesa = (l: DespesaPorEntidade, tipo: TipoDiscrepancia, nota: string): Discrepancia => ({
+  area: 'despesa',
+  tipo,
+  entidade: l.sigla,
+  codigoEntidade: l.entidadeBetha,
+  betha: l.bethaEmpenhado,
+  tce: l.tceEmpenhado,
+  diferenca: l.difEmpenhado ?? (centavos(l.bethaEmpenhado ?? 0) - centavos(l.tceEmpenhado ?? 0)) / 100,
+  etapas: etapasDaLinha(l),
+  nota,
+});
+
+/** Exercício completo: o valor da 57170 se bate com o TCE-SC nas três etapas. Se a diferença é
+ *  exatamente a modalidade 71 nas três, sai só essa parte. Qualquer outra diferença tira a entidade. */
+export function conferirDespesaEncerrada(l: DespesaPorEntidade, modalidade71: Modalidade71 | undefined) {
+  const base = {
+    entidade: l.sigla,
+    nome: l.nome,
+    codigoEntidade: l.entidadeBetha,
+    aguardandoTce: 0,
+  };
+  const diferencas = [l.difEmpenhado, l.difLiquidado, l.difPago];
+  const comparavel = diferencas.every((d) => d !== null);
+  const iguais = comparavel && diferencas.every((d) => d === 0);
+  const etapas71 = modalidade71 ? [modalidade71.empenhado, modalidade71.liquidado, modalidade71.pago] : null;
+  const fechaCom71 = comparavel && etapas71 !== null && diferencas.every((d, i) => igual(d ?? 0, etapas71[i] ?? 0));
+
+  if (iguais || fechaCom71) {
+    const sem71 = (betha: number | null, linhas71: number) =>
+      (centavos(betha ?? 0) - (iguais ? 0 : centavos(linhas71))) / 100;
+    const entidade: DespesaConferida = {
+      ...base,
+      empenhado: sem71(l.bethaEmpenhado, modalidade71?.empenhado ?? 0),
+      liquidado: sem71(l.bethaLiquidado, modalidade71?.liquidado ?? 0),
+      pago: sem71(l.bethaPago, modalidade71?.pago ?? 0),
+      fonte: 'betha_57170',
+      conferida: true,
+      tipo: iguais ? null : 'despesa_duplicada',
+    };
+    const discrepancia = iguais
+      ? null
+      : discrepanciaDeDespesa(
+          l,
+          'despesa_duplicada',
+          `As linhas de modalidade 71 da 57170 somam exatamente a diferença com o TCE nas três etapas: provável duplicidade de consórcio na Betha. O valor conferido fica sem essas linhas (empenhado: ${fmt(modalidade71?.empenhado ?? 0)}; liquidado: ${fmt(modalidade71?.liquidado ?? 0)}; pago: ${fmt(modalidade71?.pago ?? 0)}).`,
+        );
+    return { entidade, discrepancia };
+  }
+
+  const nota = comparavel
+    ? `Fora do conferido: ${ETAPAS.map((e, i) => `${e.toLowerCase()} difere em ${fmt(diferencas[i] ?? 0)}`).join('; ')} (Betha − TCE), sem padrão que explique as três etapas.`
+    : `Fora do conferido: a entidade só tem despesa em ${l.bethaEmpenhado === null ? 'TCE-SC' : 'Betha'}, sem o que comparar.`;
+  const entidade: DespesaConferida = {
+    ...base,
+    empenhado: null,
+    liquidado: null,
+    pago: null,
+    fonte: null,
+    conferida: false,
+    tipo: 'sem_causa',
+  };
+  return { entidade, discrepancia: discrepanciaDeDespesa(l, 'sem_causa', nota) };
+}
+
+const dataBr = (data: string) => data.split('-').reverse().join('/');
+
+/** Ano em curso: a 57170 não tem data, então a soma é a do líquido do TCE-SC nos empenhos casados
+ *  com a Betha até o corte. O que não casa fica de fora; o que vem depois do corte é pendência. */
+function conferirDespesaEmCurso(
+  l: DespesaPorEntidade,
+  corte: string | null,
+  casada: DespesaCasada | undefined,
+  empenhos: EmpenhosPorEntidade | undefined,
+  aguardando: EmpenhosAguardando | undefined,
+) {
+  const casou = (casada?.casados ?? 0) > 0;
+  const entidade: DespesaConferida = {
+    entidade: l.sigla,
+    nome: l.nome,
+    codigoEntidade: l.entidadeBetha,
+    empenhado: casou ? (casada?.empenhado ?? 0) : null,
+    liquidado: casou ? (casada?.liquidado ?? 0) : null,
+    pago: casou ? (casada?.pago ?? 0) : null,
+    fonte: casou ? 'tce' : null,
+    conferida: casou,
+    tipo: null,
+    aguardandoTce: aguardando?.valor ?? 0,
+    ...(corte ? { dataCorte: corte } : {}),
+  };
+  const discrepancias: Discrepancia[] = [];
+  const soBetha = empenhos?.soBetha ?? 0;
+  const soTce = empenhos?.soTce ?? 0;
+  if (corte && (soBetha || soTce)) {
+    const valorBetha = empenhos?.valorSoBetha ?? 0;
+    const valorTce = empenhos?.valorSoTce ?? 0;
+    discrepancias.push({
+      area: 'despesa',
+      tipo: 'sem_causa',
+      entidade: l.sigla,
+      codigoEntidade: l.entidadeBetha,
+      betha: soBetha ? valorBetha : null,
+      tce: soTce ? valorTce : null,
+      diferenca: (centavos(valorBetha) - centavos(valorTce)) / 100,
+      quantidade: soBetha + soTce,
+      nota: `Até ${dataBr(corte)}, ${soBetha} empenho(s) só na Betha (${fmt(valorBetha)}) e ${soTce} só no TCE (${fmt(valorTce)}) ficam fora do conferido: não têm par na outra fonte.`,
+    });
+  }
+  if (aguardando) {
+    discrepancias.push({
+      area: 'despesa',
+      tipo: 'aguardando_tce',
+      entidade: l.sigla,
+      codigoEntidade: l.entidadeBetha,
+      betha: aguardando.valor,
+      tce: null,
+      diferenca: aguardando.valor,
+      quantidade: aguardando.quantidade,
+      nota: corte
+        ? `${aguardando.quantidade} empenho(s) da Betha depois de ${dataBr(corte)}, último que o TCE-SC recebeu: ficam fora do conferido até a remessa chegar.`
+        : `${aguardando.quantidade} empenho(s) da Betha: o TCE-SC ainda não recebeu empenhos deste exercício, e eles ficam fora do conferido até a remessa chegar.`,
+    });
+  }
+  return { entidade, discrepancias };
+}
+
+export type DadosDaDespesaConferida = {
+  despesa: readonly DespesaPorEntidade[];
+  modalidade71: readonly Modalidade71[];
+  casadas: readonly DespesaCasada[];
+  empenhos: readonly EmpenhosPorEntidade[];
+  aguardando: readonly EmpenhosAguardando[];
+  camara: CamaraDaConferencia;
+};
+
+export function montarDespesaConferida(parcial: boolean, limites: Limites, dados: DadosDaDespesaConferida) {
+  const { despesa, modalidade71, casadas, empenhos, aguardando, camara } = dados;
+  // A Câmara só existe no TCE-SC: é fonte única, sempre à parte.
+  const resultados = despesa
+    .filter((l) => l.entidadeBetha !== null)
+    .map((l) => {
+      const ent = l.entidadeBetha;
+      if (!parcial) {
+        const { entidade, discrepancia } = conferirDespesaEncerrada(
+          l,
+          modalidade71.find((m) => m.ent === ent),
+        );
+        return { entidade, discrepancias: discrepancia ? [discrepancia] : [] };
+      }
+      return conferirDespesaEmCurso(
+        l,
+        limites.dataEmpenho,
+        casadas.find((c) => c.ent === ent),
+        empenhos.find((e) => e.codigoEntidade === ent),
+        aguardando.find((a) => a.ent === ent),
+      );
+    });
+  const porEntidade = resultados.map((r) => r.entidade);
+  const conferidas = porEntidade.filter((e) => e.conferida);
+  return {
+    despesa: {
+      porEntidade,
+      camara: { ...camara, fonte: 'tce' as const, conferida: false as const },
+      totais: {
+        empenhado: somaEmCentavos(conferidas, (e) => e.empenhado ?? 0),
+        liquidado: somaEmCentavos(conferidas, (e) => e.liquidado ?? 0),
+        pago: somaEmCentavos(conferidas, (e) => e.pago ?? 0),
+        aguardandoTce: somaEmCentavos(porEntidade, (e) => e.aguardandoTce),
+        entidadesConferidas: conferidas.length,
+        entidadesFora: porEntidade.filter((e) => e.tipo !== null && !e.conferida).length,
+      },
+    },
+    discrepancias: resultados.flatMap((r) => r.discrepancias),
+  };
+}
+
+const ORDEM_DOS_TIPOS: readonly TipoDiscrepancia[] = [
+  'fora_do_acumulado',
+  'duas_rubricas',
+  'mes_diferente',
+  'so_tce',
+  'despesa_duplicada',
+  'sem_causa',
+  'aguardando_tce',
+];
+
+/** Por tipo, com a pendência por último; dentro do tipo, o maior valor primeiro. */
+export const ordenarDiscrepancias = (lista: readonly Discrepancia[]) =>
+  [...lista].sort(
+    (a, b) =>
+      ORDEM_DOS_TIPOS.indexOf(a.tipo) - ORDEM_DOS_TIPOS.indexOf(b.tipo) ||
+      Math.abs(b.diferenca) - Math.abs(a.diferenca),
+  );
