@@ -19,8 +19,15 @@ Um schema Zod estrito por rota da API (`src/api/`), espelhando o JSON de hoje (d
 | `GET /api/despesas/resumo`          | `despesasResumoSchema` |
 | `GET /api/despesas/empenhos/resumo` | `empenhosResumoSchema` |
 | `GET /api/despesas/empenhos`        | `empenhosBuscaSchema`  |
+| `GET /api/discrepancias`            | `discrepanciasSchema`  |
 | `GET /api/conferencias`             | `conferenciaSchema`    |
 | qualquer `4xx`/`5xx`                | `erroSchema`           |
+
+- Bloco `conferencia` em `/api/receitas` (`disponivel`, `parcial`, `limites`, `conferido`, `diferencaBetha`, `diferencaTce`, `aguardandoTce`, `totalBetha`, `totalTce`), em `/api/despesas/resumo` (`disponivel`, `parcial`, `limites`, `aguardandoTce`, `entidadesConferidas`, `entidadesFora`) e em `/api/despesas/empenhos/resumo` (`disponivel`, `parcial`, `dataCorte`). Indisponível: campos nulos, e `faltando` diz o que falta. A conta: `conferido + diferencaBetha + aguardandoTce = totalBetha`; `conferido + diferencaTce = totalTce`.
+- `fonteUnica` lista os campos que só a Betha tem e que nunca são conferidos: `orcadoAtualizado` e `orcadoDeducoes` em receitas, `orcadoAtualizado` em despesas.
+- `naturezas[].nivel` é 8 ou 14; `rubrica` tem esse número de dígitos.
+- `limitesDaConferenciaSchema` (`comuns.ts`): `{ mesReceita, dataEmpenho }`.
+- `discrepanciasSchema`: `{ ano, disponivel, parcial, limites, faltando?, grupos: [{ tipo, area, rotulo, explicacao, total, itens }], aguardando: { rotulo, explicacao, receita: { total, itens }, despesa: { total, quantidade, itens } }, resumo: { casos, porSituacao, porArea } }`. O schema é estrito, então credor, histórico e `avisos` são recusados.
 
 ## Testes
 
