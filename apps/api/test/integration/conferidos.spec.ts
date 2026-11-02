@@ -494,6 +494,51 @@ describe('texto da seção com empenho renumerado', () => {
   });
 });
 
+describe('situação do empenho', () => {
+  const numerosDa = async (situacao: string) => {
+    const { corpo } = await get(`/api/despesas/empenhos?ano=2025&situacao=${situacao}`);
+    return corpo.itens.map((i: { numero: number }) => i.numero).sort((a: number, b: number) => a - b);
+  };
+
+  // Regressão: `pago` marcava quem tinha liquidado zero no TCE-SC, centenas de empenhos por ano (02/11/2026).
+  describe('no conjunto casado, pelos valores do TCE-SC', () => {
+    // Do TCE-SC: nº 10 liquidado 50000 e pago 50000; nº 11 60000 e 40000; nº 13 3000 e 3000; nº 5 zero e zero.
+    beforeAll(() => popularCenario());
+
+    it.each([
+      ['pago', 'liquidado maior que zero e saldo zero', [10, 13]],
+      ['apagar', 'saldo maior que zero', [11]],
+      ['sem', 'liquidado zero', [5]],
+    ])('situacao=%s traz quem tem %s', async (situacao, _regra, esperados) => {
+      expect(await numerosDa(situacao)).toEqual(esperados);
+    });
+  });
+
+  describe('na coleta de exemplo, pelos valores da própria 57140', () => {
+    beforeAll(async () => {
+      await popularCenario({
+        empenhos: snapshot(57140, [
+          empenho('728:1', 1, '2025-01-10', SETOR, 'CREDOR A EXEMPLO LTDA', 'Pago (exemplo)', 100, 100, 100, 0),
+          empenho('728:2', 2, '2025-01-11', SETOR, 'CREDOR B EXEMPLO LTDA', 'A pagar (exemplo)', 100, 100, 40, 60),
+          empenho('728:3', 3, '2025-01-12', SETOR, 'CREDOR C EXEMPLO LTDA', 'Zero (exemplo)', 100, 0, 0, 0),
+          empenho('728:4', 4, '2025-01-13', SETOR, 'CREDOR D EXEMPLO LTDA', 'Nulo (exemplo)', 100, null, null, null),
+          // Saldo nulo é falta de informação na fonte, não zero: não é pago.
+          empenho('728:5', 5, '2025-01-14', SETOR, 'CREDOR E EXEMPLO LTDA', 'Saldo nulo (exemplo)', 100, 100, 100, null),
+        ]),
+      });
+      await pool.query(`UPDATE coletas SET status = 'exemplo'`);
+    });
+
+    it.each([
+      ['pago', [1]],
+      ['apagar', [2]],
+      ['sem', [3, 4]],
+    ])('situacao=%s não trata saldo nulo como zero', async (situacao, esperados) => {
+      expect(await numerosDa(situacao)).toEqual(esperados);
+    });
+  });
+});
+
 describe('ano sem a coleta do TCE-SC', () => {
   beforeAll(async () => {
     await popularCenario();

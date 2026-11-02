@@ -290,19 +290,29 @@ describe('Despesas', () => {
   });
 
   // A resposta gravada já vem com a execução do TCE-SC: o liquidado nulo é escrito aqui.
-  it('a lista mostra a situação de cada empenho, sem tratar falta de informação como zero', async () => {
-    const semExecucao = {
+  it.each([
+    ['liquidado nulo', { liquidado: null, pago: null, saldoAPagar: null }, 'Sem liquidação'],
+    ['liquidado zero', { liquidado: 0, pago: 0, saldoAPagar: 0 }, 'Sem liquidação'],
+    ['liquidado e saldo zero', { liquidado: 100, pago: 100, saldoAPagar: 0 }, 'Pago'],
+    ['saldo maior que zero', { liquidado: 100, pago: 40, saldoAPagar: 60 }, 'Falta pagar'],
+    ['saldo nulo', { liquidado: 100, pago: 100, saldoAPagar: null }, '—'],
+  ])('com %s, a linha da lista diz a situação da mesma regra da API', async (_nome, valores, esperado) => {
+    const lista = {
       ...BUSCA,
-      itens: BUSCA.itens.map((e: { numero: number }) =>
-        e.numero === 5 ? { ...e, liquidado: null, pago: null, saldoAPagar: null } : e,
-      ),
+      itens: BUSCA.itens.map((e: { numero: number }) => (e.numero === 5 ? { ...e, ...valores } : e)),
     };
-    await carregar(apiCompleta().responder(ROTAS.busca(), semExecucao).instalar());
+    await carregar(apiCompleta().responder(ROTAS.busca(), lista).instalar());
 
-    const semLiquidacao = within(screen.getByRole('table'))
+    const linha = within(screen.getByRole('table'))
       .getByText(/^Exames/)
       .closest('tr') as HTMLElement;
-    expect(within(semLiquidacao).getByText('Sem informação')).toBeInTheDocument();
+    expect(linha.lastElementChild).toHaveTextContent(esperado);
+  });
+
+  it('o filtro de situação diz "Sem liquidação", e não fala em falta de informação', async () => {
+    await carregar();
+
+    expect(within(screen.getByLabelText('Situação')).getByRole('option', { name: 'Sem liquidação' })).toHaveValue('sem');
   });
 
   // A lista da API não traz mais o renumerado; o selo da tela sai na Fase 10, e até lá continua provado.

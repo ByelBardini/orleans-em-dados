@@ -31,11 +31,15 @@ function useDebounce<T>(valor: T, ms = 300): T {
 const SITUACAO = {
   pago: { nome: 'Pago', classe: 'pago', amostra: '' },
   apagar: { nome: 'Falta pagar', classe: 'apagar', amostra: 'vermelho' },
-  sem: { nome: 'Sem informação', classe: 'sem', amostra: 'listrada' },
+  sem: { nome: 'Sem liquidação', classe: 'sem', amostra: 'listrada' },
 };
 
-const situacaoDe = (e: EmpenhosBusca['itens'][number]) =>
-  e.liquidado === null ? 'sem' : N(e.saldoAPagar) > 0 ? 'apagar' : 'pago';
+// A mesma regra do filtro da API. Saldo nulo não é zero: sem situação a mostrar.
+const situacaoDe = (e: EmpenhosBusca['itens'][number]) => {
+  if (e.liquidado === null || e.liquidado === 0) return SITUACAO.sem;
+  if (N(e.saldoAPagar) > 0) return SITUACAO.apagar;
+  return e.liquidado > 0 && e.saldoAPagar === 0 ? SITUACAO.pago : null;
+};
 
 export default function Despesas({ ano, entidade, filtros }: PropsDaPagina) {
   const resumo = useApi(
@@ -388,7 +392,7 @@ function Conteudo({
                 </thead>
                 <tbody>
                   {lista.dados.itens.map((e) => {
-                    const s = SITUACAO[situacaoDe(e)];
+                    const s = situacaoDe(e);
                     const alternar = () => setAberta(aberta === e.id ? null : e.id);
                     return (
                       <tr
@@ -425,10 +429,14 @@ function Conteudo({
                         <td className="num">{decimal(N(e.empenhado))}</td>
                         <td className="num">{e.pago === null ? '—' : decimal(e.pago)}</td>
                         <td style={{ whiteSpace: 'nowrap' }}>
-                          <span className={`situacao ${s.classe}`}>
-                            <span className={`amostra ${s.amostra}`} aria-hidden="true" />
-                            {s.nome}
-                          </span>
+                          {s ? (
+                            <span className={`situacao ${s.classe}`}>
+                              <span className={`amostra ${s.amostra}`} aria-hidden="true" />
+                              {s.nome}
+                            </span>
+                          ) : (
+                            '—'
+                          )}
                         </td>
                       </tr>
                     );
