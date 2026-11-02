@@ -12,17 +12,22 @@ export const ateOMes = (parcial: boolean | null | undefined, mes: number | null 
 
 export const LINK_DISCREPANCIAS = '#discrepancias';
 
+// `semLink` e `titulo`: na própria seção, a conta não aponta para si mesma e diz de qual área é.
+type Apresentacao = { semLink?: boolean; titulo?: string };
+
 function Conta({
   linhas,
   total,
+  semLink = false,
+  titulo = 'A conta do conferido',
   children,
-}: {
+}: Apresentacao & {
   linhas: readonly { rotulo: string; valor: number | null }[];
   total: { rotulo: string; valor: number | null };
   children?: ReactNode;
 }) {
   return (
-    <div className="conta" role="group" aria-label="A conta do conferido">
+    <div className="conta" role="group" aria-label={titulo}>
       <dl>
         {linhas.map((l) => (
           <div key={l.rotulo}>
@@ -36,19 +41,25 @@ function Conta({
         </div>
       </dl>
       {children}
-      <a href={LINK_DISCREPANCIAS} className="selo-link">
-        Ver discrepâncias →
-      </a>
+      {!semLink && (
+        <a href={LINK_DISCREPANCIAS} className="selo-link">
+          Ver discrepâncias →
+        </a>
+      )}
     </div>
   );
 }
 
 // A receita fecha pela Betha: conferido + em discrepância + aguardando = total da Betha.
-export function ContaDaReceita({ conferencia: c }: { conferencia: Receitas['conferencia'] }) {
+export function ContaDaReceita({
+  conferencia: c,
+  ...apresentacao
+}: Apresentacao & { conferencia: Receitas['conferencia'] }) {
   const soNoTce = Number(c.diferencaTce) > 0;
   const abaixoDasDuas = Number(c.conferido) < Number(c.totalBetha) && Number(c.conferido) < Number(c.totalTce);
   return (
     <Conta
+      {...apresentacao}
       linhas={[
         { rotulo: 'conferido', valor: c.conferido },
         { rotulo: '+ em discrepância', valor: c.diferencaBetha },
@@ -70,19 +81,54 @@ export function ContaDaReceita({ conferencia: c }: { conferencia: Receitas['conf
 export function ContaDaDespesa({
   conferido,
   conferencia: c,
-}: {
+  ...apresentacao
+}: Apresentacao & {
   conferido: number | null;
   conferencia: DespesasResumo['conferencia'];
 }) {
   if (c.totalBetha === null) return null;
   return (
     <Conta
+      {...apresentacao}
       linhas={[
         { rotulo: 'conferido', valor: conferido },
         { rotulo: '+ em discrepância', valor: c.diferencaBetha },
       ]}
       total={{ rotulo: '= total da Betha', valor: c.totalBetha }}
     />
+  );
+}
+
+// Os empenhos, em valor original (57140): casados + sem par na Betha + aguardando = total da 57140.
+// Outra visão da mesma execução: nunca soma com a despesa.
+export function ContaDosEmpenhos({
+  conferido,
+  emDiscrepancia,
+  aguardando,
+  total,
+  soNoTce,
+  titulo,
+}: {
+  conferido: number | null;
+  emDiscrepancia: number;
+  aguardando: number;
+  total: number;
+  soNoTce: number;
+  titulo: string;
+}) {
+  return (
+    <Conta
+      semLink
+      titulo={titulo}
+      linhas={[
+        { rotulo: 'conferido', valor: conferido },
+        { rotulo: '+ em discrepância', valor: emDiscrepancia },
+        ...(aguardando > 0 ? [{ rotulo: '+ aguardando TCE', valor: aguardando }] : []),
+      ]}
+      total={{ rotulo: '= total da Betha', valor: total }}
+    >
+      {soNoTce > 0 && <p className="conta-nota">Só o TCE-SC registra mais {moeda(soNoTce)}, fora desta conta.</p>}
+    </Conta>
   );
 }
 

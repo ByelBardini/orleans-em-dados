@@ -10,7 +10,7 @@ vi.mock('../src/paginas/VisaoGeral', () => ({
 }));
 vi.mock('../src/paginas/Receitas', () => ({ default: ({ ano }: { ano: number }) => <p>Página receitas {ano}</p> }));
 vi.mock('../src/paginas/Despesas', () => ({ default: () => <p>Página despesas</p> }));
-vi.mock('../src/paginas/Conferencia', () => ({ default: () => <p>Página conferência</p> }));
+vi.mock('../src/paginas/Discrepancias', () => ({ default: () => <p>Página discrepâncias</p> }));
 vi.mock('../src/paginas/Metodologia', () => ({ default: () => <p>Página metodologia</p> }));
 
 const ANOS = {
@@ -54,14 +54,14 @@ describe('App', () => {
     expect(document.title).toBe('Receitas · Orleans em Dados');
   });
 
-  it.each(['#discrepancias', '#conferencia'])('%s abre a aba de conferência, marcada na navegação', async (hash) => {
+  it.each(['#discrepancias', '#conferencia'])('%s abre a aba de discrepâncias, marcada na navegação', async (hash) => {
     new FetchFake().responder('/api/anos', ANOS).instalar();
     window.location.hash = hash;
 
     render(<App />);
 
-    expect(await screen.findByText('Página conferência')).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: 'Conferência' })).toHaveAttribute('aria-current', 'page');
+    expect(await screen.findByText('Página discrepâncias')).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Discrepâncias' })).toHaveAttribute('aria-current', 'page');
   });
 
   it('hash desconhecido cai na visão geral', async () => {
@@ -78,10 +78,10 @@ describe('App', () => {
     render(<App />);
     await screen.findByText('Página visão geral 2026');
 
-    await userEvent.click(screen.getByRole('link', { name: 'Conferência' }));
+    await userEvent.click(screen.getByRole('link', { name: 'Discrepâncias' }));
 
-    await waitFor(() => expect(screen.getByText('Página conferência')).toBeInTheDocument());
-    expect(screen.getByRole('link', { name: 'Conferência' })).toHaveAttribute('aria-current', 'page');
+    await waitFor(() => expect(screen.getByText('Página discrepâncias')).toBeInTheDocument());
+    expect(screen.getByRole('link', { name: 'Discrepâncias' })).toHaveAttribute('aria-current', 'page');
   });
 
   it('sem nenhum ano publicado, avisa e não abre página de dados', async () => {

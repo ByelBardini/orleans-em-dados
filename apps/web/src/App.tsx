@@ -3,8 +3,8 @@ import { useEffect, useState } from 'react';
 import { useApi } from './api';
 import { Estado, SeletorTema } from './components';
 import { dataCurta } from './format';
-import Conferencia from './paginas/Conferencia';
 import Despesas from './paginas/Despesas';
+import Discrepancias from './paginas/Discrepancias';
 import Metodologia from './paginas/Metodologia';
 import Receitas from './paginas/Receitas';
 import VisaoGeral from './paginas/VisaoGeral';
@@ -13,13 +13,13 @@ const ABAS = [
   { id: 'visao-geral', nome: 'Visão geral', Componente: VisaoGeral, caderno: null },
   { id: 'receitas', nome: 'Receitas', Componente: Receitas, caderno: 'Caderno de Receitas' },
   { id: 'despesas', nome: 'Despesas', Componente: Despesas, caderno: 'Caderno de Despesas' },
-  { id: 'conferencia', nome: 'Conferência', Componente: Conferencia, caderno: 'Conferência das fontes' },
+  { id: 'discrepancias', nome: 'Discrepâncias', Componente: Discrepancias, caderno: 'Discrepâncias entre as fontes' },
   { id: 'metodologia', nome: 'Sobre os dados', Componente: Metodologia, caderno: 'Fontes e metodologia' },
 ];
 
 const PADRAO = ABAS[0]!;
-// A Fase 11 renomeia a aba; até lá, o link novo já abre a seção atual.
-const ALIASES: Record<string, string> = { '#discrepancias': '#conferencia' };
+// O endereço antigo da seção continua abrindo.
+const ALIASES: Record<string, string> = { '#conferencia': '#discrepancias' };
 const abaDoHash = () => {
   const hash = ALIASES[window.location.hash] ?? window.location.hash;
   return ABAS.find((a) => `#${a.id}` === hash)?.id ?? PADRAO.id;
@@ -123,7 +123,7 @@ export default function App() {
           <p className="rotulo">Sobre os dados</p>
           <p>
             Portal da Transparência de Orleans (Betha), conferido com o Farol do TCE-SC.{' '}
-            <a href="#conferencia">Onde as fontes divergem</a> ·{' '}
+            <a href="#discrepancias">Onde as fontes divergem</a> ·{' '}
             <a href="#metodologia">Como os números são conferidos</a>.
           </p>
         </div>
