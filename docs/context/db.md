@@ -1,6 +1,6 @@
-# Banco de dados e conferência
+# Banco de dados
 
-Esquema PostgreSQL, conexão e a conferência Betha × TCE-SC. Vive em `packages/db/` (pacote `@orleans-em-dados/db`, sem `src/`: fontes na raiz).
+Esquema PostgreSQL, migrações e conexão. Vive em `packages/db/` (pacote `@orleans-em-dados/db`).
 
 ## Estrutura
 
@@ -9,7 +9,7 @@ Esquema PostgreSQL, conexão e a conferência Betha × TCE-SC. Vive em `packages
 - `packages/db/src/migrar.ts` — `migrar(url)`; `pnpm db:migrar` chama com `DATABASE_URL`.
 - `packages/db/drizzle/` — migrações. `0000_baseline.sql` é o conteúdo de `migrations/001` + `002`, com o catálogo inicial (fontes, consultas, entidades, unidades do TCE).
 - `packages/db/migrations/` — SQLs originais; não rodam mais, servem ao teste de equivalência.
-- `packages/db/src/conferencias.js` — `conferencia(ano)`, usada pela API (`/api/conferencias`) e pelo `pnpm conferir`. Exportado como `@orleans-em-dados/db/conferencias`.
+- `packages/db/src/conferencia/` — a conferência Betha × TCE-SC (ver [conferencia.md](conferencia.md)).
 
 ## Contrato (tabelas)
 
@@ -25,8 +25,6 @@ Esquema PostgreSQL, conexão e a conferência Betha × TCE-SC. Vive em `packages
 ## Funções e utilitários
 
 - `transacao(fn)` (`packages/db/src/index.ts`) — passa o cliente da transação para `fn`; desfaz tudo se `fn` lançar.
-- `conferencia(ano)` (`packages/db/src/conferencias.js`) — `{ disponivel: false, faltando }` sem as cinco coletas publicadas; senão despesa/receita por entidade, receita por mês e natureza (com nota do padrão encontrado), empenhos casados e sem par, Câmara e um `resumo`.
-- `anotarNaturezas`, `anotarEmpenho` (`packages/db/src/conferencias.js`, não exportadas) — a regra pura da conferência: classificam cada diferença (duplicidade, reclassificação, incoerência mês × acumulado, renumeração, registro repetido).
 
 ## Regras de arquitetura
 
@@ -38,10 +36,6 @@ Esquema PostgreSQL, conexão e a conferência Betha × TCE-SC. Vive em `packages
 
 - Só coleta `totalizador_conciliado` é publicada; `rejeitado` fica gravada para análise. `exemplo` só é publicada se não houver dado real para o ano (regra em `packages/importadores/gravar.js`).
 - Valor monetário é `NUMERIC(18,2)`; rubrica e natureza são texto (zeros à esquerda).
-- Conferência compara só conceitos iguais, no nível comum às duas fontes: natureza da receita em 8 dígitos (Betha `17135011000000` ↔ TCE `1.7.1.3.50.1.1`).
-- No exercício corrente o TCE-SC está atrasado: a conferência corta no último mês de receita e na última data de empenho que o TCE já tem (`parcial: true`). Isso é pendência, não divergência.
-- Empenhos casam 1:1 por entidade, número, data e valor original. Entre repetidos na Betha, o que tem execução e id maior é o válido; as cópias antigas da 57140 ficam "só na Betha" e a API as tira das somas.
-- Diferença entre fontes é informação, nunca rotulada como irregularidade; as notas dizem "provável"/"possível".
 
 ## Testes
 

@@ -25,13 +25,14 @@ Dashboard público, rastreável, com dados de receitas e despesas do município 
 
 Leia o hub da área antes de abrir fonte. O driver do `/testar` indica qual (`leia antes:`).
 
-| Área                | Arquivo                                           | Cobre                                                                  |
-| ------------------- | ------------------------------------------------- | ---------------------------------------------------------------------- |
-| Banco e conferência | [`db.md`](docs/context/db.md)                     | tabelas, publicação por ponteiro, regras da conferência Betha × TCE-SC |
-| Coletores           | [`importadores.md`](docs/context/importadores.md) | clientes Betha e Qlik, validação das coletas, `gravarColeta`           |
-| Contratos           | [`contracts.md`](docs/context/contracts.md)       | dinheiro, exercício, rubrica e schemas das respostas                   |
-| API                 | [`api.md`](docs/context/api.md)                   | rotas, parâmetros, CSV                                                 |
-| Dashboard           | [`web.md`](docs/context/web.md)                   | páginas, componentes, formatação, selos                                |
+| Área        | Arquivo                                           | Cobre                                                        |
+| ----------- | ------------------------------------------------- | ------------------------------------------------------------ |
+| Banco       | [`db.md`](docs/context/db.md)                     | tabelas, migrações, publicação por ponteiro                  |
+| Conferência | [`conferencia.md`](docs/context/conferencia.md)   | regras da conferência Betha × TCE-SC                         |
+| Coletores   | [`importadores.md`](docs/context/importadores.md) | clientes Betha e Qlik, validação das coletas, `gravarColeta` |
+| Contratos   | [`contracts.md`](docs/context/contracts.md)       | dinheiro, exercício, rubrica e schemas das respostas         |
+| API         | [`api.md`](docs/context/api.md)                   | rotas, parâmetros, CSV                                       |
+| Dashboard   | [`web.md`](docs/context/web.md)                   | páginas, componentes, formatação, selos                      |
 
 ## Testes
 

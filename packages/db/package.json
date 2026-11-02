@@ -5,7 +5,7 @@
   "type": "module",
   "exports": {
     ".": "./src/index.ts",
-    "./conferencias": "./src/conferencias.js"
+    "./conferencias": "./src/conferencia/conferencia.service.ts"
   },
   "scripts": {
     "migrar": "tsx --env-file-if-exists=../../.env src/migrar.ts",
