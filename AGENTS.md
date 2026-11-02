@@ -1,0 +1,54 @@
+# AGENTS.md — Orleans em Dados
+
+Dashboard público, rastreável, com dados de receitas e despesas do município de Orleans/SC, coletados do Portal da Transparência Betha e conferidos contra o Farol TCE-SC. A especificação do produto e das fontes é `docs/ESPECIFICACAO_TECNICA.md`; a metodologia pública, `docs/METODOLOGIA.md`.
+
+## Stack
+
+- Node.js ≥ 22.9, pnpm (versão no `packageManager`), PostgreSQL 17 (`docker-compose.yml`, porta 5433).
+- Código em JavaScript (ESM). TypeScript 6 strict configurado em `tsconfig.base.json` para o código novo.
+- `backend`: `node:http` sem framework, SQL direto pelo `pg`.
+- `frontend`: React 19 + Vite 6, JSX, CSS próprio em `styles.css`.
+- Qualidade: Vitest 5 (`vitest.config.ts`, um projeto por workspace), ESLint flat (`eslint.config.js`), Prettier (`.prettierrc.json`, largura 120).
+
+## Layout do repositório
+
+- `db/` — conexão, migrações SQL e a conferência Betha × TCE-SC.
+- `collectors/` — coletores Betha e TCE-SC, gravação e publicação das coletas, CLIs.
+- `backend/src/` — API REST que lê só as coletas publicadas.
+- `frontend/src/` — dashboard.
+- `docs/` — especificação, metodologia, fontes, dicionário de dados; `docs/context/` (contexto para agentes), `docs/plans/` (planos), `docs/screens/` (mockups HTML).
+- `examples/` — snapshots fictícios no formato dos reais. `data/` — snapshots reais opcionais, fora do git.
+- `db/` e `collectors/` não têm `src/`: as fontes ficam na raiz do workspace.
+
+## Contexto por área (`docs/context/`)
+
+Leia o hub da área antes de abrir fonte. O driver do `/testar` indica qual (`leia antes:`).
+
+| Área | Arquivo | Cobre |
+| --- | --- | --- |
+| Banco e conferência | [`db.md`](docs/context/db.md) | tabelas, publicação por ponteiro, regras da conferência Betha × TCE-SC |
+| Coletores | [`collectors.md`](docs/context/collectors.md) | clientes Betha e Qlik, validação das coletas, `gravarColeta` |
+| API | [`backend.md`](docs/context/backend.md) | rotas, parâmetros, CSV |
+| Dashboard | [`frontend.md`](docs/context/frontend.md) | páginas, componentes, formatação, selos |
+
+## Testes
+
+- Specs em `<workspace>/test/` espelhando a raiz das fontes (`src/` no backend e no frontend, a raiz no db e nos collectors); integração em `<workspace>/test/integration/`.
+- `describe`/`it`/`expect` importados de `vitest` (sem globals); import relativo com extensão.
+- `pnpm test` roda tudo; `pnpm exec vitest run <spec>` isola um spec; `--project @orleans-em-dados/<workspace>` filtra pelo `name` do pacote.
+- Integração só em Postgres descartável (receita na skill `testar`), nunca no banco do `pnpm db:subir`.
+- Antes de fechar: `pnpm test && pnpm lint`. Todo teste nasce pelo `/testar`.
+
+## Comandos
+
+- `pnpm db:subir`, `pnpm db:migrar`, `pnpm db:exemplos`, `pnpm dev` (API em 3000, web em 5173).
+- `pnpm coletar --ano 2025 [--consulta receitas|empenhos|despesas] [--json]`, `pnpm coletar:tcesc --ano 2025`, `pnpm conferir --ano 2025`, `pnpm importar <arquivo.json>`.
+- Argumento vai direto depois do script: `pnpm coletar --ano 2025`. O pnpm repassa `--` literalmente e o `parseArgs` dos coletores trataria o resto como posicional.
+
+## Regras que valem para tudo
+
+- Dinheiro é `NUMERIC(18,2)` no banco e soma em centavos inteiros no JS; nunca somar `number` de ponto flutuante.
+- Rubrica e natureza são texto (zeros à esquerda).
+- Não somar visões diferentes da mesma execução (57140 × 57170, receita × despesa).
+- Diferença entre fontes nunca é rotulada como irregularidade.
+- Credor pessoa física: nada de dado real em fixture, log ou commit; `data/`, `.env`, `*.har` e planilhas ficam fora do git.
