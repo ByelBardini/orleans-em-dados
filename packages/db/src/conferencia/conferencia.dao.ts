@@ -4,6 +4,7 @@ import { pool } from '../index';
 import type {
   CamaraDaConferencia,
   ColetaDaConferencia,
+  CruzamentoReceita,
   DespesaPorEntidade,
   DivergenciaEmOutroAno,
   EmpenhoSemPar,
@@ -16,6 +17,8 @@ import type {
   ReceitaPorMes,
   ReceitaRepetida,
   ReceitaRepetidaMeses,
+  RubricaDaReceita,
+  TotaisDasFontes,
 } from './conferencia.bo';
 
 const consultar = async <T>(sql: string, params: unknown[]) => (await pool.query(sql, params)).rows as T[];
@@ -172,6 +175,30 @@ const CONSULTAS = {
      AND o.valor_arrecadado_mes = a.valor_arrecadado_mes AND left(o.rubrica, 8) = left(a.rubrica, 8)
     WHERE a.coleta_id = ${coleta('receitas')} AND a.valor_arrecadado_mes >= 1000 AND o.mes <= $2`,
 
+  // A separação da receita: entidade × natureza de 8 dígitos × mês, em todos os meses da Betha.
+  // A Câmara fica de fora: é fonte única, sem par para conferir.
+  receitaCruzamentos: `
+    WITH b AS (SELECT entidade_codigo ent, ${NAT_BETHA} nat, mes, min(descricao) descricao, sum(valor_arrecadado_mes) v
+               FROM receitas WHERE coleta_id = ${coleta('receitas')} GROUP BY 1, 2, 3),
+         t AS (SELECT u.entidade_betha ent, ${NAT_TCE} nat, mes, min(natureza) descricao, sum(valor_arrecadado) v
+               FROM tcesc_receitas r JOIN unidades_tce u ON u.nome = r.unidade
+               WHERE coleta_id = ${coleta('tcesc_receitas')} AND u.entidade_betha IS NOT NULL GROUP BY 1, 2, 3)
+    SELECT ent, coalesce(en.sigla, ent) AS entidade, nat AS natureza, coalesce(t.descricao, b.descricao) AS descricao,
+           mes, b.v AS betha, t.v AS tce
+    FROM b FULL JOIN t USING (ent, nat, mes) LEFT JOIN entidades en ON en.codigo_betha = ent
+    ORDER BY ent, nat, mes`,
+
+  // As rubricas de 14 dígitos da Betha até o corte, para a natureza em que todos os meses batem.
+  receitaRubricas: `
+    SELECT entidade_codigo ent, rubrica, min(descricao) descricao, sum(valor_arrecadado_mes) valor
+    FROM receitas WHERE coleta_id = ${coleta('receitas')} AND ${MES_BETHA} GROUP BY 1, 2`,
+
+  // O total de cada fonte, somado à parte: é com ele que a conta da separação é conferida.
+  receitaTotais: `
+    SELECT (SELECT sum(valor_arrecadado_mes) FROM receitas WHERE coleta_id = ${coleta('receitas')}) AS "totalBetha",
+           (SELECT sum(valor_arrecadado) FROM tcesc_receitas r JOIN unidades_tce u ON u.nome = r.unidade
+            WHERE coleta_id = ${coleta('tcesc_receitas')} AND u.entidade_betha IS NOT NULL) AS "totalTce"`,
+
   // Câmara: só existe no TCE.
   camara: `
     SELECT count(*)::int AS empenhos, sum(valor_empenhado) AS empenhado, sum(valor_liquidado) AS liquidado,
@@ -236,6 +263,29 @@ export async function lerDados(ano: number, mes: number | null, dataLimite: stri
     semPar,
     camara,
   };
+}
+
+export async function lerReceitaConferida(ano: number, mes: number | null) {
+  const [cruzamentos, rubricas, [totais], repetidas, incoerentes, repetidasMeses] = await Promise.all([
+    consultar<CruzamentoReceita>(CONSULTAS.receitaCruzamentos, [ano]),
+    consultar<RubricaDaReceita>(CONSULTAS.receitaRubricas, [ano, mes]),
+    consultar<TotaisDasFontes>(CONSULTAS.receitaTotais, [ano]),
+    consultar<ReceitaRepetida>(CONSULTAS.receitaRepetida, [ano, mes]),
+    consultar<ReceitaIncoerente>(CONSULTAS.receitaIncoerente, [ano, mes]),
+    consultar<ReceitaRepetidaMeses>(CONSULTAS.receitaRepetidaMeses, [ano, mes]),
+  ]);
+  if (!totais) throw new Error(`Consulta de totais da receita sem linha para ${ano}`);
+  return { cruzamentos, rubricas, totais, pistas: { repetidas, incoerentes, repetidasMeses } };
+}
+
+// A publicação de exemplo nunca é conferida, mas continua dita como exemplo.
+export async function temColetaDeExemplo(ano: number) {
+  const [linha] = await consultar<{ exemplo: boolean }>(
+    `SELECT EXISTS (SELECT 1 FROM publicacoes p JOIN coletas c ON c.id = p.coleta_id
+                    WHERE p.ano = $1 AND c.status = 'exemplo') AS exemplo`,
+    [ano],
+  );
+  return linha?.exemplo ?? false;
 }
 
 // Exercícios em que as duas fontes de receita estão publicadas, com o último mês recebido pelo TCE.

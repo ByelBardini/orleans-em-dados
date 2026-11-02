@@ -171,7 +171,7 @@ export function anotarNaturezas(
         for (const i of incoerencias) porMes.set(i.mes, (porMes.get(i.mes) ?? 0) + centavos(i.excesso));
         const meses = [...porMes].map(([m, v]) => `${MESES[m - 1]} (${fmt(v / 100)})`).join(', ');
         const resto = centavos(r.diferenca) - centavos(excesso);
-        nota = `Na própria Betha, o arrecadado no mês não fecha com o acumulado da rubrica em ${meses}: lançamento que a consulta mantém e o acumulado desconsidera. `;
+        nota = `Na própria Betha, o arrecadado no mês não fecha com o acumulado da rubrica em ${meses}: é onde a conta desencontra. A linha que o acumulado provavelmente desconsidera pode ser de outro mês. `;
         nota += resto === 0 ? 'Explica toda a diferença.' : `Explica ${fmt(excesso)}; restam ${fmt(resto / 100)}.`;
         // Explicação parcial deixa um resto sem causa: a rubrica continua em aberto.
         if (resto === 0) causa = 'Lançamento fora do acumulado';
@@ -485,5 +485,259 @@ export function separarReceita(
       return { ...c, ...partes, tipo: temDiferenca(partes) ? (tipos.get(chaveNatureza(c)) ?? null) : null };
     }),
     aguardando: cruzamentos.filter(aguarda).map((c) => ({ ...c, mes: c.mes as number, valor: c.betha ?? 0 })),
+  };
+}
+
+// --- A receita conferida: as agregações e as discrepâncias que saem da separação. ---
+
+export type Discrepancia = {
+  area: 'receita' | 'despesa';
+  tipo: TipoDiscrepancia;
+  entidade: string;
+  codigoEntidade: string | null;
+  natureza?: string;
+  descricao?: string | null;
+  /** Mês em que as fontes diferem, quando é um só. O mês do desencontro do acumulado fica só na nota. */
+  mes?: number;
+  meses?: { mes: number | null; betha: number | null; tce: number | null; diferenca: number }[];
+  betha: number | null;
+  tce: number | null;
+  /** Betha − TCE. Em `mes_diferente` é zero: a conta com o total usa `diferencaBetha` e `diferencaTce`. */
+  diferenca: number;
+  diferencaBetha?: number;
+  diferencaTce?: number;
+  nota: string;
+};
+
+export type RubricaDaReceita = { ent: string; rubrica: string; descricao: string | null; valor: number };
+export type TotaisDasFontes = { totalBetha: number | null; totalTce: number | null };
+
+export type LinhaNaturezaConferida = {
+  codigoEntidade: string;
+  entidade: string;
+  /** 14 dígitos quando todos os meses batem; 8 quando algum mês diverge. */
+  natureza: string;
+  nivel: 8 | 14;
+  descricao: string | null;
+  betha: number | null;
+  tce: number | null;
+  conferido: number;
+  diferencaBetha: number;
+  diferencaTce: number;
+  tipo: TipoDiscrepancia | null;
+};
+
+type LinhaSeparada = ReturnType<typeof separarReceita>['linhas'][number];
+type LinhaAguardando = ReturnType<typeof separarReceita>['aguardando'][number];
+
+const somaDasPartes = (linhas: readonly LinhaSeparada[]) => ({
+  conferido: somaEmCentavos(linhas, (l) => l.conferido),
+  diferencaBetha: somaEmCentavos(linhas, (l) => l.diferencaBetha),
+  diferencaTce: somaEmCentavos(linhas, (l) => l.diferencaTce),
+});
+
+const somaDaFonte = (linhas: readonly CruzamentoReceita[], fonte: 'betha' | 'tce') =>
+  linhas.some((l) => l[fonte] !== null) ? somaEmCentavos(linhas, (l) => l[fonte] ?? 0) : null;
+
+const aguardandoEm = (aguardando: readonly LinhaAguardando[], filtro: (l: LinhaAguardando) => boolean) =>
+  somaEmCentavos(aguardando.filter(filtro), (l) => l.valor);
+
+const porConferido = <T extends { conferido: number }>(a: T, b: T) => b.conferido - a.conferido;
+
+/** O formato misto: 14 dígitos quando todos os meses da natureza batem (o TCE só desce a 8);
+ *  com qualquer mês divergente, uma linha de 8 dígitos, sem inventar rateio entre as rubricas. */
+function naturezasMistas(
+  linhas: readonly LinhaSeparada[],
+  rubricas: readonly RubricaDaReceita[],
+): LinhaNaturezaConferida[] {
+  return [...agrupar(linhas, chaveNatureza).values()]
+    .flatMap((grupo): LinhaNaturezaConferida[] => {
+      const [primeira] = grupo;
+      if (!primeira) return [];
+      const base = { codigoEntidade: primeira.ent, entidade: primeira.entidade };
+      if (grupo.some(temDiferenca)) {
+        const tipo = grupo.find((l) => l.tipo)?.tipo ?? null;
+        return [
+          {
+            ...base,
+            natureza: primeira.natureza,
+            nivel: 8,
+            descricao: primeira.descricao,
+            betha: somaDaFonte(grupo, 'betha'),
+            tce: somaDaFonte(grupo, 'tce'),
+            ...somaDasPartes(grupo),
+            tipo,
+          },
+        ];
+      }
+      return rubricas
+        .filter((r) => r.ent === primeira.ent && r.rubrica.startsWith(primeira.natureza) && r.valor !== 0)
+        .map((r) => ({
+          ...base,
+          natureza: r.rubrica,
+          nivel: 14,
+          descricao: r.descricao,
+          betha: r.valor,
+          tce: null,
+          conferido: r.valor,
+          diferencaBetha: 0,
+          diferencaTce: 0,
+          tipo: null,
+        }));
+    })
+    .sort(porConferido);
+}
+
+function discrepanciasDaReceita(
+  linhas: readonly LinhaSeparada[],
+  aguardando: readonly LinhaAguardando[],
+  pistas: PistasDaReceita,
+  outrosAnos: DivergenciasEmOutrosAnos,
+  ano: number,
+): Discrepancia[] {
+  const parcelas: ParcelaDoMes[] = linhas.flatMap((l) =>
+    l.mes !== null && temDiferenca(l)
+      ? [
+          {
+            mes: l.mes,
+            ent: l.ent,
+            entidade: l.entidade,
+            natureza: l.natureza,
+            diferenca: somaEmCentavos([l], (x) => x.diferencaBetha - x.diferencaTce),
+          },
+        ]
+      : [],
+  );
+  const grupos = [...agrupar(linhas, chaveNatureza).values()];
+  const notas = new Map(
+    completarRubricas(
+      anotarNaturezas(grupos.map(naturezaDoAno), pistas.repetidas, pistas.incoerentes, pistas.repetidasMeses),
+      parcelas,
+      outrosAnos,
+      ano,
+    ).map((r) => [`${r.codigoEntidade}|${r.natureza}`, r.nota]),
+  );
+
+  const daNatureza = grupos.flatMap((grupo): Discrepancia[] => {
+    const divergentes = grupo.filter(temDiferenca);
+    const [primeira] = divergentes;
+    if (!primeira?.tipo) return [];
+    const { betha, tce, diferenca, descricao } = naturezaDoAno(grupo);
+    const { diferencaBetha, diferencaTce } = somaDasPartes(grupo);
+    const mes = divergentes.length === 1 && primeira.mes !== null ? primeira.mes : undefined;
+    return [
+      {
+        area: 'receita',
+        tipo: primeira.tipo,
+        entidade: primeira.entidade,
+        codigoEntidade: primeira.ent,
+        natureza: primeira.natureza,
+        descricao,
+        ...(mes === undefined ? {} : { mes }),
+        meses: divergentes.map((l) => ({
+          mes: l.mes,
+          betha: l.betha,
+          tce: l.tce,
+          diferenca: somaEmCentavos([l], (x) => x.diferencaBetha - x.diferencaTce),
+        })),
+        betha,
+        tce,
+        diferenca,
+        diferencaBetha,
+        diferencaTce,
+        nota:
+          notas.get(chaveNatureza(primeira)) ??
+          'A soma do ano é igual nas duas fontes: o valor só está em meses diferentes.',
+      },
+    ];
+  });
+
+  const pendentes = [...agrupar(aguardando, (l) => `${l.ent}|${l.mes}`).values()].flatMap((grupo): Discrepancia[] => {
+    const [primeira] = grupo;
+    const valor = somaEmCentavos(grupo, (l) => l.valor);
+    if (!primeira || valor === 0) return [];
+    return [
+      {
+        area: 'receita',
+        tipo: 'aguardando_tce',
+        entidade: primeira.entidade,
+        codigoEntidade: primeira.ent,
+        mes: primeira.mes,
+        betha: valor,
+        tce: null,
+        diferenca: valor,
+        nota: `O TCE-SC ainda não recebeu ${MESES[primeira.mes - 1]}: o valor da Betha fica fora do conferido até a remessa chegar.`,
+      },
+    ];
+  });
+
+  return [...daNatureza, ...pendentes.sort((a, b) => (a.mes ?? 0) - (b.mes ?? 0) || (b.betha ?? 0) - (a.betha ?? 0))];
+}
+
+export type DadosDaReceitaConferida = {
+  cruzamentos: readonly CruzamentoReceita[];
+  rubricas: readonly RubricaDaReceita[];
+  totais: TotaisDasFontes;
+  pistas: PistasDaReceita;
+  outrosAnos: DivergenciasEmOutrosAnos;
+};
+
+export function montarReceitaConferida(ano: number, mesLimite: number | null, dados: DadosDaReceitaConferida) {
+  const { cruzamentos, rubricas, totais, pistas, outrosAnos } = dados;
+  const { linhas, aguardando } = separarReceita(cruzamentos, pistas, mesLimite);
+
+  const meses = [...new Set([...linhas, ...aguardando].map((l) => l.mes))].sort((a, b) => (a ?? 13) - (b ?? 13));
+  const entidades = agrupar<CruzamentoReceita>([...linhas, ...aguardando], (l) => l.ent);
+  const origens = [...new Set([...linhas, ...aguardando].map((l) => l.natureza.slice(0, 2)))];
+
+  const porMes = meses.map((mes) => {
+    const doMes = linhas.filter((l) => l.mes === mes);
+    const aguardandoDoMes = aguardando.filter((l) => l.mes === mes);
+    return {
+      mes,
+      betha: somaDaFonte([...doMes, ...aguardandoDoMes], 'betha'),
+      tce: somaDaFonte(doMes, 'tce'),
+      ...somaDasPartes(doMes),
+      aguardandoTce: somaEmCentavos(aguardandoDoMes, (l) => l.valor),
+    };
+  });
+  const porEntidade = [...entidades.values()]
+    .flatMap((grupo) => {
+      const [primeira] = grupo;
+      if (!primeira) return [];
+      return [
+        {
+          codigoEntidade: primeira.ent,
+          entidade: primeira.entidade,
+          ...somaDasPartes(linhas.filter((l) => l.ent === primeira.ent)),
+          aguardandoTce: aguardandoEm(aguardando, (l) => l.ent === primeira.ent),
+          totalBetha: somaEmCentavos(grupo, (l) => l.betha ?? 0),
+          totalTce: somaEmCentavos(grupo, (l) => l.tce ?? 0),
+        },
+      ];
+    })
+    .sort(porConferido);
+  const porOrigem = origens
+    .map((origem) => ({
+      origem,
+      ...somaDasPartes(linhas.filter((l) => l.natureza.startsWith(origem))),
+      aguardandoTce: aguardandoEm(aguardando, (l) => l.natureza.startsWith(origem)),
+    }))
+    .sort(porConferido);
+
+  return {
+    receita: {
+      porMes,
+      porEntidade,
+      porOrigem,
+      naturezas: naturezasMistas(linhas, rubricas),
+      totais: {
+        ...somaDasPartes(linhas),
+        aguardandoTce: somaEmCentavos(aguardando, (l) => l.valor),
+        totalBetha: totais.totalBetha ?? 0,
+        totalTce: totais.totalTce ?? 0,
+      },
+    },
+    discrepancias: discrepanciasDaReceita(linhas, aguardando, pistas, outrosAnos, ano),
   };
 }
