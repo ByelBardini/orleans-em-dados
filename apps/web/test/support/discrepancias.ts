@@ -28,6 +28,7 @@ export const caso = (campos: Partial<Item> = {}): Item => ({
   diferencaDaNatureza: null,
   etapas: null,
   valor: 300,
+  compensacao: null,
   nota: 'Nota do caso (exemplo).',
   ...campos,
 });
