@@ -256,7 +256,7 @@ function SignificadoDasSituacoes() {
         {SITUACOES_DO_CASO.map(({ situacao, explicacao }) => (
           <div key={situacao}>
             <dt>
-              <Selo compacto selo={seloDaSituacao(situacao)} />
+              <Selo compacto comTexto selo={seloDaSituacao(situacao)} />
             </dt>
             <dd>{explicacao}</dd>
           </div>
@@ -432,7 +432,7 @@ function Caso({ item }: { item: Item }) {
         <DiferencaDoCaso item={item} />
       </td>
       <td data-rotulo="Situação">
-        <Selo compacto selo={seloDaSituacao(item.situacao, item.data)} />
+        <Selo compacto comTexto selo={seloDaSituacao(item.situacao, item.data)} />
       </td>
     </tr>
   );
