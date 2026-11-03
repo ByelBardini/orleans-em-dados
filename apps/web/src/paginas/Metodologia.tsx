@@ -11,8 +11,9 @@ export default function Metodologia() {
         </h1>
         <div className="abertura-lado">
           <p className="capitular">
-            Os dados vêm do Portal da Transparência de Orleans e do Farol do TCE-SC. O número principal do painel é só a
-            parte em que as duas fontes coincidem. O que difere fica listado na seção Discrepâncias.
+            As finanças vêm do Portal da Transparência de Orleans e do Farol do TCE-SC. O número principal do painel é
+            só a parte em que as duas fontes coincidem, e o que difere fica listado na seção Discrepâncias. A despesa
+            por função vem do SICONFI, e o retrato da cidade, do IBGE.
           </p>
         </div>
       </div>
@@ -28,27 +29,81 @@ export default function Metodologia() {
             consulta as fontes a cada acesso.
           </p>
           <p>
-            Os valores por morador usam a população do IBGE (Censo 2022 e estimativas anuais). Os textos em linguagem
-            simples, como “repasses da União e do Estado”, agrupam os códigos oficiais de receita pelos dois primeiros
-            dígitos.
+            Os valores por morador usam a população do IBGE (censos e estimativas anuais): o número do próprio ano, ou o
+            anterior mais próximo quando o IBGE não estimou aquele ano. Em cada valor, o texto diz qual divisor foi
+            usado. Os textos em linguagem simples, como “repasses da União e do Estado”, agrupam os códigos oficiais de
+            receita pelos dois primeiros dígitos.
+          </p>
+
+          <h2>IBGE e SICONFI</h2>
+          <p>
+            O IBGE cobre população, território, situação do domicílio, pirâmide etária, rendimento e PIB. Não há outra
+            fonte para comparar: cada número leva fonte única, sem conferência, com o próprio ano. Na coleta, as partes
+            de cada tabela são conferidas com o total da própria tabela.
+          </p>
+          <p>
+            Em Conheça Orleans, os cartões trazem Santa Catarina e Brasil ao lado de Orleans, nas mesmas tabelas do IBGE
+            e no mesmo ano. O número do estado e o do país valem para todos os moradores juntos: não são a média simples
+            dos municípios. Cada número diz quanto está acima ou abaixo, em pontos quando já é percentual. Verde e
+            vermelho só aparecem no dinheiro, onde mais é melhor.
+          </p>
+          <p>
+            O SICONFI cobre a despesa por função, pela DCA, Anexo I-E, que o município entrega ao Tesouro Nacional. A
+            DCA só existe depois do exercício encerrado, e o prazo de entrega é 30 de abril do ano seguinte.
+          </p>
+          <p>
+            O total da despesa por função é comparado com o TCE-SC, nas três etapas. Quando fecha, leva “conferido com o
+            TCE-SC”; num ano sem coleta do Tribunal, leva fonte única; com diferença, o valor de cada fonte vai para{' '}
+            <a href="#discrepancias">Discrepâncias</a>. Cada função leva fonte única, sem conferência, porque o TCE-SC
+            coletado não tem esse recorte, e função não é entidade: igualdade do total não confere cada função.
+          </p>
+          <p>
+            A função Legislativa é a Câmara: fica à parte, fora do total e da participação das outras funções, como na
+            aba Despesas.
+          </p>
+          <p>
+            O PIB per capita é calculado aqui, com o PIB e a população do IBGE. Em 2023, divide pelo Censo 2022, porque
+            o IBGE não estimou aquele ano, e o resultado de Orleans, R$ 59.547,10, é o mesmo que o IBGE publica.
+          </p>
+          <p>
+            Para o Brasil, a mesma conta dá R$ 53.886,67. As Contas Nacionais do IBGE publicam R$ 51.693,92 para o mesmo
+            ano: o PIB é igual, e a população é outra, 211,7 milhões em vez dos 203,1 milhões do Censo. O painel compara
+            com o primeiro, porque Orleans também divide pelo Censo.
+          </p>
+          <p>
+            PIB per capita não é a renda do morador: divide pela população tudo o que é produzido na cidade, e pode
+            refletir uma atividade concentrada. Por isso o rendimento domiciliar do Censo aparece ao lado. A despesa por
+            função está em valores nominais, sem correção pela inflação: a comparação entre anos usa a participação de
+            cada função no total. Gastar mais numa área não prova serviço melhor, e a função Educação não é o índice
+            constitucional de educação.
           </p>
 
           <h2>O que aparece no painel</h2>
           <p>
             O número principal é o conferido: a parte que as fontes sustentam. Por isso, ele pode ficar abaixo de cada
-            uma delas, e a página sempre mostra a conta: conferido + em discrepância = total da fonte. Cada número diz o
-            nível da conferência:
+            uma delas, e a página sempre mostra a conta: conferido + em discrepância = total da fonte. Nas páginas de
+            cada área, o símbolo ao lado de cada número diz o nível da conferência. Passe o mouse ou toque nele para ler
+            o texto:
           </p>
           <ul>
             <li>
+              <span className="selo-icone" aria-hidden="true">
+                ✓
+              </span>{' '}
               <strong>conferido com o TCE-SC</strong>: o valor que as duas fontes registram, ao centavo, por entidade,
               natureza e mês na receita, por entidade na despesa, e empenho a empenho na lista.
             </li>
             <li>
+              <span className="selo-icone" aria-hidden="true">
+                ✓
+              </span>{' '}
               <strong>conferido com a Betha até DD/MM</strong>: no ano em curso, a despesa vem do TCE-SC, só nos
               empenhos que têm par na Betha até a data do último dado que o Tribunal recebeu.
             </li>
             <li>
+              <span className="selo-icone" aria-hidden="true">
+                –
+              </span>{' '}
               <strong>fonte única, sem conferência</strong>: Orçamento, órgão e Câmara vêm de uma fonte só. O valor
               aparece com este rótulo, porque não há com o que comparar.
             </li>

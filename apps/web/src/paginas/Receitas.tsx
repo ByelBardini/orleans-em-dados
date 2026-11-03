@@ -2,11 +2,12 @@ import { receitasSchema, type Receitas as DadosDeReceitas } from '@orleans-em-da
 import { useMemo, useState } from 'react';
 import { useApi } from '../api';
 import { BarraDividida, Estado, Filtros, Fonte, LinhaAcumulada, ListaPontos, Mi, Numero, Numeros } from '../components';
-import { AvisoDaReceitaAguardando, ateOMes, ContaDaReceita, LINK_DISCREPANCIAS, SemConferencia } from '../conferido';
+import { ateOMes, ContaDaReceita, LINK_DISCREPANCIAS, SecaoDaConta, SemConferencia } from '../conferido';
 import { emMilhoes, MESES, MESES_LONGOS, milhoes, moeda, numero, pct, porExtenso } from '../format';
 import { AvisoDeAtraso, Selo } from '../selo';
 import { SELO_EXEMPLO, SELO_FONTE_UNICA, seloConferidoComTce } from '../selos';
-import { ORIGEM_CIDADAO, ORIGENS_DE_FORA, populacao, sujeito } from '../referencias';
+import { ORIGEM_CIDADAO, ORIGENS_DE_FORA, sujeito } from '../referencias';
+import { usePopulacao } from '../usePopulacao';
 import type { PropsDaPagina } from './props';
 
 const N = Number;
@@ -49,7 +50,7 @@ export default function Receitas({ ano, entidade, filtros }: PropsDaPagina) {
 function Conteudo({ ano, entidade, filtros, dados }: PropsDaPagina & { dados: DadosDeReceitas }) {
   const [busca, setBusca] = useState('');
   const [todas, setTodas] = useState(false);
-  const pop = populacao(ano);
+  const pop = usePopulacao(ano);
   const arrecadado = N(dados.totais.arrecadadoNoMes);
   const previsto = N(dados.totais.orcadoAtualizado);
   const deducoes = N(dados.totais.orcadoDeducoes ?? 0);
@@ -147,6 +148,7 @@ function Conteudo({ ano, entidade, filtros, dados }: PropsDaPagina & { dados: Da
     (r) => (r.rubrica.startsWith('11') || r.rubrica.startsWith('12')) && r.arrecadado > 0,
   );
   const totalImpostos = impostos.reduce((s, r) => s + r.arrecadado, 0);
+  const repasses = rubricas.filter((r) => ORIGENS_DE_FORA.has(r.rubrica.slice(0, 2)) && r.arrecadado > 0).slice(0, 6);
 
   return (
     <>
@@ -207,11 +209,7 @@ function Conteudo({ ano, entidade, filtros, dados }: PropsDaPagina & { dados: Da
               {exemplo ? (
                 <Selo selo={SELO_EXEMPLO} />
               ) : (
-                <>
-                  <Selo semLink selo={seloConferidoComTce(parcial ? mesReceita : null)} />
-                  <ContaDaReceita conferencia={dados.conferencia} />
-                  <AvisoDaReceitaAguardando valor={dados.conferencia.aguardandoTce} mes={mesReceita} />
-                </>
+                <Selo semLink selo={seloConferidoComTce(parcial ? mesReceita : null)} />
               )}
               <AvisoDeAtraso indicador="receita-arrecadada" ano={ano} />
             </>
@@ -235,15 +233,21 @@ function Conteudo({ ano, entidade, filtros, dados }: PropsDaPagina & { dados: Da
           >
             <Mi valor={deducoes} />
           </Numero>
-        ) : (
+        ) : pop ? (
           <Numero
             rotulo={`Por morador${ate ? ` ${ate}` : ''}`}
             detalhe={`arrecadado conferido ÷ ${numero(pop.pessoas)} moradores (${pop.fonte})`}
           >
             R$ {numero(Math.round(arrecadado / pop.pessoas))}
           </Numero>
-        )}
+        ) : null}
       </Numeros>
+
+      {!exemplo && (
+        <SecaoDaConta titulo="Como se chega ao arrecadado">
+          <ContaDaReceita explicada conferencia={dados.conferencia} />
+        </SecaoDaConta>
+      )}
 
       {acumulado.length > 0 && (
         <section className="secao solta">
@@ -337,20 +341,36 @@ function Conteudo({ ano, entidade, filtros, dados }: PropsDaPagina & { dados: Da
             })}{' '}
             vieram de repasses.
           </p>
+          {repasses.length > 0 && (
+            <div className="maiores-repasses">
+              <h3 className="legenda-secao">Os maiores repasses</h3>
+              <ListaPontos
+                comUnidade
+                vermelho
+                itens={repasses.map((r) => ({
+                  chave: r.rubrica,
+                  nome: r.descricao,
+                  valor: r.arrecadado,
+                }))}
+              />
+            </div>
+          )}
         </section>
 
         {impostos.length > 0 && (
           <section className="secao estreita">
             <h2 className="secao-titulo">Impostos da cidade</h2>
             <p className="legenda-secao">
-              {emMilhoes(totalImpostos)} · R$ {numero(Math.round(totalImpostos / pop.pessoas))} por morador
+              {emMilhoes(totalImpostos)}
+              {pop && ` · R$ ${numero(Math.round(totalImpostos / pop.pessoas))} por morador`}
             </p>
             <ListaPontos
+              comUnidade
               itens={impostos.slice(0, 7).map((r) => ({
                 chave: r.rubrica,
                 nome: nomeTributo(r),
                 valor: r.arrecadado,
-                extra: `R$ ${numero(Math.round(r.arrecadado / pop.pessoas))} por morador`,
+                extra: pop ? `R$ ${numero(Math.round(r.arrecadado / pop.pessoas))} por morador` : undefined,
                 dica: r.descricao,
               }))}
             />

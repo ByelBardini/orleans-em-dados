@@ -15,6 +15,7 @@ export type Indicador = {
 };
 
 const RODADA_DIARIA: Periodicidade = { exercicioCorrente: 'diaria', exercicioAnterior: 'mensal' };
+const RODADA_MENSAL: Periodicidade = { exercicioCorrente: 'mensal', exercicioAnterior: 'mensal' };
 
 export const INDICADORES: Indicador[] = [
   {
@@ -66,6 +67,55 @@ export const INDICADORES: Indicador[] = [
     // A Câmara não está no portal Betha da Prefeitura.
     conferidoContra: null,
     periodicidade: RODADA_DIARIA,
+  },
+  {
+    id: 'populacao',
+    nome: 'População: estimativas e censos',
+    importador: 'ibge',
+    consultaId: 900101,
+    conferidoContra: null,
+    periodicidade: RODADA_MENSAL,
+  },
+  {
+    id: 'censo',
+    nome: 'Censo 2022: território, situação do domicílio, pirâmide etária e rendimento',
+    importador: 'ibge',
+    consultaId: 900102,
+    conferidoContra: null,
+    periodicidade: RODADA_MENSAL,
+  },
+  {
+    id: 'pib',
+    nome: 'PIB e composição do valor adicionado',
+    importador: 'ibge',
+    consultaId: 900103,
+    conferidoContra: null,
+    periodicidade: RODADA_MENSAL,
+  },
+  {
+    id: 'comparacao',
+    nome: 'Brasil e Santa Catarina: população, Censo 2022 e PIB, para a comparação com Orleans',
+    importador: 'ibge',
+    consultaId: 900104,
+    conferidoContra: null,
+    periodicidade: RODADA_MENSAL,
+  },
+  {
+    id: 'despesa-por-funcao-total',
+    nome: 'Total da despesa por função, sem a Câmara, e função Legislativa',
+    importador: 'siconfi',
+    consultaId: 900201,
+    conferidoContra: 900002,
+    periodicidade: RODADA_MENSAL,
+  },
+  {
+    id: 'despesa-por-funcao-divisao',
+    nome: 'Divisão da despesa por função e subfunção',
+    importador: 'siconfi',
+    consultaId: 900201,
+    // O TCE-SC coletado não tem o recorte por função.
+    conferidoContra: null,
+    periodicidade: RODADA_MENSAL,
   },
 ];
 

@@ -26,7 +26,11 @@ Compara as coletas publicadas das duas fontes num exercício. A regra mora em `p
 - `montarReceitaConferida(ano, mesLimite, dados)` — agrega a separação em `porMes`, `porEntidade`, `porOrigem` (chave `origem`, os dois primeiros dígitos; o nome da origem é da API), `recortes` (`porMes` e `porOrigem` de cada entidade, que não dá para derivar do total), a tabela mista `naturezas` e os `totais`, e lista as `discrepancias`.
 - `separarReceita(cruzamentos, pistas, mesLimite)` — separa cada entidade × natureza de 8 dígitos × mês em conferido + diferença com `TipoDiscrepancia`, e devolve à parte os meses depois de `mesLimite`. `pistas.linhasRepetidas` vem da consulta linha a linha, e `pistas.repetidas` antiga (`>= 1000`, soma igual à diferença) fica só para as notas de `conferencia(ano)`.
 
+- `compararFuncoes(ano, dca, tce)` — compara em centavos o total da DCA sem a Legislativa com as UGs sem a Câmara, e a Legislativa com a Câmara, por etapa. Exposta por `conferirFuncoes(ano)` (`conferencia.service.ts`), que devolve `{ estado: 'sem_dca' | 'sem_tce' }` ou `{ estado: 'conferido' | 'diferenca', total, legislativa }`, cada comparação com o próprio `estado` e `etapas[]` (`dca`, `tce`, `diferenca`, `maior`).
+
 ## Regras de negócio
+
+- Despesa por função: `conferirFuncoes` alimenta `/api/funcoes` e a área `funcao` de `/api/discrepancias`. Igualdade do total não confere cada função, porque função não é entidade (Saneamento 2024 difere do SAMAE no TCE-SC). Só o total e a Legislativa têm par. Cada outra função é fonte única. A Câmara é a unidade do Legislativo em `unidades_tce` (UG `1864`). Coleta de exemplo do TCE-SC não confere nada.
 
 - Compara só conceitos iguais, no nível comum às duas fontes: natureza da receita em 8 dígitos (Betha `17135011000000` ↔ TCE `1.7.1.3.50.1.1`).
 - Sem as cinco coletas publicadas (status diferente de `exemplo`), devolve `{ disponivel: false, faltando }`.
@@ -74,7 +78,7 @@ Compara as coletas publicadas das duas fontes num exercício. A regra mora em `p
 
 ## Testes
 
-- Unit em `packages/db/test/conferencia/conferencia.bo.spec.ts` e `conferencias-manuais.spec.ts`; integração em `packages/db/test/integration/conferencia.spec.ts`, sobre as fixtures de `popularBancoDeTeste()`. `popularCenario({ receitas, despesas, ... })` troca só os lotes que o cenário informa.
+- Unit em `packages/db/test/conferencia/conferencia.bo.spec.ts`, `conferencias-manuais.spec.ts` e `funcoes.spec.ts`; integração em `packages/db/test/integration/conferencia.spec.ts` e `conferencia-funcoes.spec.ts`, sobre as fixtures de `popularBancoDeTeste()`. `popularCenario({ receitas, despesas, ... })` troca só os lotes que o cenário informa.
 
 ## Armadilhas
 

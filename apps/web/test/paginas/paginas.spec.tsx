@@ -2,9 +2,9 @@ import { render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import Despesas from '../../src/paginas/Despesas';
+import Financas from '../../src/paginas/Financas';
 import Metodologia from '../../src/paginas/Metodologia';
 import Receitas from '../../src/paginas/Receitas';
-import VisaoGeral from '../../src/paginas/VisaoGeral';
 import { FetchFake } from '../support/fetch-fake';
 import { ANO, conferenciaGravada, FILTROS, respostaGravada, ROTAS } from '../support/respostas';
 
@@ -54,12 +54,12 @@ beforeEach(() => {
 });
 afterEach(() => vi.unstubAllGlobals());
 
-describe('VisaoGeral', () => {
+describe('Financas', () => {
   it('enquanto carrega, avisa e não mostra número', () => {
     const fake = apiCompleta().instalar();
     fake.segurar = true;
 
-    render(<VisaoGeral {...props} />);
+    render(<Financas {...props} />);
 
     expect(screen.getByText('Carregando os números…')).toBeInTheDocument();
     expect(screen.queryByRole('heading', { level: 1 })).not.toBeInTheDocument();
@@ -68,7 +68,7 @@ describe('VisaoGeral', () => {
   it('a manchete diz quanto o município arrecadou e empenhou, pela despesa oficial', async () => {
     apiCompleta().instalar();
 
-    render(<VisaoGeral {...props} />);
+    render(<Financas {...props} />);
 
     const manchete = await screen.findByRole('heading', { level: 1 });
     // A fixture gravada é parcial: o TCE-SC vai até fevereiro.
@@ -81,7 +81,7 @@ describe('VisaoGeral', () => {
     const oficial = { ...DESPESAS, totais: { ...DESPESAS.totais, empenhado: 5_000_000 } };
     apiCompleta().responder(ROTAS.despesas, oficial).instalar();
 
-    render(<VisaoGeral {...props} />);
+    render(<Financas {...props} />);
 
     const totais = await screen.findByRole('region', { name: 'Totais do ano' });
     expect(within(totais).getByText('Empenhado até 05/02/2025').parentElement).toHaveTextContent('5,0 mi');
@@ -91,7 +91,7 @@ describe('VisaoGeral', () => {
   it('a Câmara aparece à parte, com a fonte TCE-SC', async () => {
     apiCompleta().instalar();
 
-    render(<VisaoGeral {...props} />);
+    render(<Financas {...props} />);
 
     expect(await screen.findByText(/A Câmara Municipal fica à parte/)).toHaveTextContent('dados do TCE-SC');
     expect(screen.getByText('Câmara Municipal de Orleans')).toBeInTheDocument();
@@ -100,7 +100,7 @@ describe('VisaoGeral', () => {
   it('ano sem coleta mostra o erro da API, sem manchete', async () => {
     apiCompleta().responder(ROTAS.receitas, SEM_DADOS, 404).instalar();
 
-    render(<VisaoGeral {...props} />);
+    render(<Financas {...props} />);
 
     expect(await screen.findByText('Não foi possível carregar: Sem dados de receitas para 2025')).toBeInTheDocument();
     expect(screen.queryByRole('heading', { level: 1 })).not.toBeInTheDocument();
@@ -111,7 +111,7 @@ describe('VisaoGeral', () => {
       .responder(ROTAS.receitas, { ...RECEITAS, totais: { arrecadadoNoMes: 'muito' } })
       .instalar();
 
-    render(<VisaoGeral {...props} />);
+    render(<Financas {...props} />);
 
     expect(await screen.findByText(/Resposta inesperada de \/api\/receitas/)).toBeInTheDocument();
   });
@@ -119,7 +119,7 @@ describe('VisaoGeral', () => {
   it('dado atrasado aparece ao lado do selo da conferência, não no lugar dele', async () => {
     apiCompleta().responder('/api/importacoes', IMPORTACOES_ATRASADAS).instalar();
 
-    render(<VisaoGeral {...props} ano={ANO_CORRENTE} />);
+    render(<Financas {...props} ano={ANO_CORRENTE} />);
 
     expect(await screen.findAllByText('Dado atrasado')).toHaveLength(2);
     expect(screen.getAllByRole('link', { name: 'Ver discrepâncias →' }).length).toBeGreaterThan(0);
@@ -128,7 +128,7 @@ describe('VisaoGeral', () => {
   it('cada conjunto de números mostra de onde veio', async () => {
     apiCompleta().instalar();
 
-    render(<VisaoGeral {...props} />);
+    render(<Financas {...props} />);
 
     await screen.findByRole('heading', { level: 1 });
     expect(screen.getAllByText(/Fonte: Portal da Transparência Betha/)).toHaveLength(3);
@@ -145,7 +145,7 @@ describe('VisaoGeral', () => {
       .responder(ROTAS.conferencia, CONFERENCIA)
       .instalar();
 
-    render(<VisaoGeral {...props} entidade="319" />);
+    render(<Financas {...props} entidade="319" />);
 
     expect(await screen.findByRole('heading', { level: 1 })).toHaveTextContent(
       'Até fevereiro de 2025, o Fundo Municipal de Saúde',

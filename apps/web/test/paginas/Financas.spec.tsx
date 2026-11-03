@@ -1,6 +1,6 @@
-import { render, screen, within } from '@testing-library/react';
+import { act, render, screen, within } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import VisaoGeral from '../../src/paginas/VisaoGeral';
+import Financas from '../../src/paginas/Financas';
 import {
   api,
   contaNaTela,
@@ -17,12 +17,13 @@ import {
   receitasSemConferencia,
   TEXTO_PROIBIDO,
 } from '../support/conferidos';
+import { municipioIndisponivel } from '../support/municipio';
 
 afterEach(() => vi.unstubAllGlobals());
 
 const abrir = async (respostas: Parameters<typeof api>[0] = {}) => {
   api(respostas);
-  const { container } = render(<VisaoGeral {...PROPS} />);
+  const { container } = render(<Financas {...PROPS} />);
   await screen.findByRole('heading', { level: 1 });
   return container;
 };
@@ -32,7 +33,7 @@ const parciais = { receita: receitasParciais(), despesa: despesasParciais() };
 const deExemplo = { receita: receitasDeExemplo(), despesa: despesasDeExemplo() };
 const semConferencia = { receita: receitasSemConferencia(), despesa: despesasSemConferencia() };
 
-describe('Visão geral com o conferido', () => {
+describe('Finanças com o conferido', () => {
   it('manchete e cartão falam do conferido, e não do total da fonte', async () => {
     await abrir();
 
@@ -52,12 +53,17 @@ describe('Visão geral com o conferido', () => {
     expect(screen.getByRole('heading', { level: 1 })).not.toHaveTextContent('9,9');
   });
 
-  it('a conta da receita e a da despesa fecham, cada uma no seu cartão', async () => {
+  it('a conta da receita e a da despesa fecham, abaixo dos cartões', async () => {
     await abrir();
 
-    const daReceita = within(celula('Arrecadado')).getByRole('group', { name: 'A conta do conferido' });
+    const secao = screen
+      .getByRole('heading', { name: 'Como se chega a estes números' })
+      .closest('section') as HTMLElement;
+    expect(secao).toHaveTextContent('Tribunal de Contas do Estado');
+    expect(within(totais()).queryByRole('group')).not.toBeInTheDocument();
+    const daReceita = within(secao).getByRole('group', { name: 'A conta da receita' });
     expect(contaNaTela(daReceita)).toEqual({ parcelas: [120000050, 870000030], total: 990000080 });
-    const daDespesa = within(celula('Empenhado')).getByRole('group', { name: 'A conta do conferido' });
+    const daDespesa = within(secao).getByRole('group', { name: 'A conta da despesa' });
     expect(contaNaTela(daDespesa)).toEqual({ parcelas: [1079165253, 12388732], total: 1091553985 });
     expect(within(daDespesa).getByRole('link', { name: 'Ver discrepâncias →' })).toHaveAttribute(
       'href',
@@ -77,9 +83,28 @@ describe('Visão geral com o conferido', () => {
     await abrir();
 
     // 500.000,25 de impostos ÷ 24.686 moradores; 1.200.000,50 ÷ 24.686.
+    await within(totais()).findByText('Arrecadado aqui, por morador');
     const morador = celula('Arrecadado aqui, por morador');
     expect(morador.querySelector('.numero-valor')).toHaveTextContent('R$ 20');
     expect(morador.querySelector('.numero-detalhe')).toHaveTextContent('Com os repasses, R$ 49');
+    expect(morador.querySelector('.numero-detalhe')).toHaveTextContent('24.686 moradores (IBGE, estimativa 2025)');
+  });
+
+  it('sem coleta do IBGE, a linha por morador some, sem erro na tela', async () => {
+    await abrir({ municipio: municipioIndisponivel() });
+    await act(() => new Promise((r) => setTimeout(r, 0)));
+
+    expect(within(totais()).queryByText('Arrecadado aqui, por morador')).not.toBeInTheDocument();
+    expect(document.body).not.toHaveTextContent('por morador');
+    expect(screen.queryByText(/Não foi possível carregar/)).not.toBeInTheDocument();
+  });
+
+  it('com a rota da população fora do ar, receita e despesa continuam', async () => {
+    await abrir({ municipio: null });
+    await act(() => new Promise((r) => setTimeout(r, 0)));
+
+    expect(celula('Arrecadado').querySelector('.numero-valor')).toHaveTextContent('1,2 mi');
+    expect(screen.queryByText(/Não foi possível carregar/)).not.toBeInTheDocument();
   });
 
   it('a Câmara fica à parte, com selo de fonte única e sem somar ao conferido', async () => {
@@ -91,6 +116,16 @@ describe('Visão geral com o conferido', () => {
     expect(screen.getByText(/A Câmara Municipal fica à parte/)).toBeInTheDocument();
     // 10,8 mi + 2,7 mi
     expect(screen.queryByText(/R\$ 13,5 milhões/)).not.toBeInTheDocument();
+  });
+
+  it.each([
+    ['Quem gasta', '10,8 mi'],
+    ['De onde vem', '0,5 mi'],
+  ])('a lista "%s" diz a unidade do valor, para não parecer percentual', async (titulo, valor) => {
+    await abrir();
+
+    const secao = screen.getByRole('heading', { name: titulo }).closest('section') as HTMLElement;
+    expect(secao.querySelector('.lp-valor')).toHaveTextContent(valor);
   });
 
   it('entidade fora da soma aparece sem número, com aviso e link', async () => {
@@ -140,10 +175,20 @@ describe('Visão geral com o conferido', () => {
       expect(screen.getByText(/já estava pago até 30\/09\./)).toBeInTheDocument();
     });
 
-    it('avisa o valor que aguarda o TCE-SC, em tom de pendência', async () => {
+    it('o que aguarda o TCE-SC entra na conta da receita, com o mês e como pendência', async () => {
       await abrir(parciais);
 
-      expect(screen.getByText('aguardando TCE').closest('.selo')).toHaveClass('pendente');
+      const conta = screen.getByRole('group', { name: 'A conta da receita' });
+      const parcela = within(conta).getByText('+ aguardando TCE').parentElement as HTMLElement;
+      expect(parcela).toHaveTextContent('Depois de setembro, ainda não chegou ao TCE-SC');
+      expect(parcela.textContent).not.toMatch(TEXTO_PROIBIDO);
+    });
+
+    it('a despesa em curso não tem conta, e a da receita continua', async () => {
+      await abrir(parciais);
+
+      expect(screen.getByRole('group', { name: 'A conta da receita' })).toBeInTheDocument();
+      expect(screen.queryByRole('group', { name: 'A conta da despesa' })).not.toBeInTheDocument();
     });
   });
 
@@ -160,14 +205,14 @@ describe('Visão geral com o conferido', () => {
 
     expect(celula('Arrecadado').querySelector('.numero-valor')).toHaveTextContent('1,2 mi');
     expect(screen.queryByText(/^conferido com/)).not.toBeInTheDocument();
-    expect(screen.queryByRole('group', { name: 'A conta do conferido' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('heading', { name: 'Como se chega a estes números' })).not.toBeInTheDocument();
     expect(screen.getAllByText('dados fictícios, sem conferência')).toHaveLength(2);
   });
 
   it('com a coleção de receitas em qualquer estado, nenhum texto proibido', async () => {
     for (const respostas of [{ receita: receitas() }, parciais, deExemplo, semConferencia]) {
       api(respostas);
-      const { container, unmount } = render(<VisaoGeral {...PROPS} />);
+      const { container, unmount } = render(<Financas {...PROPS} />);
       await screen.findByRole('heading', { level: 1 });
       expect(container.textContent).not.toMatch(TEXTO_PROIBIDO);
       unmount();

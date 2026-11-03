@@ -1,18 +1,28 @@
 import { describe, expect, it } from 'vitest';
-import { populacao, sujeito } from '../src/referencias';
+import { nomeDaFuncao, sujeito } from '../src/referencias';
 
-describe('populacao', () => {
-  it('ano com número usa o dele', () => {
-    expect(populacao(2025)).toEqual({ pessoas: 24686, fonte: 'IBGE, estimativa 2025' });
+describe('nomeDaFuncao', () => {
+  it('rótulo do dia a dia vem com o nome oficial à parte', () => {
+    expect(nomeDaFuncao('26', 'Transporte')).toEqual({ nome: 'Estradas e transporte', oficial: 'Transporte' });
   });
 
-  it('ano sem número usa o mais próximo anterior', () => {
-    expect(populacao(2024).pessoas).toBe(23661);
-    expect(populacao(2030).pessoas).toBe(24686);
+  it('função já em linguagem do dia a dia fica só com o nome oficial', () => {
+    expect(nomeDaFuncao('10', 'Saúde')).toEqual({ nome: 'Saúde', oficial: null });
   });
 
-  it('ano antes de qualquer número usa o mais antigo', () => {
-    expect(populacao(2010).pessoas).toBe(23661);
+  it('função sem rótulo próprio fica com o nome oficial', () => {
+    expect(nomeDaFuncao('99', 'Reserva de Contingência')).toEqual({ nome: 'Reserva de Contingência', oficial: null });
+  });
+
+  it('rótulo que só muda a caixa do oficial não repete o nome', () => {
+    expect(nomeDaFuncao('08', 'Assistência Social')).toEqual({ nome: 'Assistência Social', oficial: null });
+  });
+
+  it('código com zero à esquerda é respeitado', () => {
+    expect(nomeDaFuncao('04', 'Administração')).toEqual({
+      nome: 'Administração da prefeitura',
+      oficial: 'Administração',
+    });
   });
 });
 

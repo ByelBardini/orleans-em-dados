@@ -15,6 +15,7 @@ import {
   receitas as receitasPadrao,
   receitaTce,
   SAMAE_TCE,
+  siconfiFuncoes,
   snapshot,
 } from '../../../../packages/importadores/fixtures/src/snapshots';
 import { criarApp } from '../../src/app';
@@ -39,6 +40,8 @@ const CAMARA = '1864';
 // entidade fora da soma, registro sem par e cópia repetida.
 const encerrado = () =>
   popularCenario({
+    // Os totais do cenário não são os da DCA fictícia: a diferença dela tem cenário próprio.
+    siconfiFuncoes: [],
     receitas: snapshot(57153, [
       // Um centavo de lado a mais em dezembro: a natureza fica em 8 dígitos.
       receita('728:101', '11125001000000', 'IPTU (exemplo)', 1, 300000, 300000, 1000000),
@@ -709,5 +712,35 @@ describe('dados de exemplo', () => {
   it('/api/discrepancias não inventa caso nenhum', async () => {
     const { corpo } = await get('/api/discrepancias?ano=2025');
     expect(corpo).toMatchObject({ disponivel: false, grupos: [] });
+  });
+});
+
+describe('/api/discrepancias com a despesa por função', () => {
+  it('sem diferença entre a DCA e o TCE-SC, não há grupo da função', async () => {
+    await popularCenario();
+
+    const { corpo } = await get('/api/discrepancias?ano=2025');
+
+    expect(corpo.grupos.filter((g: Grupo) => g.area === 'funcao')).toEqual([]);
+  });
+
+  it('DCA acima do TCE-SC no pago vira grupo da função, e o schema aceita', async () => {
+    await popularCenario({
+      siconfiFuncoes: [
+        siconfiFuncoes({
+          contas: {
+            'Despesas Exceto Intraorçamentárias': ['220000.00', '145000.00', '120007.50'],
+            '15 - Urbanismo': ['127000.00', '67000.00', '47007.50'],
+          },
+        }),
+      ],
+    });
+
+    const { corpo } = await get('/api/discrepancias?ano=2025');
+
+    expect(discrepanciasSchema.safeParse(corpo).error?.issues).toBeUndefined();
+    const [grupo] = corpo.grupos.filter((g: Grupo) => g.area === 'funcao');
+    expect(grupo).toMatchObject({ tipo: 'funcao_pago', total: 7.5 });
+    expect(grupo.itens[0]).toMatchObject({ dca: 100007.5, tce: 100000, maior: 'dca' });
   });
 });

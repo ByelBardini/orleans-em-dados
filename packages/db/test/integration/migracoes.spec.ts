@@ -14,7 +14,8 @@ const AQUI = path.dirname(fileURLToPath(import.meta.url));
 const LEGADAS = path.resolve(AQUI, '../../migrations');
 const MIGRACOES = readMigrationFiles({ migrationsFolder: path.resolve(AQUI, '../../drizzle') }).length;
 // Tabelas que nasceram depois das migrações SQL originais.
-const NOVAS = "('execucoes')";
+const NOVAS = "('execucoes', 'ibge_valores', 'siconfi_funcoes')";
+const VIEWS_NOVAS = "('ibge_valores_publicados', 'siconfi_funcoes_publicadas')";
 
 async function comCliente<T>(url: string, fn: (c: pg.Client) => Promise<T>): Promise<T> {
   const cliente = await conectar(url);
@@ -42,6 +43,7 @@ async function montarLegado(url: string, arquivos = readdirSync(LEGADAS).sort())
 // O que o catálogo diz do esquema público: tabelas, colunas, restrições e índices.
 async function catalogo(url: string, opcoes: { views?: boolean; soOriginais?: boolean } = {}) {
   const fora = opcoes.soOriginais ? NOVAS : "('')";
+  const viewsFora = opcoes.soOriginais ? VIEWS_NOVAS : "('')";
   return comCliente(url, async (c) => {
     const colunas = await c.query(`
       SELECT table_name, column_name, data_type, numeric_precision, numeric_scale, is_nullable, column_default
@@ -60,7 +62,7 @@ async function catalogo(url: string, opcoes: { views?: boolean; soOriginais?: bo
       SELECT tablename, indexname, indexdef FROM pg_indexes
       WHERE schemaname = 'public' AND tablename <> 'migracoes' AND tablename NOT IN ${fora} ORDER BY 1, 2`);
     const views = await c.query(`
-      SELECT viewname FROM pg_views WHERE schemaname = 'public' ORDER BY 1`);
+      SELECT viewname FROM pg_views WHERE schemaname = 'public' AND viewname NOT IN ${viewsFora} ORDER BY 1`);
     return {
       colunas: colunas.rows,
       restricoes: restricoes.rows,
@@ -92,8 +94,8 @@ describe('migrar', () => {
 
     await migrar(url);
 
-    expect(await contagem(url, 'fontes')).toBe(2);
-    expect(await contagem(url, 'consultas')).toBe(5);
+    expect(await contagem(url, 'fontes')).toBe(4);
+    expect(await contagem(url, 'consultas')).toBe(10);
     expect(await contagem(url, 'entidades')).toBe(4);
     expect(await contagem(url, 'unidades_tce')).toBe(5);
   });

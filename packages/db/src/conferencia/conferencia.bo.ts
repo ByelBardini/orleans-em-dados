@@ -1246,3 +1246,68 @@ export const ordenarDiscrepancias = (lista: readonly Discrepancia[]) =>
       ORDEM_DOS_TIPOS.indexOf(a.tipo) - ORDEM_DOS_TIPOS.indexOf(b.tipo) ||
       Math.abs(b.diferenca) - Math.abs(a.diferenca),
   );
+
+// Despesa por função, DCA Anexo I-E × TCE-SC: só o total e a Legislativa têm par no TCE-SC.
+// Igualdade do total não confere cada função: função não é entidade.
+const ETAPAS_DA_FUNCAO = ['empenhado', 'liquidado', 'pago'] as const;
+
+/** Na DCA, `total` é a linha do anexo, com a Legislativa; no TCE-SC, as UGs sem a Câmara. */
+export type SomaDaEtapa = { etapa: string; total: number; legislativa: number };
+
+export type ComparacaoDaEtapa = {
+  etapa: (typeof ETAPAS_DA_FUNCAO)[number];
+  dca: number;
+  tce: number;
+  /** DCA − TCE-SC. */
+  diferenca: number;
+  /** Quem registra mais; nulo quando as fontes são iguais. */
+  maior: 'dca' | 'tce' | null;
+};
+export type ComparacaoDeFuncoes = { estado: 'conferido' | 'diferenca'; etapas: ComparacaoDaEtapa[] };
+export type ConferenciaDeFuncoes =
+  | { ano: number; estado: 'sem_dca' | 'sem_tce' }
+  | { ano: number; estado: 'conferido' | 'diferenca'; total: ComparacaoDeFuncoes; legislativa: ComparacaoDeFuncoes };
+
+function compararUmaEtapa(etapa: ComparacaoDaEtapa['etapa'], dca: number, tce: number): ComparacaoDaEtapa {
+  const diferenca = dca - tce;
+  return {
+    etapa,
+    dca: dca / 100,
+    tce: tce / 100,
+    diferenca: diferenca / 100,
+    maior: diferenca === 0 ? null : diferenca > 0 ? 'dca' : 'tce',
+  };
+}
+
+const comparacaoDe = (etapas: ComparacaoDaEtapa[]): ComparacaoDeFuncoes => ({
+  estado: etapas.every((e) => e.maior === null) ? 'conferido' : 'diferenca',
+  etapas,
+});
+
+export function compararFuncoes(
+  ano: number,
+  dca: readonly SomaDaEtapa[],
+  tce: readonly SomaDaEtapa[],
+): ConferenciaDeFuncoes {
+  if (!dca.length) return { ano, estado: 'sem_dca' };
+  if (!tce.length) return { ano, estado: 'sem_tce' };
+
+  const pares = ETAPAS_DA_FUNCAO.map((etapa) => {
+    const daDca = dca.find((s) => s.etapa === etapa);
+    const doTce = tce.find((s) => s.etapa === etapa);
+    if (!daDca || !doTce) throw new Error(`Conferência das funções de ${ano}: falta a etapa ${etapa}`);
+    return { etapa, daDca, doTce };
+  });
+  const total = comparacaoDe(
+    pares.map(({ etapa, daDca, doTce }) =>
+      compararUmaEtapa(etapa, centavos(daDca.total) - centavos(daDca.legislativa), centavos(doTce.total)),
+    ),
+  );
+  const legislativa = comparacaoDe(
+    pares.map(({ etapa, daDca, doTce }) =>
+      compararUmaEtapa(etapa, centavos(daDca.legislativa), centavos(doTce.legislativa)),
+    ),
+  );
+  const estado = total.estado === 'conferido' && legislativa.estado === 'conferido' ? 'conferido' : 'diferenca';
+  return { ano, estado, total, legislativa };
+}
