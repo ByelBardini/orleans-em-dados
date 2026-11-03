@@ -47,6 +47,11 @@ export const CASOS = [
   '/api/despesas/empenhos.csv?ano=2025&q=construtora',
   '/api/despesas/empenhos.csv?ano=2019',
   '/api/municipio',
+  '/api/funcoes?ano=2025',
+  '/api/funcoes?ano=2019',
+  '/api/funcoes?ano=abc',
+  '/api/funcoes',
+  '/api/funcoes/serie',
   '/api/inexistente',
 ];
 

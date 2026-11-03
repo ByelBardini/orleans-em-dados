@@ -1,0 +1,147 @@
+{
+  "status": 200,
+  "tipo": "application/json; charset=utf-8",
+  "disposicao": null,
+  "corpo": {
+    "ano": 2025,
+    "meta": {
+      "coletaId": 9,
+      "fonte": "SICONFI — Tesouro Nacional",
+      "consultaId": 900201,
+      "consultaNome": "DCA Anexo I-E — Despesas por Função",
+      "urlOrigem": "https://siconfi.tesouro.gov.br/siconfi/pages/public/consulta_finbra/finbra_list.jsf",
+      "ano": 2025,
+      "filtro": {},
+      "origem": "arquivo",
+      "iniciadoEm": "2025-03-01T12:00:00.000Z",
+      "coletadoEm": "2025-03-01T12:00:00.000Z",
+      "totalHits": 32,
+      "capturados": 32,
+      "idsUnicos": 32,
+      "camposAusentes": {},
+      "status": "totalizador_conciliado",
+      "exemplo": false,
+      "conferencia": []
+    },
+    "conferencia": "conferido",
+    "diferenca": null,
+    "total": {
+      "empenhado": 195000,
+      "liquidado": 120000,
+      "pago": 100000
+    },
+    "divisor": {
+      "ano": 2025,
+      "populacao": 24200,
+      "tipo": "estimativa"
+    },
+    "porMorador": {
+      "empenhado": 8.06,
+      "liquidado": 4.96,
+      "pago": 4.13
+    },
+    "funcoes": [
+      {
+        "empenhado": 15000,
+        "liquidado": 0,
+        "pago": 0,
+        "codigo": "10",
+        "nome": "Saúde",
+        "participacao": {
+          "empenhado": 7.69,
+          "liquidado": 0,
+          "pago": 0
+        },
+        "porMorador": {
+          "empenhado": 0.62,
+          "liquidado": 0,
+          "pago": 0
+        },
+        "subfuncoes": [
+          {
+            "empenhado": 15000,
+            "liquidado": 0,
+            "pago": 0,
+            "codigo": "10.301",
+            "nome": "Atenção Básica"
+          }
+        ]
+      },
+      {
+        "empenhado": 53000,
+        "liquidado": 53000,
+        "pago": 53000,
+        "codigo": "12",
+        "nome": "Educação",
+        "participacao": {
+          "empenhado": 27.18,
+          "liquidado": 44.17,
+          "pago": 53
+        },
+        "porMorador": {
+          "empenhado": 2.19,
+          "liquidado": 2.19,
+          "pago": 2.19
+        },
+        "subfuncoes": [
+          {
+            "empenhado": 50000,
+            "liquidado": 50000,
+            "pago": 50000,
+            "codigo": "12.361",
+            "nome": "Ensino Fundamental"
+          },
+          {
+            "empenhado": 3000,
+            "liquidado": 3000,
+            "pago": 3000,
+            "codigo": "FU12",
+            "nome": "Demais Subfunções"
+          }
+        ]
+      },
+      {
+        "empenhado": 127000,
+        "liquidado": 67000,
+        "pago": 47000,
+        "codigo": "15",
+        "nome": "Urbanismo",
+        "participacao": {
+          "empenhado": 65.13,
+          "liquidado": 55.83,
+          "pago": 47
+        },
+        "porMorador": {
+          "empenhado": 5.25,
+          "liquidado": 2.77,
+          "pago": 1.94
+        },
+        "subfuncoes": [
+          {
+            "empenhado": 127000,
+            "liquidado": 67000,
+            "pago": 47000,
+            "codigo": "15.451",
+            "nome": "Infraestrutura Urbana"
+          }
+        ]
+      }
+    ],
+    "camara": {
+      "empenhado": 25000,
+      "liquidado": 25000,
+      "pago": 20000,
+      "codigo": "01",
+      "nome": "Legislativa",
+      "subfuncoes": [
+        {
+          "empenhado": 25000,
+          "liquidado": 25000,
+          "pago": 20000,
+          "codigo": "01.031",
+          "nome": "Ação Legislativa"
+        }
+      ]
+    }
+  }
+}

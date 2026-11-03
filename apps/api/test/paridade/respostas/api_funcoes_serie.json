@@ -1,0 +1,64 @@
+{
+  "status": 200,
+  "tipo": "application/json; charset=utf-8",
+  "disposicao": null,
+  "corpo": {
+    "valores": "nominais",
+    "anos": [
+      {
+        "ano": 2025,
+        "conferencia": "conferido",
+        "total": {
+          "empenhado": 195000,
+          "liquidado": 120000,
+          "pago": 100000
+        },
+        "funcoes": [
+          {
+            "empenhado": 15000,
+            "liquidado": 0,
+            "pago": 0,
+            "codigo": "10",
+            "nome": "Saúde",
+            "participacao": {
+              "empenhado": 7.69,
+              "liquidado": 0,
+              "pago": 0
+            }
+          },
+          {
+            "empenhado": 53000,
+            "liquidado": 53000,
+            "pago": 53000,
+            "codigo": "12",
+            "nome": "Educação",
+            "participacao": {
+              "empenhado": 27.18,
+              "liquidado": 44.17,
+              "pago": 53
+            }
+          },
+          {
+            "empenhado": 127000,
+            "liquidado": 67000,
+            "pago": 47000,
+            "codigo": "15",
+            "nome": "Urbanismo",
+            "participacao": {
+              "empenhado": 65.13,
+              "liquidado": 55.83,
+              "pago": 47
+            }
+          }
+        ],
+        "camara": {
+          "empenhado": 25000,
+          "liquidado": 25000,
+          "pago": 20000,
+          "codigo": "01",
+          "nome": "Legislativa"
+        }
+      }
+    ]
+  }
+}

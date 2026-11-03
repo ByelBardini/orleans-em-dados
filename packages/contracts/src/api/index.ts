@@ -5,6 +5,7 @@ export * from './despesas';
 export * from './discrepancias';
 export * from './empenhos';
 export * from './erro';
+export * from './funcoes';
 export * from './receitas';
 export * from './importacoes';
 export * from './municipio';
