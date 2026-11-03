@@ -11,6 +11,7 @@
     "@orleans-em-dados/importador-betha": "workspace:*",
     "@orleans-em-dados/importador-ibge": "workspace:*",
     "@orleans-em-dados/importador-nucleo": "workspace:*",
+    "@orleans-em-dados/importador-siconfi": "workspace:*",
     "@orleans-em-dados/importador-tcesc": "workspace:*"
   }
 }

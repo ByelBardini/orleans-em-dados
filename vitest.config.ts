@@ -23,6 +23,7 @@ export default defineConfig({
       unidade('packages/importadores/betha', 'importador-betha'),
       unidade('packages/importadores/tcesc', 'importador-tcesc'),
       unidade('packages/importadores/ibge', 'importador-ibge'),
+      unidade('packages/importadores/siconfi', 'importador-siconfi'),
       unidade('apps/api'),
       unidade('apps/worker'),
       {

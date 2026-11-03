@@ -1,0 +1,17 @@
+{
+  "name": "@orleans-em-dados/importador-siconfi",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/importador.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc"
+  },
+  "dependencies": {
+    "@orleans-em-dados/contracts": "workspace:*",
+    "@orleans-em-dados/db": "workspace:*",
+    "@orleans-em-dados/importador-nucleo": "workspace:*"
+  }
+}
