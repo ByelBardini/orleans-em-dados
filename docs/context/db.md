@@ -13,7 +13,7 @@ Esquema PostgreSQL, migrações e conexão. Vive em `packages/db/` (pacote `@orl
 
 ## Contrato (tabelas)
 
-- `fontes`, `consultas` — catálogo. `consultas.id` é o id da consulta Betha (`57153`, `57140`, `57170`) ou um id interno ≥ `900001` para o TCE-SC (o UUID do app Qlik fica em `identificador_externo`). `consultas.chave` (`receitas`, `empenhos`, `despesas`, `tcesc_receitas`, `tcesc_empenhos`) é como o código se refere a cada uma.
+- `fontes`, `consultas` — catálogo. `consultas.id` é o id da consulta Betha (`57153`, `57140`, `57170`) ou um id interno: `9000xx` TCE-SC (o UUID do app Qlik fica em `identificador_externo`), `9001xx` IBGE, `9002xx` SICONFI. `consultas.chave` (`receitas`, `empenhos`, `despesas`, `tcesc_receitas`, `tcesc_empenhos`, `ibge_populacao`, `ibge_censo`, `ibge_pib`, `siconfi_funcoes`) é como o código se refere a cada uma. `fontes.id` é igual ao id do importador (`importacoes.dao.ts` depende disso).
 - `entidades` — chave `codigo_betha` (segmento do meio do id Betha: `728` Prefeitura, `319` FMS, `2473` SAMAE, `320` Fundação Ambiental), com `status_mapeamento` `inferido`/`confirmado`.
 - `unidades_tce` — UG do TCE-SC → `entidade_betha`; a Câmara (`1864`) não tem entidade Betha.
 - `coletas` — uma por execução de coleta (consulta × ano), com `status` `totalizador_conciliado` | `rejeitado` | `exemplo`, contagens, `erros` e `hash_payload`.
@@ -21,7 +21,10 @@ Esquema PostgreSQL, migrações e conexão. Vive em `packages/db/` (pacote `@orl
 - `registros_brutos` — payload original de cada registro (`JSONB`), por coleta.
 - `execucoes` — cada execução de importador × ano: status, contagens, erro, `detalhes` por consulta.
 - `publicacoes` — ponteiro (consulta, ano) → coleta exibida. Trocar o ponteiro é publicar.
-- Normalizadas, por coleta: `receitas` (57153), `empenhos` (57140), `despesas` (57170), `tcesc_receitas` (900001), `tcesc_empenhos` (900002). Views `*_publicadas` juntam com `publicacoes`.
+- Normalizadas, por coleta: `receitas` (57153), `empenhos` (57140), `despesas` (57170), `tcesc_receitas` (900001), `tcesc_empenhos` (900002), `ibge_valores` (900101 a 900104), `siconfi_funcoes` (900201). Views `*_publicadas` (`ibge_valores_publicados`, `empenhos_publicados`) juntam com `publicacoes`.
+- `coletas.ano` é o exercício, salvo no IBGE, em que é o ano da coleta: o lote traz a série inteira, o `periodo` de cada linha é o ano de referência e a API lê o lote publicado de maior ano.
+- `ibge_valores` — `localidade` é o código do IBGE (`4211702` Orleans, `42` Santa Catarina, `1` Brasil). `valor` `NUMERIC(18,3)` (contagem, área, mil reais), `NULL` quando o SIDRA traz símbolo, guardado em `simbolo`. `categoria` vazia quando a tabela não tem classificação.
+- `siconfi_funcoes` — `etapa` `empenhado`, `liquidado`, `pago`, `rp_nao_processados`, `rp_processados`; `tipo` `total` (sem `funcao_codigo`), `funcao`, `subfuncao` (`10.301` ou `FU12`).
 
 ## Funções e utilitários
 
