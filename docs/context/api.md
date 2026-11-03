@@ -5,7 +5,7 @@ API REST somente leitura sobre as coletas publicadas, em Fastify. Vive em `apps/
 ## Estrutura
 
 - `src/app.ts` — `criarApp(opcoes?)`: monta o Fastify, registra os módulos e traduz 404 e erro. `src/index.ts` só sobe a porta (`PORT`, padrão 3000).
-- `src/modules/<área>/` — `<área>.dao.ts` (SQL), `<área>.service.ts` (composição com a conferência), `<área>.routes.ts` (borda). Áreas: `coletas`, `receitas`, `despesas`, `empenhos`, `discrepancias`, `conferencias`, `importacoes`.
+- `src/modules/<área>/` — `<área>.dao.ts` (SQL), `<área>.service.ts` (composição com a conferência), `<área>.routes.ts` (borda). Áreas: `coletas`, `receitas`, `despesas`, `empenhos`, `discrepancias`, `conferencias`, `importacoes`, `municipio`, `funcoes`.
 - `src/lib/borda.ts` — `parametro`, `texto`, `responder`, `responderCsv`.
 - `src/lib/consultas.ts` — `consultar`, `ENTIDADE`, `chaveTexto`. `src/lib/csv.ts` — `gerarCsv`.
 
@@ -23,6 +23,9 @@ Todas as rotas de dados recebem `ano` e respondem `404 { erro }` quando o ano n�
 - `GET /api/discrepancias?ano` junta em um caso de `reclassificacao` (`compensacao`) duas rubricas inteiras da mesma entidade, situação e meses com valores exatamente opostos: pesam uma vez no grupo, e a conta do conferido não muda.
 - `GET /api/discrepancias?ano` — a seção pública: `grupos` por área e tipo, com `rotulo`, `explicacao`, `total` e `itens`, `aguardando` à parte e `resumo`. Sem `avisos`, credor nem histórico. `404 { erro }` em ano inválido ou sem a coleta de receitas.
 - `GET /api/conferencias?ano` — saída de `conferencia(ano)` (ver [conferencia.md](conferencia.md)); `404 { erro, faltando }` sem as cinco coletas.
+- `GET /api/municipio` — sem `ano`. `comparacao` traz `orleans`, `santaCatarina` e `brasil` com os mesmos indicadores e a mesma conta, e `anoDoPib`, o último ano com PIB nos três; nula sem a coleta de `ibge_comparacao`, que não entra em `faltando` nem no retrato. O retrato da cidade pelo IBGE, do lote publicado de maior `ano` em cada consulta: `populacao.serie` (`ano`, `populacao`, `tipo` `censo`|`estimativa`), `territorio`, `situacao`, `piramide` (faixas de 5 anos, com `80 anos ou mais` somada das faixas abertas), `rendimento`, `pib.serie` (`pib` em mil reais, `perCapita`, `divisor`, `composicao`, nula sem virar zero) e `pib.ultimoAnoDaComposicao`. Cada bloco traz o próprio ano. Falta de coleta é `200 { disponivel: false, faltando }`, nunca 404.
+- `GET /api/funcoes?ano` — a DCA Anexo I-E: `total` (sem a Câmara, igual à soma das funções), `funcoes[]` (três etapas, `participacao` em % sobre o total sem a Câmara da mesma etapa, `porMorador`, `subfuncoes`), `camara` (a função Legislativa, sempre à parte), `divisor` (`populacaoDoAno`, nulo sem o IBGE), `conferencia` (`conferido`, `diferenca`, `sem_tce`), `diferenca` (só com `diferenca`). `404 { erro }` em ano inválido ou sem DCA.
+- `GET /api/funcoes/serie` — todos os exercícios publicados, com `valores: 'nominais'`: `anos[]` com `conferencia`, `total`, `funcoes` (com `participacao`) e `camara`. Sem coleta, `anos` vazio.
 - `GET /api/importacoes` — por importador do registro: última execução (sem a mensagem de erro, que fica só no banco) e, por exercício, a data da consulta publicada mais antiga da fonte. Exemplo não conta.
 - Rota desconhecida ou método diferente de `GET`: `404 { erro: 'Rota não encontrada' }`; exceção: `500 { erro: 'Erro interno' }`.
 
@@ -32,6 +35,8 @@ Todas as rotas de dados recebem `ano` e respondem `404 { erro }` quando o ano n�
 - As rotas de dados têm três estados: conferido; coleta de exemplo (os números fictícios de sempre, `meta.fonte` `DADOS FICTÍCIOS — exemplo` e `conferencia.disponivel: false`); ano real sem as cinco coletas (`conferencia.disponivel: false`, com `faltando`, arrecadação e execução nulas, listas vazias, e só o orçado, que é fonte única). Nos dois últimos, `/api/discrepancias` responde `disponivel: false`, sem grupos.
 - Empenho: `empenhado` é o valor original da Betha (conceito da 57140); `empenhadoLiquido`, `liquidado` e `pago` são do TCE-SC, e `saldoAPagar` é liquidado − pago. Órgão, credor e histórico são da Betha.
 - Ano em curso: nada depois do corte do TCE-SC sai em agregado nem na lista. O valor fica em `conferencia.aguardandoTce` e em `aguardando` da seção.
+- Despesa por função: o selo do total e o da divisão são níveis diferentes. `conferencia` vale para o total e a Legislativa; cada outra função é fonte única. Etapas nunca se somam, e a coleta nunca soma restos a pagar.
+- Discrepâncias, área `funcao`: DCA × TCE-SC diferentes viram um grupo por etapa (`funcao_empenhado`, `funcao_liquidado`, `funcao_pago`), com um item para o total sem a Câmara e outro para a Legislativa, `betha` nulo, `dca`, `tce`, `maior`. Fora de `resumo.porArea`. Sem diferença, a resposta é a mesma de antes.
 - Discrepâncias: um grupo por área e tipo, porque receita, despesa e empenhos não se somam (`sem_causa` pode sair três vezes). `total` soma `itens[].valor`, em módulo e em centavos; em `mes_diferente`, `valor` é o que mudou de mês. O tipo interno `empenho_fantasma` sai como `empenho_sem_execucao`, com o rótulo "Registro sem execução e sem par no TCE-SC". Rótulo, explicação e nota não afirmam causa.
 - Grafias da Betha sem acento ("SERVIO") são agrupadas pela chave sem não-alfanuméricos; o nome exibido é a grafia mais frequente.
 - A busca de empenhos ignora acento e caixa em número, credor, histórico e órgão.

@@ -1,6 +1,6 @@
 # AGENTS.md — Orleans em Dados
 
-Dashboard público, rastreável, com dados de receitas e despesas do município de Orleans/SC, coletados do Portal da Transparência Betha e conferidos contra o Farol TCE-SC. A especificação do produto e das fontes é `docs/ESPECIFICACAO_TECNICA.md`; a metodologia pública, `docs/METODOLOGIA.md`.
+Dashboard público, rastreável, com dados de receitas e despesas do município de Orleans/SC, coletados do Portal da Transparência Betha e conferidos contra o Farol TCE-SC, mais a despesa por função do SICONFI e os indicadores do IBGE. A especificação do produto e das fontes é `docs/ESPECIFICACAO_TECNICA.md`; a metodologia pública, `docs/METODOLOGIA.md`.
 
 ## Stack
 
@@ -15,7 +15,7 @@ Dashboard público, rastreável, com dados de receitas e despesas do município 
 
 - `packages/db/` — esquema Drizzle, migrações (`drizzle/`), conexão e a conferência Betha × TCE-SC.
 - `packages/contracts/` — valores do domínio e schemas Zod compartilhados.
-- `packages/importadores/nucleo`, `betha/`, `tcesc/` — contrato e executor dos importadores, e um importador por fonte.
+- `packages/importadores/nucleo`, `betha/`, `tcesc/`, `ibge/`, `siconfi/` — contrato e executor dos importadores, e um importador por fonte.
 - `apps/worker/` — agendador (pg-boss) e CLI dos importadores.
 - `apps/api/src/` — API REST que lê só as coletas publicadas.
 - `apps/web/src/` — dashboard.
@@ -33,6 +33,8 @@ Leia o hub da área antes de abrir fonte. O driver do `/testar` indica qual (`le
 | Importadores | [`importadores.md`](docs/context/importadores.md) | contrato do importador, executor, execuções           |
 | Betha        | [`betha.md`](docs/context/betha.md)               | consultas, cliente, paginação e normalização da Betha |
 | TCE-SC       | [`tcesc.md`](docs/context/tcesc.md)               | sessão Qlik, cubos e normalização do Farol TCE-SC     |
+| IBGE         | [`ibge.md`](docs/context/ibge.md)                 | tabelas, variáveis e símbolos dos agregados do IBGE   |
+| SICONFI      | [`siconfi.md`](docs/context/siconfi.md)           | DCA Anexo I-E, formato de conta, prazo de entrega     |
 | Contratos    | [`contracts.md`](docs/context/contracts.md)       | dinheiro, exercício, rubrica e schemas das respostas  |
 | API          | [`api.md`](docs/context/api.md)                   | rotas, parâmetros, CSV                                |
 | Dashboard    | [`web.md`](docs/context/web.md)                   | páginas, componentes, formatação, selos               |
@@ -49,7 +51,7 @@ Leia o hub da área antes de abrir fonte. O driver do `/testar` indica qual (`le
 ## Comandos
 
 - `pnpm db:subir`, `pnpm db:migrar`, `pnpm db:exemplos`, `pnpm dev` (API em 3000, web em 5173).
-- `pnpm importar <betha|tcesc> --ano 2025 [--consulta <chave>] [--json]`, `pnpm importar --arquivo <snapshot.json>`, `pnpm conferir --ano 2025`, `pnpm worker`.
+- `pnpm importar <betha|tcesc|ibge|siconfi> --ano 2025 [--consulta <chave>] [--json]`, `pnpm importar --arquivo <snapshot.json>`, `pnpm conferir --ano 2025`, `pnpm worker`.
 - Argumento vai direto depois do script: `pnpm importar betha --ano 2025`. O pnpm repassa `--` literalmente e o `parseArgs` da CLI trataria o resto como posicional.
 
 ## Regras que valem para tudo
@@ -58,5 +60,5 @@ Leia o hub da área antes de abrir fonte. O driver do `/testar` indica qual (`le
 - Rubrica e natureza são texto (zeros à esquerda).
 - Não somar visões diferentes da mesma execução (57140 × 57170, receita × despesa).
 - Diferença entre fontes nunca é rotulada como irregularidade.
-- O painel só exibe como número principal o conferido ou a fonte única rotulada; o resto vai para a seção Discrepâncias. Na interface, "conferido com...", nunca "validado".
+- O painel só exibe como número principal o conferido ou a fonte única rotulada; o resto vai para a seção Discrepâncias. Na capa, o rótulo fica nas páginas de cada área: ela segue a mesma regra, sem selo. Na interface, "conferido com...", nunca "validado".
 - Credor pessoa física: nada de dado real em fixture, log ou commit; `data/`, `.env`, `*.har` e planilhas ficam fora do git.
