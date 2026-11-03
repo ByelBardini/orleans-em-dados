@@ -1,4 +1,6 @@
-# Dicionário de dados — consultas Betha
+# Dicionário de dados
+
+As consultas Betha vêm primeiro. A despesa por função (SICONFI) e os agregados do IBGE estão no fim.
 
 Levantamento feito sobre a coleta completa de 2025 (31/10/2026). Descrições marcadas com **(Betha)** vêm do
 próprio endpoint de totalizadores; as demais são interpretação a partir do nome e do comportamento dos dados.
@@ -96,3 +98,32 @@ registro no banco é o `id`, nunca o número.
 
 **Liquidado = pago:** em todos os 9.479 empenhos com valores, o liquidado é igual ao pago. Isso foi reproduzido pelo
 totalizador da Betha, mas não reflete necessariamente toda a realidade de pagamentos; tratar com ressalva.
+
+## `900201` — DCA Anexo I-E (SICONFI)
+
+Tabela `siconfi_funcoes`, uma linha por coluna × conta do anexo. Sem credor nem pessoa física.
+
+| Campo no anexo | Coluna             | Descrição                                                                                                        |
+| -------------- | ------------------ | ---------------------------------------------------------------------------------------------------------------- |
+| `coluna`       | `etapa`            | `empenhado`, `liquidado`, `pago`, `rp_nao_processados`, `rp_processados`. As etapas nunca se somam               |
+| `conta`        | `tipo`             | `total` (`Despesas Exceto Intraorçamentárias`), `funcao` (`10 - Saúde`), `subfuncao` (`10.301 - Atenção Básica`) |
+|                | `funcao_codigo`    | Texto, com o zero à esquerda (`01`). Nulo na linha de total                                                      |
+|                | `subfuncao_codigo` | `10.301`, ou `FU12` em "Demais Subfunções" da função 12: o código não inventa número                             |
+|                | `conta`            | O nome, sem o código                                                                                             |
+| `valor`        | `valor`            | `NUMERIC(18,2)`, em valores nominais                                                                             |
+
+A linha de total inclui a Câmara. O total do painel é a soma das funções sem a `01`.
+
+## `900101`, `900102`, `900103`, `900104` — agregados do IBGE
+
+Tabela `ibge_valores`, uma linha por tabela × variável × período × categoria. Sem dado pessoal.
+
+| Coluna       | Descrição                                                                                                  |
+| ------------ | ---------------------------------------------------------------------------------------------------------- |
+| `ano`        | Ano da coleta, e não o de referência: o lote traz a série inteira                                          |
+| `localidade` | Código do IBGE: `4211702` Orleans, `42` Santa Catarina, `1` Brasil                                         |
+| `periodo`    | Ano de referência da linha                                                                                 |
+| `categoria`  | Categorias da resposta, juntas com `\|`, sem as chamadas Total (`Homens\|0 a 4 anos`). Vazia é o total     |
+| `valor`      | `NUMERIC(18,3)`: pessoas, km², reais ou mil reais, conforme `unidade`. Nulo quando o SIDRA traz um símbolo |
+| `unidade`    | A unidade que o IBGE informa para a variável                                                               |
+| `simbolo`    | `...`, `..` ou `X`, sem valor; `-` é zero absoluto, com `valor` 0. Nulo quando há número                   |
