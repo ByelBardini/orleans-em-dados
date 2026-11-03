@@ -148,6 +148,7 @@ function Conteudo({ ano, entidade, filtros, dados }: PropsDaPagina & { dados: Da
     (r) => (r.rubrica.startsWith('11') || r.rubrica.startsWith('12')) && r.arrecadado > 0,
   );
   const totalImpostos = impostos.reduce((s, r) => s + r.arrecadado, 0);
+  const repasses = rubricas.filter((r) => ORIGENS_DE_FORA.has(r.rubrica.slice(0, 2)) && r.arrecadado > 0).slice(0, 6);
 
   return (
     <>
@@ -338,6 +339,20 @@ function Conteudo({ ano, entidade, filtros, dados }: PropsDaPagina & { dados: Da
             })}{' '}
             vieram de repasses.
           </p>
+          {repasses.length > 0 && (
+            <div className="maiores-repasses">
+              <h3 className="legenda-secao">Os maiores repasses</h3>
+              <ListaPontos
+                comUnidade
+                vermelho
+                itens={repasses.map((r) => ({
+                  chave: r.rubrica,
+                  nome: r.descricao,
+                  valor: r.arrecadado,
+                }))}
+              />
+            </div>
+          )}
         </section>
 
         {impostos.length > 0 && (
@@ -348,6 +363,7 @@ function Conteudo({ ano, entidade, filtros, dados }: PropsDaPagina & { dados: Da
               {pop && ` · R$ ${numero(Math.round(totalImpostos / pop.pessoas))} por morador`}
             </p>
             <ListaPontos
+              comUnidade
               itens={impostos.slice(0, 7).map((r) => ({
                 chave: r.rubrica,
                 nome: nomeTributo(r),

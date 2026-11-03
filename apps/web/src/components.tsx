@@ -76,11 +76,14 @@ export function ListaPontos<I extends ItemDaLista>({
   vermelho,
   total,
   aoClicar,
+  comUnidade,
 }: {
   itens: readonly I[];
   vermelho?: boolean;
   total?: number | null;
   aoClicar?: (item: I) => void;
+  // Para a seção sem a legenda "R$ mi": sem unidade, o valor parece percentual.
+  comUnidade?: boolean;
 }) {
   const max = Math.max(...itens.map((i) => Number(i.valor)), 0) || 1;
   return (
@@ -97,7 +100,9 @@ export function ListaPontos<I extends ItemDaLista>({
               <span className="lp-nome">{item.nome}</span>
             )}
             <span className="lp-pontos" aria-hidden="true" />
-            <span className="lp-valor">{item.valor === null ? '—' : milhoes(item.valor)}</span>
+            <span className="lp-valor">
+              {item.valor === null ? '—' : comUnidade ? <Mi valor={item.valor} /> : milhoes(item.valor)}
+            </span>
             {total && item.valor !== null && <span className="lp-pct">{pctCurto(item.valor, total)}</span>}
           </div>
           <div className="trilho" aria-hidden="true">

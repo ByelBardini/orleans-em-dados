@@ -102,6 +102,21 @@ describe('ListaPontos', () => {
     expect(screen.getByText('2,0')).toBeInTheDocument();
   });
 
+  it('com comUnidade, o valor diz que está em milhões', () => {
+    const { container } = render(<ListaPontos comUnidade itens={itens} />);
+    expect(container.querySelector('.lp-valor')).toHaveTextContent(/^2,0 mi$/);
+  });
+
+  it('com comUnidade, valor nulo continua só com o travessão', () => {
+    const { container } = render(<ListaPontos comUnidade itens={[{ nome: 'Fora', valor: null }]} />);
+    expect(container.querySelector('.lp-valor')).toHaveTextContent(/^—$/);
+  });
+
+  it('sem comUnidade, a unidade fica com a legenda da seção', () => {
+    const { container } = render(<ListaPontos itens={itens} />);
+    expect(container.querySelector('.lp-valor')).toHaveTextContent(/^2,0$/);
+  });
+
   it('o trilho é proporcional ao maior item', () => {
     const { container } = render(<ListaPontos itens={itens} />);
     const barras = container.querySelectorAll('.trilho span');
