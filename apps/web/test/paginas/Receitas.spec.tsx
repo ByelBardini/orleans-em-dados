@@ -1,4 +1,4 @@
-import { render, screen, within } from '@testing-library/react';
+import { act, render, screen, within } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import Receitas from '../../src/paginas/Receitas';
 import {
@@ -13,6 +13,7 @@ import {
   receitasSemConferencia,
   TEXTO_PROIBIDO,
 } from '../support/conferidos';
+import { municipioIndisponivel } from '../support/municipio';
 
 const NBSP = ' ';
 
@@ -126,8 +127,21 @@ describe('Receitas com o conferido', () => {
     it('por morador divide o conferido pela população', async () => {
       await abrir();
 
+      await screen.findByText('Por morador');
       // 1.200.000,50 ÷ 24.686 moradores
       expect(celula('Por morador').querySelector('.numero-valor')).toHaveTextContent('R$ 49');
+      expect(celula('Por morador').querySelector('.numero-detalhe')).toHaveTextContent('IBGE, estimativa 2025');
+    });
+
+    it('sem coleta do IBGE, a linha por morador some, e o resto continua', async () => {
+      api({ municipio: municipioIndisponivel() });
+      render(<Receitas {...PROPS} />);
+      await screen.findByRole('heading', { level: 1 });
+      await act(() => new Promise((r) => setTimeout(r, 0)));
+
+      expect(document.body).not.toHaveTextContent('por morador');
+      expect(screen.queryByText('Por morador')).not.toBeInTheDocument();
+      expect(screen.queryByText(/Não foi possível carregar/)).not.toBeInTheDocument();
     });
   });
 
