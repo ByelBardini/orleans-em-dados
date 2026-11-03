@@ -11,6 +11,7 @@ import {
   empenhosBuscaSchema,
   empenhosResumoSchema,
   erroSchema,
+  municipioSchema,
   receitasSchema,
 } from '../../src/api';
 
@@ -28,6 +29,7 @@ const SCHEMAS: [RegExp, z.ZodType][] = [
   [/^api_receitas_ano|^api_receitas\.json/, receitasSchema],
   [/^api_despesas_resumo/, despesasResumoSchema],
   [/^api_discrepancias/, discrepanciasSchema],
+  [/^api_municipio/, municipioSchema],
   [/^api_despesas_empenhos_resumo/, empenhosResumoSchema],
   [/^api_despesas_empenhos_ano/, empenhosBuscaSchema],
 ];
