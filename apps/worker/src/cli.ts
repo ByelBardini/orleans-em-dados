@@ -2,6 +2,7 @@
 //
 //   pnpm importar betha --ano 2025 [--consulta receitas] [--consulta empenhos] [--json]
 //   pnpm importar tcesc --ano 2025 [--consulta empenhos] [--json]
+//   pnpm importar ibge --ano 2026 [--consulta ibge_censo] [--json]
 //   pnpm importar --arquivo data/betha/receitas-2025.json [--arquivo outro.json]
 //   pnpm importar --exemplos
 //   pnpm conferir --ano 2025 [--json]
