@@ -121,6 +121,9 @@ importers:
       '@orleans-em-dados/importador-betha':
         specifier: workspace:*
         version: link:../../packages/importadores/betha
+      '@orleans-em-dados/importador-ibge':
+        specifier: workspace:*
+        version: link:../../packages/importadores/ibge
       '@orleans-em-dados/importador-nucleo':
         specifier: workspace:*
         version: link:../../packages/importadores/nucleo
@@ -173,12 +176,27 @@ importers:
       '@orleans-em-dados/importador-betha':
         specifier: workspace:*
         version: link:../betha
+      '@orleans-em-dados/importador-ibge':
+        specifier: workspace:*
+        version: link:../ibge
       '@orleans-em-dados/importador-nucleo':
         specifier: workspace:*
         version: link:../nucleo
       '@orleans-em-dados/importador-tcesc':
         specifier: workspace:*
         version: link:../tcesc
+
+  packages/importadores/ibge:
+    dependencies:
+      '@orleans-em-dados/contracts':
+        specifier: workspace:*
+        version: link:../../contracts
+      '@orleans-em-dados/db':
+        specifier: workspace:*
+        version: link:../../db
+      '@orleans-em-dados/importador-nucleo':
+        specifier: workspace:*
+        version: link:../nucleo
 
   packages/importadores/nucleo:
     dependencies:
