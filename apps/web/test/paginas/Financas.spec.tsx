@@ -1,6 +1,6 @@
 import { render, screen, within } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import VisaoGeral from '../../src/paginas/VisaoGeral';
+import Financas from '../../src/paginas/Financas';
 import {
   api,
   contaNaTela,
@@ -22,7 +22,7 @@ afterEach(() => vi.unstubAllGlobals());
 
 const abrir = async (respostas: Parameters<typeof api>[0] = {}) => {
   api(respostas);
-  const { container } = render(<VisaoGeral {...PROPS} />);
+  const { container } = render(<Financas {...PROPS} />);
   await screen.findByRole('heading', { level: 1 });
   return container;
 };
@@ -167,7 +167,7 @@ describe('Visão geral com o conferido', () => {
   it('com a coleção de receitas em qualquer estado, nenhum texto proibido', async () => {
     for (const respostas of [{ receita: receitas() }, parciais, deExemplo, semConferencia]) {
       api(respostas);
-      const { container, unmount } = render(<VisaoGeral {...PROPS} />);
+      const { container, unmount } = render(<Financas {...PROPS} />);
       await screen.findByRole('heading', { level: 1 });
       expect(container.textContent).not.toMatch(TEXTO_PROIBIDO);
       unmount();

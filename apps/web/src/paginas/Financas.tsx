@@ -37,7 +37,7 @@ import type { PropsDaPagina } from './props';
 const qs = (ano: number, entidade: string) => new URLSearchParams({ ano: String(ano), entidade }).toString();
 const N = Number;
 
-export default function VisaoGeral({ ano, entidade, filtros }: PropsDaPagina) {
+export default function Financas({ ano, entidade, filtros }: PropsDaPagina) {
   const rec = useApi(`/api/receitas?${qs(ano, entidade)}`, receitasSchema);
   const emp = useApi(`/api/despesas/empenhos/resumo?${qs(ano, entidade)}`, empenhosResumoSchema);
   const desp = useApi(`/api/despesas/resumo?${qs(ano, entidade)}`, despesasResumoSchema);
