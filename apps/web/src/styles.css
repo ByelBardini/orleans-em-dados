@@ -816,8 +816,27 @@ input[type='search']::placeholder {
   box-shadow: 0 0 0 2px var(--papel);
 }
 
-.ponto .dica {
-  bottom: calc(100% + 2px);
+.ponto.is-ativo::after {
+  width: 12px;
+  height: 12px;
+}
+
+.ponto.previsto::after {
+  background: var(--vermelho);
+}
+
+.linha-zona {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+}
+
+.linha-guia {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  border-left: 1px solid var(--apagado);
+  pointer-events: none;
 }
 
 .rotulo-fim {

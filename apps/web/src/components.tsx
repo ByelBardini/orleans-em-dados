@@ -199,6 +199,22 @@ export function BarrasMensais({
 const dicaNasBordas = (i: number, n: number): CSSProperties | undefined =>
   i < 2 ? { left: 0, transform: 'none' } : i > n - 3 ? { left: 'auto', right: 0, transform: 'none' } : undefined;
 
+// Ao lado da guia, sem cobrir as linhas: elas sobem, então o alto só fica livre enquanto o valor é baixo.
+const dicaDaLinha = (i: number, alturaDoValor: number): CSSProperties => ({
+  ...(i < 6
+    ? { left: `calc(${(i / 11) * 100}% + 12px)` }
+    : { left: 'auto', right: `calc(${100 - (i / 11) * 100}% + 12px)` }),
+  ...(alturaDoValor > 0.6 ? { bottom: 12 } : { top: 4, bottom: 'auto' }),
+  transform: 'none',
+});
+
+// Em décimos de milhão, para a diferença bater com os dois números arredondados da dica.
+const diferencaDoRitmo = (arrecadado: number, previsto: number) => {
+  const decimos = Math.round(previsto / 1e5) - Math.round(arrecadado / 1e5);
+  if (decimos === 0) return 'No ritmo previsto';
+  return `R$ ${milhoes(Math.abs(decimos) * 1e5)} mi ${decimos > 0 ? 'atrás do' : 'à frente do'} ritmo`;
+};
+
 // Acumulado do ano contra o ritmo previsto (meta ÷ 12 por mês).
 export function LinhaAcumulada({
   acumulado,
@@ -223,6 +239,7 @@ export function LinhaAcumulada({
   const linha = acumulado.map((v, i) => `${x(i).toFixed(1)},${y(v).toFixed(1)}`).join(' ');
   const pctY = (v: number) => `${(v / 1e6 / topo) * 100}%`;
   const acima = final >= meta;
+  const previstoAte = (i: number) => (meta / 12) * (i + 1);
 
   return (
     <>
@@ -255,24 +272,22 @@ export function LinhaAcumulada({
             vectorEffect="non-scaling-stroke"
           />
         </svg>
+        {ativo !== null && <div className="linha-guia" style={{ left: `${(ativo / 11) * 100}%` }} aria-hidden="true" />}
         {acumulado.map((v, i) => (
           <div
             key={rotulos[i]}
-            className="ponto"
+            className={`ponto${ativo === i ? ' is-ativo' : ''}`}
             style={{ left: `${(i / 11) * 100}%`, bottom: pctY(v) }}
-            onMouseEnter={() => setAtivo(i)}
-            onMouseLeave={() => setAtivo(null)}
-            onClick={() => setAtivo(ativo === i ? null : i)}
-          >
-            {ativo === i && (
-              <div className="dica" style={dicaNasBordas(i, 12)}>
-                <strong>Até {nomes[i]}</strong>
-                <div className="mono">Arrecadado: R$ {milhoes(v)} mi</div>
-                {meta > 0 && <div className="mono vermelho">Previsto: R$ {milhoes((meta / 12) * (i + 1))} mi</div>}
-              </div>
-            )}
-          </div>
+            aria-hidden="true"
+          />
         ))}
+        {ativo !== null && meta > 0 && (
+          <div
+            className="ponto previsto is-ativo"
+            style={{ left: `${(ativo / 11) * 100}%`, bottom: pctY(previstoAte(ativo)) }}
+            aria-hidden="true"
+          />
+        )}
         {meta > 0 && (
           <div
             className="rotulo-fim"
@@ -292,6 +307,35 @@ export function LinhaAcumulada({
         {anotacao && (
           <div className="anotacao" style={anotacao.posicao}>
             <span>{anotacao.texto}</span>
+          </div>
+        )}
+        {/* A coluna inteira do mês responde ao mouse, e não só o ponto, e os meses sem dado também. */}
+        {rotulos.map((r, i) => (
+          <div
+            key={r}
+            className="linha-zona"
+            style={{
+              left: `${(Math.max(i - 0.5, 0) / 11) * 100}%`,
+              width: `${((i === 0 || i === 11 ? 0.5 : 1) / 11) * 100}%`,
+            }}
+            onMouseEnter={() => setAtivo(i)}
+            onMouseLeave={() => setAtivo(null)}
+            onClick={() => setAtivo(i)}
+          />
+        ))}
+        {ativo !== null && (
+          <div
+            className="dica"
+            style={dicaDaLinha(ativo, Math.max(acumulado[ativo] ?? 0, previstoAte(ativo)) / 1e6 / topo)}
+          >
+            <strong>Até {nomes[ativo]}</strong>
+            {acumulado[ativo] !== undefined && (
+              <div className="mono">Arrecadado: R$ {milhoes(acumulado[ativo])} mi</div>
+            )}
+            {meta > 0 && <div className="mono vermelho">Previsto: R$ {milhoes(previstoAte(ativo))} mi</div>}
+            {meta > 0 && acumulado[ativo] !== undefined && (
+              <div className="mono">{diferencaDoRitmo(acumulado[ativo], previstoAte(ativo))}</div>
+            )}
           </div>
         )}
       </div>

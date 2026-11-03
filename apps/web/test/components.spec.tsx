@@ -324,6 +324,111 @@ describe('gráficos', () => {
     expect(screen.getByText('Previsto: 12,0')).toBeInTheDocument();
   });
 
+  describe('LinhaAcumulada: dica do mês', () => {
+    const ROTULOS = ['jan', 'fev', 'mar', 'abr', 'mai', 'jun', 'jul', 'ago', 'set', 'out', 'nov', 'dez'];
+    const NOMES = [
+      'janeiro',
+      'fevereiro',
+      'março',
+      'abril',
+      'maio',
+      'junho',
+      'julho',
+      'agosto',
+      'setembro',
+      'outubro',
+      'novembro',
+      'dezembro',
+    ];
+    const abrirLinha = (acumulado: number[], meta: number) => {
+      const { container } = render(
+        <LinhaAcumulada acumulado={acumulado} meta={meta} rotulos={ROTULOS} nomes={NOMES} descricao="Acumulado" />,
+      );
+      const zona = (i: number) => container.querySelectorAll('.linha-zona')[i] as HTMLElement;
+      return { container, zona };
+    };
+
+    it('o mês abaixo do ritmo diz arrecadado, previsto e quanto falta', async () => {
+      const { container, zona } = abrirLinha([1_000_000, 2_000_000, 3_000_000], 60_000_000);
+
+      await userEvent.hover(zona(2));
+
+      const dica = container.querySelector('.dica') as HTMLElement;
+      expect(dica).toHaveTextContent('Até março');
+      expect(dica).toHaveTextContent('Arrecadado: R$ 3,0 mi');
+      expect(dica).toHaveTextContent('Previsto: R$ 15,0 mi');
+      expect(dica).toHaveTextContent('R$ 12,0 mi atrás do ritmo');
+    });
+
+    it('o mês acima do ritmo diz que está à frente', async () => {
+      const { container, zona } = abrirLinha([3_000_000], 12_000_000);
+
+      await userEvent.hover(zona(0));
+
+      expect(container.querySelector('.dica')).toHaveTextContent('R$ 2,0 mi à frente do ritmo');
+    });
+
+    it('a diferença bate com os dois números arredondados da dica', async () => {
+      const { container, zona } = abrirLinha([140_449_999], 12 * 164_360_000);
+
+      await userEvent.hover(zona(0));
+
+      const dica = container.querySelector('.dica') as HTMLElement;
+      expect(dica).toHaveTextContent('Arrecadado: R$ 140,4 mi');
+      expect(dica).toHaveTextContent('Previsto: R$ 164,4 mi');
+      expect(dica).toHaveTextContent('R$ 24,0 mi atrás do ritmo');
+    });
+
+    it('mês ainda sem arrecadação mostra só o previsto, sem virar zero', async () => {
+      const { container, zona } = abrirLinha([1_000_000], 60_000_000);
+
+      await userEvent.hover(zona(11));
+
+      const dica = container.querySelector('.dica') as HTMLElement;
+      expect(dica).toHaveTextContent('Até dezembro');
+      expect(dica).toHaveTextContent('Previsto: R$ 60,0 mi');
+      expect(dica).not.toHaveTextContent('Arrecadado');
+      expect(dica).not.toHaveTextContent('ritmo');
+    });
+
+    it('sem meta, a dica mostra só o arrecadado', async () => {
+      const { container, zona } = abrirLinha([1_000_000], 0);
+
+      await userEvent.hover(zona(0));
+
+      const dica = container.querySelector('.dica') as HTMLElement;
+      expect(dica).toHaveTextContent('Arrecadado: R$ 1,0 mi');
+      expect(dica).not.toHaveTextContent('Previsto');
+      expect(dica).not.toHaveTextContent('ritmo');
+    });
+
+    it('a guia vertical fica na posição do mês', async () => {
+      const { container, zona } = abrirLinha([1_000_000], 60_000_000);
+
+      await userEvent.hover(zona(11));
+
+      expect(container.querySelector('.linha-guia')).toHaveStyle({ left: '100%' });
+    });
+
+    it('tirar o mouse some com a dica e com a guia', async () => {
+      const { container, zona } = abrirLinha([1_000_000], 60_000_000);
+
+      await userEvent.hover(zona(0));
+      await userEvent.unhover(zona(0));
+
+      expect(container.querySelector('.dica')).toBeNull();
+      expect(container.querySelector('.linha-guia')).toBeNull();
+    });
+
+    it('tocar no mês mantém a dica aberta', async () => {
+      const { container, zona } = abrirLinha([1_000_000], 60_000_000);
+
+      await userEvent.click(zona(0));
+
+      expect(container.querySelector('.dica')).toHaveTextContent('Até janeiro');
+    });
+  });
+
   it('BarraDividida esconde as partes zeradas e mostra o percentual das outras', () => {
     render(
       <BarraDividida
