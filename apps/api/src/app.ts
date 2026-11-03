@@ -6,6 +6,7 @@ import { rotasDeDespesas } from './modules/despesas/despesas.routes';
 import { rotasDeDiscrepancias } from './modules/discrepancias/discrepancias.routes';
 import { rotasDeEmpenhos } from './modules/empenhos/empenhos.routes';
 import { rotasDeImportacoes } from './modules/importacoes/importacoes.routes';
+import { rotasDoMunicipio } from './modules/municipio/municipio.routes';
 import { rotasDeReceitas } from './modules/receitas/receitas.routes';
 
 export function criarApp(opcoes: FastifyServerOptions = {}): FastifyInstance {
@@ -24,5 +25,6 @@ export function criarApp(opcoes: FastifyServerOptions = {}): FastifyInstance {
   app.register(rotasDeConferencias);
   app.register(rotasDeDiscrepancias);
   app.register(rotasDeImportacoes);
+  app.register(rotasDoMunicipio);
   return app;
 }
