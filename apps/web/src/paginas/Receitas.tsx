@@ -6,7 +6,8 @@ import { AvisoDaReceitaAguardando, ateOMes, ContaDaReceita, LINK_DISCREPANCIAS, 
 import { emMilhoes, MESES, MESES_LONGOS, milhoes, moeda, numero, pct, porExtenso } from '../format';
 import { AvisoDeAtraso, Selo } from '../selo';
 import { SELO_EXEMPLO, SELO_FONTE_UNICA, seloConferidoComTce } from '../selos';
-import { ORIGEM_CIDADAO, ORIGENS_DE_FORA, populacao, sujeito } from '../referencias';
+import { ORIGEM_CIDADAO, ORIGENS_DE_FORA, sujeito } from '../referencias';
+import { usePopulacao } from '../usePopulacao';
 import type { PropsDaPagina } from './props';
 
 const N = Number;
@@ -49,7 +50,7 @@ export default function Receitas({ ano, entidade, filtros }: PropsDaPagina) {
 function Conteudo({ ano, entidade, filtros, dados }: PropsDaPagina & { dados: DadosDeReceitas }) {
   const [busca, setBusca] = useState('');
   const [todas, setTodas] = useState(false);
-  const pop = populacao(ano);
+  const pop = usePopulacao(ano);
   const arrecadado = N(dados.totais.arrecadadoNoMes);
   const previsto = N(dados.totais.orcadoAtualizado);
   const deducoes = N(dados.totais.orcadoDeducoes ?? 0);
@@ -235,14 +236,14 @@ function Conteudo({ ano, entidade, filtros, dados }: PropsDaPagina & { dados: Da
           >
             <Mi valor={deducoes} />
           </Numero>
-        ) : (
+        ) : pop ? (
           <Numero
             rotulo={`Por morador${ate ? ` ${ate}` : ''}`}
             detalhe={`arrecadado conferido ÷ ${numero(pop.pessoas)} moradores (${pop.fonte})`}
           >
             R$ {numero(Math.round(arrecadado / pop.pessoas))}
           </Numero>
-        )}
+        ) : null}
       </Numeros>
 
       {acumulado.length > 0 && (
@@ -343,14 +344,15 @@ function Conteudo({ ano, entidade, filtros, dados }: PropsDaPagina & { dados: Da
           <section className="secao estreita">
             <h2 className="secao-titulo">Impostos da cidade</h2>
             <p className="legenda-secao">
-              {emMilhoes(totalImpostos)} · R$ {numero(Math.round(totalImpostos / pop.pessoas))} por morador
+              {emMilhoes(totalImpostos)}
+              {pop && ` · R$ ${numero(Math.round(totalImpostos / pop.pessoas))} por morador`}
             </p>
             <ListaPontos
               itens={impostos.slice(0, 7).map((r) => ({
                 chave: r.rubrica,
                 nome: nomeTributo(r),
                 valor: r.arrecadado,
-                extra: `R$ ${numero(Math.round(r.arrecadado / pop.pessoas))} por morador`,
+                extra: pop ? `R$ ${numero(Math.round(r.arrecadado / pop.pessoas))} por morador` : undefined,
                 dica: r.descricao,
               }))}
             />

@@ -31,7 +31,8 @@ import {
 } from '../conferido';
 import { AvisoDeAtraso, Selo } from '../selo';
 import { SELO_EXEMPLO, SELO_FONTE_UNICA, seloConferidoComTce, seloDaDespesa } from '../selos';
-import { GLOSSARIO, ORIGEM_CIDADAO, ORIGENS_DE_FORA, populacao, sujeito } from '../referencias';
+import { GLOSSARIO, ORIGEM_CIDADAO, ORIGENS_DE_FORA, sujeito } from '../referencias';
+import { usePopulacao, type Populacao } from '../usePopulacao';
 import type { PropsDaPagina } from './props';
 
 const qs = (ano: number, entidade: string) => new URLSearchParams({ ano: String(ano), entidade }).toString();
@@ -44,7 +45,7 @@ export default function Financas({ ano, entidade, filtros }: PropsDaPagina) {
   const r = rec.dados;
   const d = emp.dados;
   const o = desp.dados;
-  const pop = populacao(ano);
+  const pop = usePopulacao(ano);
 
   return (
     <>
@@ -81,7 +82,7 @@ function Conteudo({
   r: Receitas;
   d: EmpenhosResumo;
   o: DespesasResumo;
-  pop: ReturnType<typeof populacao>;
+  pop: Populacao | null;
   entidades: readonly { codigo: string; sigla: string }[];
 }) {
   const arrecadado = N(r.totais.arrecadadoNoMes);
@@ -260,12 +261,14 @@ function Conteudo({
             —
           </Numero>
         )}
-        <Numero
-          rotulo={`Arrecadado aqui, por morador${ate ? `, ${ate}` : ''}`}
-          detalhe={`impostos, taxas e tarifas da cidade ÷ ${numero(pop.pessoas)} moradores (${pop.fonte}). Com os repasses, R$ ${numero(Math.round(arrecadado / pop.pessoas))}`}
-        >
-          R$ {numero(Math.round(propria / pop.pessoas))}
-        </Numero>
+        {pop && (
+          <Numero
+            rotulo={`Arrecadado aqui, por morador${ate ? `, ${ate}` : ''}`}
+            detalhe={`impostos, taxas e tarifas da cidade ÷ ${numero(pop.pessoas)} moradores (${pop.fonte}). Com os repasses, R$ ${numero(Math.round(arrecadado / pop.pessoas))}`}
+          >
+            R$ {numero(Math.round(propria / pop.pessoas))}
+          </Numero>
+        )}
       </Numeros>
 
       <div className="colunas">
@@ -317,7 +320,7 @@ function Conteudo({
         <div className="secao-cab">
           <h2 className="secao-titulo">Para onde vai cada R$ 100</h2>
           <span className="legenda-secao">
-            Valor original dos empenhos por órgão · e quanto isso dá por morador no ano
+            Valor original dos empenhos por órgão{pop ? ' · e quanto isso dá por morador no ano' : ''}
           </span>
         </div>
         <ul className="cada-100">
@@ -338,7 +341,8 @@ function Conteudo({
                 />
               </div>
               <span className="lp-extra">
-                {emMilhoes(o.valor)} · R$ {numero(Math.round(o.valor / pop.pessoas))} por morador
+                {emMilhoes(o.valor)}
+                {pop && ` · R$ ${numero(Math.round(o.valor / pop.pessoas))} por morador`}
               </span>
             </li>
           ))}

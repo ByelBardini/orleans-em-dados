@@ -1,4 +1,4 @@
-import { render, screen, within } from '@testing-library/react';
+import { act, render, screen, within } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import Financas from '../../src/paginas/Financas';
 import {
@@ -17,6 +17,7 @@ import {
   receitasSemConferencia,
   TEXTO_PROIBIDO,
 } from '../support/conferidos';
+import { municipioIndisponivel } from '../support/municipio';
 
 afterEach(() => vi.unstubAllGlobals());
 
@@ -77,9 +78,28 @@ describe('Visão geral com o conferido', () => {
     await abrir();
 
     // 500.000,25 de impostos ÷ 24.686 moradores; 1.200.000,50 ÷ 24.686.
+    await within(totais()).findByText('Arrecadado aqui, por morador');
     const morador = celula('Arrecadado aqui, por morador');
     expect(morador.querySelector('.numero-valor')).toHaveTextContent('R$ 20');
     expect(morador.querySelector('.numero-detalhe')).toHaveTextContent('Com os repasses, R$ 49');
+    expect(morador.querySelector('.numero-detalhe')).toHaveTextContent('24.686 moradores (IBGE, estimativa 2025)');
+  });
+
+  it('sem coleta do IBGE, a linha por morador some, sem erro na tela', async () => {
+    await abrir({ municipio: municipioIndisponivel() });
+    await act(() => new Promise((r) => setTimeout(r, 0)));
+
+    expect(within(totais()).queryByText('Arrecadado aqui, por morador')).not.toBeInTheDocument();
+    expect(document.body).not.toHaveTextContent('por morador');
+    expect(screen.queryByText(/Não foi possível carregar/)).not.toBeInTheDocument();
+  });
+
+  it('com a rota da população fora do ar, receita e despesa continuam', async () => {
+    await abrir({ municipio: null });
+    await act(() => new Promise((r) => setTimeout(r, 0)));
+
+    expect(celula('Arrecadado').querySelector('.numero-valor')).toHaveTextContent('1,2 mi');
+    expect(screen.queryByText(/Não foi possível carregar/)).not.toBeInTheDocument();
   });
 
   it('a Câmara fica à parte, com selo de fonte única e sem somar ao conferido', async () => {

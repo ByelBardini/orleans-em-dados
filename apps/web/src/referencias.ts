@@ -1,20 +1,5 @@
 // Dados de referência que não vêm da Betha.
 
-// População de Orleans/SC (IBGE, código 4211702). Censo 2022 e estimativas anuais
-// (tabela 6579). Para um ano sem número, usa o mais próximo anterior.
-const POPULACAO: Record<number, { pessoas: number; fonte: string }> = {
-  2022: { pessoas: 23661, fonte: 'IBGE, Censo 2022' },
-  2025: { pessoas: 24686, fonte: 'IBGE, estimativa 2025' },
-};
-
-export function populacao(ano: number) {
-  const anos = Object.keys(POPULACAO)
-    .map(Number)
-    .sort((a, b) => a - b);
-  const escolhido = [...anos].reverse().find((a) => a <= ano) ?? (anos[0] as number);
-  return POPULACAO[escolhido] as { pessoas: number; fonte: string };
-}
-
 // Origem da receita (dois primeiros dígitos da natureza) em linguagem do dia a dia.
 export const ORIGEM_CIDADAO: Record<string, string> = {
   11: 'Impostos e taxas municipais',

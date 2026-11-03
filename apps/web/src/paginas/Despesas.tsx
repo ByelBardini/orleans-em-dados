@@ -11,7 +11,7 @@ import { useApi } from '../api';
 import { BarraDividida, BarrasMensais, Estado, Filtros, Fonte, ListaPontos, Mi, Numero, Numeros } from '../components';
 import { ContaDaDespesa, LINK_DISCREPANCIAS, SemConferencia } from '../conferido';
 import { data, decimal, diaEMes, emMilhoes, MESES, MESES_LONGOS, moeda, nomeProprio, numero, pct } from '../format';
-import { populacao } from '../referencias';
+import { usePopulacao } from '../usePopulacao';
 import { AvisoDeAtraso, Selo } from '../selo';
 import { SELO_EXEMPLO, SELO_FONTE_UNICA, seloAguardando, seloDaDespesa } from '../selos';
 import type { PropsDaPagina } from './props';
@@ -79,7 +79,7 @@ function Conteudo({ ano, entidade, filtros, d, o }: PropsDaPagina & { d: Empenho
   const [aberta, setAberta] = useState<string | null>(null);
   const tabela = useRef<HTMLElement>(null);
   const termo = useDebounce(busca);
-  const pop = populacao(ano);
+  const pop = usePopulacao(ano);
 
   // A página vale para o filtro em que foi escolhida: filtro novo volta à primeira.
   const chaveDoFiltro = [termo, entidade, ano, orgao, situacao].join('|');
@@ -337,7 +337,7 @@ function Conteudo({ ano, entidade, filtros, d, o }: PropsDaPagina & { d: Empenho
               outro: o.outro,
               selecionado: Boolean(o.chave && o.chave === orgao),
               cor: o.outro ? 'var(--pontilhado)' : undefined,
-              extra: o.outro ? undefined : `R$ ${numero(Math.round(N(o.empenhado) / pop.pessoas))} por morador`,
+              extra: o.outro || !pop ? undefined : `R$ ${numero(Math.round(N(o.empenhado) / pop.pessoas))} por morador`,
               dica: `${o.rotulo}: ${emMilhoes(o.empenhado)}`,
             }))}
           />
