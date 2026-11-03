@@ -10,9 +10,11 @@ import {
   Estado,
   Filtros,
   Fonte,
+  larguraDaFaixa,
   LinhaAcumulada,
   ListaPontos,
   Numero,
+  Piramide,
   SeletorTema,
 } from '../src/components';
 
@@ -55,6 +57,22 @@ describe('Estado', () => {
 });
 
 describe('Numero', () => {
+  it('com comparação, ela aparece no pé do cartão', () => {
+    const { container } = render(
+      <Numero rotulo="x" comparacao={<p>Acima do Brasil</p>}>
+        1
+      </Numero>,
+    );
+
+    expect(container.querySelector('.numero-comparacao')).toHaveTextContent('Acima do Brasil');
+  });
+
+  it('sem comparação, o pé do cartão não aparece', () => {
+    const { container } = render(<Numero rotulo="x">1</Numero>);
+
+    expect(container.querySelector('.numero-comparacao')).toBeNull();
+  });
+
   it('mostra rótulo, valor, detalhe e selo', () => {
     render(
       <Numero rotulo="Arrecadado" detalhe="no ano" selo={<em>selo</em>}>
@@ -459,5 +477,43 @@ describe('gráficos', () => {
     expect(screen.getByText('3,0 mi · 75,0%')).toBeInTheDocument();
     expect(screen.getByText('(TCE-SC)')).toBeInTheDocument();
     expect(screen.queryByText('Vazia')).not.toBeInTheDocument();
+  });
+});
+
+describe('larguraDaFaixa', () => {
+  it('a maior faixa ocupa toda a largura, e as outras são proporcionais', () => {
+    expect(larguraDaFaixa(1000, 1000)).toBe('100%');
+    expect(larguraDaFaixa(250, 1000)).toBe('25%');
+  });
+
+  it('faixa zerada não tem barra', () => {
+    expect(larguraDaFaixa(0, 1000)).toBe('0%');
+  });
+
+  it('sem nenhum morador, não divide por zero', () => {
+    expect(larguraDaFaixa(0, 0)).toBe('0%');
+  });
+});
+
+describe('Piramide', () => {
+  const FAIXAS = [
+    { faixa: '0 a 4 anos', homens: 739, mulheres: 681 },
+    { faixa: '80 anos ou mais', homens: 188, mulheres: 275 },
+  ];
+
+  it('a figura tem descrição e a tabela repete os números para leitor de tela', () => {
+    render(<Piramide faixas={FAIXAS} descricao="Pirâmide de exemplo" />);
+
+    expect(screen.getByRole('img', { name: 'Pirâmide de exemplo' })).toBeInTheDocument();
+    const linha = within(screen.getByRole('table')).getByText('0 a 4 anos').closest('tr') as HTMLElement;
+    expect(linha).toHaveTextContent('739');
+    expect(linha).toHaveTextContent('681');
+  });
+
+  it('os mais velhos ficam em cima', () => {
+    const { container } = render(<Piramide faixas={FAIXAS} descricao="Pirâmide de exemplo" />);
+
+    const faixas = [...container.querySelectorAll('.piramide-faixa')].map((f) => f.textContent);
+    expect(faixas).toEqual(['80 ou mais', '0 a 4']);
   });
 });

@@ -18,11 +18,13 @@ export function Numero({
   barra,
   vermelho,
   selo,
+  comparacao,
   className = '',
 }: {
   rotulo: ReactNode;
   children: ReactNode;
   detalhe?: ReactNode;
+  comparacao?: ReactNode;
   barra?: number;
   vermelho?: boolean;
   selo?: ReactNode;
@@ -33,6 +35,7 @@ export function Numero({
       <span className="rotulo">{rotulo}</span>
       <span className={`numero-valor ${vermelho ? 'vermelho' : ''} ${className}`}>{children}</span>
       {detalhe && <span className="numero-detalhe">{detalhe}</span>}
+      {comparacao && <div className="numero-comparacao">{comparacao}</div>}
       {barra !== undefined && (
         <div className="trilho" aria-hidden="true">
           <span className={vermelho ? 'vermelho' : ''} style={{ width: `${Math.min(Math.max(barra, 0), 100)}%` }} />
@@ -360,10 +363,13 @@ export function BarraDividida({
   partes,
   total,
   descricao,
+  formatar = (v) => `${milhoes(v)} mi`,
 }: {
   partes: readonly { nome: string; valor: number | null; classe?: string; detalhe?: ReactNode }[];
   total: number | null;
   descricao: string;
+  /** O valor na legenda; por padrão, em milhões de reais. */
+  formatar?: (valor: number) => string;
 }) {
   const visiveis = partes.filter((p) => Number(p.valor) > 0);
   return (
@@ -373,7 +379,7 @@ export function BarraDividida({
           <span
             key={p.nome}
             className={p.classe}
-            title={`${p.nome}: R$ ${milhoes(p.valor)} mi`}
+            title={`${p.nome}: ${formatar(Number(p.valor))}`}
             style={{ width: `${(Number(p.valor) / Number(total)) * 100}%` }}
           />
         ))}
@@ -384,7 +390,7 @@ export function BarraDividida({
             <span className={`amostra ${p.classe ?? ''}`} aria-hidden="true" />
             <span>
               <span className="mono" style={{ fontWeight: 500 }}>
-                {milhoes(p.valor)} mi · {pctCurto(p.valor, total)}
+                {formatar(Number(p.valor))} · {pctCurto(p.valor, total)}
               </span>
               <br />
               {p.nome}
@@ -393,6 +399,67 @@ export function BarraDividida({
           </div>
         ))}
       </div>
+    </>
+  );
+}
+
+/** A largura de uma barra da pirâmide: proporcional à maior faixa, de qualquer sexo. */
+export const larguraDaFaixa = (valor: number, maximo: number) =>
+  maximo > 0 ? `${Math.max((valor / maximo) * 100, 0)}%` : '0%';
+
+// Homens à esquerda, mulheres à direita, os mais velhos em cima. A figura é para quem vê;
+// a tabela, para o leitor de tela.
+export function Piramide({
+  faixas,
+  descricao,
+}: {
+  faixas: readonly { faixa: string; homens: number; mulheres: number }[];
+  descricao: string;
+}) {
+  const maximo = Math.max(...faixas.flatMap((f) => [f.homens, f.mulheres]), 0);
+  const deCimaParaBaixo = [...faixas].reverse();
+  return (
+    <>
+      <div className="piramide" role="img" aria-label={descricao}>
+        <div className="piramide-cabecalho" aria-hidden="true">
+          <span>Homens</span>
+          <span />
+          <span className="vermelho">Mulheres</span>
+        </div>
+        {deCimaParaBaixo.map((f) => (
+          <div
+            key={f.faixa}
+            className="piramide-linha"
+            title={`${f.faixa}: ${f.homens} homens, ${f.mulheres} mulheres`}
+          >
+            <span className="piramide-barra homens">
+              <span style={{ width: larguraDaFaixa(f.homens, maximo) }} />
+            </span>
+            <span className="piramide-faixa">{f.faixa.replace(' anos', '')}</span>
+            <span className="piramide-barra mulheres">
+              <span style={{ width: larguraDaFaixa(f.mulheres, maximo) }} />
+            </span>
+          </div>
+        ))}
+      </div>
+      <table className="visualmente-oculto" aria-label="Pirâmide etária por faixa de idade">
+        <thead>
+          <tr>
+            <th scope="col">Faixa de idade</th>
+            <th scope="col">Homens</th>
+            <th scope="col">Mulheres</th>
+          </tr>
+        </thead>
+        <tbody>
+          {faixas.map((f) => (
+            <tr key={f.faixa}>
+              <th scope="row">{f.faixa}</th>
+              <td>{numero(f.homens)}</td>
+              <td>{numero(f.mulheres)}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
     </>
   );
 }

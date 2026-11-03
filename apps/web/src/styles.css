@@ -6,6 +6,7 @@
   --papel: #efeadf;
   --tinta: #1c1a17;
   --vermelho: #b52d1b;
+  --verde: #2c6e3f;
   --apagado: #47433c;
   --trilho: #d8d1c2;
   --regua: #b9b09e;
@@ -23,6 +24,7 @@
     --papel: #1a1815;
     --tinta: #ece5d6;
     --vermelho: #ec7a64;
+    --verde: #7cc58f;
     --apagado: #bdb5a6;
     --trilho: #38332c;
     --regua: #4a443b;
@@ -36,6 +38,7 @@
   --papel: #1a1815;
   --tinta: #ece5d6;
   --vermelho: #ec7a64;
+  --verde: #7cc58f;
   --apagado: #bdb5a6;
   --trilho: #38332c;
   --regua: #4a443b;
@@ -1091,7 +1094,14 @@ th {
   vertical-align: bottom;
 }
 
-tbody tr:hover td {
+/* O nome da linha é parte da linha: fica com a mesma régua e o mesmo destaque das células. */
+tbody th {
+  border-bottom: 1px solid var(--regua);
+  vertical-align: top;
+}
+
+tbody tr:hover td,
+tbody tr:hover th {
   background: var(--realce);
 }
 
@@ -1995,3 +2005,150 @@ button.selo-icone:hover {
     color: var(--apagado);
   }
 }
+/* ---------- pirâmide etária ---------- */
+
+.piramide {
+  display: grid;
+  gap: 2px;
+  margin-top: 12px;
+}
+
+.piramide-cabecalho,
+.piramide-linha {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 72px minmax(0, 1fr);
+  align-items: center;
+  gap: 6px;
+}
+
+.piramide-cabecalho {
+  font-size: 13px;
+  color: var(--apagado);
+}
+
+.piramide-cabecalho > :first-child {
+  text-align: right;
+}
+
+.piramide-linha {
+  min-height: 16px;
+}
+
+.piramide-faixa {
+  font-family: var(--mono);
+  font-size: 12px;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.piramide-barra {
+  display: flex;
+  height: 12px;
+}
+
+.piramide-barra.homens {
+  justify-content: flex-end;
+}
+
+.piramide-barra > span {
+  min-width: 1px;
+  background: var(--tinta);
+}
+
+.piramide-barra.mulheres > span {
+  background: var(--vermelho);
+}
+
+.piramide-titulo {
+  display: block;
+  margin: 24px 0 0;
+}
+
+.tabela-populacao th[scope='row'] {
+  font-weight: 400;
+}
+
+.tabela-populacao .linha-censo th,
+.tabela-populacao .linha-censo td {
+  font-weight: 600;
+}
+
+.tabela-populacao .trilho {
+  min-width: 56px;
+}
+
+/* ---------- Conheça Orleans: a lista e a posição diante de Santa Catarina e do Brasil ---------- */
+
+/* No pé do cartão: as linhas se alinham entre cartões com rótulos de tamanhos diferentes. */
+.numero-comparacao {
+  margin: auto 0 0;
+  padding-top: 8px;
+  border-top: 1px solid var(--regua);
+}
+
+.diante-dos-lugares {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 2px;
+  font-size: 14px;
+  color: var(--apagado);
+}
+
+.diante-dos-lugares .bom {
+  color: var(--verde);
+}
+
+.diante-dos-lugares .ruim {
+  color: var(--vermelho);
+}
+
+.lista-retrato {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(max(240px, 18%), 1fr));
+  gap: 0 32px;
+}
+
+/* Nome, número e comparação empilhados: a informação fica junto do nome em qualquer largura. */
+.lista-retrato > li {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 14px 0;
+  border-bottom: 1px solid var(--regua);
+}
+
+.lista-retrato-nome {
+  font-size: 15px;
+  color: var(--apagado);
+}
+
+.lista-retrato-valor {
+  font-family: var(--serif);
+  font-size: 30px;
+  line-height: 1.15;
+}
+
+.lista-retrato.sem-comparacao .lista-retrato-valor {
+  font-size: clamp(44px, 5vw, 60px);
+  line-height: 1;
+}
+
+.lista-retrato-unidade {
+  font-family: var(--sans);
+  font-size: 14px;
+  color: var(--apagado);
+}
+
+.lista-retrato .diante-dos-lugares {
+  margin-top: 4px;
+}
+
+.nota-da-comparacao {
+  padding: 12px 0 0;
+}
+
