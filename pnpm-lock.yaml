@@ -127,6 +127,9 @@ importers:
       '@orleans-em-dados/importador-nucleo':
         specifier: workspace:*
         version: link:../../packages/importadores/nucleo
+      '@orleans-em-dados/importador-siconfi':
+        specifier: workspace:*
+        version: link:../../packages/importadores/siconfi
       '@orleans-em-dados/importador-tcesc':
         specifier: workspace:*
         version: link:../../packages/importadores/tcesc
@@ -182,6 +185,9 @@ importers:
       '@orleans-em-dados/importador-nucleo':
         specifier: workspace:*
         version: link:../nucleo
+      '@orleans-em-dados/importador-siconfi':
+        specifier: workspace:*
+        version: link:../siconfi
       '@orleans-em-dados/importador-tcesc':
         specifier: workspace:*
         version: link:../tcesc
@@ -209,6 +215,18 @@ importers:
       drizzle-orm:
         specifier: ^0.45.4
         version: 0.45.4(@opentelemetry/api@1.10.0)(@types/pg@8.23.1)(pg@8.23.1)
+
+  packages/importadores/siconfi:
+    dependencies:
+      '@orleans-em-dados/contracts':
+        specifier: workspace:*
+        version: link:../../contracts
+      '@orleans-em-dados/db':
+        specifier: workspace:*
+        version: link:../../db
+      '@orleans-em-dados/importador-nucleo':
+        specifier: workspace:*
+        version: link:../nucleo
 
   packages/importadores/tcesc:
     dependencies:
