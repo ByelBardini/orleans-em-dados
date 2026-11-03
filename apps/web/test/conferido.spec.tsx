@@ -1,7 +1,7 @@
 import { render, screen } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
-import { AvisoDaReceitaAguardando, ateOMes, ContaDaDespesa, SemConferencia } from '../src/conferido';
-import { despesasParciais } from './support/conferidos';
+import { ateOMes, ContaDaDespesa, ContaDaReceita, SemConferencia } from '../src/conferido';
+import { despesasParciais, receitasParciais } from './support/conferidos';
 
 describe('ateOMes', () => {
   it('no parcial, diz o mês por extenso e o ano', () => {
@@ -24,13 +24,31 @@ describe('ContaDaDespesa', () => {
   });
 });
 
-describe('AvisoDaReceitaAguardando', () => {
+describe('ContaDaReceita', () => {
+  const conferencia = receitasParciais().conferencia;
+
+  it('sem explicada, a conta compacta não traz as explicações', () => {
+    const { container } = render(<ContaDaReceita conferencia={conferencia} />);
+    expect(container.querySelector('.conta-explica')).toBeNull();
+    expect(container.querySelector('.conta-explicada')).toBeNull();
+  });
+
+  it('com explicada, cada parcela e o total dizem o que são', () => {
+    const { container } = render(<ContaDaReceita explicada conferencia={conferencia} />);
+    expect(container.querySelectorAll('.conta-explica')).toHaveLength(4);
+  });
+
+  it('sem o mês limite, a parcela que aguarda não cita mês', () => {
+    render(<ContaDaReceita explicada conferencia={{ ...conferencia, limites: null }} />);
+    expect(screen.getByText(/^Ainda não chegou ao TCE-SC/)).toBeInTheDocument();
+  });
+
   it.each([
     ['zero', 0],
     ['nulo', null],
-  ])('valor %s não gera aviso', (_nome, valor) => {
-    const { container } = render(<AvisoDaReceitaAguardando valor={valor} mes={9} />);
-    expect(container).toBeEmptyDOMElement();
+  ])('aguardando %s não vira parcela', (_nome, aguardandoTce) => {
+    render(<ContaDaReceita explicada conferencia={{ ...conferencia, aguardandoTce }} />);
+    expect(screen.queryByText('+ aguardando TCE')).not.toBeInTheDocument();
   });
 });
 

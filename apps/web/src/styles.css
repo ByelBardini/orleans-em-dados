@@ -1683,6 +1683,95 @@ button.selo-icone:hover {
   color: var(--apagado);
 }
 
+/* A conta deitada, abaixo dos totais: uma coluna por parcela, cada uma dizendo o que é. */
+.conta-explicada {
+  gap: 10px;
+  margin-top: 0;
+  font-size: 14px;
+}
+
+.conta-explicada dl {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(220px, 100%), 1fr));
+  gap: 0;
+  border-block: 1px solid var(--regua);
+}
+
+.conta-explicada dl > div {
+  flex-direction: column;
+  flex-wrap: nowrap;
+  justify-content: flex-start;
+  gap: 4px;
+  margin: 0;
+  padding: 14px 20px;
+  border-top: 0;
+  border-left: 1px solid var(--regua);
+}
+
+.conta-explicada dl > div:first-child {
+  padding-left: 0;
+  border-left: 0;
+}
+
+.conta-explicada dl > .conta-total {
+  border-left-color: var(--tinta);
+}
+
+.conta-explicada dt {
+  font-family: var(--serif);
+  font-size: 22px;
+  font-style: italic;
+  line-height: 1.1;
+  color: var(--tinta);
+}
+
+.conta-explicada dd {
+  font-size: 16px;
+}
+
+.conta-explicada dd.conta-explica {
+  font-family: inherit;
+  font-size: 14px;
+  color: var(--apagado);
+}
+
+.faixa-conta .conta-explicada + .conta-explicada {
+  margin-top: 8px;
+}
+
+.conta-explicada .selo-link {
+  align-self: flex-start;
+}
+
+@media (max-width: 640px) {
+  .conta-explicada dl > div,
+  .conta-explicada dl > div:first-child {
+    padding: 12px 0;
+    border-left: 0;
+    border-top: 1px solid var(--regua);
+  }
+
+  .conta-explicada dl > div:first-child {
+    border-top: 0;
+  }
+
+  .conta-explicada dl > .conta-total {
+    border-top-color: var(--tinta);
+  }
+}
+
+.maiores-repasses {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.maiores-repasses h3 {
+  margin: 0;
+  font-weight: 400;
+}
+
 .rubrica-agrupada {
   display: block;
   margin-top: 4px;

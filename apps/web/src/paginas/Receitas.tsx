@@ -2,7 +2,7 @@ import { receitasSchema, type Receitas as DadosDeReceitas } from '@orleans-em-da
 import { useMemo, useState } from 'react';
 import { useApi } from '../api';
 import { BarraDividida, Estado, Filtros, Fonte, LinhaAcumulada, ListaPontos, Mi, Numero, Numeros } from '../components';
-import { AvisoDaReceitaAguardando, ateOMes, ContaDaReceita, LINK_DISCREPANCIAS, SemConferencia } from '../conferido';
+import { ateOMes, ContaDaReceita, LINK_DISCREPANCIAS, SecaoDaConta, SemConferencia } from '../conferido';
 import { emMilhoes, MESES, MESES_LONGOS, milhoes, moeda, numero, pct, porExtenso } from '../format';
 import { AvisoDeAtraso, Selo } from '../selo';
 import { SELO_EXEMPLO, SELO_FONTE_UNICA, seloConferidoComTce } from '../selos';
@@ -209,11 +209,7 @@ function Conteudo({ ano, entidade, filtros, dados }: PropsDaPagina & { dados: Da
               {exemplo ? (
                 <Selo selo={SELO_EXEMPLO} />
               ) : (
-                <>
-                  <Selo semLink selo={seloConferidoComTce(parcial ? mesReceita : null)} />
-                  <ContaDaReceita conferencia={dados.conferencia} />
-                  <AvisoDaReceitaAguardando valor={dados.conferencia.aguardandoTce} mes={mesReceita} />
-                </>
+                <Selo semLink selo={seloConferidoComTce(parcial ? mesReceita : null)} />
               )}
               <AvisoDeAtraso indicador="receita-arrecadada" ano={ano} />
             </>
@@ -246,6 +242,12 @@ function Conteudo({ ano, entidade, filtros, dados }: PropsDaPagina & { dados: Da
           </Numero>
         ) : null}
       </Numeros>
+
+      {!exemplo && (
+        <SecaoDaConta titulo="Como se chega ao arrecadado">
+          <ContaDaReceita explicada conferencia={dados.conferencia} />
+        </SecaoDaConta>
+      )}
 
       {acumulado.length > 0 && (
         <section className="secao solta">
