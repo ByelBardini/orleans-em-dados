@@ -1,5 +1,6 @@
 node_modules/
 dist/
+docs/plans
 
 # Dados coletados: podem conter dados pessoais de credores. Não versionar.
 data/
