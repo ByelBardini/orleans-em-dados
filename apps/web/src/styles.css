@@ -162,6 +162,13 @@ h3 {
   padding-bottom: 10px;
 }
 
+/* O botão de tema, acima de tudo, em todas as páginas. */
+.barra-tema {
+  justify-content: flex-end;
+  margin-top: -14px;
+  padding-bottom: 8px;
+}
+
 .fio-duplo {
   border-top: 3px solid var(--tinta);
   border-bottom: 1px solid var(--tinta);
@@ -183,12 +190,13 @@ h3 {
 
 .capa .nav-principal {
   justify-content: center;
+  gap: 0 48px;
   border-top: 1px solid var(--tinta);
   border-bottom: 1px solid var(--tinta);
 }
 
 .capa .nav-principal a {
-  padding: 12px 24px;
+  margin-bottom: -1px;
 }
 
 .cabecalho-compacto {
@@ -196,12 +204,12 @@ h3 {
   flex-wrap: wrap;
   align-items: flex-end;
   justify-content: space-between;
-  gap: 12px 32px;
-  padding-bottom: 10px;
+  gap: 4px 32px;
   border-bottom: 3px solid var(--tinta);
 }
 
 .cabecalho-compacto .marca {
+  padding-bottom: 10px;
   font-family: var(--serif);
   font-size: 44px;
   line-height: 1;
@@ -209,7 +217,7 @@ h3 {
   text-decoration: none;
 }
 
-.cabecalho-compacto + .faixa-meta {
+.cabecalho-compacto ~ .faixa-meta {
   padding: 8px 0;
   border-bottom: 1px solid var(--tinta);
 }
@@ -217,10 +225,20 @@ h3 {
 .nav-principal {
   display: flex;
   flex-wrap: wrap;
+  gap: 0 28px;
 }
 
+/* Os dois níveis ficam à direita, um embaixo do outro. */
+.cabecalho-compacto .nav-principal {
+  justify-content: flex-end;
+  margin-left: auto;
+}
+
+/* A aba senta no fio do cabeçalho: o sublinhado da atual cobre o fio. */
 .nav-principal a {
-  padding: 12px 16px;
+  margin-bottom: -3px;
+  padding: 12px 0 9px;
+  border-bottom: 3px solid transparent;
   text-decoration: none;
   font-weight: 500;
   letter-spacing: 0.08em;
@@ -228,13 +246,74 @@ h3 {
   font-size: 14px;
 }
 
-.nav-principal a + a {
-  border-left: 1px solid var(--tinta);
+.nav-principal a:hover {
+  color: var(--tinta);
+  border-bottom-color: var(--regua);
 }
 
-.nav-principal a[aria-current='page'] {
+.nav-principal a[aria-current] {
   font-weight: 600;
   color: var(--vermelho);
+  border-bottom-color: var(--vermelho);
+}
+
+.nav-segundo-nivel {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 0 24px;
+}
+
+.nav-segundo-nivel a {
+  padding: 10px 0;
+  color: var(--apagado);
+  text-decoration: none;
+  font-size: 15px;
+}
+
+.nav-segundo-nivel a:hover {
+  color: var(--tinta);
+  text-decoration: underline;
+  text-decoration-color: var(--regua);
+  text-decoration-thickness: 2px;
+  text-underline-offset: 5px;
+}
+
+.nav-segundo-nivel a[aria-current='page'] {
+  font-weight: 600;
+  color: var(--tinta);
+  text-decoration: underline;
+  text-decoration-color: var(--vermelho);
+  text-decoration-thickness: 2px;
+  text-underline-offset: 5px;
+}
+
+/* Sem o quadrado do foco: quem navega pelo teclado vê o texto sublinhado. */
+:is(.nav-principal, .nav-segundo-nivel) a:focus-visible {
+  outline: none;
+  text-decoration: underline;
+  text-decoration-color: currentcolor;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 3px;
+}
+
+@media (max-width: 640px) {
+  .nav-principal,
+  .capa .nav-principal,
+  .nav-segundo-nivel {
+    gap: 0 16px;
+  }
+
+  .cabecalho-compacto .nav-principal,
+  .nav-segundo-nivel {
+    justify-content: flex-start;
+    margin-left: 0;
+  }
+
+  .nav-principal a {
+    font-size: 13px;
+    letter-spacing: 0.06em;
+  }
 }
 
 /* ---------- filtros ---------- */
@@ -1427,6 +1506,7 @@ tr.expansivel {
     .faixa-meta,
     .capa .nav-principal,
     .cabecalho-compacto,
+    .nav-segundo-nivel,
     .barra-filtros,
     .abertura,
     .numeros,
@@ -2030,6 +2110,7 @@ button.selo-icone:hover {
     color: var(--apagado);
   }
 }
+
 /* ---------- pirâmide etária ---------- */
 
 .piramide {
@@ -2698,3 +2779,50 @@ tbody tr.linha-subfuncoes:hover td {
   }
 }
 
+/* ---------- capa ---------- */
+
+.cartoes-de-area {
+  list-style: none;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(240px, 100%), 1fr));
+  gap: 0 32px;
+  margin: 0;
+  padding: 0;
+}
+
+.cartoes-de-area > li {
+  border-bottom: 1px solid var(--regua);
+}
+
+.cartao-de-area {
+  display: block;
+  height: 100%;
+  padding: 14px 0;
+  text-decoration: none;
+}
+
+.cartao-de-area h3 {
+  margin: 0 0 4px;
+  font-family: var(--serif);
+  font-size: 26px;
+  font-weight: 400;
+  line-height: 1.1;
+}
+
+.cartao-de-area p {
+  margin: 0;
+  font-size: 15px;
+  color: var(--apagado);
+}
+
+a.cartao-de-area:hover h3 {
+  color: var(--vermelho);
+}
+
+.cartao-de-area.em-breve h3 {
+  color: var(--apagado);
+}
+
+.cartao-de-area.em-breve p {
+  font-style: italic;
+}

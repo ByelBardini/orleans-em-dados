@@ -1,20 +1,60 @@
 import { anosSchema } from '@orleans-em-dados/contracts';
 import { useEffect, useState } from 'react';
 import { useApi } from './api';
+import type { ComponentType } from 'react';
 import { Estado, SeletorTema } from './components';
 import { dataCurta } from './format';
+import Capa from './paginas/Capa';
+import ConhecaOrleans from './paginas/ConhecaOrleans';
 import Despesas from './paginas/Despesas';
 import Discrepancias from './paginas/Discrepancias';
-import Metodologia from './paginas/Metodologia';
-import Receitas from './paginas/Receitas';
 import Financas from './paginas/Financas';
+import Metodologia from './paginas/Metodologia';
+import ParaOndeVai from './paginas/ParaOndeVai';
+import type { PropsDaPagina } from './paginas/props';
+import Receitas from './paginas/Receitas';
 
-const ABAS = [
-  { id: 'visao-geral', nome: 'Visão geral', Componente: Financas, caderno: null },
-  { id: 'receitas', nome: 'Receitas', Componente: Receitas, caderno: 'Caderno de Receitas' },
-  { id: 'despesas', nome: 'Despesas', Componente: Despesas, caderno: 'Caderno de Despesas' },
+type Aba = {
+  id: string;
+  nome: string;
+  Componente: ComponentType<PropsDaPagina>;
+  caderno: string | null;
+  /** A página abre sem exercício publicado, e o cabeçalho não diz um exercício. */
+  semExercicio?: boolean;
+  /** A aba de primeiro nível que abre o segundo nível onde esta página fica. */
+  dentroDe?: string;
+  /** O nome no segundo nível, quando a própria área é uma das páginas. */
+  nomeNaArea?: string;
+};
+
+const ABAS: Aba[] = [
+  { id: 'visao-geral', nome: 'Início', Componente: Capa, caderno: null, semExercicio: true },
+  {
+    id: 'conheca-orleans',
+    nome: 'Conheça Orleans',
+    Componente: ConhecaOrleans,
+    caderno: 'A cidade pelo IBGE',
+    semExercicio: true,
+  },
+  { id: 'financas', nome: 'Finanças', nomeNaArea: 'Resumo', Componente: Financas, caderno: 'Caderno de Finanças' },
+  { id: 'receitas', nome: 'Receitas', Componente: Receitas, caderno: 'Caderno de Receitas', dentroDe: 'financas' },
+  { id: 'despesas', nome: 'Despesas', Componente: Despesas, caderno: 'Caderno de Despesas', dentroDe: 'financas' },
+  {
+    id: 'para-onde-vai',
+    nome: 'Para onde vai',
+    Componente: ParaOndeVai,
+    caderno: 'Para onde vai o dinheiro',
+    semExercicio: true,
+    dentroDe: 'financas',
+  },
   { id: 'discrepancias', nome: 'Discrepâncias', Componente: Discrepancias, caderno: 'Discrepâncias entre as fontes' },
-  { id: 'metodologia', nome: 'Sobre os dados', Componente: Metodologia, caderno: 'Fontes e metodologia' },
+  {
+    id: 'metodologia',
+    nome: 'Sobre os dados',
+    Componente: Metodologia,
+    caderno: 'Fontes e metodologia',
+    semExercicio: true,
+  },
 ];
 
 const PADRAO = ABAS[0]!;
@@ -25,12 +65,32 @@ const abaDoHash = () => {
   return ABAS.find((a) => `#${a.id}` === hash)?.id ?? PADRAO.id;
 };
 
-function Navegacao({ aba }: { aba: string }) {
+const paginasDaArea = (area: string) => ABAS.filter((a) => a.dentroDe === area);
+
+function Navegacao({ atual }: { atual: Aba }) {
+  const area = atual.dentroDe ?? atual.id;
+  // Com segundo nível, a página atual é marcada lá; aqui, só a área.
+  const marca = paginasDaArea(area).length ? 'true' : 'page';
   return (
     <nav className="nav-principal" aria-label="Principal">
-      {ABAS.map((a) => (
-        <a key={a.id} href={`#${a.id}`} aria-current={a.id === aba ? 'page' : undefined}>
+      {ABAS.filter((a) => !a.dentroDe).map((a) => (
+        <a key={a.id} href={`#${a.id}`} aria-current={a.id === area ? marca : undefined}>
           {a.nome}
+        </a>
+      ))}
+    </nav>
+  );
+}
+
+function SegundoNivel({ atual }: { atual: Aba }) {
+  const area = ABAS.find((a) => a.id === (atual.dentroDe ?? atual.id)) ?? PADRAO;
+  const paginas = paginasDaArea(area.id);
+  if (!paginas.length) return null;
+  return (
+    <nav className="nav-segundo-nivel" aria-label={`Páginas de ${area.nome}`}>
+      {[area, ...paginas].map((a) => (
+        <a key={a.id} href={`#${a.id}`} aria-current={a.id === atual.id ? 'page' : undefined}>
+          {a.nomeNaArea ?? a.nome}
         </a>
       ))}
     </nav>
@@ -60,7 +120,10 @@ export default function App() {
   }, [aba, atual.nome]);
 
   const atualizado = ano ? anos.dados?.atualizadoEm[ano] : undefined;
-  const exercicio = ano ? `Exercício de ${ano}${atualizado ? ` · Atualizado em ${dataCurta(atualizado)}` : ''}` : ' ';
+  const exercicio =
+    ano && !atual.semExercicio
+      ? `Exercício de ${ano}${atualizado ? ` · Atualizado em ${dataCurta(atualizado)}` : ''}`
+      : '';
   const filtros = {
     anos: anos.dados?.anos ?? [],
     ano,
@@ -72,14 +135,15 @@ export default function App() {
 
   return (
     <div className={`pagina${aba === 'visao-geral' ? ' capa' : ''}`}>
+      <div className="faixa-meta barra-tema">
+        <SeletorTema />
+      </div>
       {aba === 'visao-geral' ? (
         <header>
           <div className="faixa-meta">
             <span>Orleans, Santa Catarina</span>
-            <span>{exercicio}</span>
-            <span>
-              Fonte: Portal da Transparência · <SeletorTema />
-            </span>
+            <span>Dados públicos, cada um com fonte e ano</span>
+            <span>Fontes: IBGE, SICONFI, Portal da Transparência e TCE-SC</span>
           </div>
           <div className="fio-duplo" aria-hidden="true" />
           <div className="titulo-jornal">
@@ -87,7 +151,7 @@ export default function App() {
               Orleans <span className="italico">em</span> Dados
             </a>
           </div>
-          <Navegacao aba={aba} />
+          <Navegacao atual={atual} />
         </header>
       ) : (
         <>
@@ -95,13 +159,12 @@ export default function App() {
             <a href="#visao-geral" className="marca">
               Orleans <span className="italico">em</span> Dados
             </a>
-            <Navegacao aba={aba} />
+            <Navegacao atual={atual} />
           </header>
+          <SegundoNivel atual={atual} />
           <div className="faixa-meta">
             <span>{atual.caderno}</span>
-            <span>
-              {exercicio} · <SeletorTema />
-            </span>
+            <span>{exercicio}</span>
           </div>
         </>
       )}
@@ -115,15 +178,15 @@ export default function App() {
         )}
         <Estado carregando={anos.carregando} erro={anos.erro} />
         {anos.dados && !anos.dados.anos.length && <p className="aviso">Nenhum snapshot disponível.</p>}
-        {(ano || aba === 'metodologia') && <Componente ano={ano as number} entidade={entidade} filtros={filtros} />}
+        {(ano || atual.semExercicio) && <Componente ano={ano as number} entidade={entidade} filtros={filtros} />}
       </main>
 
       <footer className="rodape">
         <div>
           <p className="rotulo">Sobre os dados</p>
           <p>
-            Portal da Transparência de Orleans (Betha), conferido com o Farol do TCE-SC.{' '}
-            <a href="#discrepancias">Onde as fontes divergem</a> ·{' '}
+            Portal da Transparência de Orleans (Betha) conferido com o Farol do TCE-SC, despesa por função do SICONFI e
+            indicadores do IBGE. <a href="#discrepancias">Onde as fontes divergem</a> ·{' '}
             <a href="#metodologia">Como os números são conferidos</a>.
           </p>
         </div>
