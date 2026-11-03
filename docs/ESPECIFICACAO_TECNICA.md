@@ -27,26 +27,28 @@
 
 As páginas de dados só exibem como número principal o que foi conferido entre as fontes, ou o que tem uma fonte só, rotulada como tal (§7.2).
 
-1. **Visão geral:** ano/entidade, receita arrecadada conferida, orçamento previsto/atualizado (fonte única), despesa empenhada líquida, liquidada e paga conferidas; gráficos mensais e distribuição por entidade.
+1. **Capa e Finanças:** a capa é o retrato da cidade, com população, PIB per capita e a receita e a despesa do último exercício encerrado, cada número com o próprio ano, sem selo de conferência (ele fica nas páginas de cada área), e cartões das áreas. Finanças: ano/entidade, receita arrecadada conferida, orçamento previsto/atualizado (fonte única), despesa empenhada líquida, liquidada e paga conferidas; gráficos mensais e distribuição por entidade.
 2. **Receitas:** receita conferida por natureza (rubrica de 14 dígitos quando todos os meses batem; natureza de 8 dígitos com mês divergente), evolução mensal, composição e orçamento versus realizado; preservar valores negativos (ajustes/reclassificações); a conta conferido + em discrepância + aguardando = total da fonte ao lado.
 3. **Despesas:** execução orçamentária conferida por entidade e categoria; consulta dos empenhos casados entre as fontes por órgão, credor, número, histórico e data.
 4. **Discrepâncias:** cada valor retirado, em Betha x TCE-SC, por área e tipo, com o valor de cada fonte, a diferença e o lado que registra mais, a situação do caso (confirmado no portal, em parte, calculado, a rever), com a explicação de cada uma; o que aguarda o TCE-SC à parte; a comparação por entidade e mês; sem nome de credor nem histórico.
-5. **Metadados e transparência:** fonte, ID da consulta, URL de origem, filtro, exercício, data de coleta, entidade, versão do cálculo e nível da conferência.
+5. **Conheça Orleans:** população em censos e estimativas, território, situação do domicílio, pirâmide etária, rendimento domiciliar e PIB, do IBGE, em fonte única, com a posição diante de Santa Catarina e do Brasil no que é comparável, no mesmo ano; crescimento dito entre censos; PIB per capita ao lado do rendimento, com a nota de que não é renda.
+6. **Para onde vai o dinheiro:** despesa por função da DCA Anexo I-E, de 2018 em diante, nas três etapas, com a participação sobre o total sem a Câmara, as subfunções e a série em valores nominais. Total conferido com o TCE-SC quando há coleta; cada função em fonte única; a Câmara à parte.
+7. **Metadados e transparência:** fonte, ID da consulta, URL de origem, filtro, exercício, data de coleta, entidade, versão do cálculo e nível da conferência.
 
 ### 2.2 Fora do escopo inicial / próximas etapas
 
-Saúde e educação com indicadores legais, RCL e despesa de pessoal, dívida/restos a pagar, licitações, contratos, transferências, indicadores IBGE e histórico multianual. Projetar a estrutura para acrescentá-los, sem misturar esses conceitos ao MVP.
+Saúde e educação com indicadores legais, RCL e despesa de pessoal, dívida/restos a pagar, licitações, contratos, transferências, comparação entre municípios, correção pela inflação e despesa por função no ano em curso. Projetar a estrutura para acrescentá-los, sem misturar esses conceitos ao MVP.
 
 ## 3. Inventário de fontes
 
-| Fonte                                | Papel no projeto                                                                              | Endereço                                                                    |
-| ------------------------------------ | --------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------- |
-| Betha — Transparência de Orleans     | **Dados operacionais principais** de Executivo, fundos e autarquias                           | https://transparencia.betha.cloud/#/mJRAZlfGu2RI9KNBWj49aw==/consulta/57140 |
-| API de consultas Betha               | Dados estruturados e totalizadores do portal; API interna observada, estabilidade a confirmar | `https://api.transparencia.betha.cloud`                                     |
-| TCE-SC / Farol / e-Sfinge            | Conferência anual, tabelas por unidade gestora, incluindo Câmara                              | https://servicos.tcesc.tc.br/farol_externo/                                 |
-| SICONFI / Tesouro Nacional           | DCA, RREO e RGF; auditoria e séries padronizadas                                              | https://www.siconfi.tesouro.gov.br/                                         |
-| API SICONFI                          | Possível ingestão automática de demonstrativos oficiais                                       | https://apidatalake.tesouro.gov.br/docs/siconfi/                            |
-| IBGE — Localidades, Agregados, SIDRA | Indicadores demográficos e socioeconômicos futuros                                            | https://servicodados.ibge.gov.br/api/docs                                   |
+| Fonte                            | Papel no projeto                                                                              | Endereço                                                                    |
+| -------------------------------- | --------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------- |
+| Betha — Transparência de Orleans | **Dados operacionais principais** de Executivo, fundos e autarquias                           | https://transparencia.betha.cloud/#/mJRAZlfGu2RI9KNBWj49aw==/consulta/57140 |
+| API de consultas Betha           | Dados estruturados e totalizadores do portal; API interna observada, estabilidade a confirmar | `https://api.transparencia.betha.cloud`                                     |
+| TCE-SC / Farol / e-Sfinge        | Conferência anual, tabelas por unidade gestora, incluindo Câmara                              | https://servicos.tcesc.tc.br/farol_externo/                                 |
+| SICONFI / Tesouro Nacional       | DCA, RREO e RGF; auditoria e séries padronizadas                                              | https://www.siconfi.tesouro.gov.br/                                         |
+| API SICONFI                      | **Integrada:** DCA Anexo I-E, despesa por função; RREO e RGF continuam fora                   | https://apidatalake.tesouro.gov.br/docs/siconfi/                            |
+| IBGE — Agregados, SIDRA          | **Integrada:** população, Censo 2022 e PIB, em fonte única                                    | https://servicodados.ibge.gov.br/api/docs/agregados?versao=3                |
 
 **Atenção à abrangência:** “dados de Orleans” não implica automaticamente “Prefeitura + fundos + autarquias + Câmara”. A consulta Betha analisada trouxe quatro entidades; o painel de despesas do TCE-SC apresentou cinco unidades gestoras. Documentar o escopo de cada valor.
 
@@ -372,6 +374,11 @@ Os arquivos de 2025 `fundo municipal de saude.xlsx` e `samae.xlsx` foram compara
 | Despesa da Câmara                                  | TCE-SC                                                         | Sem conferência (fonte única)                    | Sempre à parte; não soma com as entidades                                                |
 | Despesa municipal com Legislativo                  | Não exibida como soma                                          | —                                                | Não assumir união automática para todos os anos                                          |
 | Comparação entre as fontes                         | Seção Discrepâncias                                            | Betha x TCE-SC                                   | Exibir valores, diferença com o lado que registra mais, situação e posição temporal      |
+| Despesa por função, total sem a Câmara             | SICONFI, DCA Anexo I-E                                         | TCE-SC, soma das UGs sem a 1864                  | Só exercício encerrado. Sem coleta do TCE-SC: fonte única. Diferença vai para a seção    |
+| Função Legislativa                                 | SICONFI, DCA Anexo I-E                                         | TCE-SC, UG 1864                                  | Sempre à parte; fora do total e da participação                                          |
+| Cada outra função e subfunção                      | SICONFI, DCA Anexo I-E                                         | Sem conferência (fonte única)                    | Função não é entidade: igualdade do total não confere cada função                        |
+| População, território, pirâmide, rendimento e PIB  | IBGE (agregados)                                               | Sem conferência (fonte única)                    | Coerência interna conferida na coleta; cada número traz o próprio ano                    |
+| Valor por morador e PIB per capita                 | Calculado com a população do IBGE                              | —                                                | Estimativa ou censo do ano, senão o anterior; o texto diz o divisor                      |
 
 ### 7.2 Status de confiabilidade
 

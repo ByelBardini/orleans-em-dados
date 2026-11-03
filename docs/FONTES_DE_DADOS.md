@@ -4,8 +4,37 @@
 | -------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------- | ---------------------------------------------------------------------------------------- |
 | [Portal da Transparência Betha — Orleans](https://transparencia.betha.cloud/#/mJRAZlfGu2RI9KNBWj49aw==)  | Dados operacionais de Prefeitura, FMS, SAMAE e Fundação Ambiental | **Integrada**: consultas `57153`, `57140` e `57170`                                      |
 | [TCE-SC / Farol](https://servicos.tcesc.tc.br/farol_externo/)                                            | Conferência e Câmara Municipal                                    | **Coletor integrado** (receitas e empenhos); ver `packages/importadores/tcesc/README.md` |
-| [SICONFI](https://www.siconfi.tesouro.gov.br/) / [API](https://apidatalake.tesouro.gov.br/docs/siconfi/) | DCA, RREO e RGF                                                   | A fazer                                                                                  |
-| [IBGE](https://servicodados.ibge.gov.br/api/docs)                                                        | Indicadores socioeconômicos                                       | Futuro                                                                                   |
+| [SICONFI](https://www.siconfi.tesouro.gov.br/) / [API](https://apidatalake.tesouro.gov.br/docs/siconfi/) | Despesa por função (DCA Anexo I-E)                                | **Integrada**: consulta `900201`; RREO e RGF continuam fora                              |
+| [IBGE](https://servicodados.ibge.gov.br/api/docs)                                                        | População, Censo 2022 e PIB                                       | **Integrada**: consultas `900101`, `900102` e `900103`                                   |
+
+## IBGE: agregados usados
+
+Código do município: `4211702`. Sem autenticação. O lote traz a série inteira: `coletas.ano` é o ano da coleta, e `periodo` é o ano de referência.
+
+| Consulta         | Tabela | Variáveis                                                                               |
+| ---------------- | ------ | --------------------------------------------------------------------------------------- |
+| `ibge_populacao` | 6579   | 9324, população estimada. Não há estimativa em 2022 nem em 2023                         |
+|                  | 200    | 93, população nos censos até 2010                                                       |
+|                  | 4709   | 93, população no Censo 2022                                                             |
+| `ibge_censo`     | 4714   | 93 população, 6318 área, 614 densidade                                                  |
+|                  | 9923   | 93 por situação do domicílio                                                            |
+|                  | 9514   | 93 por sexo e faixa de idade de 5 anos                                                  |
+|                  | 10295  | 13431 e 13534, rendimento domiciliar per capita médio e mediano                         |
+| `ibge_pib`       | 5938   | 37 PIB; 513, 517, 6575, 525 e 543, a composição, que vem depois do total (`...` até lá) |
+
+`ibge_comparacao` pede as mesmas tabelas para o Brasil e Santa Catarina (`localidades=N1[all]|N3[42]`), e Orleans é comparada a eles no mesmo ano.
+
+Símbolos do SIDRA: `...`, `..` e `X` ficam sem valor, com o símbolo guardado. `-` é zero absoluto. A coerência é conferida na coleta: urbana + rural = total; homens + mulheres nas faixas = total; composição = PIB, em até 1 mil reais, por arredondamento das parcelas.
+
+## SICONFI: DCA Anexo I-E
+
+`https://apidatalake.tesouro.gov.br/ords/siconfi/tt/dca?an_exercicio=<ano>&no_anexo=DCA-Anexo I-E&id_ente=4211702`, sem autenticação, paginação ORDS (`hasMore`, `offset`).
+
+- Responde para Orleans de 2018 a 2025. Em todos, a soma das funções é igual à linha de total nas três etapas.
+- Em 2024 e 2025, o total fecha ao centavo com o TCE-SC, e a função Legislativa é igual à Câmara (UG 1864).
+- Função não é entidade: Saúde é igual ao FMS em 2024 e 2025, mas Saneamento 2024 (R$ 10.902.059,23) difere do SAMAE no TCE-SC (R$ 10.791.652,53). Por isso, cada função é fonte única.
+- O campo `populacao` da resposta não é usado: traz 23.531 em 2024 e 2025, diferente do IBGE.
+- A DCA do exercício é entregue até 30 de abril do ano seguinte. Conta em formato desconhecido é recusada, porque o quadro já mudou de um ano para outro.
 
 ## Consultas Betha integradas
 

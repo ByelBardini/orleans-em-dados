@@ -8,7 +8,7 @@ O número principal é só a parte conferida entre as fontes. Quem mantém as co
 | --------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | `conferido com o TCE-SC`          | O valor que as duas fontes registram, ao centavo. Receita por entidade, natureza de 8 dígitos e mês; despesa por entidade; lista de empenhos, um a um. |
 | `conferido com a Betha até DD/MM` | Ano em curso: a despesa vem do TCE-SC, nos empenhos com par na Betha até o último dado que o Tribunal recebeu.                                         |
-| `fonte única, sem conferência`    | Orçamento e órgão (Betha) e Câmara (TCE-SC): não há com o que comparar. A Câmara fica à parte e não soma com as entidades.                             |
+| `fonte única, sem conferência`    | Orçamento e órgão (Betha), Câmara (TCE-SC), cada função da despesa (SICONFI) e os dados do IBGE: não há com o que comparar. A Câmara fica à parte.     |
 | `aguardando TCE`                  | Mês que o Tribunal ainda não recebeu. É pendência de remessa: o valor entra no conferido quando a remessa chegar.                                      |
 
 - **Receita:** só a diferença sai. Se as fontes têm o mesmo sinal, o conferido é o valor de menor módulo; com sinais opostos, ou com a linha em uma fonte só, é zero.
@@ -18,6 +18,21 @@ O número principal é só a parte conferida entre as fontes. Quem mantém as co
 - **Tabela de rubricas:** 14 dígitos quando todos os meses batem; natureza com mês divergente fica em 8 dígitos, sem rateio.
 
 Igualdade entre as fontes não é auditoria nem homologação contábil: mostra que as duas publicam o mesmo número.
+
+### Despesa por função e dados do IBGE
+
+- **Despesa por função (SICONFI, DCA Anexo I-E):** o total sem a Câmara é comparado com o TCE-SC nas três etapas. Quando fecha, leva `conferido com o TCE-SC`. Num ano sem coleta do Tribunal, leva fonte única, e os anos de 2018 a 2023 estão assim. Com diferença, o valor de cada fonte vai para a seção Discrepâncias.
+- **Cada função é fonte única:** função não é entidade, e igualdade do total não confere cada função. Saneamento 2024 difere do SAMAE no TCE-SC.
+- **A Câmara fica à parte:** a função Legislativa fica fora do total e da participação, como na aba Despesas.
+- **Só exercícios encerrados:** a DCA é entregue até 30 de abril do ano seguinte. O RREO do ano em curso não fecha com a DCA em 2025, sem causa demonstrada, e não é usado.
+- **Valores nominais:** sem correção pela inflação. A comparação entre anos usa a participação no total.
+- **Leitura:** gastar mais numa área não prova serviço melhor. A função Educação não é o índice constitucional de educação.
+- **IBGE:** população, território, situação do domicílio, pirâmide etária, rendimento e PIB são fonte única. Na coleta, as partes são conferidas com o total da própria tabela. Cada número traz o próprio ano.
+- **Comparação com Santa Catarina e Brasil:** Conheça Orleans usa as mesmas tabelas e o mesmo ano nos três lugares, e diz quanto cada número está acima ou abaixo: em percentual, ou em pontos quando já é percentual. Verde e vermelho só aparecem no dinheiro (rendimento e PIB per capita), onde mais é melhor; densidade, área urbana, crescimento e idade ficam sem cor, porque ficar acima ou abaixo não é bom nem ruim por si só. O número do estado e o do país valem para todos os moradores juntos: não são a média simples dos municípios, em que uma cidade pequena pesaria tanto quanto a capital.
+- **Divisor:** valor por morador e PIB per capita usam a estimativa ou o censo do próprio ano, senão o anterior mais próximo, e o texto diz qual. O PIB per capita de 2023 divide pelo Censo 2022, porque o IBGE não estimou 2023. O número é calculado aqui, não copiado, e coincide com o publicado: em Orleans, R$ 59.547,10 no indicador 47001 do IBGE; Santa Catarina dá R$ 67.459,74, e o Brasil, R$ 53.886,67, os mesmos noticiados na divulgação das Contas Regionais. Conferido à mão em 02/11/2026. De 2011 a 2022, Orleans difere do indicador em até 1 centavo, por arredondamento; em 2010, em R$ 2,51, com o Censo 2010 como divisor.
+- **Dois números do Brasil:** as Contas Nacionais do IBGE (tabela 6784) publicam R$ 51.693,92 de PIB per capita em 2023, com o mesmo PIB e 211,7 milhões de moradores. Com o Censo 2022, 203,1 milhões, a conta dá R$ 53.886,67. O painel compara com este, porque Orleans também divide pelo Censo; contra o outro, Orleans ficaria 15,2% acima, em vez de 10,5%.
+- **Composição do PIB:** cada ano tem a sua. Enquanto o IBGE só publica o total dos anos seguintes, a tela mostra a composição do último ano publicado com o total daquele ano, e diz que ela não descreve o ano mais recente.
+- **PIB per capita não é renda:** divide pela população tudo o que é produzido na cidade, e pode refletir uma atividade concentrada. O rendimento domiciliar do Censo aparece ao lado.
 
 ### Seção Discrepâncias
 
