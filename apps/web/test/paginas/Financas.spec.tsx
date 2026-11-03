@@ -113,6 +113,16 @@ describe('Visão geral com o conferido', () => {
     expect(screen.queryByText(/R\$ 13,5 milhões/)).not.toBeInTheDocument();
   });
 
+  it.each([
+    ['Quem gasta', '10,8 mi'],
+    ['De onde vem', '0,5 mi'],
+  ])('a lista "%s" diz a unidade do valor, para não parecer percentual', async (titulo, valor) => {
+    await abrir();
+
+    const secao = screen.getByRole('heading', { name: titulo }).closest('section') as HTMLElement;
+    expect(secao.querySelector('.lp-valor')).toHaveTextContent(valor);
+  });
+
   it('entidade fora da soma aparece sem número, com aviso e link', async () => {
     await abrir({ despesa: despesas({ porEntidade: [entidadeDaDespesa(), ENTIDADE_FORA] }) });
 

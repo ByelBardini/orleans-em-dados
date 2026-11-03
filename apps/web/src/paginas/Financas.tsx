@@ -298,6 +298,7 @@ function Conteudo({
         <section className="secao estreita">
           <h2 className="secao-titulo">De onde vem</h2>
           <ListaPontos
+            comUnidade
             itens={origens.map((o) => ({
               chave: o.chave,
               nome: ORIGEM_CIDADAO[o.chave] ?? o.descricao,
@@ -354,6 +355,7 @@ function Conteudo({
           <h2 className="secao-titulo">Quem gasta</h2>
           <ListaPontos
             vermelho
+            comUnidade
             itens={[
               ...o.porEntidade.map((e) => {
                 const qtd = d.porEntidade.find((x) => x.chave === e.chave)?.quantidade;
