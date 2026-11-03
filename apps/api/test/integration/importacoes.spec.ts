@@ -60,7 +60,7 @@ describe('GET /api/importacoes', () => {
     const { status, corpo } = await pedir();
 
     expect(status).toBe(200);
-    expect(corpo.importadores.map((i: { id: string }) => i.id)).toEqual(['betha', 'tcesc']);
+    expect(corpo.importadores.map((i: { id: string }) => i.id)).toEqual(['betha', 'ibge', 'siconfi', 'tcesc']);
     expect(importacoesSchema.safeParse(corpo).error?.issues).toBeUndefined();
   });
 

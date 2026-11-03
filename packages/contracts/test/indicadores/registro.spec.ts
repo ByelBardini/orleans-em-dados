@@ -54,7 +54,8 @@ describe('INDICADORES', () => {
     expect(new Set(ids).size).toBe(ids.length);
     for (const i of INDICADORES) {
       expect(i.nome.length, i.id).toBeGreaterThan(0);
-      expect(i.periodicidade.exercicioCorrente, i.id).toBe('diaria');
+      const esperada = ['ibge', 'siconfi'].includes(i.importador) ? 'mensal' : 'diaria';
+      expect(i.periodicidade.exercicioCorrente, i.id).toBe(esperada);
     }
   });
 
@@ -67,7 +68,20 @@ describe('INDICADORES', () => {
       'despesa-empenhada-liquida': 57170,
       'despesa-liquidada-paga': 57170,
       'despesa-camara': 900002,
+      populacao: 900101,
+      censo: 900102,
+      pib: 900103,
+      comparacao: 900104,
+      'despesa-por-funcao-total': 900201,
+      'despesa-por-funcao-divisao': 900201,
     });
+  });
+
+  it('só o total da despesa por função é conferido contra o TCE-SC; a divisão é fonte única', () => {
+    const conferidoContra = (id: string) => INDICADORES.find((i) => i.id === id)?.conferidoContra;
+
+    expect(conferidoContra('despesa-por-funcao-total')).toBe(900002);
+    expect(conferidoContra('despesa-por-funcao-divisao')).toBeNull();
   });
 
   it('a despesa da Câmara não tem conferência na Betha, porque não está no portal', () => {
