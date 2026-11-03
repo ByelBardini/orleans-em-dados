@@ -787,3 +787,45 @@ describe('caso de rubricas que se compensam', () => {
     expect(celula).not.toHaveTextContent('meses diferentes');
   });
 });
+
+describe('Discrepancias: despesa por função', () => {
+  const FUNCAO = grupo('funcao_pago', 'Despesa por função: pago', 10.5, [
+    caso({
+      area: 'funcao',
+      entidade: 'Total sem a Câmara',
+      codigoEntidade: null,
+      natureza: null,
+      descricao: null,
+      mes: null,
+      betha: null,
+      tce: 100,
+      dca: 110.5,
+      maior: 'dca',
+      diferenca: 10.5,
+      diferencaBetha: null,
+      diferencaTce: null,
+      valor: 10.5,
+      nota: 'No pago, o SICONFI registra R$ 10,50 a mais.',
+    }),
+  ]);
+
+  it('o grupo sai em bloco próprio, com o valor de cada fonte e o lado que registra mais', async () => {
+    await abrir({ secao: discrepancias({ grupos: [FUNCAO] }) });
+
+    const bloco = screen.getByRole('region', { name: 'Despesa por função: pago' });
+    expect(within(bloco).getByRole('columnheader', { name: 'SICONFI' })).toBeInTheDocument();
+    expect(within(bloco).queryByRole('columnheader', { name: 'Betha' })).not.toBeInTheDocument();
+    const linha = within(bloco)
+      .getByText(/Total sem a Câmara/)
+      .closest('tr') as HTMLElement;
+    expect(linha).toHaveTextContent(reais('110,50'));
+    expect(linha).toHaveTextContent(reais('100,00'));
+    expect(linha).toHaveTextContent(`${reais('10,50')} a mais no SICONFI`);
+  });
+
+  it('a manchete não atribui o caso só a Betha e TCE-SC', async () => {
+    await abrir({ secao: discrepancias({ grupos: [FUNCAO] }) });
+
+    expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('em que as fontes não coincidem');
+  });
+});
