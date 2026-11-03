@@ -44,6 +44,30 @@ export const GLOSSARIO: [string, string][] = [
   ['Credor', 'A empresa, órgão ou pessoa que recebe o pagamento.'],
 ];
 
+// Função de governo em linguagem do dia a dia; o nome oficial vai junto quando é outro.
+const FUNCAO_CIDADAO: Record<string, string> = {
+  '04': 'Administração da prefeitura',
+  '06': 'Segurança e defesa civil',
+  '08': 'Assistência social',
+  '13': 'Cultura',
+  '15': 'Ruas, praças e iluminação',
+  '16': 'Moradia',
+  '17': 'Água, esgoto e lixo',
+  '18': 'Meio ambiente',
+  '20': 'Agricultura',
+  '23': 'Comércio e serviços',
+  '26': 'Estradas e transporte',
+  '27': 'Esporte e lazer',
+};
+
+/** `oficial` só vem quando o nome do dia a dia é outro. */
+export const nomeDaFuncao = (codigo: string, oficial: string): { nome: string; oficial: string | null } => {
+  const cidadao = FUNCAO_CIDADAO[codigo];
+  return cidadao && cidadao.toLocaleLowerCase('pt-BR') !== oficial.toLocaleLowerCase('pt-BR')
+    ? { nome: cidadao, oficial }
+    : { nome: oficial, oficial: null };
+};
+
 // Como cada entidade entra numa frase ("Em 2025, o SAMAE arrecadou…").
 const SUJEITO: Record<string, string> = {
   728: 'a Prefeitura',
