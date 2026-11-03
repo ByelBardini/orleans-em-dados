@@ -33,7 +33,7 @@ export const fontes = pgTable('fontes', {
 export const consultas = pgTable(
   'consultas',
   {
-    id: integer('id').primaryKey(), // ID da consulta na fonte; ≥ 900001 para os apps do TCE-SC
+    id: integer('id').primaryKey(), // ID da consulta na fonte; ≥ 900001 para as fontes sem id numérico (TCE-SC, IBGE, SICONFI)
     fonteId: text('fonte_id').notNull(),
     chave: text('chave').notNull(),
     nome: text('nome').notNull(),
@@ -308,5 +308,53 @@ export const execucoes = pgTable(
   (t) => [
     check('execucoes_status_check', sql`${t.status} IN ('em_andamento', 'sucesso', 'rejeitada', 'falhou')`),
     index('execucoes_importador_ano_iniciado_em_idx').on(t.importador, t.ano, t.iniciadoEm.desc().nullsFirst()),
+  ],
+);
+
+// Agregados do IBGE, uma linha por tabela × variável × período × categoria. O lote traz a série
+// inteira: `ano` é o ano da coleta, e `periodo`, o ano de referência. Símbolo do SIDRA vira valor NULL.
+export const ibgeValores = pgTable(
+  'ibge_valores',
+  {
+    coletaId: coletaId(),
+    idExterno: text('id_externo').notNull(),
+    ano: smallint('ano').notNull(),
+    localidade: text('localidade').notNull(), // código do IBGE: 4211702 Orleans, 42 Santa Catarina, 1 Brasil
+    tabela: text('tabela').notNull(),
+    variavel: text('variavel').notNull(),
+    periodo: text('periodo').notNull(),
+    categoria: text('categoria').notNull(), // vazio = total da tabela
+    valor: numeric('valor', { precision: 18, scale: 3 }),
+    unidade: text('unidade').notNull(),
+    simbolo: text('simbolo'),
+  },
+  (t) => [
+    primaryKey({ name: 'ibge_valores_pkey', columns: [t.coletaId, t.idExterno] }),
+    fkColeta('ibge_valores', t.coletaId),
+  ],
+);
+
+// DCA Anexo I-E do SICONFI, uma linha por coluna × conta. `ano` é o exercício. Etapas nunca se somam.
+export const siconfiFuncoes = pgTable(
+  'siconfi_funcoes',
+  {
+    coletaId: coletaId(),
+    idExterno: text('id_externo').notNull(),
+    ano: smallint('ano').notNull(),
+    etapa: text('etapa').notNull(),
+    tipo: text('tipo').notNull(),
+    funcaoCodigo: text('funcao_codigo'), // NULL só na linha de total
+    subfuncaoCodigo: text('subfuncao_codigo'), // `10.301` ou `FU12` (Demais Subfunções)
+    conta: text('conta').notNull(),
+    valor: dinheiro('valor').notNull(),
+  },
+  (t) => [
+    primaryKey({ name: 'siconfi_funcoes_pkey', columns: [t.coletaId, t.idExterno] }),
+    fkColeta('siconfi_funcoes', t.coletaId),
+    check(
+      'siconfi_funcoes_etapa_check',
+      sql`${t.etapa} IN ('empenhado', 'liquidado', 'pago', 'rp_nao_processados', 'rp_processados')`,
+    ),
+    check('siconfi_funcoes_tipo_check', sql`${t.tipo} IN ('total', 'funcao', 'subfuncao')`),
   ],
 );

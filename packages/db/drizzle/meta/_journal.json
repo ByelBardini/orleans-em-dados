@@ -15,6 +15,20 @@
       "when": 1793585331718,
       "tag": "0001_execucoes",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1793660425152,
+      "tag": "0002_fontes_ibge_siconfi",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1793667724678,
+      "tag": "0003_localidade_do_ibge",
+      "breakpoints": true
     }
   ]
 }
