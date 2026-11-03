@@ -7,10 +7,10 @@ import Despesas from './paginas/Despesas';
 import Discrepancias from './paginas/Discrepancias';
 import Metodologia from './paginas/Metodologia';
 import Receitas from './paginas/Receitas';
-import VisaoGeral from './paginas/VisaoGeral';
+import Financas from './paginas/Financas';
 
 const ABAS = [
-  { id: 'visao-geral', nome: 'Visão geral', Componente: VisaoGeral, caderno: null },
+  { id: 'visao-geral', nome: 'Visão geral', Componente: Financas, caderno: null },
   { id: 'receitas', nome: 'Receitas', Componente: Receitas, caderno: 'Caderno de Receitas' },
   { id: 'despesas', nome: 'Despesas', Componente: Despesas, caderno: 'Caderno de Despesas' },
   { id: 'discrepancias', nome: 'Discrepâncias', Componente: Discrepancias, caderno: 'Discrepâncias entre as fontes' },

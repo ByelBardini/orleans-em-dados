@@ -5,7 +5,7 @@ import App from '../src/App';
 import { FetchFake } from './support/fetch-fake';
 
 // As páginas têm spec próprio: aqui, só o que o App decide.
-vi.mock('../src/paginas/VisaoGeral', () => ({
+vi.mock('../src/paginas/Financas', () => ({
   default: ({ ano }: { ano: number }) => <p>Página visão geral {ano}</p>,
 }));
 vi.mock('../src/paginas/Receitas', () => ({ default: ({ ano }: { ano: number }) => <p>Página receitas {ano}</p> }));
