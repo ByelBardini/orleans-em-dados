@@ -24,6 +24,7 @@ import type {
   ReceitaRepetida,
   ReceitaRepetidaMeses,
   RubricaDaReceita,
+  SomaDaEtapa,
   TotaisDasFontes,
 } from './conferencia.bo';
 
@@ -95,7 +96,7 @@ const CONSULTAS = {
     SELECT q.chave, q.fonte_id AS fonte, q.nome, c.id AS coleta, c.finalizado_em AS "coletadoEm", c.total_hits AS linhas,
            c.filtro->>'ultimaRecargaApp' AS "recargaTce"
     FROM publicacoes p JOIN consultas q ON q.id = p.consulta_id JOIN coletas c ON c.id = p.coleta_id
-    WHERE p.ano = $1 AND c.status <> 'exemplo' ORDER BY q.fonte_id, q.chave`,
+    WHERE p.ano = $1 AND c.status <> 'exemplo' AND q.fonte_id IN ('betha', 'tcesc') ORDER BY q.fonte_id, q.chave`,
 
   // Betha 57170 × TCE por UG: mesmo conceito (empenhado/liquidado/pago líquidos de anulações).
   // A 57170 não tem data: em exercício incompleto no TCE os totais não são comparáveis.
@@ -400,3 +401,28 @@ export async function lerDivergenciasEmOutrosAnos(ano: number) {
   }
   return porRubrica;
 }
+
+// As três etapas nunca se somam. A view só tem o lote publicado.
+const SOMAS_DA_DCA = `
+  SELECT etapa,
+         coalesce(sum(valor) FILTER (WHERE tipo = 'total'), 0)::float8 AS total,
+         coalesce(sum(valor) FILTER (WHERE tipo = 'funcao' AND funcao_codigo = '01'), 0)::float8 AS legislativa
+  FROM siconfi_funcoes_publicadas
+  WHERE ano = $1 AND etapa IN ('empenhado', 'liquidado', 'pago')
+  GROUP BY etapa`;
+
+// A Câmara é a unidade do Legislativo em `unidades_tce`. Coleta de exemplo não confere nada.
+const SOMAS_DO_TCE_PARA_FUNCOES = `
+  SELECT x.etapa,
+         coalesce(sum(x.valor) FILTER (WHERE u.poder IS DISTINCT FROM 'Legislativo'), 0)::float8 AS total,
+         coalesce(sum(x.valor) FILTER (WHERE u.poder = 'Legislativo'), 0)::float8 AS legislativa
+  FROM tcesc_empenhos t
+  JOIN coletas c ON c.id = t.coleta_id AND c.status <> 'exemplo'
+  LEFT JOIN unidades_tce u ON u.codigo_ug = t.codigo_ug
+  CROSS JOIN LATERAL (VALUES ('empenhado', t.valor_empenhado), ('liquidado', t.valor_liquidado), ('pago', t.valor_pago))
+    AS x(etapa, valor)
+  WHERE t.coleta_id = ${coleta('tcesc_empenhos')}
+  GROUP BY x.etapa`;
+
+export const lerSomasDaDca = (ano: number) => consultar<SomaDaEtapa>(SOMAS_DA_DCA, [ano]);
+export const lerSomasDoTceParaFuncoes = (ano: number) => consultar<SomaDaEtapa>(SOMAS_DO_TCE_PARA_FUNCOES, [ano]);
