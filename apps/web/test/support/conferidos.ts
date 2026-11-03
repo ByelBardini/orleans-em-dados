@@ -7,9 +7,11 @@ import {
   receitasSchema,
   type DespesasResumo,
   type EmpenhosResumo,
+  type Municipio,
   type Receitas,
 } from '@orleans-em-dados/contracts';
 import { FetchFake } from './fetch-fake';
+import { municipio as municipioPadrao } from './municipio';
 import { respostaGravada } from './respostas';
 
 const META = respostaGravada('api_receitas_ano_2025').meta;
@@ -290,8 +292,11 @@ export function api({
   receita = receitas(),
   despesa = despesas(),
   empenhos = resumoDeEmpenhos(),
-}: { receita?: Receitas; despesa?: DespesasResumo; empenhos?: EmpenhosResumo } = {}) {
-  return new FetchFake()
+  municipio = municipioPadrao(),
+}: { receita?: Receitas; despesa?: DespesasResumo; empenhos?: EmpenhosResumo; municipio?: Municipio | null } = {}) {
+  const fake = new FetchFake();
+  if (municipio) fake.responder('/api/municipio', municipio);
+  return fake
     .responder(`/api/receitas?${consulta}`, receita)
     .responder(`/api/despesas/resumo?${consulta}`, despesa)
     .responder(`/api/despesas/empenhos/resumo?${consulta}`, empenhos)
@@ -304,7 +309,7 @@ const centavos = (texto: string | null) =>
 
 /** Os valores da conta como aparecem na tela, em centavos: as parcelas e o total. */
 export function contaNaTela(conta: HTMLElement) {
-  const valores = [...conta.querySelectorAll('dd')].map((dd) => centavos(dd.textContent));
+  const valores = [...conta.querySelectorAll('dd:not(.conta-explica)')].map((dd) => centavos(dd.textContent));
   return { parcelas: valores.slice(0, -1), total: valores.at(-1) };
 }
 

@@ -1,6 +1,6 @@
 # Importadores
 
-Coleta das fontes externas, gravação e publicação. Um pacote por fonte em `packages/importadores/<fonte>/`, sobre o contrato de `packages/importadores/nucleo/`; `apps/worker` agenda as rodadas e traz a CLI. Fontes: [betha.md](betha.md), [tcesc.md](tcesc.md).
+Coleta das fontes externas, gravação e publicação. Um pacote por fonte em `packages/importadores/<fonte>/`, sobre o contrato de `packages/importadores/nucleo/`; `apps/worker` agenda as rodadas e traz a CLI. Fontes: [betha.md](betha.md), [tcesc.md](tcesc.md), [ibge.md](ibge.md), [siconfi.md](siconfi.md).
 
 ## O contrato (`packages/importadores/nucleo`)
 
@@ -22,7 +22,7 @@ Status da execução, em `execucoes`: `em_andamento`, `sucesso`, `rejeitada`, `f
 ## Worker e CLI (`apps/worker`)
 
 - `pnpm worker` — sobe o agendador. Cada importador é uma fila do pg-boss (`importador-<id>`), política `singleton` (uma rodada ativa por importador), com `schedule` no fuso `America/Sao_Paulo` e até 3 repetições com espera crescente a partir de 10 minutos.
-- `pnpm importar <betha|tcesc> --ano 2025 [--consulta <chave>] [--json]` — roda à mão, sem fila. Com `--json`, salva o snapshot em `data/<fonte>/<consulta>-<ano>.json` (`.rejeitado.json` quando reprovado).
+- `pnpm importar <betha|tcesc|ibge|siconfi> --ano 2025 [--consulta <chave>] [--json]` — roda à mão, sem fila. Com `--json`, salva o snapshot em `data/<fonte>/<consulta>-<ano>.json` (`.rejeitado.json` quando reprovado).
 - `pnpm importar --arquivo <snapshot.json>`, `pnpm db:exemplos` — grava snapshots já existentes; exemplos fictícios só são publicados se não houver dado real para o ano.
 - `pnpm conferir --ano 2025 [--json]` — relatório da conferência no console.
 
@@ -33,6 +33,7 @@ Status da execução, em `execucoes`: `em_andamento`, `sucesso`, `rejeitada`, `f
 
 - Uma coleta só é publicada com todos os registros capturados, ids únicos e soma em centavos igual ao total da fonte. Qualquer falha: `rejeitado`, gravada e não publicada, e o dashboard continua com o lote anterior.
 - Mesmo conteúdo da coleta publicada (mesmo hash) não vira outra coleta: só atualiza `coletas.finalizado_em`, a data que o dashboard mostra.
+- `ano` é o exercício em toda fonte, salvo no IBGE, em que é o ano da coleta: a fonte publica séries, e o lote traz a série inteira. O ano de referência é o `periodo` da linha.
 - Campo ausente é contado em `camposAusentes`, nunca somado como zero.
 
 ## Regras de arquitetura
@@ -44,7 +45,7 @@ Status da execução, em `execucoes`: `em_andamento`, `sucesso`, `rejeitada`, `f
 ## Testes
 
 - `nucleo/test/support/fakes.ts` — `RepositorioDeLotesFake` (guarda a ordem das chamadas), `relogioFake`, `bruto`, `consultaFake`, `importadorFake`.
-- `packages/importadores/fixtures/src/` (pacote de teste) — `snapshots.ts`: snapshots fictícios das cinco consultas (`receitas`, `empenhos`, `despesas`, `tcescReceitas`, `tcescEmpenhos`, e `snapshot(consultaId, registros, opções)` para montar outro), com receita negativa, incoerência mês × acumulado, empenho renumerado, cópia antiga, empenho sem liquidação e a Câmara; o TCE-SC vai só até fevereiro (exercício parcial). `banco-de-teste.ts`: `limparColetas()` (mantém o catálogo) e `popularBancoDeTeste()` (as cinco publicadas).
+- `packages/importadores/fixtures/src/` (pacote de teste) — `snapshots.ts`: snapshots fictícios das consultas (`receitas`, `empenhos`, `despesas`, `tcescReceitas`, `tcescEmpenhos`, `ibgePopulacao`, `ibgeCenso`, `ibgePib`, `siconfiFuncoes({ ano, contas })`, e `snapshot(consultaId, registros, opções)` para montar outro), com receita negativa, incoerência mês × acumulado, empenho renumerado, cópia antiga, empenho sem liquidação e a Câmara; o TCE-SC vai só até fevereiro (exercício parcial). `banco-de-teste.ts`: `limparColetas()` (mantém o catálogo), `popularBancoDeTeste()` (todas publicadas) e `popularCenario({ ... })`, que troca lotes; `ibgePopulacao: null` e `siconfiFuncoes: []` deixam a fonte sem coleta.
 - `apps/worker/test/integration/filas.spec.ts` sobe o pg-boss de verdade no Postgres descartável, com o esquema `pgboss` recriado a cada `it`.
 
 ## Armadilhas

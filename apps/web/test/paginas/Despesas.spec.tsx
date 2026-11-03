@@ -1,4 +1,4 @@
-import { render, screen, within } from '@testing-library/react';
+import { act, render, screen, within } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import Despesas from '../../src/paginas/Despesas';
 import {
@@ -14,6 +14,7 @@ import {
   resumoDeEmpenhos,
   TEXTO_PROIBIDO,
 } from '../support/conferidos';
+import { municipioIndisponivel } from '../support/municipio';
 
 const NBSP = ' ';
 
@@ -31,6 +32,15 @@ const porEntidade = () => screen.getByRole('region', { name: 'Despesa por entida
 const linhaDa = (nome: string) => within(porEntidade()).getByText(nome).closest('tr') as HTMLElement;
 
 describe('Despesas com o conferido', () => {
+  it('sem coleta do IBGE, o "por morador" some, e os totais continuam', async () => {
+    await abrir({ municipio: municipioIndisponivel() });
+    await act(() => new Promise((r) => setTimeout(r, 0)));
+
+    expect(document.body).not.toHaveTextContent('por morador');
+    expect(screen.queryByText(/Não foi possível carregar/)).not.toBeInTheDocument();
+    expect(celula('Empenhado').querySelector('.numero-valor')).toHaveTextContent('10,8 mi');
+  });
+
   it('a entidade mostra o valor sem as linhas retiradas, e não o total da Betha', async () => {
     await abrir();
 

@@ -1,4 +1,4 @@
-import { render, screen, within } from '@testing-library/react';
+import { act, render, screen, within } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import Receitas from '../../src/paginas/Receitas';
 import {
@@ -13,6 +13,7 @@ import {
   receitasSemConferencia,
   TEXTO_PROIBIDO,
 } from '../support/conferidos';
+import { municipioIndisponivel } from '../support/municipio';
 
 const NBSP = ' ';
 
@@ -55,6 +56,58 @@ describe('Receitas com o conferido', () => {
     const { parcelas, total } = contaNaTela(conta());
     expect(parcelas).toEqual([120000050, 870000030]);
     expect(total).toBe(990000080);
+  });
+
+  it('a conta fica fora do cartão do arrecadado, numa faixa logo abaixo dos totais', async () => {
+    await abrir();
+
+    expect(conta()).toBeInTheDocument();
+    expect(within(totais()).queryByRole('group', { name: 'A conta do conferido' })).not.toBeInTheDocument();
+  });
+
+  it('a seção da conta tem título e diz quem são as duas fontes', async () => {
+    await abrir();
+
+    const secao = screen
+      .getByRole('heading', { name: 'Como se chega ao arrecadado' })
+      .closest('section') as HTMLElement;
+    expect(secao).toHaveTextContent('portal da transparência do município');
+    expect(secao).toHaveTextContent('Tribunal de Contas do Estado');
+    expect(within(secao).getByRole('group', { name: 'A conta do conferido' })).toBeInTheDocument();
+  });
+
+  it.each([
+    ['conferido', 'registram igual, ao centavo'],
+    ['+ em discrepância', 'difere do TCE-SC'],
+    ['= total da Betha', 'publicado no portal da transparência'],
+  ])('a parcela "%s" diz o que é', async (rotulo, explicacao) => {
+    await abrir();
+
+    const parcela = within(conta()).getByText(rotulo).parentElement as HTMLElement;
+    expect(parcela.querySelector('.conta-explica')).toHaveTextContent(explicacao);
+  });
+
+  it('os maiores repasses listam só o dinheiro de fora, em milhões', async () => {
+    await abrir();
+
+    const lista = screen.getByRole('heading', { name: 'Os maiores repasses' }).parentElement as HTMLElement;
+    expect(within(lista).getByText(/FPM/)).toBeInTheDocument();
+    expect(lista.querySelector('.lp-valor')).toHaveTextContent('0,7 mi');
+    expect(within(lista).queryByText(/IPTU/)).not.toBeInTheDocument();
+  });
+
+  it('sem repasse nas rubricas, a lista dos maiores repasses não aparece', async () => {
+    const receita = receitas();
+    await abrir({ ...receita, naturezas: receita.naturezas.filter((n) => !n.rubrica.startsWith('17')) });
+
+    expect(screen.queryByRole('heading', { name: 'Os maiores repasses' })).not.toBeInTheDocument();
+  });
+
+  it('os impostos da cidade dizem a unidade do valor', async () => {
+    await abrir();
+
+    const secao = screen.getByRole('heading', { name: 'Impostos da cidade' }).closest('section') as HTMLElement;
+    expect(secao.querySelector('.lp-valor')).toHaveTextContent('0,5 mi');
   });
 
   it('a conta leva à seção de discrepâncias', async () => {
@@ -126,8 +179,21 @@ describe('Receitas com o conferido', () => {
     it('por morador divide o conferido pela população', async () => {
       await abrir();
 
+      await screen.findByText('Por morador');
       // 1.200.000,50 ÷ 24.686 moradores
       expect(celula('Por morador').querySelector('.numero-valor')).toHaveTextContent('R$ 49');
+      expect(celula('Por morador').querySelector('.numero-detalhe')).toHaveTextContent('IBGE, estimativa 2025');
+    });
+
+    it('sem coleta do IBGE, a linha por morador some, e o resto continua', async () => {
+      api({ municipio: municipioIndisponivel() });
+      render(<Receitas {...PROPS} />);
+      await screen.findByRole('heading', { level: 1 });
+      await act(() => new Promise((r) => setTimeout(r, 0)));
+
+      expect(document.body).not.toHaveTextContent('por morador');
+      expect(screen.queryByText('Por morador')).not.toBeInTheDocument();
+      expect(screen.queryByText(/Não foi possível carregar/)).not.toBeInTheDocument();
     });
   });
 
@@ -185,13 +251,13 @@ describe('Receitas com o conferido', () => {
       expect(total).toBe(190000085);
     });
 
-    it('o aviso é neutro e tem o valor, como pendência', async () => {
+    it('a parcela que aguarda diz o mês e que é pendência, em tom neutro', async () => {
       await abrir(receitasParciais());
 
-      const selo = screen.getByText('aguardando TCE').closest('.selo') as HTMLElement;
-      expect(selo).toHaveClass('pendente');
-      expect(selo).toHaveTextContent(`R$${NBSP}400.000,10 da Betha depois de setembro ainda não chegaram ao TCE-SC`);
-      expect(selo.textContent).not.toMatch(TEXTO_PROIBIDO);
+      const parcela = within(conta()).getByText('+ aguardando TCE').parentElement as HTMLElement;
+      expect(parcela).toHaveTextContent(`R$${NBSP}400.000,10`);
+      expect(parcela).toHaveTextContent('Depois de setembro, ainda não chegou ao TCE-SC');
+      expect(parcela.textContent).not.toMatch(TEXTO_PROIBIDO);
     });
 
     it('o previsto é do ano: a falta é o que ainda falta, e não o que faltou', async () => {

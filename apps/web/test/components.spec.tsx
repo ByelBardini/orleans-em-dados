@@ -10,9 +10,11 @@ import {
   Estado,
   Filtros,
   Fonte,
+  larguraDaFaixa,
   LinhaAcumulada,
   ListaPontos,
   Numero,
+  Piramide,
   SeletorTema,
 } from '../src/components';
 
@@ -55,6 +57,22 @@ describe('Estado', () => {
 });
 
 describe('Numero', () => {
+  it('com comparação, ela aparece no pé do cartão', () => {
+    const { container } = render(
+      <Numero rotulo="x" comparacao={<p>Acima do Brasil</p>}>
+        1
+      </Numero>,
+    );
+
+    expect(container.querySelector('.numero-comparacao')).toHaveTextContent('Acima do Brasil');
+  });
+
+  it('sem comparação, o pé do cartão não aparece', () => {
+    const { container } = render(<Numero rotulo="x">1</Numero>);
+
+    expect(container.querySelector('.numero-comparacao')).toBeNull();
+  });
+
   it('mostra rótulo, valor, detalhe e selo', () => {
     render(
       <Numero rotulo="Arrecadado" detalhe="no ano" selo={<em>selo</em>}>
@@ -100,6 +118,21 @@ describe('ListaPontos', () => {
     render(<ListaPontos itens={itens} />);
     expect(screen.getByText('Saúde')).toBeInTheDocument();
     expect(screen.getByText('2,0')).toBeInTheDocument();
+  });
+
+  it('com comUnidade, o valor diz que está em milhões', () => {
+    const { container } = render(<ListaPontos comUnidade itens={itens} />);
+    expect(container.querySelector('.lp-valor')).toHaveTextContent(/^2,0 mi$/);
+  });
+
+  it('com comUnidade, valor nulo continua só com o travessão', () => {
+    const { container } = render(<ListaPontos comUnidade itens={[{ nome: 'Fora', valor: null }]} />);
+    expect(container.querySelector('.lp-valor')).toHaveTextContent(/^—$/);
+  });
+
+  it('sem comUnidade, a unidade fica com a legenda da seção', () => {
+    const { container } = render(<ListaPontos itens={itens} />);
+    expect(container.querySelector('.lp-valor')).toHaveTextContent(/^2,0$/);
   });
 
   it('o trilho é proporcional ao maior item', () => {
@@ -324,6 +357,111 @@ describe('gráficos', () => {
     expect(screen.getByText('Previsto: 12,0')).toBeInTheDocument();
   });
 
+  describe('LinhaAcumulada: dica do mês', () => {
+    const ROTULOS = ['jan', 'fev', 'mar', 'abr', 'mai', 'jun', 'jul', 'ago', 'set', 'out', 'nov', 'dez'];
+    const NOMES = [
+      'janeiro',
+      'fevereiro',
+      'março',
+      'abril',
+      'maio',
+      'junho',
+      'julho',
+      'agosto',
+      'setembro',
+      'outubro',
+      'novembro',
+      'dezembro',
+    ];
+    const abrirLinha = (acumulado: number[], meta: number) => {
+      const { container } = render(
+        <LinhaAcumulada acumulado={acumulado} meta={meta} rotulos={ROTULOS} nomes={NOMES} descricao="Acumulado" />,
+      );
+      const zona = (i: number) => container.querySelectorAll('.linha-zona')[i] as HTMLElement;
+      return { container, zona };
+    };
+
+    it('o mês abaixo do ritmo diz arrecadado, previsto e quanto falta', async () => {
+      const { container, zona } = abrirLinha([1_000_000, 2_000_000, 3_000_000], 60_000_000);
+
+      await userEvent.hover(zona(2));
+
+      const dica = container.querySelector('.dica') as HTMLElement;
+      expect(dica).toHaveTextContent('Até março');
+      expect(dica).toHaveTextContent('Arrecadado: R$ 3,0 mi');
+      expect(dica).toHaveTextContent('Previsto: R$ 15,0 mi');
+      expect(dica).toHaveTextContent('R$ 12,0 mi atrás do ritmo');
+    });
+
+    it('o mês acima do ritmo diz que está à frente', async () => {
+      const { container, zona } = abrirLinha([3_000_000], 12_000_000);
+
+      await userEvent.hover(zona(0));
+
+      expect(container.querySelector('.dica')).toHaveTextContent('R$ 2,0 mi à frente do ritmo');
+    });
+
+    it('a diferença bate com os dois números arredondados da dica', async () => {
+      const { container, zona } = abrirLinha([140_449_999], 12 * 164_360_000);
+
+      await userEvent.hover(zona(0));
+
+      const dica = container.querySelector('.dica') as HTMLElement;
+      expect(dica).toHaveTextContent('Arrecadado: R$ 140,4 mi');
+      expect(dica).toHaveTextContent('Previsto: R$ 164,4 mi');
+      expect(dica).toHaveTextContent('R$ 24,0 mi atrás do ritmo');
+    });
+
+    it('mês ainda sem arrecadação mostra só o previsto, sem virar zero', async () => {
+      const { container, zona } = abrirLinha([1_000_000], 60_000_000);
+
+      await userEvent.hover(zona(11));
+
+      const dica = container.querySelector('.dica') as HTMLElement;
+      expect(dica).toHaveTextContent('Até dezembro');
+      expect(dica).toHaveTextContent('Previsto: R$ 60,0 mi');
+      expect(dica).not.toHaveTextContent('Arrecadado');
+      expect(dica).not.toHaveTextContent('ritmo');
+    });
+
+    it('sem meta, a dica mostra só o arrecadado', async () => {
+      const { container, zona } = abrirLinha([1_000_000], 0);
+
+      await userEvent.hover(zona(0));
+
+      const dica = container.querySelector('.dica') as HTMLElement;
+      expect(dica).toHaveTextContent('Arrecadado: R$ 1,0 mi');
+      expect(dica).not.toHaveTextContent('Previsto');
+      expect(dica).not.toHaveTextContent('ritmo');
+    });
+
+    it('a guia vertical fica na posição do mês', async () => {
+      const { container, zona } = abrirLinha([1_000_000], 60_000_000);
+
+      await userEvent.hover(zona(11));
+
+      expect(container.querySelector('.linha-guia')).toHaveStyle({ left: '100%' });
+    });
+
+    it('tirar o mouse some com a dica e com a guia', async () => {
+      const { container, zona } = abrirLinha([1_000_000], 60_000_000);
+
+      await userEvent.hover(zona(0));
+      await userEvent.unhover(zona(0));
+
+      expect(container.querySelector('.dica')).toBeNull();
+      expect(container.querySelector('.linha-guia')).toBeNull();
+    });
+
+    it('tocar no mês mantém a dica aberta', async () => {
+      const { container, zona } = abrirLinha([1_000_000], 60_000_000);
+
+      await userEvent.click(zona(0));
+
+      expect(container.querySelector('.dica')).toHaveTextContent('Até janeiro');
+    });
+  });
+
   it('BarraDividida esconde as partes zeradas e mostra o percentual das outras', () => {
     render(
       <BarraDividida
@@ -339,5 +477,43 @@ describe('gráficos', () => {
     expect(screen.getByText('3,0 mi · 75,0%')).toBeInTheDocument();
     expect(screen.getByText('(TCE-SC)')).toBeInTheDocument();
     expect(screen.queryByText('Vazia')).not.toBeInTheDocument();
+  });
+});
+
+describe('larguraDaFaixa', () => {
+  it('a maior faixa ocupa toda a largura, e as outras são proporcionais', () => {
+    expect(larguraDaFaixa(1000, 1000)).toBe('100%');
+    expect(larguraDaFaixa(250, 1000)).toBe('25%');
+  });
+
+  it('faixa zerada não tem barra', () => {
+    expect(larguraDaFaixa(0, 1000)).toBe('0%');
+  });
+
+  it('sem nenhum morador, não divide por zero', () => {
+    expect(larguraDaFaixa(0, 0)).toBe('0%');
+  });
+});
+
+describe('Piramide', () => {
+  const FAIXAS = [
+    { faixa: '0 a 4 anos', homens: 739, mulheres: 681 },
+    { faixa: '80 anos ou mais', homens: 188, mulheres: 275 },
+  ];
+
+  it('a figura tem descrição e a tabela repete os números para leitor de tela', () => {
+    render(<Piramide faixas={FAIXAS} descricao="Pirâmide de exemplo" />);
+
+    expect(screen.getByRole('img', { name: 'Pirâmide de exemplo' })).toBeInTheDocument();
+    const linha = within(screen.getByRole('table')).getByText('0 a 4 anos').closest('tr') as HTMLElement;
+    expect(linha).toHaveTextContent('739');
+    expect(linha).toHaveTextContent('681');
+  });
+
+  it('os mais velhos ficam em cima', () => {
+    const { container } = render(<Piramide faixas={FAIXAS} descricao="Pirâmide de exemplo" />);
+
+    const faixas = [...container.querySelectorAll('.piramide-faixa')].map((f) => f.textContent);
+    expect(faixas).toEqual(['80 ou mais', '0 a 4']);
   });
 });

@@ -4,7 +4,8 @@ import { z } from 'zod';
 import { limitesDaConferenciaSchema, valorSchema } from './comuns';
 
 const situacaoSchema = z.enum(['confirmada_no_portal', 'confirmada_em_parte', 'calculada', 'rever']);
-const areaSchema = z.enum(['receita', 'despesa', 'empenho']);
+// `funcao` é a DCA do SICONFI contra o TCE-SC: `betha` fica nulo, e o valor da DCA vai em `dca`.
+const areaSchema = z.enum(['receita', 'despesa', 'empenho', 'funcao']);
 
 const etapaSchema = z.strictObject({ betha: valorSchema, tce: valorSchema, diferenca: valorSchema });
 
@@ -32,7 +33,9 @@ const itemSchema = z.strictObject({
   quantidade: z.number().nullable(),
   betha: valorSchema,
   tce: valorSchema,
-  // Betha − TCE. No valor em meses diferentes é zero: a soma do ano é igual.
+  dca: z.number().optional(),
+  maior: z.enum(['dca', 'tce']).optional(),
+  // Betha − TCE (na função, DCA − TCE). No valor em meses diferentes é zero: a soma do ano é igual.
   diferenca: z.number(),
   diferencaBetha: z.number().nullable(),
   diferencaTce: z.number().nullable(),
@@ -59,8 +62,11 @@ const grupoSchema = z.strictObject({
     'empenho_renumerado',
     'empenho_ausente',
     'sem_causa',
+    'funcao_empenhado',
+    'funcao_liquidado',
+    'funcao_pago',
   ]),
-  // Receita, despesa e empenhos não se somam: `sem_causa` sai num grupo por área.
+  // Receita, despesa e empenhos não se somam: `sem_causa` sai num grupo por área. Na função, um grupo por etapa.
   area: areaSchema,
   rotulo: z.string(),
   explicacao: z.string(),

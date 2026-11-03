@@ -7,6 +7,7 @@ Valores do domínio e formas que atravessam o sistema, compartilhados por API, i
 - `dinheiro(valor)`, `centavos(d)`, `deCentavos(c)`, `somar(lista)`, `dinheiroSchema` (`dinheiro.ts`) — texto decimal com duas casas; conta em `bigint`. Aceita o `number` que a fonte devolve só com até duas casas.
 - `exercicio(valor)`, `exercicioSchema` (`exercicio.ts`) — ano inteiro de quatro dígitos; aceita texto (`'2025'`).
 - `codigoRubrica(valor)`, `rubricaSchema` (`rubrica.ts`) — texto com dígitos e pontos, mantendo zeros à esquerda; `number` é recusado.
+- `populacaoDoAno(serie, ano)` (`populacao.ts`) — o número do próprio ano, senão o anterior mais próximo; nulo antes da série. A regra do divisor de API e tela.
 
 ## Contrato
 
@@ -21,13 +22,16 @@ Um schema Zod estrito por rota da API (`src/api/`), espelhando o JSON de hoje (d
 | `GET /api/despesas/empenhos`        | `empenhosBuscaSchema`  |
 | `GET /api/discrepancias`            | `discrepanciasSchema`  |
 | `GET /api/conferencias`             | `conferenciaSchema`    |
+| `GET /api/municipio`                | `municipioSchema`      |
+| `GET /api/funcoes`                  | `funcoesSchema`        |
+| `GET /api/funcoes/serie`            | `funcoesSerieSchema`   |
 | qualquer `4xx`/`5xx`                | `erroSchema`           |
 
 - Bloco `conferencia` em `/api/receitas` (`disponivel`, `parcial`, `limites`, `conferido`, `diferencaBetha`, `diferencaTce`, `aguardandoTce`, `totalBetha`, `totalTce`), em `/api/despesas/resumo` (`disponivel`, `parcial`, `limites`, `aguardandoTce`, `diferencaBetha`, `totalBetha`, `entidadesConferidas`, `entidadesFora`) e em `/api/despesas/empenhos/resumo` (`disponivel`, `parcial`, `dataCorte`). Indisponível: campos nulos, e `faltando` diz o que falta. A conta: `conferido + diferencaBetha + aguardandoTce = totalBetha`; `conferido + diferencaTce = totalTce`. Na despesa encerrada, `totais.empenhado + diferencaBetha = totalBetha`; no ano em curso, os dois são nulos. `/api/despesas/empenhos/resumo` separa `totais.excluidos` em `aguardandoTce` e `emDiscrepancia`.
 - `fonteUnica` lista os campos que só a Betha tem e que nunca são conferidos: `orcadoAtualizado` e `orcadoDeducoes` em receitas, `orcadoAtualizado` em despesas.
 - `naturezas[].nivel` é 8 ou 14; `rubrica` tem esse número de dígitos.
 - `limitesDaConferenciaSchema` (`comuns.ts`): `{ mesReceita, dataEmpenho }`.
-- `discrepanciasSchema`: `{ ano, disponivel, parcial, limites, faltando?, grupos: [{ tipo, area, rotulo, explicacao, total, itens }], aguardando: { rotulo, explicacao, receita: { total, itens }, despesa: { total, quantidade, itens } }, resumo: { casos, porSituacao, porArea } }`. O schema é estrito, então credor, histórico e `avisos` são recusados.
+- `discrepanciasSchema`: `{ ano, disponivel, parcial, limites, faltando?, grupos: [{ tipo, area, rotulo, explicacao, total, itens }], aguardando: { rotulo, explicacao, receita: { total, itens }, despesa: { total, quantidade, itens } }, resumo: { casos, porSituacao, porArea } }`. O schema é estrito, então credor, histórico e `avisos` são recusados. Item da área `funcao` traz `dca` e `maior`, opcionais nas outras áreas.
 
 ## Testes
 

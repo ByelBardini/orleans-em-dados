@@ -18,11 +18,13 @@ export function Numero({
   barra,
   vermelho,
   selo,
+  comparacao,
   className = '',
 }: {
   rotulo: ReactNode;
   children: ReactNode;
   detalhe?: ReactNode;
+  comparacao?: ReactNode;
   barra?: number;
   vermelho?: boolean;
   selo?: ReactNode;
@@ -33,6 +35,7 @@ export function Numero({
       <span className="rotulo">{rotulo}</span>
       <span className={`numero-valor ${vermelho ? 'vermelho' : ''} ${className}`}>{children}</span>
       {detalhe && <span className="numero-detalhe">{detalhe}</span>}
+      {comparacao && <div className="numero-comparacao">{comparacao}</div>}
       {barra !== undefined && (
         <div className="trilho" aria-hidden="true">
           <span className={vermelho ? 'vermelho' : ''} style={{ width: `${Math.min(Math.max(barra, 0), 100)}%` }} />
@@ -76,11 +79,14 @@ export function ListaPontos<I extends ItemDaLista>({
   vermelho,
   total,
   aoClicar,
+  comUnidade,
 }: {
   itens: readonly I[];
   vermelho?: boolean;
   total?: number | null;
   aoClicar?: (item: I) => void;
+  // Para a seção sem a legenda "R$ mi": sem unidade, o valor parece percentual.
+  comUnidade?: boolean;
 }) {
   const max = Math.max(...itens.map((i) => Number(i.valor)), 0) || 1;
   return (
@@ -97,7 +103,9 @@ export function ListaPontos<I extends ItemDaLista>({
               <span className="lp-nome">{item.nome}</span>
             )}
             <span className="lp-pontos" aria-hidden="true" />
-            <span className="lp-valor">{item.valor === null ? '—' : milhoes(item.valor)}</span>
+            <span className="lp-valor">
+              {item.valor === null ? '—' : comUnidade ? <Mi valor={item.valor} /> : milhoes(item.valor)}
+            </span>
             {total && item.valor !== null && <span className="lp-pct">{pctCurto(item.valor, total)}</span>}
           </div>
           <div className="trilho" aria-hidden="true">
@@ -199,6 +207,22 @@ export function BarrasMensais({
 const dicaNasBordas = (i: number, n: number): CSSProperties | undefined =>
   i < 2 ? { left: 0, transform: 'none' } : i > n - 3 ? { left: 'auto', right: 0, transform: 'none' } : undefined;
 
+// Ao lado da guia, sem cobrir as linhas: elas sobem, então o alto só fica livre enquanto o valor é baixo.
+const dicaDaLinha = (i: number, alturaDoValor: number): CSSProperties => ({
+  ...(i < 6
+    ? { left: `calc(${(i / 11) * 100}% + 12px)` }
+    : { left: 'auto', right: `calc(${100 - (i / 11) * 100}% + 12px)` }),
+  ...(alturaDoValor > 0.6 ? { bottom: 12 } : { top: 4, bottom: 'auto' }),
+  transform: 'none',
+});
+
+// Em décimos de milhão, para a diferença bater com os dois números arredondados da dica.
+const diferencaDoRitmo = (arrecadado: number, previsto: number) => {
+  const decimos = Math.round(previsto / 1e5) - Math.round(arrecadado / 1e5);
+  if (decimos === 0) return 'No ritmo previsto';
+  return `R$ ${milhoes(Math.abs(decimos) * 1e5)} mi ${decimos > 0 ? 'atrás do' : 'à frente do'} ritmo`;
+};
+
 // Acumulado do ano contra o ritmo previsto (meta ÷ 12 por mês).
 export function LinhaAcumulada({
   acumulado,
@@ -223,6 +247,7 @@ export function LinhaAcumulada({
   const linha = acumulado.map((v, i) => `${x(i).toFixed(1)},${y(v).toFixed(1)}`).join(' ');
   const pctY = (v: number) => `${(v / 1e6 / topo) * 100}%`;
   const acima = final >= meta;
+  const previstoAte = (i: number) => (meta / 12) * (i + 1);
 
   return (
     <>
@@ -255,24 +280,22 @@ export function LinhaAcumulada({
             vectorEffect="non-scaling-stroke"
           />
         </svg>
+        {ativo !== null && <div className="linha-guia" style={{ left: `${(ativo / 11) * 100}%` }} aria-hidden="true" />}
         {acumulado.map((v, i) => (
           <div
             key={rotulos[i]}
-            className="ponto"
+            className={`ponto${ativo === i ? ' is-ativo' : ''}`}
             style={{ left: `${(i / 11) * 100}%`, bottom: pctY(v) }}
-            onMouseEnter={() => setAtivo(i)}
-            onMouseLeave={() => setAtivo(null)}
-            onClick={() => setAtivo(ativo === i ? null : i)}
-          >
-            {ativo === i && (
-              <div className="dica" style={dicaNasBordas(i, 12)}>
-                <strong>Até {nomes[i]}</strong>
-                <div className="mono">Arrecadado: R$ {milhoes(v)} mi</div>
-                {meta > 0 && <div className="mono vermelho">Previsto: R$ {milhoes((meta / 12) * (i + 1))} mi</div>}
-              </div>
-            )}
-          </div>
+            aria-hidden="true"
+          />
         ))}
+        {ativo !== null && meta > 0 && (
+          <div
+            className="ponto previsto is-ativo"
+            style={{ left: `${(ativo / 11) * 100}%`, bottom: pctY(previstoAte(ativo)) }}
+            aria-hidden="true"
+          />
+        )}
         {meta > 0 && (
           <div
             className="rotulo-fim"
@@ -294,6 +317,35 @@ export function LinhaAcumulada({
             <span>{anotacao.texto}</span>
           </div>
         )}
+        {/* A coluna inteira do mês responde ao mouse, e não só o ponto, e os meses sem dado também. */}
+        {rotulos.map((r, i) => (
+          <div
+            key={r}
+            className="linha-zona"
+            style={{
+              left: `${(Math.max(i - 0.5, 0) / 11) * 100}%`,
+              width: `${((i === 0 || i === 11 ? 0.5 : 1) / 11) * 100}%`,
+            }}
+            onMouseEnter={() => setAtivo(i)}
+            onMouseLeave={() => setAtivo(null)}
+            onClick={() => setAtivo(i)}
+          />
+        ))}
+        {ativo !== null && (
+          <div
+            className="dica"
+            style={dicaDaLinha(ativo, Math.max(acumulado[ativo] ?? 0, previstoAte(ativo)) / 1e6 / topo)}
+          >
+            <strong>Até {nomes[ativo]}</strong>
+            {acumulado[ativo] !== undefined && (
+              <div className="mono">Arrecadado: R$ {milhoes(acumulado[ativo])} mi</div>
+            )}
+            {meta > 0 && <div className="mono vermelho">Previsto: R$ {milhoes(previstoAte(ativo))} mi</div>}
+            {meta > 0 && acumulado[ativo] !== undefined && (
+              <div className="mono">{diferencaDoRitmo(acumulado[ativo], previstoAte(ativo))}</div>
+            )}
+          </div>
+        )}
       </div>
       <div className="eixo-x-abs" aria-hidden="true">
         {rotulos.map((r, i) => (
@@ -311,10 +363,13 @@ export function BarraDividida({
   partes,
   total,
   descricao,
+  formatar = (v) => `${milhoes(v)} mi`,
 }: {
   partes: readonly { nome: string; valor: number | null; classe?: string; detalhe?: ReactNode }[];
   total: number | null;
   descricao: string;
+  /** O valor na legenda; por padrão, em milhões de reais. */
+  formatar?: (valor: number) => string;
 }) {
   const visiveis = partes.filter((p) => Number(p.valor) > 0);
   return (
@@ -324,7 +379,7 @@ export function BarraDividida({
           <span
             key={p.nome}
             className={p.classe}
-            title={`${p.nome}: R$ ${milhoes(p.valor)} mi`}
+            title={`${p.nome}: ${formatar(Number(p.valor))}`}
             style={{ width: `${(Number(p.valor) / Number(total)) * 100}%` }}
           />
         ))}
@@ -335,7 +390,7 @@ export function BarraDividida({
             <span className={`amostra ${p.classe ?? ''}`} aria-hidden="true" />
             <span>
               <span className="mono" style={{ fontWeight: 500 }}>
-                {milhoes(p.valor)} mi · {pctCurto(p.valor, total)}
+                {formatar(Number(p.valor))} · {pctCurto(p.valor, total)}
               </span>
               <br />
               {p.nome}
@@ -344,6 +399,67 @@ export function BarraDividida({
           </div>
         ))}
       </div>
+    </>
+  );
+}
+
+/** A largura de uma barra da pirâmide: proporcional à maior faixa, de qualquer sexo. */
+export const larguraDaFaixa = (valor: number, maximo: number) =>
+  maximo > 0 ? `${Math.max((valor / maximo) * 100, 0)}%` : '0%';
+
+// Homens à esquerda, mulheres à direita, os mais velhos em cima. A figura é para quem vê;
+// a tabela, para o leitor de tela.
+export function Piramide({
+  faixas,
+  descricao,
+}: {
+  faixas: readonly { faixa: string; homens: number; mulheres: number }[];
+  descricao: string;
+}) {
+  const maximo = Math.max(...faixas.flatMap((f) => [f.homens, f.mulheres]), 0);
+  const deCimaParaBaixo = [...faixas].reverse();
+  return (
+    <>
+      <div className="piramide" role="img" aria-label={descricao}>
+        <div className="piramide-cabecalho" aria-hidden="true">
+          <span>Homens</span>
+          <span />
+          <span className="vermelho">Mulheres</span>
+        </div>
+        {deCimaParaBaixo.map((f) => (
+          <div
+            key={f.faixa}
+            className="piramide-linha"
+            title={`${f.faixa}: ${f.homens} homens, ${f.mulheres} mulheres`}
+          >
+            <span className="piramide-barra homens">
+              <span style={{ width: larguraDaFaixa(f.homens, maximo) }} />
+            </span>
+            <span className="piramide-faixa">{f.faixa.replace(' anos', '')}</span>
+            <span className="piramide-barra mulheres">
+              <span style={{ width: larguraDaFaixa(f.mulheres, maximo) }} />
+            </span>
+          </div>
+        ))}
+      </div>
+      <table className="visualmente-oculto" aria-label="Pirâmide etária por faixa de idade">
+        <thead>
+          <tr>
+            <th scope="col">Faixa de idade</th>
+            <th scope="col">Homens</th>
+            <th scope="col">Mulheres</th>
+          </tr>
+        </thead>
+        <tbody>
+          {faixas.map((f) => (
+            <tr key={f.faixa}>
+              <th scope="row">{f.faixa}</th>
+              <td>{numero(f.homens)}</td>
+              <td>{numero(f.mulheres)}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
     </>
   );
 }

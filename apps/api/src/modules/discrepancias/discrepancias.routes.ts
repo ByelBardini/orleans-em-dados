@@ -1,5 +1,5 @@
 import { discrepanciasSchema } from '@orleans-em-dados/contracts';
-import { dadosConferidos } from '@orleans-em-dados/db/conferencias';
+import { conferirFuncoes, dadosConferidos } from '@orleans-em-dados/db/conferencias';
 import type { FastifyInstance } from 'fastify';
 import { parametro, responder } from '../../lib/borda';
 import { coletaPublicada } from '../coletas/coletas.dao';
@@ -12,11 +12,11 @@ export async function rotasDeDiscrepancias(app: FastifyInstance) {
     const ano = Number(pedido);
     const publicado = /^\d{4}$/.test(pedido ?? '') ? await coletaPublicada('receitas', ano) : null;
     if (!publicado) return reply.code(404).send({ erro: `Sem dados de discrepâncias para ${pedido}` });
-    const dados = await dadosConferidos(ano);
+    const [dados, funcoes] = await Promise.all([dadosConferidos(ano), conferirFuncoes(ano)]);
     return responder(
       reply,
       discrepanciasSchema,
-      dados.disponivel ? montarSecao(dados) : secaoIndisponivel(ano, dados.faltando),
+      dados.disponivel ? montarSecao({ ...dados, funcoes }) : secaoIndisponivel(ano, dados.faltando),
     );
   });
 }

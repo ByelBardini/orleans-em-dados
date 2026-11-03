@@ -6,6 +6,7 @@
   --papel: #efeadf;
   --tinta: #1c1a17;
   --vermelho: #b52d1b;
+  --verde: #2c6e3f;
   --apagado: #47433c;
   --trilho: #d8d1c2;
   --regua: #b9b09e;
@@ -23,6 +24,7 @@
     --papel: #1a1815;
     --tinta: #ece5d6;
     --vermelho: #ec7a64;
+    --verde: #7cc58f;
     --apagado: #bdb5a6;
     --trilho: #38332c;
     --regua: #4a443b;
@@ -36,6 +38,7 @@
   --papel: #1a1815;
   --tinta: #ece5d6;
   --vermelho: #ec7a64;
+  --verde: #7cc58f;
   --apagado: #bdb5a6;
   --trilho: #38332c;
   --regua: #4a443b;
@@ -159,6 +162,13 @@ h3 {
   padding-bottom: 10px;
 }
 
+/* O botão de tema, acima de tudo, em todas as páginas. */
+.barra-tema {
+  justify-content: flex-end;
+  margin-top: -14px;
+  padding-bottom: 8px;
+}
+
 .fio-duplo {
   border-top: 3px solid var(--tinta);
   border-bottom: 1px solid var(--tinta);
@@ -180,12 +190,13 @@ h3 {
 
 .capa .nav-principal {
   justify-content: center;
+  gap: 0 48px;
   border-top: 1px solid var(--tinta);
   border-bottom: 1px solid var(--tinta);
 }
 
 .capa .nav-principal a {
-  padding: 12px 24px;
+  margin-bottom: -1px;
 }
 
 .cabecalho-compacto {
@@ -193,12 +204,12 @@ h3 {
   flex-wrap: wrap;
   align-items: flex-end;
   justify-content: space-between;
-  gap: 12px 32px;
-  padding-bottom: 10px;
+  gap: 4px 32px;
   border-bottom: 3px solid var(--tinta);
 }
 
 .cabecalho-compacto .marca {
+  padding-bottom: 10px;
   font-family: var(--serif);
   font-size: 44px;
   line-height: 1;
@@ -206,7 +217,7 @@ h3 {
   text-decoration: none;
 }
 
-.cabecalho-compacto + .faixa-meta {
+.cabecalho-compacto ~ .faixa-meta {
   padding: 8px 0;
   border-bottom: 1px solid var(--tinta);
 }
@@ -214,10 +225,20 @@ h3 {
 .nav-principal {
   display: flex;
   flex-wrap: wrap;
+  gap: 0 28px;
 }
 
+/* Os dois níveis ficam à direita, um embaixo do outro. */
+.cabecalho-compacto .nav-principal {
+  justify-content: flex-end;
+  margin-left: auto;
+}
+
+/* A aba senta no fio do cabeçalho: o sublinhado da atual cobre o fio. */
 .nav-principal a {
-  padding: 12px 16px;
+  margin-bottom: -3px;
+  padding: 12px 0 9px;
+  border-bottom: 3px solid transparent;
   text-decoration: none;
   font-weight: 500;
   letter-spacing: 0.08em;
@@ -225,13 +246,74 @@ h3 {
   font-size: 14px;
 }
 
-.nav-principal a + a {
-  border-left: 1px solid var(--tinta);
+.nav-principal a:hover {
+  color: var(--tinta);
+  border-bottom-color: var(--regua);
 }
 
-.nav-principal a[aria-current='page'] {
+.nav-principal a[aria-current] {
   font-weight: 600;
   color: var(--vermelho);
+  border-bottom-color: var(--vermelho);
+}
+
+.nav-segundo-nivel {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 0 24px;
+}
+
+.nav-segundo-nivel a {
+  padding: 10px 0;
+  color: var(--apagado);
+  text-decoration: none;
+  font-size: 15px;
+}
+
+.nav-segundo-nivel a:hover {
+  color: var(--tinta);
+  text-decoration: underline;
+  text-decoration-color: var(--regua);
+  text-decoration-thickness: 2px;
+  text-underline-offset: 5px;
+}
+
+.nav-segundo-nivel a[aria-current='page'] {
+  font-weight: 600;
+  color: var(--tinta);
+  text-decoration: underline;
+  text-decoration-color: var(--vermelho);
+  text-decoration-thickness: 2px;
+  text-underline-offset: 5px;
+}
+
+/* Sem o quadrado do foco: quem navega pelo teclado vê o texto sublinhado. */
+:is(.nav-principal, .nav-segundo-nivel) a:focus-visible {
+  outline: none;
+  text-decoration: underline;
+  text-decoration-color: currentcolor;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 3px;
+}
+
+@media (max-width: 640px) {
+  .nav-principal,
+  .capa .nav-principal,
+  .nav-segundo-nivel {
+    gap: 0 16px;
+  }
+
+  .cabecalho-compacto .nav-principal,
+  .nav-segundo-nivel {
+    justify-content: flex-start;
+    margin-left: 0;
+  }
+
+  .nav-principal a {
+    font-size: 13px;
+    letter-spacing: 0.06em;
+  }
 }
 
 /* ---------- filtros ---------- */
@@ -816,8 +898,27 @@ input[type='search']::placeholder {
   box-shadow: 0 0 0 2px var(--papel);
 }
 
-.ponto .dica {
-  bottom: calc(100% + 2px);
+.ponto.is-ativo::after {
+  width: 12px;
+  height: 12px;
+}
+
+.ponto.previsto::after {
+  background: var(--vermelho);
+}
+
+.linha-zona {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+}
+
+.linha-guia {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  border-left: 1px solid var(--apagado);
+  pointer-events: none;
 }
 
 .rotulo-fim {
@@ -915,17 +1016,15 @@ input[type='search']::placeholder {
   list-style: none;
   margin: 0;
   padding: 0;
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(min(280px, 100%), 1fr));
-  gap: 0 32px;
 }
 
+/* Uma barra por linha, com as colunas alinhadas de ponta a ponta. */
 .cada-100 li {
   display: grid;
-  grid-template-columns: 112px 1fr;
-  gap: 4px 14px;
-  align-items: baseline;
-  padding: 12px 0;
+  grid-template-columns: 112px minmax(240px, 1fr) minmax(0, 3fr) 310px;
+  gap: 4px 20px;
+  align-items: center;
+  padding: 10px 0;
   border-bottom: 1px solid var(--regua);
 }
 
@@ -936,11 +1035,24 @@ input[type='search']::placeholder {
 }
 
 .cada-100 .trilho {
-  grid-column: 2;
+  height: 12px;
 }
 
 .cada-100 .lp-extra {
-  grid-column: 2;
+  text-align: right;
+}
+
+@media (max-width: 1000px) {
+  .cada-100 li {
+    grid-template-columns: 112px 1fr;
+    align-items: baseline;
+  }
+
+  .cada-100 .trilho,
+  .cada-100 .lp-extra {
+    grid-column: 2;
+    text-align: left;
+  }
 }
 
 .moedas {
@@ -1072,7 +1184,14 @@ th {
   vertical-align: bottom;
 }
 
-tbody tr:hover td {
+/* O nome da linha é parte da linha: fica com a mesma régua e o mesmo destaque das células. */
+tbody th {
+  border-bottom: 1px solid var(--regua);
+  vertical-align: top;
+}
+
+tbody tr:hover td,
+tbody tr:hover th {
   background: var(--realce);
 }
 
@@ -1184,11 +1303,25 @@ tr.expansivel {
 
 /* ---------- glossário e texto ---------- */
 
+/* Colunas que dividem os seis termos sem deixar sobra na última linha. */
 .glossario {
+  flex: 1;
   margin: 0;
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(240px, 100%), 1fr));
+  grid-template-columns: repeat(3, 1fr);
   gap: 20px 32px;
+}
+
+@media (max-width: 1100px) {
+  .glossario {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 640px) {
+  .glossario {
+    grid-template-columns: 1fr;
+  }
 }
 
 .glossario dt {
@@ -1373,6 +1506,7 @@ tr.expansivel {
     .faixa-meta,
     .capa .nav-principal,
     .cabecalho-compacto,
+    .nav-segundo-nivel,
     .barra-filtros,
     .abertura,
     .numeros,
@@ -1467,6 +1601,88 @@ tr.expansivel {
   padding: 4px 8px;
   font-size: 13px;
   white-space: normal;
+}
+
+.selo.simbolo {
+  display: inline-flex;
+  flex-direction: row;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  vertical-align: middle;
+}
+
+/* O alvo de toque é maior que o círculo. */
+button.selo-icone {
+  position: relative;
+  padding: 0;
+  background: none;
+  color: inherit;
+  font-family: var(--mono);
+  cursor: help;
+}
+
+button.selo-icone::after {
+  content: '';
+  position: absolute;
+  inset: -6px;
+}
+
+.selo.simbolo.aberto button.selo-icone,
+button.selo-icone:hover {
+  background: var(--tinta);
+  border-color: var(--tinta);
+  color: var(--papel);
+}
+
+.selo-texto {
+  display: none;
+  position: fixed;
+  z-index: 4;
+  flex-direction: column;
+  gap: 4px;
+  padding: 8px 10px;
+  background: var(--papel);
+  border: 1px solid var(--tinta);
+  color: var(--tinta);
+  font-family: var(--sans);
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 1.35;
+  letter-spacing: normal;
+  text-align: left;
+  text-transform: none;
+  white-space: normal;
+}
+
+.selo.simbolo.aberto .selo-texto {
+  display: flex;
+}
+
+/* A ponte cobre o vão entre o símbolo e o texto: o mouse chega ao link sem fechar. */
+.selo-texto::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: -8px;
+  bottom: -8px;
+  z-index: -1;
+}
+
+/* No cartão, o símbolo fica no canto, e o rótulo não passa por baixo. */
+.numero-cel {
+  position: relative;
+}
+
+.numero-cel > .selo.simbolo {
+  position: absolute;
+  top: 24px;
+  right: 16px;
+}
+
+.numero-cel:has(> .selo.simbolo) > .rotulo {
+  padding-right: 22px;
 }
 
 .diferenca-lado {
@@ -1580,6 +1796,95 @@ tr.expansivel {
 .conta-nota {
   margin: 0;
   color: var(--apagado);
+}
+
+/* A conta deitada, abaixo dos totais: uma coluna por parcela, cada uma dizendo o que é. */
+.conta-explicada {
+  gap: 10px;
+  margin-top: 0;
+  font-size: 14px;
+}
+
+.conta-explicada dl {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(220px, 100%), 1fr));
+  gap: 0;
+  border-block: 1px solid var(--regua);
+}
+
+.conta-explicada dl > div {
+  flex-direction: column;
+  flex-wrap: nowrap;
+  justify-content: flex-start;
+  gap: 4px;
+  margin: 0;
+  padding: 14px 20px;
+  border-top: 0;
+  border-left: 1px solid var(--regua);
+}
+
+.conta-explicada dl > div:first-child {
+  padding-left: 0;
+  border-left: 0;
+}
+
+.conta-explicada dl > .conta-total {
+  border-left-color: var(--tinta);
+}
+
+.conta-explicada dt {
+  font-family: var(--serif);
+  font-size: 22px;
+  font-style: italic;
+  line-height: 1.1;
+  color: var(--tinta);
+}
+
+.conta-explicada dd {
+  font-size: 16px;
+}
+
+.conta-explicada dd.conta-explica {
+  font-family: inherit;
+  font-size: 14px;
+  color: var(--apagado);
+}
+
+.faixa-conta .conta-explicada + .conta-explicada {
+  margin-top: 8px;
+}
+
+.conta-explicada .selo-link {
+  align-self: flex-start;
+}
+
+@media (max-width: 640px) {
+  .conta-explicada dl > div,
+  .conta-explicada dl > div:first-child {
+    padding: 12px 0;
+    border-left: 0;
+    border-top: 1px solid var(--regua);
+  }
+
+  .conta-explicada dl > div:first-child {
+    border-top: 0;
+  }
+
+  .conta-explicada dl > .conta-total {
+    border-top-color: var(--tinta);
+  }
+}
+
+.maiores-repasses {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.maiores-repasses h3 {
+  margin: 0;
+  font-weight: 400;
 }
 
 .rubrica-agrupada {
@@ -1804,4 +2109,720 @@ tr.expansivel {
     font-size: 13px;
     color: var(--apagado);
   }
+}
+
+/* ---------- pirâmide etária ---------- */
+
+.piramide {
+  display: grid;
+  gap: 2px;
+  margin-top: 12px;
+}
+
+.piramide-cabecalho,
+.piramide-linha {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 72px minmax(0, 1fr);
+  align-items: center;
+  gap: 6px;
+}
+
+.piramide-cabecalho {
+  font-size: 13px;
+  color: var(--apagado);
+}
+
+.piramide-cabecalho > :first-child {
+  text-align: right;
+}
+
+.piramide-linha {
+  min-height: 16px;
+}
+
+.piramide-faixa {
+  font-family: var(--mono);
+  font-size: 12px;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.piramide-barra {
+  display: flex;
+  height: 12px;
+}
+
+.piramide-barra.homens {
+  justify-content: flex-end;
+}
+
+.piramide-barra > span {
+  min-width: 1px;
+  background: var(--tinta);
+}
+
+.piramide-barra.mulheres > span {
+  background: var(--vermelho);
+}
+
+.piramide-titulo {
+  display: block;
+  margin: 24px 0 0;
+}
+
+.tabela-populacao th[scope='row'] {
+  font-weight: 400;
+}
+
+.tabela-populacao .linha-censo th,
+.tabela-populacao .linha-censo td {
+  font-weight: 600;
+}
+
+.tabela-populacao .trilho {
+  min-width: 56px;
+}
+
+/* ---------- Conheça Orleans: a lista e a posição diante de Santa Catarina e do Brasil ---------- */
+
+/* No pé do cartão: as linhas se alinham entre cartões com rótulos de tamanhos diferentes. */
+.numero-comparacao {
+  margin: auto 0 0;
+  padding-top: 8px;
+  border-top: 1px solid var(--regua);
+}
+
+.diante-dos-lugares {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 2px;
+  font-size: 14px;
+  color: var(--apagado);
+}
+
+.diante-dos-lugares .bom {
+  color: var(--verde);
+}
+
+.diante-dos-lugares .ruim {
+  color: var(--vermelho);
+}
+
+.lista-retrato {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(max(240px, 18%), 1fr));
+  gap: 0 32px;
+}
+
+/* Nome, número e comparação empilhados: a informação fica junto do nome em qualquer largura. */
+.lista-retrato > li {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 14px 0;
+  border-bottom: 1px solid var(--regua);
+}
+
+.lista-retrato-nome {
+  font-size: 15px;
+  color: var(--apagado);
+}
+
+.lista-retrato-valor {
+  font-family: var(--serif);
+  font-size: 30px;
+  line-height: 1.15;
+}
+
+.lista-retrato.sem-comparacao .lista-retrato-valor {
+  font-size: clamp(44px, 5vw, 60px);
+  line-height: 1;
+}
+
+.lista-retrato-unidade {
+  font-family: var(--sans);
+  font-size: 14px;
+  color: var(--apagado);
+}
+
+.lista-retrato .diante-dos-lugares {
+  margin-top: 4px;
+}
+
+.nota-da-comparacao {
+  padding: 12px 0 0;
+}
+
+/* ---------- despesa por função ---------- */
+
+.filtros-nota {
+  margin-left: auto;
+  font-size: 12px;
+}
+
+.abertura-principal {
+  flex: 2 1 560px;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.abertura-principal .manchete {
+  flex: none;
+}
+
+.abertura-texto {
+  margin: 0;
+  max-width: 620px;
+  font-size: 18px;
+  text-wrap: pretty;
+}
+
+.funcoes-lado {
+  justify-content: flex-start;
+  gap: 20px;
+}
+
+.funcoes-bloco {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.funcoes-bloco + .funcoes-bloco {
+  padding-top: 12px;
+  border-top: 1px solid var(--tinta);
+}
+
+.funcoes-morador {
+  font-family: var(--serif);
+  font-size: 64px;
+  line-height: 1;
+}
+
+.funcoes-morador small {
+  font-size: 0.5em;
+}
+
+.funcoes-camara {
+  font-family: var(--serif);
+  font-size: 32px;
+  line-height: 1.1;
+}
+
+/* A régua: cada faixa é uma fatia do total, com vão de 2 px. */
+.regua-das-funcoes {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 16px;
+}
+
+.regua-faixas {
+  display: flex;
+  gap: 2px;
+  height: 56px;
+}
+
+.regua-faixa {
+  flex: 1 1 0;
+  min-width: 0;
+  display: flex;
+  align-items: flex-end;
+  padding: 6px 8px;
+  overflow: hidden;
+  background: var(--tinta);
+  color: var(--papel);
+  font-family: var(--mono);
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.regua-faixa.destaque {
+  background: var(--vermelho);
+}
+
+.regua-faixa.outras {
+  background: repeating-linear-gradient(45deg, var(--tinta) 0 1px, transparent 1px 5px);
+  box-shadow: inset 0 0 0 1px var(--tinta);
+}
+
+.regua-escala {
+  display: flex;
+  justify-content: space-between;
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--apagado);
+}
+
+.tabela-funcoes {
+  margin-top: 16px;
+  table-layout: auto;
+}
+
+/* As colunas sem título continuam a régua do cabeçalho. */
+.tabela-funcoes thead td {
+  border-bottom: 2px solid var(--tinta);
+}
+
+.tabela-funcoes tbody th,
+.tabela-funcoes tfoot th {
+  font-family: var(--sans);
+  font-size: 16px;
+  font-weight: 400;
+  letter-spacing: normal;
+  text-transform: none;
+  white-space: normal;
+  vertical-align: middle;
+}
+
+.tabela-funcoes td {
+  vertical-align: middle;
+}
+
+.funcao-nome {
+  display: block;
+}
+
+.linha-destaque .funcao-nome {
+  font-weight: 600;
+}
+
+.funcao-oficial {
+  display: block;
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--apagado);
+}
+
+.funcao-barra {
+  width: 28%;
+  min-width: 120px;
+}
+
+.funcao-barra::before {
+  content: '';
+  display: block;
+  height: 10px;
+  background: var(--trilho);
+}
+
+.funcao-barra span {
+  display: block;
+  height: 10px;
+  margin-top: -10px;
+  background: var(--tinta);
+}
+
+.linha-destaque .funcao-barra span {
+  background: var(--vermelho);
+}
+
+.funcao-valor {
+  font-weight: 500;
+}
+
+.funcao-abrir {
+  width: 44px;
+  padding: 0;
+}
+
+.funcao-abrir button {
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--tinta);
+  cursor: pointer;
+}
+
+.funcao-abrir svg {
+  transition: transform 150ms;
+}
+
+.funcao-abrir svg.aberta {
+  transform: rotate(180deg);
+}
+
+.linha-divisor td {
+  padding: 18px 14px 6px;
+  border-bottom: 1px solid var(--tinta);
+  font-family: var(--serif);
+  font-size: 19px;
+  font-style: italic;
+  text-align: left;
+}
+
+tbody tr.linha-divisor:hover td,
+tbody tr.linha-subfuncoes:hover td {
+  background: none;
+}
+
+.linha-subfuncoes td {
+  background: var(--realce);
+  padding: 14px 20px 16px 24px;
+}
+
+tbody tr.linha-subfuncoes:hover td {
+  background: var(--realce);
+}
+
+.subfuncoes {
+  list-style: none;
+  margin: 6px 0 0;
+  padding: 0;
+}
+
+.subfuncoes li {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  padding: 3px 0;
+  font-size: 15px;
+}
+
+.nota-das-funcoes {
+  margin-top: 16px;
+}
+
+.ano-a-ano {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 32px 48px;
+  margin-top: 16px;
+}
+
+.ano-a-ano-total {
+  flex: 1 1 340px;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.ano-a-ano h3 {
+  margin: 0;
+  font-weight: 500;
+}
+
+.barras-do-total {
+  display: flex;
+  align-items: flex-end;
+  gap: 8px;
+  height: 180px;
+  border-bottom: 2px solid var(--tinta);
+}
+
+.barra-do-ano {
+  flex: 1 1 0;
+  min-width: 0;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 4px;
+  font-family: var(--mono);
+  font-size: 12px;
+}
+
+.barra-do-ano i {
+  display: block;
+  width: 100%;
+  max-height: calc(100% - 22px);
+  background: var(--tinta);
+  border-radius: 2px 2px 0 0;
+}
+
+.barra-do-ano.selecionado i {
+  background: var(--vermelho);
+}
+
+.anos-do-total {
+  display: flex;
+  gap: 8px;
+  font-family: var(--mono);
+  font-size: 11px;
+}
+
+.anos-do-total span {
+  flex: 1 1 0;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+
+.anos-do-total small {
+  font-size: 11px;
+  color: var(--apagado);
+}
+
+.o-que-mudou {
+  flex: 1 1 340px;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding-left: 28px;
+  border-left: 1px solid var(--tinta);
+}
+
+.o-que-mudou p {
+  margin: 0;
+  font-family: var(--serif);
+  font-size: 24px;
+  line-height: 1.2;
+  text-wrap: pretty;
+}
+
+.o-que-mudou em {
+  color: var(--vermelho);
+}
+
+.tabela-evolucao {
+  margin-top: 24px;
+}
+
+.tabela-evolucao tbody th {
+  font-family: var(--sans);
+  font-size: 16px;
+  font-weight: 400;
+  letter-spacing: normal;
+  text-transform: none;
+  white-space: normal;
+  vertical-align: middle;
+}
+
+.tabela-evolucao td {
+  vertical-align: middle;
+}
+
+.evolucao-linha {
+  width: 30%;
+  min-width: 160px;
+}
+
+.evolucao-linha > div {
+  position: relative;
+  height: 36px;
+}
+
+.evolucao-linha svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+.evolucao-linha polyline {
+  fill: none;
+  stroke: var(--tinta);
+  stroke-width: 1.5;
+  stroke-linejoin: round;
+}
+
+/* O ponto fica fora do SVG: o desenho estica na largura, e um círculo viraria elipse. */
+.evolucao-linha i {
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  margin: -4px 0 0 -4px;
+  border-radius: 50%;
+  background: var(--vermelho);
+}
+
+.evolucao-rodape {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.maior-do-periodo {
+  font-weight: 600;
+}
+
+/* Oito anos lado a lado: a primeira coluna quebra linha, para os anos caberem sem rolagem em tela larga. */
+.tabela-anos th[scope='row'] {
+  font-family: var(--sans);
+  font-size: 15px;
+  font-weight: 400;
+  letter-spacing: normal;
+  text-transform: none;
+  white-space: normal;
+}
+
+.tabela-anos td,
+.tabela-anos th {
+  padding: 10px 8px;
+}
+
+.tabela-anos td {
+  font-size: 14px;
+}
+
+.subfuncoes .mono {
+  white-space: nowrap;
+}
+
+/* No celular, cada linha vira um bloco: nome, barra e os valores, sem rolagem. */
+@media (max-width: 720px) {
+  .filtros-nota {
+    margin-left: 0;
+  }
+
+  .regua-faixa span {
+    display: none;
+  }
+
+  .o-que-mudou {
+    padding-left: 0;
+    border-left: 0;
+  }
+
+  .tabela-funcoes,
+  .tabela-funcoes tbody,
+  .tabela-funcoes tfoot,
+  .tabela-evolucao,
+  .tabela-evolucao tbody {
+    display: block;
+  }
+
+  .tabela-funcoes thead,
+  .tabela-evolucao thead {
+    display: none;
+  }
+
+  .tabela-funcoes tr,
+  .tabela-evolucao tr {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 4px 8px;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--regua);
+  }
+
+  .tabela-funcoes th,
+  .tabela-funcoes td,
+  .tabela-evolucao th,
+  .tabela-evolucao td {
+    padding: 0;
+    border: 0;
+  }
+
+  .tabela-funcoes tbody th,
+  .tabela-funcoes tfoot th {
+    grid-column: 1 / 3;
+  }
+
+  .tabela-evolucao tbody th,
+  .funcao-barra,
+  .evolucao-linha,
+  .linha-divisor td,
+  .linha-subfuncoes td {
+    grid-column: 1 / -1;
+  }
+
+  .funcao-abrir {
+    grid-column: 3;
+    grid-row: 1;
+    justify-self: end;
+    width: auto;
+  }
+
+  .funcao-barra,
+  .evolucao-linha {
+    width: auto;
+    min-width: 0;
+  }
+
+  .tabela-funcoes tfoot td[aria-hidden='true'] {
+    display: none;
+  }
+
+  .tabela-funcoes td.num,
+  .tabela-evolucao td.num {
+    font-size: 13px;
+    text-align: left;
+  }
+
+  .tabela-funcoes td.num::before,
+  .tabela-evolucao td.num::before {
+    content: attr(data-rotulo);
+    display: block;
+    font-family: var(--mono);
+    font-size: 11px;
+    font-weight: 400;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--apagado);
+  }
+
+  .linha-subfuncoes td {
+    padding: 12px;
+  }
+}
+
+/* ---------- capa ---------- */
+
+.cartoes-de-area {
+  list-style: none;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(240px, 100%), 1fr));
+  gap: 0 32px;
+  margin: 0;
+  padding: 0;
+}
+
+.cartoes-de-area > li {
+  border-bottom: 1px solid var(--regua);
+}
+
+.cartao-de-area {
+  display: block;
+  height: 100%;
+  padding: 14px 0;
+  text-decoration: none;
+}
+
+.cartao-de-area h3 {
+  margin: 0 0 4px;
+  font-family: var(--serif);
+  font-size: 26px;
+  font-weight: 400;
+  line-height: 1.1;
+}
+
+.cartao-de-area p {
+  margin: 0;
+  font-size: 15px;
+  color: var(--apagado);
+}
+
+a.cartao-de-area:hover h3 {
+  color: var(--vermelho);
+}
+
+.cartao-de-area.em-breve h3 {
+  color: var(--apagado);
+}
+
+.cartao-de-area.em-breve p {
+  font-style: italic;
 }

@@ -1,5 +1,9 @@
 import { describe, expect, it } from 'vitest';
-import type { DiscrepanciaConferida } from '@orleans-em-dados/db/conferencias';
+import type {
+  ComparacaoDeFuncoes,
+  ConferenciaDeFuncoes,
+  DiscrepanciaConferida,
+} from '@orleans-em-dados/db/conferencias';
 import { AGUARDANDO, montarSecao, TEXTOS } from '../../../src/modules/discrepancias/discrepancias.service';
 
 const caso = (campos: Partial<DiscrepanciaConferida>): DiscrepanciaConferida => ({
@@ -177,5 +181,120 @@ describe('rubricas que se compensam', () => {
       ['reclassificacao', 15, 1],
       ['fora_do_acumulado', 15, 1],
     ]);
+  });
+});
+
+const comparacao = (
+  estado: 'conferido' | 'diferenca',
+  pago: Omit<ComparacaoDeFuncoes['etapas'][number], 'etapa'> = { dca: 100, tce: 100, diferenca: 0, maior: null },
+): ComparacaoDeFuncoes => ({
+  estado,
+  etapas: [
+    { etapa: 'empenhado', dca: 100, tce: 100, diferenca: 0, maior: null },
+    { etapa: 'liquidado', dca: 100, tce: 100, diferenca: 0, maior: null },
+    { etapa: 'pago', ...pago },
+  ],
+});
+
+const secaoComFuncoes = (funcoes: ConferenciaDeFuncoes, discrepancias: DiscrepanciaConferida[] = []) =>
+  montarSecao({
+    ano: 2025,
+    parcial: false,
+    limites: { mesReceita: 12, dataEmpenho: '2025-12-31' },
+    discrepancias,
+    funcoes,
+  });
+
+const DIFERENCA_NO_PAGO: ConferenciaDeFuncoes = {
+  ano: 2025,
+  estado: 'diferenca',
+  total: comparacao('diferenca', { dca: 110.5, tce: 100, diferenca: 10.5, maior: 'dca' }),
+  legislativa: comparacao('conferido'),
+};
+
+describe('montarSecao com a despesa por função', () => {
+  it('DCA maior que o TCE-SC em uma etapa vira grupo próprio, com cada fonte, diferença e lado', () => {
+    const { grupos } = secaoComFuncoes(DIFERENCA_NO_PAGO);
+
+    expect(grupos).toHaveLength(1);
+    expect(grupos[0]).toMatchObject({ area: 'funcao', tipo: 'funcao_pago', total: 10.5 });
+    expect(grupos[0]?.itens).toEqual([
+      expect.objectContaining({
+        area: 'funcao',
+        entidade: 'Total sem a Câmara',
+        codigoEntidade: null,
+        dca: 110.5,
+        tce: 100,
+        betha: null,
+        diferenca: 10.5,
+        maior: 'dca',
+        valor: 10.5,
+        situacao: 'calculada',
+      }),
+    ]);
+  });
+
+  it('TCE-SC maior diz que o TCE-SC registra mais, com a diferença em módulo no valor', () => {
+    const { grupos } = secaoComFuncoes({
+      ...DIFERENCA_NO_PAGO,
+      total: comparacao('diferenca', { dca: 100, tce: 100.25, diferenca: -0.25, maior: 'tce' }),
+    });
+
+    expect(grupos[0]?.itens[0]).toMatchObject({ maior: 'tce', diferenca: -0.25, valor: 0.25 });
+    expect(grupos[0]?.itens[0]?.nota).toContain('o TCE-SC registra');
+  });
+
+  it('etapas diferentes viram grupos separados: nunca se somam', () => {
+    const total = comparacao('diferenca', { dca: 110, tce: 100, diferenca: 10, maior: 'dca' });
+    total.etapas[0] = { etapa: 'empenhado', dca: 105, tce: 100, diferenca: 5, maior: 'dca' };
+
+    const { grupos } = secaoComFuncoes({ ...DIFERENCA_NO_PAGO, total });
+
+    expect(grupos.map((g) => [g.tipo, g.total])).toEqual([
+      ['funcao_empenhado', 5],
+      ['funcao_pago', 10],
+    ]);
+  });
+
+  it('Legislativa com diferença sai em linha própria, junto do total na mesma etapa', () => {
+    const { grupos } = secaoComFuncoes({
+      ...DIFERENCA_NO_PAGO,
+      legislativa: comparacao('diferenca', { dca: 101, tce: 100, diferenca: 1, maior: 'dca' }),
+    });
+
+    expect(grupos[0]?.itens.map((i) => i.entidade)).toEqual(['Total sem a Câmara', 'Câmara (função Legislativa)']);
+    expect(grupos[0]?.total).toBe(11.5);
+  });
+
+  it('sem diferença, o grupo não existe e a resposta é igual à de sem a conferência das funções', () => {
+    const conferido: ConferenciaDeFuncoes = {
+      ano: 2025,
+      estado: 'conferido',
+      total: comparacao('conferido'),
+      legislativa: comparacao('conferido'),
+    };
+
+    expect(secaoComFuncoes(conferido)).toEqual(secao([]));
+  });
+
+  it.each([['sem_tce'], ['sem_dca']] as const)('%s não vira caso', (estado) => {
+    expect(secaoComFuncoes({ ano: 2025, estado }).grupos).toEqual([]);
+  });
+
+  it('o grupo não entra na conta de receita, despesa nem empenhos', () => {
+    const { resumo } = secaoComFuncoes(DIFERENCA_NO_PAGO, [caso({ area: 'despesa', diferenca: 20 })]);
+
+    expect(resumo.porArea).toEqual({
+      receita: { casos: 0, total: 0 },
+      despesa: { casos: 1, total: 20 },
+      empenho: { casos: 0, total: 0 },
+    });
+  });
+
+  it('texto não usa palavra proibida e não afirma causa', () => {
+    const { grupos } = secaoComFuncoes(DIFERENCA_NO_PAGO);
+    const textos = [grupos[0]?.rotulo, grupos[0]?.explicacao, grupos[0]?.itens[0]?.nota].join(' ').toLowerCase();
+
+    expect(textos).not.toMatch(/validad|validação|irregular|fraude|erro|fantasma|causa|porque|devido/);
   });
 });

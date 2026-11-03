@@ -72,3 +72,106 @@ describe('Metodologia: o que o painel exibe', () => {
     expect(texto.replace(FRASE_PERMITIDA, '')).not.toMatch(TEXTO_PROIBIDO);
   });
 });
+
+describe('Metodologia: IBGE e SICONFI', () => {
+  const texto = () => document.body.textContent ?? '';
+  const secao = () => screen.getByRole('heading', { name: 'IBGE e SICONFI' }).parentElement as HTMLElement;
+
+  it('cita o IBGE e o que ele cobre', () => {
+    render(<Metodologia />);
+
+    expect(screen.getByText(/o IBGE cobre população/i)).toHaveTextContent(
+      /população, território, situação do domicílio, pirâmide etária, rendimento e PIB/,
+    );
+  });
+
+  it('cita o SICONFI e o anexo da despesa por função', () => {
+    render(<Metodologia />);
+
+    expect(screen.getByText(/o SICONFI cobre a despesa por função/i)).toHaveTextContent('DCA, Anexo I-E');
+  });
+
+  it('diz o selo de cada nível: total conferido, cada função fonte única', () => {
+    render(<Metodologia />);
+
+    const nivel = screen.getByText(/O total da despesa por função é comparado/);
+    expect(nivel).toHaveTextContent('conferido com o TCE-SC');
+    expect(nivel).toHaveTextContent('Cada função leva fonte única, sem conferência');
+  });
+
+  it('diz que Santa Catarina e Brasil não são a média simples dos municípios', () => {
+    render(<Metodologia />);
+
+    expect(texto()).toMatch(/não são a média simples\s+dos municípios/);
+  });
+
+  it('diz onde o verde e o vermelho aparecem', () => {
+    render(<Metodologia />);
+
+    expect(texto()).toMatch(/Verde e vermelho\s+só aparecem no dinheiro/);
+  });
+
+  it('explica o divisor da população', () => {
+    render(<Metodologia />);
+
+    expect(texto()).toMatch(/número do próprio ano, ou o anterior mais próximo/);
+    expect(texto()).toMatch(/o texto diz qual divisor foi usado/);
+  });
+
+  it('diz que o PIB per capita de 2023 é o mesmo que o IBGE publica', () => {
+    render(<Metodologia />);
+
+    expect(texto()).toContain('R$ 59.547,10, é o mesmo que o IBGE publica');
+  });
+
+  it('explica por que o PIB per capita do Brasil difere do das Contas Nacionais', () => {
+    render(<Metodologia />);
+
+    expect(texto()).toContain('a mesma conta dá R$ 53.886,67');
+    expect(texto()).toContain('As Contas Nacionais do IBGE publicam R$ 51.693,92');
+    expect(texto()).toContain('porque Orleans também divide pelo Censo');
+  });
+
+  it('explica a diferença entre PIB per capita e renda', () => {
+    render(<Metodologia />);
+
+    expect(screen.getByText(/PIB per capita não é a renda do morador/)).toBeInTheDocument();
+  });
+
+  it('explica os reais nominais', () => {
+    render(<Metodologia />);
+
+    expect(screen.getByText(/valores nominais, sem correção pela inflação/)).toBeInTheDocument();
+  });
+
+  it('diz que a Câmara fica fora do total da função', () => {
+    render(<Metodologia />);
+
+    expect(screen.getByText(/A função Legislativa é a Câmara/)).toHaveTextContent('fora do total');
+  });
+
+  it('a seção fica entre os títulos da página', () => {
+    render(<Metodologia />);
+
+    expect(within(secao()).getAllByRole('heading', { level: 2 }).length).toBeGreaterThan(0);
+  });
+});
+
+describe('Metodologia: os símbolos dos selos', () => {
+  it.each([
+    ['conferido com o TCE-SC', '✓'],
+    ['conferido com a Betha até DD/MM', '✓'],
+    ['fonte única, sem conferência', '–'],
+  ])('"%s" aparece ao lado do símbolo %s', (nivel, simbolo) => {
+    render(<Metodologia />);
+
+    const item = screen.getByText(nivel).closest('li') as HTMLElement;
+    expect(item.querySelector('.selo-icone')).toHaveTextContent(simbolo);
+  });
+
+  it('diz como ler o texto do símbolo', () => {
+    render(<Metodologia />);
+
+    expect(document.body).toHaveTextContent('Passe o mouse ou toque nele para ler o texto');
+  });
+});

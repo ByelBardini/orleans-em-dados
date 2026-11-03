@@ -1,0 +1,256 @@
+{
+  "status": 200,
+  "tipo": "application/json; charset=utf-8",
+  "disposicao": null,
+  "corpo": {
+    "disponivel": true,
+    "meta": {
+      "fonte": "IBGE — agregados do SIDRA",
+      "urlOrigem": "https://servicodados.ibge.gov.br/api/docs/agregados?versao=3",
+      "coletadoEm": "2025-03-01T12:00:00.000Z"
+    },
+    "populacao": {
+      "serie": [
+        {
+          "ano": 2000,
+          "populacao": 20000,
+          "tipo": "censo"
+        },
+        {
+          "ano": 2010,
+          "populacao": 21000,
+          "tipo": "censo"
+        },
+        {
+          "ano": 2021,
+          "populacao": 23000,
+          "tipo": "estimativa"
+        },
+        {
+          "ano": 2022,
+          "populacao": 23500,
+          "tipo": "censo"
+        },
+        {
+          "ano": 2024,
+          "populacao": 24000,
+          "tipo": "estimativa"
+        },
+        {
+          "ano": 2025,
+          "populacao": 24200,
+          "tipo": "estimativa"
+        },
+        {
+          "ano": 2026,
+          "populacao": 24400,
+          "tipo": "estimativa"
+        }
+      ]
+    },
+    "territorio": {
+      "ano": 2022,
+      "areaKm2": 550.125,
+      "densidade": 42.72
+    },
+    "situacao": {
+      "ano": 2022,
+      "total": 23500,
+      "urbana": 15000,
+      "rural": 8500
+    },
+    "piramide": {
+      "ano": 2022,
+      "total": 23500,
+      "faixas": [
+        {
+          "faixa": "0 a 4 anos",
+          "homens": 700,
+          "mulheres": 750
+        },
+        {
+          "faixa": "5 a 9 anos",
+          "homens": 650,
+          "mulheres": 795
+        },
+        {
+          "faixa": "10 a 14 anos",
+          "homens": 700,
+          "mulheres": 650
+        },
+        {
+          "faixa": "15 a 19 anos",
+          "homens": 750,
+          "mulheres": 750
+        },
+        {
+          "faixa": "20 a 24 anos",
+          "homens": 850,
+          "mulheres": 880
+        },
+        {
+          "faixa": "25 a 29 anos",
+          "homens": 900,
+          "mulheres": 860
+        },
+        {
+          "faixa": "30 a 34 anos",
+          "homens": 950,
+          "mulheres": 980
+        },
+        {
+          "faixa": "35 a 39 anos",
+          "homens": 900,
+          "mulheres": 900
+        },
+        {
+          "faixa": "40 a 44 anos",
+          "homens": 900,
+          "mulheres": 950
+        },
+        {
+          "faixa": "45 a 49 anos",
+          "homens": 800,
+          "mulheres": 850
+        },
+        {
+          "faixa": "50 a 54 anos",
+          "homens": 800,
+          "mulheres": 830
+        },
+        {
+          "faixa": "55 a 59 anos",
+          "homens": 750,
+          "mulheres": 760
+        },
+        {
+          "faixa": "60 a 64 anos",
+          "homens": 600,
+          "mulheres": 700
+        },
+        {
+          "faixa": "65 a 69 anos",
+          "homens": 450,
+          "mulheres": 470
+        },
+        {
+          "faixa": "70 a 74 anos",
+          "homens": 350,
+          "mulheres": 400
+        },
+        {
+          "faixa": "75 a 79 anos",
+          "homens": 170,
+          "mulheres": 280
+        },
+        {
+          "faixa": "80 anos ou mais",
+          "homens": 185,
+          "mulheres": 290
+        }
+      ]
+    },
+    "rendimento": {
+      "ano": 2022,
+      "medio": 2000.5,
+      "mediano": 1500.25
+    },
+    "pib": {
+      "serie": [
+        {
+          "ano": 2020,
+          "pib": 900000,
+          "perCapita": 42857.14,
+          "divisor": {
+            "ano": 2010,
+            "populacao": 21000,
+            "tipo": "censo"
+          },
+          "composicao": {
+            "agropecuaria": 100000,
+            "industria": 300000,
+            "servicos": 300000,
+            "administracao": 100000,
+            "impostos": 100000
+          }
+        },
+        {
+          "ano": 2021,
+          "pib": 1000000,
+          "perCapita": 43478.26,
+          "divisor": {
+            "ano": 2021,
+            "populacao": 23000,
+            "tipo": "estimativa"
+          },
+          "composicao": {
+            "agropecuaria": 100000,
+            "industria": 300000,
+            "servicos": 400000,
+            "administracao": 100000,
+            "impostos": 100000
+          }
+        },
+        {
+          "ano": 2022,
+          "pib": 1270000,
+          "perCapita": 54042.55,
+          "divisor": {
+            "ano": 2022,
+            "populacao": 23500,
+            "tipo": "censo"
+          },
+          "composicao": null
+        },
+        {
+          "ano": 2023,
+          "pib": 1400000,
+          "perCapita": 59574.47,
+          "divisor": {
+            "ano": 2022,
+            "populacao": 23500,
+            "tipo": "censo"
+          },
+          "composicao": null
+        }
+      ],
+      "ultimoAnoDaComposicao": 2021
+    },
+    "comparacao": {
+      "coletadoEm": "2025-03-01T12:00:00.000Z",
+      "anoDoCenso": 2022,
+      "anoDoCensoAnterior": 2010,
+      "anoDoPib": 2023,
+      "orleans": {
+        "densidade": 42.72,
+        "urbana": 63.83,
+        "ate14Anos": 18.06,
+        "aPartirDe60Anos": 16.57,
+        "crescimento": 11.9,
+        "rendimentoMedio": 2000.5,
+        "rendimentoMediano": 1500.25,
+        "pibPerCapita": 59574.47
+      },
+      "santaCatarina": {
+        "densidade": 75.5,
+        "urbana": 85,
+        "ate14Anos": 10,
+        "aPartirDe60Anos": 30,
+        "crescimento": 25,
+        "rendimentoMedio": 2200,
+        "rendimentoMediano": 1500,
+        "pibPerCapita": 60000
+      },
+      "brasil": {
+        "densidade": 24,
+        "urbana": 90,
+        "ate14Anos": 20,
+        "aPartirDe60Anos": 20,
+        "crescimento": 25,
+        "rendimentoMedio": 1600,
+        "rendimentoMediano": 1000,
+        "pibPerCapita": 50000
+      }
+    }
+  }
+}

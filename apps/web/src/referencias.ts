@@ -1,20 +1,5 @@
 // Dados de referência que não vêm da Betha.
 
-// População de Orleans/SC (IBGE, código 4211702). Censo 2022 e estimativas anuais
-// (tabela 6579). Para um ano sem número, usa o mais próximo anterior.
-const POPULACAO: Record<number, { pessoas: number; fonte: string }> = {
-  2022: { pessoas: 23661, fonte: 'IBGE, Censo 2022' },
-  2025: { pessoas: 24686, fonte: 'IBGE, estimativa 2025' },
-};
-
-export function populacao(ano: number) {
-  const anos = Object.keys(POPULACAO)
-    .map(Number)
-    .sort((a, b) => a - b);
-  const escolhido = [...anos].reverse().find((a) => a <= ano) ?? (anos[0] as number);
-  return POPULACAO[escolhido] as { pessoas: number; fonte: string };
-}
-
 // Origem da receita (dois primeiros dígitos da natureza) em linguagem do dia a dia.
 export const ORIGEM_CIDADAO: Record<string, string> = {
   11: 'Impostos e taxas municipais',
@@ -43,6 +28,30 @@ export const GLOSSARIO: [string, string][] = [
   ['Pago', 'O que saiu do caixa para o credor depois da liquidação.'],
   ['Credor', 'A empresa, órgão ou pessoa que recebe o pagamento.'],
 ];
+
+// Função de governo em linguagem do dia a dia; o nome oficial vai junto quando é outro.
+const FUNCAO_CIDADAO: Record<string, string> = {
+  '04': 'Administração da prefeitura',
+  '06': 'Segurança e defesa civil',
+  '08': 'Assistência social',
+  '13': 'Cultura',
+  '15': 'Ruas, praças e iluminação',
+  '16': 'Moradia',
+  '17': 'Água, esgoto e lixo',
+  '18': 'Meio ambiente',
+  '20': 'Agricultura',
+  '23': 'Comércio e serviços',
+  '26': 'Estradas e transporte',
+  '27': 'Esporte e lazer',
+};
+
+/** `oficial` só vem quando o nome do dia a dia é outro. */
+export const nomeDaFuncao = (codigo: string, oficial: string): { nome: string; oficial: string | null } => {
+  const cidadao = FUNCAO_CIDADAO[codigo];
+  return cidadao && cidadao.toLocaleLowerCase('pt-BR') !== oficial.toLocaleLowerCase('pt-BR')
+    ? { nome: cidadao, oficial }
+    : { nome: oficial, oficial: null };
+};
 
 // Como cada entidade entra numa frase ("Em 2025, o SAMAE arrecadou…").
 const SUJEITO: Record<string, string> = {

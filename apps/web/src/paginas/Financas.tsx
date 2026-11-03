@@ -22,29 +22,30 @@ import {
   porExtenso,
 } from '../format';
 import {
-  AvisoDaReceitaAguardando,
   ateOMes,
   ContaDaDespesa,
   ContaDaReceita,
+  SecaoDaConta,
   LINK_DISCREPANCIAS,
   SemConferencia,
 } from '../conferido';
 import { AvisoDeAtraso, Selo } from '../selo';
 import { SELO_EXEMPLO, SELO_FONTE_UNICA, seloConferidoComTce, seloDaDespesa } from '../selos';
-import { GLOSSARIO, ORIGEM_CIDADAO, ORIGENS_DE_FORA, populacao, sujeito } from '../referencias';
+import { GLOSSARIO, ORIGEM_CIDADAO, ORIGENS_DE_FORA, sujeito } from '../referencias';
+import { usePopulacao, type Populacao } from '../usePopulacao';
 import type { PropsDaPagina } from './props';
 
 const qs = (ano: number, entidade: string) => new URLSearchParams({ ano: String(ano), entidade }).toString();
 const N = Number;
 
-export default function VisaoGeral({ ano, entidade, filtros }: PropsDaPagina) {
+export default function Financas({ ano, entidade, filtros }: PropsDaPagina) {
   const rec = useApi(`/api/receitas?${qs(ano, entidade)}`, receitasSchema);
   const emp = useApi(`/api/despesas/empenhos/resumo?${qs(ano, entidade)}`, empenhosResumoSchema);
   const desp = useApi(`/api/despesas/resumo?${qs(ano, entidade)}`, despesasResumoSchema);
   const r = rec.dados;
   const d = emp.dados;
   const o = desp.dados;
-  const pop = populacao(ano);
+  const pop = usePopulacao(ano);
 
   return (
     <>
@@ -81,7 +82,7 @@ function Conteudo({
   r: Receitas;
   d: EmpenhosResumo;
   o: DespesasResumo;
-  pop: ReturnType<typeof populacao>;
+  pop: Populacao | null;
   entidades: readonly { codigo: string; sigla: string }[];
 }) {
   const arrecadado = N(r.totais.arrecadadoNoMes);
@@ -206,11 +207,7 @@ function Conteudo({
               {exemplo ? (
                 <Selo selo={SELO_EXEMPLO} />
               ) : (
-                <>
-                  <Selo semLink selo={seloConferidoComTce(parcial ? mesReceita : null)} />
-                  <ContaDaReceita conferencia={r.conferencia} />
-                  <AvisoDaReceitaAguardando valor={r.conferencia.aguardandoTce} mes={mesReceita} />
-                </>
+                <Selo semLink selo={seloConferidoComTce(parcial ? mesReceita : null)} />
               )}
               <AvisoDeAtraso indicador="receita-arrecadada" ano={ano} />
             </>
@@ -228,10 +225,7 @@ function Conteudo({
                   {exemplo ? (
                     <Selo selo={SELO_EXEMPLO} />
                   ) : (
-                    <>
-                      <Selo semLink={o.conferencia.totalBetha !== null} selo={seloDaDespesa(o.conferencia)} />
-                      <ContaDaDespesa conferido={o.totais.empenhado} conferencia={o.conferencia} />
-                    </>
+                    <Selo semLink={o.conferencia.totalBetha !== null} selo={seloDaDespesa(o.conferencia)} />
                   )}
                   <AvisoDeAtraso indicador="despesa-empenhada-liquida" ano={ano} />
                 </>
@@ -260,13 +254,29 @@ function Conteudo({
             —
           </Numero>
         )}
-        <Numero
-          rotulo={`Arrecadado aqui, por morador${ate ? `, ${ate}` : ''}`}
-          detalhe={`impostos, taxas e tarifas da cidade ÷ ${numero(pop.pessoas)} moradores (${pop.fonte}). Com os repasses, R$ ${numero(Math.round(arrecadado / pop.pessoas))}`}
-        >
-          R$ {numero(Math.round(propria / pop.pessoas))}
-        </Numero>
+        {pop && (
+          <Numero
+            rotulo={`Arrecadado aqui, por morador${ate ? `, ${ate}` : ''}`}
+            detalhe={`impostos, taxas e tarifas da cidade ÷ ${numero(pop.pessoas)} moradores (${pop.fonte}). Com os repasses, R$ ${numero(Math.round(arrecadado / pop.pessoas))}`}
+          >
+            R$ {numero(Math.round(propria / pop.pessoas))}
+          </Numero>
+        )}
       </Numeros>
+
+      {!exemplo && (
+        <SecaoDaConta titulo="Como se chega a estes números">
+          <ContaDaReceita explicada titulo="A conta da receita" conferencia={r.conferencia} />
+          {temDespesa && (
+            <ContaDaDespesa
+              explicada
+              titulo="A conta da despesa"
+              conferido={o.totais.empenhado}
+              conferencia={o.conferencia}
+            />
+          )}
+        </SecaoDaConta>
+      )}
 
       <div className="colunas">
         <section className="secao larga">
@@ -295,6 +305,7 @@ function Conteudo({
         <section className="secao estreita">
           <h2 className="secao-titulo">De onde vem</h2>
           <ListaPontos
+            comUnidade
             itens={origens.map((o) => ({
               chave: o.chave,
               nome: ORIGEM_CIDADAO[o.chave] ?? o.descricao,
@@ -317,7 +328,7 @@ function Conteudo({
         <div className="secao-cab">
           <h2 className="secao-titulo">Para onde vai cada R$ 100</h2>
           <span className="legenda-secao">
-            Valor original dos empenhos por órgão · e quanto isso dá por morador no ano
+            Valor original dos empenhos por órgão{pop ? ' · e quanto isso dá por morador no ano' : ''}
           </span>
         </div>
         <ul className="cada-100">
@@ -338,7 +349,8 @@ function Conteudo({
                 />
               </div>
               <span className="lp-extra">
-                {emMilhoes(o.valor)} · R$ {numero(Math.round(o.valor / pop.pessoas))} por morador
+                {emMilhoes(o.valor)}
+                {pop && ` · R$ ${numero(Math.round(o.valor / pop.pessoas))} por morador`}
               </span>
             </li>
           ))}
@@ -350,6 +362,7 @@ function Conteudo({
           <h2 className="secao-titulo">Quem gasta</h2>
           <ListaPontos
             vermelho
+            comUnidade
             itens={[
               ...o.porEntidade.map((e) => {
                 const qtd = d.porEntidade.find((x) => x.chave === e.chave)?.quantidade;
