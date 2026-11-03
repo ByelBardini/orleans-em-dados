@@ -30,6 +30,7 @@ const AREAS: readonly { id: Area; titulo: string; legenda: string }[] = [
   { id: 'receita', titulo: 'Receita', legenda: 'Betha 57153 × TCE-SC · o que difere em cada natureza' },
   { id: 'despesa', titulo: 'Despesa', legenda: 'Betha 57170 × TCE-SC · empenhado, liquidado e pago' },
   { id: 'empenho', titulo: 'Empenhos', legenda: 'Betha 57140 × TCE-SC · registro a registro, em valor original' },
+  { id: 'funcao', titulo: 'Despesa por função', legenda: 'DCA Anexo I-E (SICONFI) × TCE-SC · uma etapa por grupo' },
 ];
 
 // Dinheiro soma em centavos inteiros, nunca em ponto flutuante.
@@ -39,13 +40,19 @@ const somaEmCentavos = <T,>(lista: readonly T[], valor: (item: T) => number) =>
 const descricaoCurta = (d: string | null | undefined) => (d ? d.replace(/\s*-\s*Principal$/i, '') : null);
 
 // Diferença Betha − TCE dita por extenso, nunca com sinal: "R$ 1,00 a mais na Betha" / "a mais no TCE" / "igual".
-function Diferenca({ valor }: { valor: number | null | undefined }) {
+function Diferenca({
+  valor,
+  ladoPositivo = 'a mais na Betha',
+}: {
+  valor: number | null | undefined;
+  ladoPositivo?: string;
+}) {
   if (valor === null || valor === undefined) return <span className="apagado">—</span>;
   if (N(valor) === 0) return <span className="apagado">igual</span>;
   return (
     <span>
       {moeda(Math.abs(N(valor)))}{' '}
-      <span className="diferenca-lado">{N(valor) > 0 ? 'a mais na Betha' : 'a mais no TCE'}</span>
+      <span className="diferenca-lado">{N(valor) > 0 ? ladoPositivo : 'a mais no TCE'}</span>
     </span>
   );
 }
@@ -91,7 +98,9 @@ function Conteudo({ ano, entidade, filtros, dados }: PropsDeConteudo & { dados: 
               <em>
                 {numero(casos)} {casos === 1 ? 'caso' : 'casos'}
               </em>{' '}
-              em que Betha e TCE-SC não coincidem.
+              {grupos.some((g) => g.area === 'funcao')
+                ? 'em que as fontes não coincidem.'
+                : 'em que Betha e TCE-SC não coincidem.'}
             </>
           ) : (
             <>
@@ -306,7 +315,7 @@ function GrupoDeCasos({ grupo }: { grupo: Grupo }) {
             <th scope="col">Caso</th>
             <th scope="col">Quando</th>
             <th scope="col" className="num">
-              Betha
+              {grupo.area === 'funcao' ? 'SICONFI' : 'Betha'}
             </th>
             <th scope="col" className="num">
               TCE-SC
@@ -366,6 +375,7 @@ function Identificacao({ item }: { item: Item }) {
     );
   }
   if (item.area === 'despesa') return <strong>Despesa orçamentária · {item.entidade}</strong>;
+  if (item.area === 'funcao') return <strong>{item.entidade}</strong>;
   return (
     <>
       <strong>
@@ -387,6 +397,7 @@ function DiferencaDoCaso({ item }: { item: Item }) {
   }
   // Em meses diferentes, a soma do ano é igual: nenhum lado registra mais.
   if (item.diferenca === 0) return <span>{moeda(item.valor)} em meses diferentes</span>;
+  if (item.area === 'funcao') return <Diferenca valor={item.diferenca} ladoPositivo="a mais no SICONFI" />;
   return (
     <>
       <Diferenca valor={item.diferenca} />
@@ -405,6 +416,7 @@ function DiferencaDoCaso({ item }: { item: Item }) {
 
 // O valor do caso na fonte: em rubricas que se compensam, um por rubrica.
 function ValorNaFonte({ item, fonte }: { item: Item; fonte: 'betha' | 'tce' }) {
+  if (item.area === 'funcao' && fonte === 'betha') return moeda(item.dca);
   if (!item.compensacao) return moeda(item[fonte]);
   return [item.compensacao.aMenos, item.compensacao.aMais].map((r) => (
     <div key={r.natureza} className="valor-da-rubrica">
@@ -422,7 +434,7 @@ function Caso({ item }: { item: Item }) {
         {item.evidencia && <p className="caso-nota">{item.evidencia}</p>}
       </td>
       <td data-rotulo="Quando">{quandoFoi(item)}</td>
-      <td className="num" data-rotulo="Betha">
+      <td className="num" data-rotulo={item.area === 'funcao' ? 'SICONFI' : 'Betha'}>
         <ValorNaFonte item={item} fonte="betha" />
       </td>
       <td className="num" data-rotulo="TCE-SC">
