@@ -1,11 +1,16 @@
 // Monta a seção pública a partir de `dadosConferidos`. Copia campo a campo: o que não está aqui não
 // sai, e `avisos` é interno. Rótulo e explicação não afirmam causa.
 import type { Discrepancias } from '@orleans-em-dados/contracts';
-import type { DiscrepanciaConferida, TipoDiscrepancia } from '@orleans-em-dados/db/conferencias';
+import type {
+  ComparacaoDeFuncoes,
+  ConferenciaDeFuncoes,
+  DiscrepanciaConferida,
+  TipoDiscrepancia,
+} from '@orleans-em-dados/db/conferencias';
 
 type Grupo = Discrepancias['grupos'][number];
 type Item = Grupo['itens'][number];
-type Area = Grupo['area'];
+type Area = Exclude<Grupo['area'], 'funcao'>;
 type TipoDoGrupo = Exclude<TipoDiscrepancia, 'aguardando_tce'>;
 /** Duas rubricas que se compensam, já contadas como um caso. */
 type ComPar = DiscrepanciaConferida & { compensacao?: Item['compensacao']; valorDoPar?: number };
@@ -208,6 +213,71 @@ function agrupar(discrepancias: readonly ComPar[]): Grupo[] {
   return [...grupos.values()].map((g) => ({ ...g, total: somar(g.itens) }));
 }
 
+const ROTULO_DA_ETAPA = { empenhado: 'empenhado', liquidado: 'liquidado', pago: 'pago' };
+const NOME_DA_FONTE = { dca: 'o SICONFI', tce: 'o TCE-SC' };
+
+function itemDaFuncao(
+  entidade: string,
+  { etapa, dca, tce, diferenca, maior }: ComparacaoDeFuncoes['etapas'][number],
+): Item & { maior: 'dca' | 'tce' } {
+  const lado = maior as 'dca' | 'tce';
+  return {
+    area: 'funcao',
+    situacao: 'calculada',
+    data: null,
+    evidencia: null,
+    entidade,
+    codigoEntidade: null,
+    natureza: null,
+    descricao: null,
+    mes: null,
+    meses: [],
+    fonte: null,
+    numero: null,
+    dataEmpenho: null,
+    id: null,
+    quantidade: null,
+    betha: null,
+    tce,
+    dca,
+    maior: lado,
+    diferenca,
+    diferencaBetha: null,
+    diferencaTce: null,
+    diferencaDaNatureza: null,
+    etapas: null,
+    valor: Math.abs(diferenca),
+    compensacao: null,
+    nota: `No ${ROTULO_DA_ETAPA[etapa]}, ${NOME_DA_FONTE[lado]} registra ${fmt(Math.abs(diferenca))} a mais.`,
+  };
+}
+
+/** Um grupo por etapa: empenhado, liquidado e pago nunca se somam. Fora da conta de receita, despesa e empenhos. */
+function gruposDasFuncoes(funcoes: ConferenciaDeFuncoes | undefined): Grupo[] {
+  if (funcoes?.estado !== 'diferenca') return [];
+  const comparacoes = [
+    { entidade: 'Total sem a Câmara', comparacao: funcoes.total },
+    { entidade: 'Câmara (função Legislativa)', comparacao: funcoes.legislativa },
+  ];
+  return (['empenhado', 'liquidado', 'pago'] as const).flatMap((etapa): Grupo[] => {
+    const itens = comparacoes.flatMap(({ entidade, comparacao }) =>
+      comparacao.etapas.filter((e) => e.etapa === etapa && e.maior !== null).map((e) => itemDaFuncao(entidade, e)),
+    );
+    if (!itens.length) return [];
+    return [
+      {
+        tipo: `funcao_${etapa}`,
+        area: 'funcao',
+        rotulo: `Despesa por função: ${ROTULO_DA_ETAPA[etapa]}`,
+        explicacao:
+          'A DCA entregue ao SICONFI e o TCE-SC registram valores diferentes na mesma etapa. O total por função é o número comparado.',
+        total: somar(itens),
+        itens,
+      },
+    ];
+  });
+}
+
 function resumir(grupos: readonly Grupo[]): Discrepancias['resumo'] {
   const itens = grupos.flatMap((g) => g.itens);
   const daSituacao = (situacao: Item['situacao']) => itens.filter((i) => i.situacao === situacao).length;
@@ -229,10 +299,11 @@ function resumir(grupos: readonly Grupo[]): Discrepancias['resumo'] {
 
 type Publicado = Pick<Discrepancias, 'ano' | 'parcial' | 'limites'> & {
   discrepancias: readonly DiscrepanciaConferida[];
+  funcoes?: ConferenciaDeFuncoes;
 };
 
-export function montarSecao({ ano, parcial, limites, discrepancias }: Publicado): Discrepancias {
-  const grupos = agrupar(juntarCompensacoes(discrepancias));
+export function montarSecao({ ano, parcial, limites, discrepancias, funcoes }: Publicado): Discrepancias {
+  const grupos = [...agrupar(juntarCompensacoes(discrepancias)), ...gruposDasFuncoes(funcoes)];
   const pendentes = discrepancias.filter(ehPendencia).map(paraItem);
   const daReceita = pendentes.filter((i) => i.area === 'receita');
   const daDespesa = pendentes.filter((i) => i.area === 'despesa');
