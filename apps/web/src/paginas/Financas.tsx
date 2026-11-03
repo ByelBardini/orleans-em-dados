@@ -22,10 +22,10 @@ import {
   porExtenso,
 } from '../format';
 import {
-  AvisoDaReceitaAguardando,
   ateOMes,
   ContaDaDespesa,
   ContaDaReceita,
+  SecaoDaConta,
   LINK_DISCREPANCIAS,
   SemConferencia,
 } from '../conferido';
@@ -207,11 +207,7 @@ function Conteudo({
               {exemplo ? (
                 <Selo selo={SELO_EXEMPLO} />
               ) : (
-                <>
-                  <Selo semLink selo={seloConferidoComTce(parcial ? mesReceita : null)} />
-                  <ContaDaReceita conferencia={r.conferencia} />
-                  <AvisoDaReceitaAguardando valor={r.conferencia.aguardandoTce} mes={mesReceita} />
-                </>
+                <Selo semLink selo={seloConferidoComTce(parcial ? mesReceita : null)} />
               )}
               <AvisoDeAtraso indicador="receita-arrecadada" ano={ano} />
             </>
@@ -229,10 +225,7 @@ function Conteudo({
                   {exemplo ? (
                     <Selo selo={SELO_EXEMPLO} />
                   ) : (
-                    <>
-                      <Selo semLink={o.conferencia.totalBetha !== null} selo={seloDaDespesa(o.conferencia)} />
-                      <ContaDaDespesa conferido={o.totais.empenhado} conferencia={o.conferencia} />
-                    </>
+                    <Selo semLink={o.conferencia.totalBetha !== null} selo={seloDaDespesa(o.conferencia)} />
                   )}
                   <AvisoDeAtraso indicador="despesa-empenhada-liquida" ano={ano} />
                 </>
@@ -270,6 +263,20 @@ function Conteudo({
           </Numero>
         )}
       </Numeros>
+
+      {!exemplo && (
+        <SecaoDaConta titulo="Como se chega a estes números">
+          <ContaDaReceita explicada titulo="A conta da receita" conferencia={r.conferencia} />
+          {temDespesa && (
+            <ContaDaDespesa
+              explicada
+              titulo="A conta da despesa"
+              conferido={o.totais.empenhado}
+              conferencia={o.conferencia}
+            />
+          )}
+        </SecaoDaConta>
+      )}
 
       <div className="colunas">
         <section className="secao larga">

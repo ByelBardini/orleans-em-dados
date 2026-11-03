@@ -3,8 +3,6 @@
 import type { DespesasResumo, Receitas } from '@orleans-em-dados/contracts';
 import type { ReactNode } from 'react';
 import { MESES_LONGOS, moeda } from './format';
-import { Selo } from './selo';
-import { seloAguardando } from './selos';
 
 /** "até setembro de 2026" no ano em curso; vazio no encerrado, em que o ano inteiro está conferido. */
 export const ateOMes = (parcial: boolean | null | undefined, mes: number | null | undefined, ano: number) =>
@@ -17,31 +15,53 @@ export const FRASE_DA_DIFERENCA =
   'Diferença entre fontes pode decorrer de critério, abrangência ou atualização, e não indica, por si só, erro nem irregularidade.';
 
 // `semLink` e `titulo`: na própria seção, a conta não aponta para si mesma e diz de qual área é.
-type Apresentacao = { semLink?: boolean; titulo?: string };
+// `explicada`: a conta deitada, de `SecaoDaConta`, em que cada parcela diz o que é.
+type Apresentacao = { semLink?: boolean; titulo?: string; explicada?: boolean };
+type Linha = { rotulo: string; valor: number | null; explicacao?: string };
+
+const EM_DISCREPANCIA = 'A parte da Betha que difere do TCE-SC. Cada caso está em Discrepâncias.';
+const TOTAL_DA_BETHA = 'O total publicado no portal da transparência do município.';
+
+// Os cartões ficam com o número; a conta, as fontes e o que cada parcela quer dizer ficam aqui, abaixo deles.
+export function SecaoDaConta({ titulo, children }: { titulo: string; children: ReactNode }) {
+  return (
+    <section className="secao solta faixa-conta">
+      <h2 className="secao-titulo">{titulo}</h2>
+      <p className="nota-serif">
+        O número do cartão é só o que as duas fontes registram igual: a Betha, portal da transparência do município, e o
+        TCE-SC, sistema do Tribunal de Contas do Estado. O resto continua na conta, separado.
+      </p>
+      {children}
+    </section>
+  );
+}
 
 function Conta({
   linhas,
   total,
   semLink = false,
   titulo = 'A conta do conferido',
+  explicada = false,
   children,
 }: Apresentacao & {
-  linhas: readonly { rotulo: string; valor: number | null }[];
-  total: { rotulo: string; valor: number | null };
+  linhas: readonly Linha[];
+  total: Linha;
   children?: ReactNode;
 }) {
   return (
-    <div className="conta" role="group" aria-label={titulo}>
+    <div className={`conta${explicada ? ' conta-explicada' : ''}`} role="group" aria-label={titulo}>
       <dl>
         {linhas.map((l) => (
           <div key={l.rotulo}>
             <dt>{l.rotulo}</dt>
             <dd>{moeda(l.valor)}</dd>
+            {explicada && l.explicacao && <dd className="conta-explica">{l.explicacao}</dd>}
           </div>
         ))}
         <div className="conta-total">
           <dt>{total.rotulo}</dt>
           <dd>{moeda(total.valor)}</dd>
+          {explicada && total.explicacao && <dd className="conta-explica">{total.explicacao}</dd>}
         </div>
       </dl>
       {children}
@@ -61,15 +81,23 @@ export function ContaDaReceita({
 }: Apresentacao & { conferencia: Receitas['conferencia'] }) {
   const soNoTce = Number(c.diferencaTce) > 0;
   const abaixoDasDuas = Number(c.conferido) < Number(c.totalBetha) && Number(c.conferido) < Number(c.totalTce);
+  const mes = c.limites?.mesReceita;
+  const aguarda = `${mes ? `Depois de ${MESES_LONGOS[mes - 1]}, ainda` : 'Ainda'} não chegou ao TCE-SC, que recebe os dados com atraso. Entra quando a remessa chegar.`;
   return (
     <Conta
       {...apresentacao}
       linhas={[
-        { rotulo: 'conferido', valor: c.conferido },
-        { rotulo: '+ em discrepância', valor: c.diferencaBetha },
-        ...(Number(c.aguardandoTce) > 0 ? [{ rotulo: '+ aguardando TCE', valor: c.aguardandoTce }] : []),
+        {
+          rotulo: 'conferido',
+          valor: c.conferido,
+          explicacao: 'O que a Betha e o TCE-SC registram igual, ao centavo. É o número do cartão.',
+        },
+        { rotulo: '+ em discrepância', valor: c.diferencaBetha, explicacao: EM_DISCREPANCIA },
+        ...(Number(c.aguardandoTce) > 0
+          ? [{ rotulo: '+ aguardando TCE', valor: c.aguardandoTce, explicacao: aguarda }]
+          : []),
       ]}
-      total={{ rotulo: '= total da Betha', valor: c.totalBetha }}
+      total={{ rotulo: '= total da Betha', valor: c.totalBetha, explicacao: TOTAL_DA_BETHA }}
     >
       {soNoTce && <p className="conta-nota">Só o TCE-SC registra mais {moeda(c.diferencaTce)}, fora desta conta.</p>}
       {abaixoDasDuas && (
@@ -95,10 +123,15 @@ export function ContaDaDespesa({
     <Conta
       {...apresentacao}
       linhas={[
-        { rotulo: 'conferido', valor: conferido },
-        { rotulo: '+ em discrepância', valor: c.diferencaBetha },
+        {
+          rotulo: 'conferido',
+          valor: conferido,
+          explicacao:
+            'O empenhado que a Betha e o TCE-SC registram igual, por entidade, já descontadas as anulações. É o número do cartão.',
+        },
+        { rotulo: '+ em discrepância', valor: c.diferencaBetha, explicacao: EM_DISCREPANCIA },
       ]}
-      total={{ rotulo: '= total da Betha', valor: c.totalBetha }}
+      total={{ rotulo: '= total da Betha', valor: c.totalBetha, explicacao: TOTAL_DA_BETHA }}
     />
   );
 }
@@ -133,24 +166,6 @@ export function ContaDosEmpenhos({
     >
       {soNoTce > 0 && <p className="conta-nota">Só o TCE-SC registra mais {moeda(soNoTce)}, fora desta conta.</p>}
     </Conta>
-  );
-}
-
-export function AvisoDaReceitaAguardando({
-  valor,
-  mes,
-}: {
-  valor: number | null | undefined;
-  mes: number | null | undefined;
-}) {
-  if (!(Number(valor) > 0)) return null;
-  const depois = mes ? ` depois de ${MESES_LONGOS[mes - 1]}` : '';
-  return (
-    <Selo
-      selo={seloAguardando(
-        `${moeda(valor)} da Betha${depois} ainda não chegaram ao TCE-SC, que recebe os dados com atraso. Entram quando a remessa chegar.`,
-      )}
-    />
   );
 }
 

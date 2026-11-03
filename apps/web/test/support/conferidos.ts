@@ -309,7 +309,7 @@ const centavos = (texto: string | null) =>
 
 /** Os valores da conta como aparecem na tela, em centavos: as parcelas e o total. */
 export function contaNaTela(conta: HTMLElement) {
-  const valores = [...conta.querySelectorAll('dd')].map((dd) => centavos(dd.textContent));
+  const valores = [...conta.querySelectorAll('dd:not(.conta-explica)')].map((dd) => centavos(dd.textContent));
   return { parcelas: valores.slice(0, -1), total: valores.at(-1) };
 }
 
