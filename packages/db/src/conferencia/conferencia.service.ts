@@ -1,6 +1,7 @@
 // Conferência Betha × TCE-SC sobre as coletas publicadas de um exercício.
 // Usada pela API (/api/conferencias) e pelo script `pnpm conferir`.
 import {
+  compararFuncoes,
   discrepanciasDeEmpenhos,
   ehParcial,
   montarConferencia,
@@ -18,11 +19,16 @@ import {
   lerEmpenhosParaClassificar,
   lerLimites,
   lerReceitaConferida,
+  lerSomasDaDca,
+  lerSomasDoTceParaFuncoes,
   temColetaDeExemplo,
 } from './conferencia.dao';
 import { cruzarConferenciasManuais } from './conferencias-manuais';
 
 export type {
+  ComparacaoDaEtapa,
+  ComparacaoDeFuncoes,
+  ConferenciaDeFuncoes,
   DespesaConferida,
   Discrepancia,
   EmpenhoConferido,
@@ -44,6 +50,12 @@ export async function conferencia(ano: number, agora = new Date()) {
     lerDivergenciasEmOutrosAnos(ano),
   ]);
   return montarConferencia(ano, { coletas, limites, ...dados, outrosAnos }, agora);
+}
+
+/** O total da DCA sem a Legislativa, e a própria Legislativa, contra o TCE-SC. Não confere cada função. */
+export async function conferirFuncoes(ano: number) {
+  const [dca, tce] = await Promise.all([lerSomasDaDca(ano), lerSomasDoTceParaFuncoes(ano)]);
+  return compararFuncoes(ano, dca, tce);
 }
 
 /** Só o que as duas fontes sustentam, com o que ficou de fora e por quê. A resposta de
