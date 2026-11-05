@@ -1,6 +1,7 @@
 // Banco de teste com as cinco coletas fictícias publicadas, pelo mesmo caminho da produção.
 import { pool } from '@orleans-em-dados/db';
 import { criarImportadorBetha } from '@orleans-em-dados/importador-betha';
+import { criarImportadoresDeEducacao } from '@orleans-em-dados/importador-educacao';
 import { criarImportadorIbge } from '@orleans-em-dados/importador-ibge';
 import {
   gravarSnapshot,
@@ -10,15 +11,20 @@ import {
 } from '@orleans-em-dados/importador-nucleo';
 import { criarImportadorSiconfi } from '@orleans-em-dados/importador-siconfi';
 import { criarImportadorTcesc } from '@orleans-em-dados/importador-tcesc';
+import { EDUCACAO, type CenarioDeEducacao, type ChaveDeEducacao } from './educacao';
 import {
   despesas,
   empenhos,
   ibgeCenso,
   ibgeComparacao,
+  ibgeEducacaoCenso,
+  ibgeEducacaoComparacao,
   ibgePib,
   ibgePopulacao,
+  ibgeRedeEscolar,
   receitas,
   siconfiFuncoes,
+  siconfiIndices,
   tcescEmpenhos,
   tcescReceitas,
 } from './snapshots';
@@ -43,7 +49,7 @@ const ibge = criarImportadorIbge({
     },
   },
 });
-const siconfi = criarImportadorSiconfi({ cliente: { anexo: async () => [] } });
+const siconfi = criarImportadorSiconfi({ cliente: { anexo: async () => [], rreo: async () => [] } });
 
 const consulta = (importador: Importador, chave: string) => {
   const achada = importador.consultas.find((c) => c.chave === chave);
@@ -62,7 +68,14 @@ type Lotes = {
   ibgeCenso: Snapshot | null;
   ibgePib: Snapshot | null;
   ibgeComparacao: Snapshot | null;
+  ibgeEducacaoCenso: Snapshot | null;
+  ibgeEducacaoComparacao: Snapshot | null;
+  ibgeRedeEscolar: Snapshot | null;
   siconfiFuncoes: Snapshot[];
+  /** Um lote por exercício, como a DCA. */
+  siconfiIndices: Snapshot[];
+  /** Por consulta de educação; `null` deixa aquela fonte sem coleta. */
+  educacao: CenarioDeEducacao;
 };
 
 /** Banco só com as coletas fictícias; o que o cenário não informar vem do conjunto padrão. */
@@ -83,9 +96,32 @@ export async function popularCenario(cenario: Partial<Lotes> = {}): Promise<void
       consulta(ibge, 'ibge_comparacao'),
       cenario.ibgeComparacao === undefined ? ibgeComparacao() : cenario.ibgeComparacao,
     ],
+    [
+      consulta(ibge, 'ibge_educacao_censo'),
+      cenario.ibgeEducacaoCenso === undefined ? ibgeEducacaoCenso() : cenario.ibgeEducacaoCenso,
+    ],
+    [
+      consulta(ibge, 'ibge_educacao_comparacao'),
+      cenario.ibgeEducacaoComparacao === undefined ? ibgeEducacaoComparacao() : cenario.ibgeEducacaoComparacao,
+    ],
+    [
+      consulta(ibge, 'ibge_rede_escolar'),
+      cenario.ibgeRedeEscolar === undefined ? ibgeRedeEscolar() : cenario.ibgeRedeEscolar,
+    ],
+    // Por último: os ids das coletas anteriores não mudam nas gravações de paridade.
+    ...(cenario.siconfiIndices ?? [siconfiIndices()]).map((s) => [consulta(siconfi, 'siconfi_indices'), s] as const),
   ] as const;
   for (const [alvo, snapshot] of lotes) {
     if (snapshot) await gravarSnapshot(alvo, snapshot, 'arquivo', repositorio);
+  }
+  const consultasDeEducacao = criarImportadoresDeEducacao().flatMap((i) => i.consultas);
+  for (const [chave, padrao] of Object.entries(EDUCACAO) as [ChaveDeEducacao, () => Snapshot[]][]) {
+    const alvo = consultasDeEducacao.find((c) => c.chave === chave);
+    if (!alvo) throw new Error(`Nenhum importador conhece a consulta ${chave}`);
+    const trocados = cenario.educacao?.[chave];
+    for (const snapshot of trocados === undefined ? padrao() : (trocados ?? [])) {
+      await gravarSnapshot(alvo, snapshot, 'arquivo', repositorio);
+    }
   }
 }
 
