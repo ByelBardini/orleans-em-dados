@@ -1,4 +1,5 @@
-// A despesa por função, da DCA Anexo I-E. O total é conferido com o TCE-SC; a divisão é fonte única.
+// A despesa por função, da DCA Anexo I-E. O total é conferido com o TCE-SC; a divisão é fonte única,
+// menos a função 12, conferida com a soma das ações de educação da Betha.
 // Empenhado, liquidado e pago nunca se somam. A Câmara fica à parte, fora do total e da participação.
 import { z } from 'zod';
 import { metaSchema, valorSchema } from './comuns';
@@ -22,6 +23,17 @@ const comparacaoSchema = z.strictObject({
   ),
 });
 
+const conferenciaDaEducacaoSchema = z.enum(['conferido', 'diferenca', 'sem_betha']);
+
+const etapaDaEducacaoSchema = z.strictObject({
+  etapa: z.enum(['empenhado', 'liquidado', 'pago']),
+  dca: z.number(),
+  betha: z.number(),
+  // DCA − Betha.
+  diferenca: z.number(),
+  maior: z.enum(['dca', 'betha']).nullable(),
+});
+
 const subfuncaoSchema = etapasSchema.extend({ codigo: z.string(), nome: z.string() });
 
 const funcaoSchema = subfuncaoSchema.extend({
@@ -39,6 +51,9 @@ export const funcoesSchema = z.strictObject({
   conferencia: conferenciaDaFuncaoSchema,
   // Só com `conferencia: 'diferenca'`: cada comparação tem o próprio estado.
   diferenca: z.strictObject({ total: comparacaoSchema, legislativa: comparacaoSchema }).nullable(),
+  conferenciaEducacao: conferenciaDaEducacaoSchema,
+  // Só com `conferenciaEducacao: 'diferenca'`: as três etapas.
+  diferencaEducacao: z.array(etapaDaEducacaoSchema).nullable(),
   total: etapasSchema,
   // A população usada no "por morador"; nula sem a coleta do IBGE.
   divisor: pontoDaPopulacaoSchema.nullable(),
@@ -54,6 +69,7 @@ export const funcoesSerieSchema = z.strictObject({
     z.strictObject({
       ano: z.number(),
       conferencia: conferenciaDaFuncaoSchema,
+      conferenciaEducacao: conferenciaDaEducacaoSchema,
       total: etapasSchema,
       funcoes: z.array(subfuncaoSchema.extend({ participacao: etapasSchema })),
       camara: subfuncaoSchema.nullable(),
