@@ -1,0 +1,21 @@
+{
+  "name": "@orleans-em-dados/importador-educacao",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/importador.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc",
+    "extrair": "tsx src/extrair.ts"
+  },
+  "dependencies": {
+    "@orleans-em-dados/contracts": "workspace:*",
+    "@orleans-em-dados/db": "workspace:*",
+    "@orleans-em-dados/importador-nucleo": "workspace:*"
+  },
+  "devDependencies": {
+    "exceljs": "^4.4.0"
+  }
+}
