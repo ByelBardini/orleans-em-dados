@@ -33,22 +33,26 @@ As páginas de dados só exibem como número principal o que foi conferido entre
 4. **Discrepâncias:** cada valor retirado, em Betha x TCE-SC, por área e tipo, com o valor de cada fonte, a diferença e o lado que registra mais, a situação do caso (confirmado no portal, em parte, calculado, a rever), com a explicação de cada uma; o que aguarda o TCE-SC à parte; a comparação por entidade e mês; sem nome de credor nem histórico.
 5. **Conheça Orleans:** população em censos e estimativas, território, situação do domicílio, pirâmide etária, rendimento domiciliar e PIB, do IBGE, em fonte única, com a posição diante de Santa Catarina e do Brasil no que é comparável, no mesmo ano; crescimento dito entre censos; PIB per capita ao lado do rendimento, com a nota de que não é renda.
 6. **Para onde vai o dinheiro:** despesa por função da DCA Anexo I-E, de 2018 em diante, nas três etapas, com a participação sobre o total sem a Câmara, as subfunções e a série em valores nominais. Total conferido com o TCE-SC quando há coleta; cada função em fonte única; a Câmara à parte.
-7. **Metadados e transparência:** fonte, ID da consulta, URL de origem, filtro, exercício, data de coleta, entidade, versão do cálculo e nível da conferência.
+7. **Educação:** caderno em sete abas (Resumo, Aprendizado, Acesso, Permanência, Professores e turmas, Dinheiro, Cidade e ensino superior), com INEP, SIOPE, MEC, IBGE e SICONFI, comparando Orleans, Santa Catarina e o Brasil rede com rede; abre na rede pública, cada bloco tem selo, fonte e ano, e nada é publicado por escola. A tabela SIOPE × SICONFI fica em Discrepâncias.
+8. **Metadados e transparência:** fonte, ID da consulta, URL de origem, filtro, exercício, data de coleta, entidade, versão do cálculo e nível da conferência.
 
 ### 2.2 Fora do escopo inicial / próximas etapas
 
-Saúde e educação com indicadores legais, RCL e despesa de pessoal, dívida/restos a pagar, licitações, contratos, transferências, comparação entre municípios, correção pela inflação e despesa por função no ano em curso. Projetar a estrutura para acrescentá-los, sem misturar esses conceitos ao MVP.
+Saúde com indicadores legais, RCL e despesa de pessoal, dívida/restos a pagar, licitações, contratos, transferências, comparação entre municípios, correção pela inflação e despesa por função no ano em curso. Na educação, ficam para depois as séries de abandono, reprovação e formação, os anos de 2012 a 2019 no gráfico do mínimo, a infraestrutura das escolas e o custo por aluno comparado com outros lugares. Projetar a estrutura para acrescentá-los, sem misturar esses conceitos ao MVP.
 
 ## 3. Inventário de fontes
 
-| Fonte                            | Papel no projeto                                                                              | Endereço                                                                    |
-| -------------------------------- | --------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------- |
-| Betha — Transparência de Orleans | **Dados operacionais principais** de Executivo, fundos e autarquias                           | https://transparencia.betha.cloud/#/mJRAZlfGu2RI9KNBWj49aw==/consulta/57140 |
-| API de consultas Betha           | Dados estruturados e totalizadores do portal; API interna observada, estabilidade a confirmar | `https://api.transparencia.betha.cloud`                                     |
-| TCE-SC / Farol / e-Sfinge        | Conferência anual, tabelas por unidade gestora, incluindo Câmara                              | https://servicos.tcesc.tc.br/farol_externo/                                 |
-| SICONFI / Tesouro Nacional       | DCA, RREO e RGF; auditoria e séries padronizadas                                              | https://www.siconfi.tesouro.gov.br/                                         |
-| API SICONFI                      | **Integrada:** DCA Anexo I-E, despesa por função; RREO e RGF continuam fora                   | https://apidatalake.tesouro.gov.br/docs/siconfi/                            |
-| IBGE — Agregados, SIDRA          | **Integrada:** população, Censo 2022 e PIB, em fonte única                                    | https://servicodados.ibge.gov.br/api/docs/agregados?versao=3                |
+| Fonte                              | Papel no projeto                                                                                                               | Endereço                                                                    |
+| ---------------------------------- | ------------------------------------------------------------------------------------------------------------------------------ | --------------------------------------------------------------------------- |
+| Betha — Transparência de Orleans   | **Dados operacionais principais** de Executivo, fundos e autarquias                                                            | https://transparencia.betha.cloud/#/mJRAZlfGu2RI9KNBWj49aw==/consulta/57140 |
+| API de consultas Betha             | Dados estruturados e totalizadores do portal; API interna observada, estabilidade a confirmar                                  | `https://api.transparencia.betha.cloud`                                     |
+| TCE-SC / Farol / e-Sfinge          | Conferência anual, tabelas por unidade gestora, incluindo Câmara                                                               | https://servicos.tcesc.tc.br/farol_externo/                                 |
+| SICONFI / Tesouro Nacional         | DCA, RREO e RGF; auditoria e séries padronizadas                                                                               | https://www.siconfi.tesouro.gov.br/                                         |
+| API SICONFI                        | **Integrada:** DCA Anexo I-E, despesa por função, e RREO Anexo 14, índices de educação; o resto do RREO e o RGF continuam fora | https://apidatalake.tesouro.gov.br/docs/siconfi/                            |
+| IBGE — Agregados, SIDRA            | **Integrada:** população, Censo 2022, PIB, Censo de educação, IDEB e rede escolar, em fonte única                              | https://servicodados.ibge.gov.br/api/docs/agregados?versao=3                |
+| INEP — dados abertos               | **Por snapshot:** indicadores educacionais, IDEB, ENEM e ensino superior, em fonte única                                       | https://www.gov.br/inep/pt-br/acesso-a-informacao/dados-abertos             |
+| SIOPE — FNDE                       | **Por snapshot:** índices legais, investimento por aluno e remuneração declarada, de 2020 em diante                            | https://www.gov.br/fnde/pt-br/assuntos/sistemas/siope                       |
+| MEC — Retrato da Educação Infantil | **Por snapshot:** resposta do município sobre a procura por creche; declaratório                                               | https://www.gov.br/mec/pt-br/pnei/retrato-da-educacao-infantil-no-brasil    |
 
 **Atenção à abrangência:** “dados de Orleans” não implica automaticamente “Prefeitura + fundos + autarquias + Câmara”. A consulta Betha analisada trouxe quatro entidades; o painel de despesas do TCE-SC apresentou cinco unidades gestoras. Documentar o escopo de cada valor.
 
@@ -363,22 +367,32 @@ Os arquivos de 2025 `fundo municipal de saude.xlsx` e `samae.xlsx` foram compara
 
 ### 7.1 Indicadores, fonte de exibição e conferência
 
-| Indicador                                          | Fonte de exibição                                              | Conferida contra                                 | Observação                                                                               |
-| -------------------------------------------------- | -------------------------------------------------------------- | ------------------------------------------------ | ---------------------------------------------------------------------------------------- |
-| Receita arrecadada por mês/natureza                | Betha `57153` (`valorArrecadadoNoMes`), só a parte comum       | TCE-SC por entidade, natureza de 8 dígitos e mês | Preservar negativos; não somar acumulados; a diferença vai para a seção                  |
-| Receita orçada atualizada                          | Betha `57153` (`valorOrcadoAtualizado`)                        | Sem conferência (fonte única)                    | Não comparar diretamente à “prevista” TCE sem alinhar conceito                           |
-| Despesa empenhada, liquidada e paga, ano encerrado | Betha `57170`                                                  | TCE-SC por unidade gestora, nas três etapas      | Linhas de modalidade 71 saem se somam a diferença nas três etapas; senão, a entidade sai |
-| Despesa no ano em curso                            | TCE-SC até a data de corte                                     | Betha `57140`, empenho a empenho                 | Líquido do TCE-SC; empenho depois do corte fica em `aguardando TCE`                      |
-| Empenhos individualizados                          | Identificação e órgão: Betha `57140`; liquidado e pago: TCE-SC | Casamento 1:1 entre as fontes                    | `57140` é valor original, diferente da soma líquida; sem par, vai para a seção           |
-| Órgão/secretaria                                   | Betha `57140`                                                  | Sem conferência (fonte única)                    | O TCE-SC não publica o órgão                                                             |
-| Despesa da Câmara                                  | TCE-SC                                                         | Sem conferência (fonte única)                    | Sempre à parte; não soma com as entidades                                                |
-| Despesa municipal com Legislativo                  | Não exibida como soma                                          | —                                                | Não assumir união automática para todos os anos                                          |
-| Comparação entre as fontes                         | Seção Discrepâncias                                            | Betha x TCE-SC                                   | Exibir valores, diferença com o lado que registra mais, situação e posição temporal      |
-| Despesa por função, total sem a Câmara             | SICONFI, DCA Anexo I-E                                         | TCE-SC, soma das UGs sem a 1864                  | Só exercício encerrado. Sem coleta do TCE-SC: fonte única. Diferença vai para a seção    |
-| Função Legislativa                                 | SICONFI, DCA Anexo I-E                                         | TCE-SC, UG 1864                                  | Sempre à parte; fora do total e da participação                                          |
-| Cada outra função e subfunção                      | SICONFI, DCA Anexo I-E                                         | Sem conferência (fonte única)                    | Função não é entidade: igualdade do total não confere cada função                        |
-| População, território, pirâmide, rendimento e PIB  | IBGE (agregados)                                               | Sem conferência (fonte única)                    | Coerência interna conferida na coleta; cada número traz o próprio ano                    |
-| Valor por morador e PIB per capita                 | Calculado com a população do IBGE                              | —                                                | Estimativa ou censo do ano, senão o anterior; o texto diz o divisor                      |
+| Indicador                                                                   | Fonte de exibição                                              | Conferida contra                                 | Observação                                                                                        |
+| --------------------------------------------------------------------------- | -------------------------------------------------------------- | ------------------------------------------------ | ------------------------------------------------------------------------------------------------- |
+| Receita arrecadada por mês/natureza                                         | Betha `57153` (`valorArrecadadoNoMes`), só a parte comum       | TCE-SC por entidade, natureza de 8 dígitos e mês | Preservar negativos; não somar acumulados; a diferença vai para a seção                           |
+| Receita orçada atualizada                                                   | Betha `57153` (`valorOrcadoAtualizado`)                        | Sem conferência (fonte única)                    | Não comparar diretamente à “prevista” TCE sem alinhar conceito                                    |
+| Despesa empenhada, liquidada e paga, ano encerrado                          | Betha `57170`                                                  | TCE-SC por unidade gestora, nas três etapas      | Linhas de modalidade 71 saem se somam a diferença nas três etapas; senão, a entidade sai          |
+| Despesa no ano em curso                                                     | TCE-SC até a data de corte                                     | Betha `57140`, empenho a empenho                 | Líquido do TCE-SC; empenho depois do corte fica em `aguardando TCE`                               |
+| Empenhos individualizados                                                   | Identificação e órgão: Betha `57140`; liquidado e pago: TCE-SC | Casamento 1:1 entre as fontes                    | `57140` é valor original, diferente da soma líquida; sem par, vai para a seção                    |
+| Órgão/secretaria                                                            | Betha `57140`                                                  | Sem conferência (fonte única)                    | O TCE-SC não publica o órgão                                                                      |
+| Despesa da Câmara                                                           | TCE-SC                                                         | Sem conferência (fonte única)                    | Sempre à parte; não soma com as entidades                                                         |
+| Despesa municipal com Legislativo                                           | Não exibida como soma                                          | —                                                | Não assumir união automática para todos os anos                                                   |
+| Comparação entre as fontes                                                  | Seção Discrepâncias                                            | Betha x TCE-SC                                   | Exibir valores, diferença com o lado que registra mais, situação e posição temporal               |
+| Despesa por função, total sem a Câmara                                      | SICONFI, DCA Anexo I-E                                         | TCE-SC, soma das UGs sem a 1864                  | Só exercício encerrado. Sem coleta do TCE-SC: fonte única. Diferença vai para a seção             |
+| Função Legislativa                                                          | SICONFI, DCA Anexo I-E                                         | TCE-SC, UG 1864                                  | Sempre à parte; fora do total e da participação                                                   |
+| Cada outra função e subfunção                                               | SICONFI, DCA Anexo I-E                                         | Sem conferência (fonte única)                    | Função não é entidade: igualdade do total não confere cada função                                 |
+| População, território, pirâmide, rendimento e PIB                           | IBGE (agregados)                                               | Sem conferência (fonte única)                    | Coerência interna conferida na coleta; cada número traz o próprio ano                             |
+| Valor por morador e PIB per capita                                          | Calculado com a população do IBGE                              | —                                                | Estimativa ou censo do ano, senão o anterior; o texto diz o divisor                               |
+| Gasto com educação (função 12)                                              | SICONFI, DCA Anexo I-E                                         | Betha `57170`, soma das ações, nas três etapas   | Só o total confere; sem coleta da Betha, fonte única; a diferença com o Anexo 8 vai para a seção  |
+| Gasto com educação por ação e natureza                                      | Betha `57170`                                                  | Sem conferência (fonte única)                    | Igualdade do total não confere cada ação                                                          |
+| Índice de 25% e Fundeb na remuneração                                       | SIOPE, Anexo 8 e Indicadores                                   | SICONFI, RREO Anexo 14 (fonte única, com aviso)  | Igualdade do percentual não confere; o valor que difere vai para a seção                          |
+| Repasses para a educação                                                    | Betha `57153`, receita conferida                               | TCE-SC, a mesma conferência da receita           | Rubrica fora do conferido não sai como número                                                     |
+| Contribuição e resultado do Fundeb                                          | SIOPE, Anexo 8                                                 | Contribuição × dedução no TCE-SC                 | Resultado em fonte única; contribuição conferida onde coincide                                    |
+| Investimento por aluno e remuneração declarada                              | SIOPE                                                          | Sem conferência (fonte única)                    | Remuneração é a foto de maio, "entre os profissionais declarados"; sem dado pessoal               |
+| Rendimento, transição, docentes, INSE, alfabetização, ENEM, ensino superior | INEP                                                           | Sem conferência (fonte única)                    | Compara rede com rede; nada por escola; ENEM não publica rede com menos de 2 escolas              |
+| IDEB, matrículas, docentes, escolas                                         | IBGE, pesquisas 40 e 13; Brasil, arquivo do INEP               | Não conta: o IBGE republica o INEP               | Ano sem dado é lacuna, nunca zero                                                                 |
+| Alfabetização, frequência, instrução, local da escola                       | IBGE, Censo                                                    | Sem conferência (fonte única)                    | Partes = total na coleta, com tolerância de arredondamento da amostra. Meta nacional é referência |
+| Procura por creche                                                          | MEC, Retrato 2025                                              | Sem conferência (fonte única)                    | Sempre "a Prefeitura informou ao MEC"; fila em quantidade não tem número público                  |
 
 ### 7.2 Status de confiabilidade
 
@@ -395,7 +409,8 @@ Nível que o público vê em cada número, calculado na consulta:
 
 - `conferido com o TCE-SC`: o valor que as duas fontes registram, ao centavo.
 - `conferido com a Betha até DD/MM`: ano em curso; valores do TCE-SC nos empenhos com par na Betha até o corte.
-- `fonte única, sem conferência`: orçamento, órgão e Câmara.
+- `conferido com a Betha`: sem data, a função 12 da DCA igual, ao centavo, à soma das ações de educação na Betha, nas três etapas. Só o total é conferido.
+- `fonte única, sem conferência`: orçamento, órgão, Câmara, cada função da despesa, IBGE e, na educação, INEP, SIOPE e MEC.
 - `aguardando TCE`: mês que o TCE-SC ainda não recebeu; é pendência, não diferença.
 
 **Regra de exibição:** o painel só exibe como número principal o conferido, ou a fonte única rotulada. O que difere vai para a seção Discrepâncias, e a conta conferido + em discrepância = total da fonte fica ao lado. Igualdade entre as fontes não é auditoria nem homologação contábil.
@@ -517,6 +532,9 @@ node -v
 - [ ] Alinhar conceito de previsão inicial/atualizada antes de comparar Betha e TCE-SC.
 - [ ] Definir integração com Câmara e regra para despesas consolidadas em outros exercícios.
 - [ ] Estabelecer política de atualização, retenção, registro de erros e snapshots.
+- [ ] Baixar os arquivos municipais do INEP que faltaram e refazer os oito lotes em que Orleans veio de extrato (`docs/educacao/README.md`).
+- [ ] Reler na tela o Retrato do MEC transcrito em `docs/educacao/curados/retrato-mec.json`.
+- [ ] Baixar os relatórios do SIOPE de 2012 a 2019, que têm CAPTCHA, para abrir o mínimo de 25% antes de 2020 e ter o Fundeb de 2018 e 2019.
 
 ### Critérios de aceite do MVP
 
@@ -528,6 +546,7 @@ node -v
 - [ ] O módulo de despesas inclui opção de mostrar Executivo isolado versus consolidado com Legislativo, quando os dados externos estiverem disponíveis/conciliados.
 - [ ] Os dados monetários são armazenados e exibidos sem erro de precisão, com negativos e nulos preservados.
 - [ ] Backend não expõe token OAuth ao navegador, nem a logs públicos.
+- [ ] Nenhum snapshot de educação traz nome, CPF, número de inscrição ou valor individual, e `pnpm extrair educacao varrer` diz 0 achados.
 
 ## 12. Convenções de engenharia e decisões a manter
 
