@@ -1,0 +1,13 @@
+{
+  "meta": {"consultaId":900404,"ano":2023,"filtro":{"arquivo":"indicadores_municipal_2023.csv","coluna":"2023 - 6º bimestre","extrato":false},"iniciadoEm":"2026-11-05T03:16:05.275Z","coletadoEm":"2026-11-05T03:16:05.275Z","totalHits":8,"capturados":8,"idsUnicos":8,"camposAusentes":{},"conferencia":[],"status":"totalizador_conciliado","erros":[]},
+  "registros": [
+    {"id":"4211702:municipal::siope_por_aluno_infantil:2023","indicador":"siope_por_aluno_infantil","lugar":"4211702","rede":"municipal","recorte":"","periodo":"2023","valor":"10239.59","percentual":null},
+    {"id":"4211702:municipal::siope_por_aluno_fundamental:2023","indicador":"siope_por_aluno_fundamental","lugar":"4211702","rede":"municipal","recorte":"","periodo":"2023","valor":"15737.90","percentual":null},
+    {"id":"4211702:municipal::siope_professores_por_aluno:2023","indicador":"siope_professores_por_aluno","lugar":"4211702","rede":"municipal","recorte":"","periodo":"2023","valor":"6608.43","percentual":null},
+    {"id":"4211702:municipal::siope_nao_docentes_por_aluno:2023","indicador":"siope_nao_docentes_por_aluno","lugar":"4211702","rede":"municipal","recorte":"","periodo":"2023","valor":"309.63","percentual":null},
+    {"id":"4211702:municipal::siope_saldo_financeiro_fundeb:2023","indicador":"siope_saldo_financeiro_fundeb","lugar":"4211702","rede":"municipal","recorte":"","periodo":"2023","valor":"983820.16","percentual":null},
+    {"id":"4211702:municipal::siope_fundeb_nao_utilizado:2023","indicador":"siope_fundeb_nao_utilizado","lugar":"4211702","rede":"municipal","recorte":"","periodo":"2023","valor":"0.00","percentual":null},
+    {"id":"4211702:municipal::siope_educacao_valor_exigido:2023","indicador":"siope_educacao_valor_exigido","lugar":"4211702","rede":"municipal","recorte":"","periodo":"2023","valor":"20097937.27","percentual":null},
+    {"id":"4211702:municipal::siope_educacao_valor_aplicado:2023","indicador":"siope_educacao_valor_aplicado","lugar":"4211702","rede":"municipal","recorte":"","periodo":"2023","valor":"22283166.87","percentual":null}
+  ]
+}

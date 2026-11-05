@@ -14,6 +14,7 @@
     "@orleans-em-dados/contracts": "workspace:*",
     "@orleans-em-dados/db": "workspace:*",
     "@orleans-em-dados/importador-betha": "workspace:*",
+    "@orleans-em-dados/importador-educacao": "workspace:*",
     "@orleans-em-dados/importador-ibge": "workspace:*",
     "@orleans-em-dados/importador-nucleo": "workspace:*",
     "@orleans-em-dados/importador-siconfi": "workspace:*",

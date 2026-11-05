@@ -1,0 +1,268 @@
+{
+  "2024": {
+    "escolas_de_orleans": {
+      "todas": {
+        "inscritos": 147,
+        "presentes_nas_4_provas": 107,
+        "media_5_areas": 545.6,
+        "natureza": 503.66,
+        "humanas": 512.52,
+        "linguagens": 532.19,
+        "matematica": 524.19,
+        "redacao": 636.61,
+        "redacao_zerada": "menos de 5"
+      },
+      "estadual": {
+        "inscritos": 113,
+        "presentes_nas_4_provas": 79,
+        "media_5_areas": 525.78,
+        "natureza": 486.69,
+        "humanas": 496.84,
+        "linguagens": 520.95,
+        "matematica": 496.78,
+        "redacao": 605.06,
+        "redacao_zerada": "menos de 5"
+      },
+      "privada": {
+        "inscritos": 34,
+        "presentes_nas_4_provas": 28,
+        "media_5_areas": 601.52,
+        "natureza": 551.54,
+        "humanas": 556.55,
+        "linguagens": 563.74,
+        "matematica": 601.51,
+        "redacao": 725.16,
+        "redacao_zerada": "menos de 5"
+      },
+      "quantidade_de_escolas": 4,
+      "escolas_com_menos_de_10_inscritos": 1
+    },
+    "santa_catarina": {
+      "todas": {
+        "inscritos": 43242,
+        "presentes_nas_4_provas": 32021,
+        "media_5_areas": 560.44,
+        "natureza": 512.87,
+        "humanas": 530.06,
+        "linguagens": 540.95,
+        "matematica": 547.69,
+        "redacao": 651.35,
+        "redacao_zerada": 1230
+      },
+      "estadual": {
+        "inscritos": 30780,
+        "presentes_nas_4_provas": 20954,
+        "media_5_areas": 530.92,
+        "natureza": 487.77,
+        "humanas": 508.22,
+        "linguagens": 526.34,
+        "matematica": 507.81,
+        "redacao": 604.2,
+        "redacao_zerada": 1079
+      },
+      "privada": {
+        "inscritos": 9682,
+        "presentes_nas_4_provas": 8691,
+        "media_5_areas": 623.48,
+        "natureza": 564.59,
+        "humanas": 579.37,
+        "linguagens": 573.12,
+        "matematica": 633.89,
+        "redacao": 757.46,
+        "redacao_zerada": 110
+      }
+    },
+    "brasil": {
+      "todas": {
+        "inscritos": 1565797,
+        "presentes_nas_4_provas": 1193432,
+        "media_5_areas": 532.02,
+        "natureza": 486.55,
+        "humanas": 500.75,
+        "linguagens": 516.67,
+        "matematica": 520.5,
+        "redacao": 619.98,
+        "redacao_zerada": 75985
+      },
+      "estadual": {
+        "inscritos": 1225979,
+        "presentes_nas_4_provas": 878819,
+        "media_5_areas": 505.17,
+        "natureza": 466.11,
+        "humanas": 479.22,
+        "linguagens": 501.35,
+        "matematica": 489.59,
+        "redacao": 573.82,
+        "redacao_zerada": 72044
+      },
+      "privada": {
+        "inscritos": 262991,
+        "presentes_nas_4_provas": 245090,
+        "media_5_areas": 614.14,
+        "natureza": 549.04,
+        "humanas": 569.45,
+        "linguagens": 564.58,
+        "matematica": 616.22,
+        "redacao": 765.67,
+        "redacao_zerada": 2307
+      }
+    },
+    "prova_aplicada_em_orleans": {
+      "inscritos": 485,
+      "presentes_nas_4_provas": 343,
+      "media_5_areas": 551.65,
+      "natureza": 500.68,
+      "humanas": 509.9,
+      "linguagens": 530.25,
+      "matematica": 527.76,
+      "redacao": 662.23,
+      "redacao_zerada": 13,
+      "com_escola_em_orleans": 145,
+      "com_escola_em_outro_municipio": 144,
+      "sem_escola_associada": 196
+    },
+    "matriculas_3a_serie": {
+      "total": 222,
+      "estadual": 181,
+      "privado": 41
+    }
+  },
+  "2025": {
+    "escolas_de_orleans": {
+      "todas": {
+        "inscritos": 134,
+        "presentes_nas_4_provas": 96,
+        "media_5_areas": 544.35,
+        "natureza": 500.82,
+        "humanas": 514.01,
+        "linguagens": 539.46,
+        "matematica": 527.38,
+        "redacao": 617.14,
+        "redacao_zerada": "menos de 5"
+      },
+      "estadual": {
+        "inscritos": 106,
+        "presentes_nas_4_provas": 74,
+        "media_5_areas": 523.64,
+        "natureza": 487.9,
+        "humanas": 497.91,
+        "linguagens": 527.93,
+        "matematica": 495.51,
+        "redacao": 584.39,
+        "redacao_zerada": "menos de 5"
+      },
+      "privada": {
+        "inscritos": 28,
+        "presentes_nas_4_provas": 22,
+        "media_5_areas": 614.02,
+        "natureza": 544.85,
+        "humanas": 571.41,
+        "linguagens": 580.6,
+        "matematica": 636.05,
+        "redacao": 733.91,
+        "redacao_zerada": 0
+      },
+      "quantidade_de_escolas": 4,
+      "escolas_com_menos_de_10_inscritos": 2
+    },
+    "santa_catarina": {
+      "todas": {
+        "inscritos": 50277,
+        "presentes_nas_4_provas": 35282,
+        "media_5_areas": 552.13,
+        "natureza": 512.32,
+        "humanas": 528.48,
+        "linguagens": 548.2,
+        "matematica": 548.37,
+        "redacao": 600.85,
+        "redacao_zerada": 1850
+      },
+      "estadual": {
+        "inscritos": 36245,
+        "presentes_nas_4_provas": 23150,
+        "media_5_areas": 521.11,
+        "natureza": 489.4,
+        "humanas": 507.5,
+        "linguagens": 531.39,
+        "matematica": 504.28,
+        "redacao": 550.04,
+        "redacao_zerada": 1624
+      },
+      "privada": {
+        "inscritos": 10514,
+        "presentes_nas_4_provas": 9164,
+        "media_5_areas": 615.23,
+        "natureza": 557.59,
+        "humanas": 571.94,
+        "linguagens": 583.54,
+        "matematica": 636.83,
+        "redacao": 716.63,
+        "redacao_zerada": 141
+      }
+    },
+    "brasil": {
+      "todas": {
+        "inscritos": 1739028,
+        "presentes_nas_4_provas": 1288485,
+        "media_5_areas": 524.11,
+        "natureza": 491.59,
+        "humanas": 502.86,
+        "linguagens": 524.46,
+        "matematica": 513.82,
+        "redacao": 573.22,
+        "redacao_zerada": 99644
+      },
+      "estadual": {
+        "inscritos": 1382565,
+        "presentes_nas_4_provas": 961328,
+        "media_5_areas": 497.13,
+        "natureza": 472.61,
+        "humanas": 483.67,
+        "linguagens": 508.2,
+        "matematica": 480.63,
+        "redacao": 526.48,
+        "redacao_zerada": 94280
+      },
+      "privada": {
+        "inscritos": 272799,
+        "presentes_nas_4_provas": 252092,
+        "media_5_areas": 610.46,
+        "natureza": 551.93,
+        "humanas": 566.19,
+        "linguagens": 577.58,
+        "matematica": 620.32,
+        "redacao": 729.71,
+        "redacao_zerada": 3209
+      }
+    },
+    "prova_aplicada_em_orleans": {
+      "inscritos": 555,
+      "presentes_nas_4_provas": 371,
+      "media_5_areas": 538.82,
+      "natureza": 504.62,
+      "humanas": 512.62,
+      "linguagens": 539.55,
+      "matematica": 517.75,
+      "redacao": 607.18,
+      "redacao_zerada": 18,
+      "com_escola_em_orleans": 134,
+      "com_escola_em_outro_municipio": 230,
+      "sem_escola_associada": 191
+    },
+    "matriculas_3a_serie": {
+      "total": 199,
+      "estadual": 167,
+      "privado": 32
+    }
+  },
+  "fonte": "Microdados do ENEM 2024 e 2025 (INEP), arquivos baixados pelo usuário; matrículas da 3ª série do IBGE",
+  "gerado_em": "2026-11-05",
+  "regras": [
+    "Só médias e contagens: nenhuma linha de participante, resposta ou código de escola é mantido.",
+    "Nada por escola, porque há escolas com menos de 10 inscritos.",
+    "Contagem de Orleans abaixo de 5 vira \"menos de 5\".",
+    "Sem município de residência desde 2024: o recorte confiável é a escola de conclusão.",
+    "A prova é voluntária; o resultado não mede a rede inteira.",
+    "Média das 5 áreas considera só quem tem as cinco notas."
+  ]
+}

@@ -34,6 +34,8 @@ export const funcoes = (campos: Partial<Funcoes> = {}): Funcoes =>
     meta: { ...respostaGravada('api_funcoes_ano_2025').meta },
     conferencia: 'conferido',
     diferenca: null,
+    conferenciaEducacao: 'sem_betha',
+    diferencaEducacao: null,
     total: { empenhado: 1000000, liquidado: 800000, pago: 500000 },
     divisor: { ano: 2025, populacao: 24686, tipo: 'estimativa' },
     porMorador: { empenhado: 40.51, liquidado: 32.41, pago: 20.25 },
@@ -74,6 +76,7 @@ export const funcoesComDiferenca = () =>
 const anoDaSerie = (ano: number, conferencia: 'conferido' | 'sem_tce', participacaoDaSaude: number) => ({
   ano,
   conferencia,
+  conferenciaEducacao: 'sem_betha' as const,
   total: { empenhado: 1000000 + (ano - 2018), liquidado: 800000, pago: 500000 },
   funcoes: [
     {

@@ -1,0 +1,17 @@
+{
+  "meta": {"consultaId":900405,"ano":2020,"filtro":{"arquivo":"Relatório de Remuneração do SIOPE","foto":"maio","extrato":false},"iniciadoEm":"2026-11-05T03:16:05.275Z","coletadoEm":"2026-11-05T03:16:05.275Z","totalHits":12,"capturados":12,"idsUnicos":12,"camposAusentes":{},"conferencia":[{"campo":"total","titulo":"Total (a + b + c)","descricao":"Soma das linhas = linha de total da planilha","fonte":"6470455.73","calculado":"6470455.73","diferenca":"0.00"}],"status":"totalizador_conciliado","erros":[]},
+  "registros": [
+    {"id":"4211702:municipal::magisterio:temporario:carga_temporaria:2020-05","indicador":"carga_temporaria","lugar":"4211702","rede":"municipal","etapa":"","recorte":"magisterio:temporario","periodo":"2020-05","valor":"10.6","texto":null,"unidade":"%"},
+    {"id":"4211702:municipal::magisterio:todos:carga_horas:2020-05","indicador":"carga_horas","lugar":"4211702","rede":"municipal","etapa":"","recorte":"magisterio:todos","periodo":"2020-05","valor":"4105","texto":null,"unidade":"horas"},
+    {"id":"4211702:municipal::magisterio:todos:profissionais:2020-05","indicador":"profissionais","lugar":"4211702","rede":"municipal","etapa":"","recorte":"magisterio:todos","periodo":"2020-05","valor":"111","texto":null,"unidade":"pessoas"},
+    {"id":"4211702:municipal::magisterio:efetivo:profissionais:2020-05","indicador":"profissionais","lugar":"4211702","rede":"municipal","etapa":"","recorte":"magisterio:efetivo","periodo":"2020-05","valor":"99","texto":null,"unidade":"pessoas"},
+    {"id":"4211702:municipal::magisterio:temporario:profissionais:2020-05","indicador":"profissionais","lugar":"4211702","rede":"municipal","etapa":"","recorte":"magisterio:temporario","periodo":"2020-05","valor":"12","texto":null,"unidade":"pessoas"},
+    {"id":"4211702:municipal::licenciatura_plena:formacao_magisterio:2020-05","indicador":"formacao_magisterio","lugar":"4211702","rede":"municipal","etapa":"","recorte":"licenciatura_plena","periodo":"2020-05","valor":"110","texto":null,"unidade":"pessoas"},
+    {"id":"4211702:municipal::nivel_medio:formacao_magisterio:2020-05","indicador":"formacao_magisterio","lugar":"4211702","rede":"municipal","etapa":"","recorte":"nivel_medio","periodo":"2020-05","valor":null,"texto":"menos de 5","unidade":"pessoas"},
+    {"id":"4211702:municipal::outros:temporario:carga_temporaria:2020-05","indicador":"carga_temporaria","lugar":"4211702","rede":"municipal","etapa":"","recorte":"outros:temporario","periodo":"2020-05","valor":"18.1","texto":null,"unidade":"%"},
+    {"id":"4211702:municipal::outros:todos:carga_horas:2020-05","indicador":"carga_horas","lugar":"4211702","rede":"municipal","etapa":"","recorte":"outros:todos","periodo":"2020-05","valor":"1825","texto":null,"unidade":"horas"},
+    {"id":"4211702:municipal::outros:todos:profissionais:2020-05","indicador":"profissionais","lugar":"4211702","rede":"municipal","etapa":"","recorte":"outros:todos","periodo":"2020-05","valor":"55","texto":null,"unidade":"pessoas"},
+    {"id":"4211702:municipal::outros:efetivo:profissionais:2020-05","indicador":"profissionais","lugar":"4211702","rede":"municipal","etapa":"","recorte":"outros:efetivo","periodo":"2020-05","valor":"44","texto":null,"unidade":"pessoas"},
+    {"id":"4211702:municipal::outros:temporario:profissionais:2020-05","indicador":"profissionais","lugar":"4211702","rede":"municipal","etapa":"","recorte":"outros:temporario","periodo":"2020-05","valor":"11","texto":null,"unidade":"pessoas"}
+  ]
+}

@@ -7,6 +7,14 @@ export const SICONFI = {
   ente: '4211702',
 };
 
+// O RREO: o último bimestre (6) é o que fecha o exercício.
+export const SICONFI_RREO = {
+  api: 'https://apidatalake.tesouro.gov.br/ords/siconfi/tt/rreo',
+  demonstrativo: 'RREO',
+  anexo: 'RREO-Anexo 14',
+  periodo: 6,
+};
+
 /** O `fetch` global; injetado para o teste não sair para a rede. */
 export type TransporteHttp = (url: string | URL, init?: RequestInit) => Promise<Response>;
 

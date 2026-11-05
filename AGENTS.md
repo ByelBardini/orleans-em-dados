@@ -1,6 +1,6 @@
 # AGENTS.md — Orleans em Dados
 
-Dashboard público, rastreável, com dados de receitas e despesas do município de Orleans/SC, coletados do Portal da Transparência Betha e conferidos contra o Farol TCE-SC, mais a despesa por função do SICONFI e os indicadores do IBGE. A especificação do produto e das fontes é `docs/ESPECIFICACAO_TECNICA.md`; a metodologia pública, `docs/METODOLOGIA.md`.
+Dashboard público, rastreável, com dados de receitas e despesas do município de Orleans/SC, coletados do Portal da Transparência Betha e conferidos contra o Farol TCE-SC, mais a despesa por função do SICONFI, os indicadores do IBGE e o caderno de Educação (INEP, SIOPE, MEC, IBGE, SICONFI). A especificação do produto e das fontes é `docs/ESPECIFICACAO_TECNICA.md`; a metodologia pública, `docs/METODOLOGIA.md`.
 
 ## Stack
 
@@ -8,6 +8,7 @@ Dashboard público, rastreável, com dados de receitas e despesas do município 
 - TypeScript 6 strict em todos os workspaces (`tsconfig.base.json`, tsx).
 - `apps/api`: Fastify, SQL em texto pelo `pg`, resposta validada pelos schemas Zod de `packages/contracts`.
 - `packages/db`: Drizzle para esquema, migrações e gravação. `apps/worker`: pg-boss.
+- `packages/importadores/educacao`: `exceljs` só como devDependency, para os extratores; não vai para API nem worker.
 - `apps/web`: React 19 + Vite 6, TSX, CSS próprio em `styles.css`; testes de componente com Testing Library + jsdom.
 - Qualidade: Vitest 5 (`vitest.config.ts`, um projeto por workspace), ESLint flat (`eslint.config.js`), Prettier (`.prettierrc.json`, largura 120).
 
@@ -15,11 +16,11 @@ Dashboard público, rastreável, com dados de receitas e despesas do município 
 
 - `packages/db/` — esquema Drizzle, migrações (`drizzle/`), conexão e a conferência Betha × TCE-SC.
 - `packages/contracts/` — valores do domínio e schemas Zod compartilhados.
-- `packages/importadores/nucleo`, `betha/`, `tcesc/`, `ibge/`, `siconfi/` — contrato e executor dos importadores, e um importador por fonte.
+- `packages/importadores/nucleo`, `betha/`, `tcesc/`, `ibge/`, `siconfi/`, `educacao/` — contrato e executor dos importadores, e um importador por fonte. `educacao/` traz INEP, SIOPE e MEC, os extratores e a guarda de dados pessoais; não tem agenda.
 - `apps/worker/` — agendador (pg-boss) e CLI dos importadores.
 - `apps/api/src/` — API REST que lê só as coletas publicadas.
 - `apps/web/src/` — dashboard.
-- `docs/` — especificação, metodologia, fontes, dicionário de dados; `docs/context/` (contexto para agentes), `docs/plans/` (planos), `docs/screens/` (mockups HTML).
+- `docs/` — especificação, metodologia, fontes, dicionário de dados; `docs/context/` (contexto para agentes), `docs/plans/` (planos), `docs/screens/` (mockups HTML), `docs/educacao/` (fontes e indicadores do caderno de Educação, sem dados pessoais: `snapshots/`, o que o sistema carrega; `curados/`, o transcrito à mão; `extratos/`, a referência da primeira carga).
 - `examples/` — snapshots fictícios no formato dos reais. `data/` — snapshots reais opcionais, fora do git.
 
 ## Contexto por área (`docs/context/`)
@@ -37,6 +38,7 @@ Leia o hub da área antes de abrir fonte. O driver do `/testar` indica qual (`le
 | SICONFI      | [`siconfi.md`](docs/context/siconfi.md)           | DCA Anexo I-E, formato de conta, prazo de entrega     |
 | Contratos    | [`contracts.md`](docs/context/contracts.md)       | dinheiro, exercício, rubrica e schemas das respostas  |
 | API          | [`api.md`](docs/context/api.md)                   | rotas, parâmetros, CSV                                |
+| Educação     | [`educacao.md`](docs/context/educacao.md)         | modelo, indicadores gravados, extratores, snapshots   |
 | Dashboard    | [`web.md`](docs/context/web.md)                   | páginas, componentes, formatação, selos               |
 
 ## Testes
@@ -52,6 +54,7 @@ Leia o hub da área antes de abrir fonte. O driver do `/testar` indica qual (`le
 
 - `pnpm db:subir`, `pnpm db:migrar`, `pnpm db:exemplos`, `pnpm dev` (API em 3000, web em 5173).
 - `pnpm importar <betha|tcesc|ibge|siconfi> --ano 2025 [--consulta <chave>] [--json]`, `pnpm importar --arquivo <snapshot.json>`, `pnpm conferir --ano 2025`, `pnpm worker`.
+- `pnpm extrair educacao <inep|siope|enem|superior> --origem <pasta> [--de-extratos] [--destino <pasta>]`, `pnpm extrair educacao mec`, `pnpm extrair educacao varrer --origem <pasta>`: geram os snapshots em `docs/educacao/snapshots/`, sem banco; `varrer` procura dados pessoais neles e tem de dizer 0 achados. A carga é `pnpm importar --arquivo`.
 - Argumento vai direto depois do script: `pnpm importar betha --ano 2025`. O pnpm repassa `--` literalmente e o `parseArgs` da CLI trataria o resto como posicional.
 
 ## Regras que valem para tudo

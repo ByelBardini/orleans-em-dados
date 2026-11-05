@@ -1,0 +1,16 @@
+{
+  "meta": {"consultaId":900403,"ano":2023,"filtro":{"arquivo":"Relatório de Remuneração do SIOPE","foto":"maio","extrato":false},"iniciadoEm":"2026-11-05T03:16:05.275Z","coletadoEm":"2026-11-05T03:16:05.275Z","totalHits":11,"capturados":11,"idsUnicos":11,"camposAusentes":{},"conferencia":[{"campo":"total","titulo":"Total (a + b + c)","descricao":"Soma das linhas = linha de total da planilha","fonte":"11381000.99","calculado":"11381000.99","diferenca":"0.00"}],"status":"totalizador_conciliado","erros":[]},
+  "registros": [
+    {"id":"4211702:municipal:magisterio:todos:mediana_40h:2023-05","indicador":"mediana_40h","lugar":"4211702","rede":"municipal","recorte":"magisterio:todos","periodo":"2023-05","valor":"6073.51","percentual":null},
+    {"id":"4211702:municipal:magisterio:efetivo:mediana_40h:2023-05","indicador":"mediana_40h","lugar":"4211702","rede":"municipal","recorte":"magisterio:efetivo","periodo":"2023-05","valor":"6775.16","percentual":null},
+    {"id":"4211702:municipal:magisterio:temporario:mediana_40h:2023-05","indicador":"mediana_40h","lugar":"4211702","rede":"municipal","recorte":"magisterio:temporario","periodo":"2023-05","valor":"4869.16","percentual":null},
+    {"id":"4211702:municipal:magisterio:efetivo:mediana_vencimento_40h:2023-05","indicador":"mediana_vencimento_40h","lugar":"4211702","rede":"municipal","recorte":"magisterio:efetivo","periodo":"2023-05","valor":"5433.97","percentual":null},
+    {"id":"4211702:municipal:magisterio:temporario:mediana_vencimento_40h:2023-05","indicador":"mediana_vencimento_40h","lugar":"4211702","rede":"municipal","recorte":"magisterio:temporario","periodo":"2023-05","valor":"3845.63","percentual":null},
+    {"id":"4211702:municipal:outros:todos:mediana_40h:2023-05","indicador":"mediana_40h","lugar":"4211702","rede":"municipal","recorte":"outros:todos","periodo":"2023-05","valor":"2582.53","percentual":null},
+    {"id":"4211702:municipal:outros:efetivo:mediana_40h:2023-05","indicador":"mediana_40h","lugar":"4211702","rede":"municipal","recorte":"outros:efetivo","periodo":"2023-05","valor":"2747.25","percentual":null},
+    {"id":"4211702:municipal:outros:temporario:mediana_40h:2023-05","indicador":"mediana_40h","lugar":"4211702","rede":"municipal","recorte":"outros:temporario","periodo":"2023-05","valor":"2582.53","percentual":null},
+    {"id":"4211702:municipal:outros:efetivo:mediana_vencimento_40h:2023-05","indicador":"mediana_vencimento_40h","lugar":"4211702","rede":"municipal","recorte":"outros:efetivo","periodo":"2023-05","valor":"2243.33","percentual":null},
+    {"id":"4211702:municipal:outros:temporario:mediana_vencimento_40h:2023-05","indicador":"mediana_vencimento_40h","lugar":"4211702","rede":"municipal","recorte":"outros:temporario","periodo":"2023-05","valor":"2243.33","percentual":null},
+    {"id":"4211702:municipal::total_declarado:2023","indicador":"total_declarado","lugar":"4211702","rede":"municipal","recorte":"","periodo":"2023","valor":"11381000.99","percentual":null}
+  ]
+}

@@ -20,7 +20,12 @@ await montarFilas(boss, importadores, async (importador) => {
   const resultados = await rodarImportador(importador, dependencias);
   for (const r of resultados) console.log(`[${importador.id}] ${r.ano}: ${r.status}`);
 });
-console.log(`Worker no ar: ${importadores.map((i) => `${nomeDaFila(i)} (${i.agenda})`).join(', ')}`);
+console.log(
+  `Worker no ar: ${importadores
+    .filter((i) => i.agenda)
+    .map((i) => `${nomeDaFila(i)} (${i.agenda})`)
+    .join(', ')}`,
+);
 
 async function encerrar() {
   await boss.stop({ graceful: true });

@@ -165,6 +165,28 @@ chegam pela remessa do e-Sfinge, não diariamente.
 Consequência: no ano corrente, o painel vai até onde o TCE já chegou, e o restante fica como
 "aguardando TCE". É o custo aceito ao exibir só dados conferidos: se a coleta do TCE parar, o painel para de avançar.
 
+## Educação: SIOPE × SICONFI
+
+Comparação à parte da Betha × TCE-SC, em todos os exercícios com as duas fontes: de 2020 a 2025 hoje. Fica em
+Discrepâncias, no bloco "Educação", fora do filtro de ano e fora da conta do ano (`GET /api/educacao/discrepancias`).
+Os demonstrativos não explicam estas diferenças, e a tela só mostra os valores.
+
+Aplicado em educação e Fundeb na remuneração (Anexo 8 do SIOPE × Anexo 14 do RREO), e gasto total liquidado (Anexo 8 ×
+função 12 da DCA). Entra todo ano em que o valor difere, mesmo com o percentual igual; valor igual não entra.
+
+| Exercício |      Educação, a mais em |               Fundeb, a mais em | Gasto total, a mais em |
+| --------- | -----------------------: | ------------------------------: | ---------------------: |
+| 2020      |   SICONFI, R$ 231.657,90 | só percentuais: 80,66% × 87,13% | SICONFI, R$ 457.336,71 |
+| 2021      |          SIOPE, R$ 13,55 |           SICONFI, R$ 95.120,41 |                  igual |
+| 2022      |          SIOPE, R$ 77,70 |                           igual |   SIOPE, R$ 443.952,22 |
+| 2023      | SICONFI, R$ 1.079.630,91 |            SIOPE, R$ 412.012,95 |         SIOPE, R$ 0,01 |
+| 2024      |      SIOPE, R$ 52.485,17 |            SIOPE, R$ 359.525,00 |                  igual |
+| 2025      |     SIOPE, R$ 320.297,71 |             SIOPE, R$ 83.531,07 |                  igual |
+
+O Anexo 8 de 2020 traz só o percentual do Fundeb: sem o valor, não há diferença em reais. O SICONFI de 2017 sai junto
+com o Anexo 8 de 2012 a 2019. A função 12 × ações da Betha 57170 entra no mesmo bloco, por etapa, quando difere; em 2024
+e 2025 fecha ao centavo.
+
 ## O que cada fonte tem que a outra não tem
 
 | Só na Betha                                                 | Só no TCE                                                           |

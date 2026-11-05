@@ -1,0 +1,166 @@
+[
+  {
+    "ano": 2020,
+    "total_educacao": {
+      "dotacao": "23753779.54",
+      "empenhado": "17477460.33",
+      "liquidado": "17152458.52",
+      "restos_nao_processados": "325001.81"
+    },
+    "resultado_liquido_fundeb": "1471934.28",
+    "educacao": {
+      "exigido": "12481107.77",
+      "aplicado": "14017004.23",
+      "pct": 28.08
+    },
+    "fundeb_remuneracao": {
+      "pct": 80.66
+    }
+  },
+  {
+    "ano": 2021,
+    "receita_impostos": "62734112.26",
+    "destinado_ao_fundeb": "9486792.52",
+    "resultado_liquido_fundeb": "2074559.33",
+    "educacao": {
+      "exigido": "15683528.06",
+      "aplicado": "14604645.51",
+      "pct": 23.28
+    },
+    "fundeb_remuneracao": {
+      "exigido": "8113814.81",
+      "aplicado": "9054678.04",
+      "pct": 78.12
+    },
+    "total_educacao": {
+      "dotacao": "24882165.01",
+      "empenhado": "19893337.27",
+      "liquidado": "19656731.12",
+      "pago": "19656731.12",
+      "restos_nao_processados": "236606.15"
+    },
+    "pessoal_ativo_liquidado": "11877751.44",
+    "capital": {
+      "empenhado": "867592.19",
+      "liquidado": "708981.74"
+    }
+  },
+  {
+    "ano": 2022,
+    "receita_impostos": "75768934.09",
+    "destinado_ao_fundeb": "11585159.16",
+    "resultado_liquido_fundeb": "1767685.36",
+    "educacao": {
+      "exigido": "18942233.52",
+      "aplicado": "20929017.22",
+      "pct": 27.62
+    },
+    "fundeb_remuneracao": {
+      "exigido": "9433978.56",
+      "aplicado": "11594925.85",
+      "pct": 86.03
+    },
+    "total_educacao": {
+      "dotacao": "42440093.45",
+      "empenhado": "38157191.33",
+      "liquidado": "28126164.73",
+      "pago": "28126164.73",
+      "restos_nao_processados": "10031026.60"
+    },
+    "pessoal_ativo_liquidado": "17185703.99",
+    "capital": {
+      "empenhado": "11442659.38",
+      "liquidado": "1706568.78"
+    }
+  },
+  {
+    "ano": 2023,
+    "receita_impostos": "80391749.09",
+    "destinado_ao_fundeb": "11607050.09",
+    "resultado_liquido_fundeb": "2615014.29",
+    "educacao": {
+      "exigido": "20097937.27",
+      "aplicado": "22283166.87",
+      "pct": 27.72
+    },
+    "fundeb_remuneracao": {
+      "exigido": "10005802.39",
+      "aplicado": "12873215.62",
+      "pct": 90.06
+    },
+    "total_educacao": {
+      "dotacao": "36140189.87",
+      "empenhado": "31170264.79",
+      "liquidado": "30599230.28",
+      "pago": "30319984.83",
+      "restos_nao_processados": "571034.51"
+    },
+    "pessoal_ativo_liquidado": "20617565.77",
+    "capital": {
+      "empenhado": "2209907.86",
+      "liquidado": "1708186.77"
+    },
+    "emenda_119": {
+      "exigido_2021": "15683528.06",
+      "aplicado_2021": "14604645.51",
+      "diferenca_a_menor_2021": "1078882.55",
+      "complementado_em_2022": "1986783.70"
+    }
+  },
+  {
+    "ano": 2024,
+    "receita_impostos": "92697120.14",
+    "destinado_ao_fundeb": "14184101.03",
+    "resultado_liquido_fundeb": "2092989.14",
+    "educacao": {
+      "exigido": "23174280.04",
+      "aplicado": "24698020.91",
+      "pct": 26.64
+    },
+    "fundeb_remuneracao": {
+      "exigido": "11455463.60",
+      "aplicado": "13946085.34",
+      "pct": 85.22
+    },
+    "total_educacao": {
+      "dotacao": "34813626.70",
+      "empenhado": "31507003.93",
+      "liquidado": "31507003.93",
+      "pago": "31507003.93",
+      "restos_nao_processados": "0.00"
+    },
+    "pessoal_ativo_liquidado": "20157021.51",
+    "capital": {
+      "empenhado": "1526020.86",
+      "liquidado": "1526020.86"
+    }
+  },
+  {
+    "ano": 2025,
+    "receita_impostos": "105029010.32",
+    "destinado_ao_fundeb": "15931717.85",
+    "resultado_liquido_fundeb": "1435438.97",
+    "educacao": {
+      "exigido": "26257252.58",
+      "aplicado": "30068272.16",
+      "pct": 28.63
+    },
+    "fundeb_remuneracao": {
+      "exigido": "12304368.56",
+      "aplicado": "15399382.81",
+      "pct": 87.61
+    },
+    "total_educacao": {
+      "dotacao": "45335072.93",
+      "empenhado": "37844143.46",
+      "liquidado": "37481724.75",
+      "pago": "37481724.75",
+      "restos_nao_processados": "362418.71"
+    },
+    "pessoal_ativo_liquidado": "25584521.00",
+    "capital": {
+      "empenhado": "469867.01",
+      "liquidado": "184966.05"
+    }
+  }
+]

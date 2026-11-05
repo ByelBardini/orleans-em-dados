@@ -10,7 +10,7 @@ import { emMilhoes, milhoes, moeda, numero, porExtenso } from '../format';
 import { linhaDaParticipacao, oQueMudou, reguaDasFuncoes, type Etapa } from '../funcoes';
 import { nomeDaFuncao } from '../referencias';
 import { Selo } from '../selo';
-import { SELO_FONTE_UNICA, seloConferidoComTce } from '../selos';
+import { SELO_CONFERIDO_COM_A_BETHA, SELO_FONTE_UNICA, seloConferidoComTce } from '../selos';
 
 const ETAPAS: readonly { valor: Etapa; nome: string }[] = [
   { valor: 'empenhado', nome: 'Empenhado' },
@@ -20,6 +20,7 @@ const ETAPAS: readonly { valor: Etapa; nome: string }[] = [
 const NOME_DA_ETAPA = { empenhado: 'empenhado', liquidado: 'liquidado', pago: 'pago' };
 const NO_PLURAL = { empenhado: 'empenhados', liquidado: 'liquidados', pago: 'pagos' };
 const LADO = { dca: 'o SICONFI', tce: 'o TCE-SC' };
+const CODIGO_DA_EDUCACAO = '12';
 const MENOR_VALOR_EM_MILHOES = 50000;
 const FAIXA_COM_TEXTO = 7;
 // O nome inteiro não cabe na faixa da régua.
@@ -188,7 +189,15 @@ function TabelaDasFuncoes({
               : []),
             <tr key={f.codigo} className={i < 2 ? 'linha-destaque' : undefined}>
               <th scope="row">
-                <span className="funcao-nome">{nome}</span>
+                <span className="funcao-nome">
+                  {nome}
+                  {f.codigo === CODIGO_DA_EDUCACAO && dados.conferenciaEducacao === 'conferido' && (
+                    <>
+                      {' '}
+                      <Selo semLink selo={SELO_CONFERIDO_COM_A_BETHA} />
+                    </>
+                  )}
+                </span>
                 {oficial && <span className="funcao-oficial">{oficial}</span>}
               </th>
               <td className="funcao-barra" aria-hidden="true">

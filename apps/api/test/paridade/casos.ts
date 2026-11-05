@@ -6,6 +6,26 @@ import { fileURLToPath } from 'node:url';
 
 const PASTA = path.join(path.dirname(fileURLToPath(import.meta.url)), 'respostas');
 
+// O caderno de Educação: um par JSON e CSV por aba. Sempre 200, sem parâmetro.
+const EDUCACAO = [
+  '/api/educacao/acesso',
+  '/api/educacao/acesso.csv',
+  '/api/educacao/dinheiro',
+  '/api/educacao/dinheiro.csv',
+  '/api/educacao/aprendizado',
+  '/api/educacao/aprendizado.csv',
+  '/api/educacao/cidade',
+  '/api/educacao/cidade.csv',
+  '/api/educacao/permanencia',
+  '/api/educacao/permanencia.csv',
+  // Sem CSV: fica em Discrepâncias.
+  '/api/educacao/discrepancias',
+  '/api/educacao/professores',
+  '/api/educacao/professores.csv',
+  '/api/educacao/resumo',
+  '/api/educacao/resumo.csv',
+];
+
 export const CASOS = [
   '/api/anos',
   '/api/conferencias?ano=2025',
@@ -52,6 +72,7 @@ export const CASOS = [
   '/api/funcoes?ano=abc',
   '/api/funcoes',
   '/api/funcoes/serie',
+  ...EDUCACAO,
   '/api/inexistente',
 ];
 

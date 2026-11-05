@@ -1,0 +1,283 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>Orleans em Dados · Educação · Professores e turmas</title>
+<script src="./vendor/react.js"></script>
+<script src="./vendor/react-dom.js"></script>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&amp;family=IBM+Plex+Sans+Condensed:wght@400;500;600&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#1c1a17}a:hover{color:#b52d1b}
+.mono{font-family:'IBM Plex Mono',ui-monospace,monospace;font-variant-numeric:tabular-nums}
+.serif{font-family:'Instrument Serif',Georgia,serif;font-weight:400}
+.nav a:hover,.abas a:hover{color:#b52d1b}
+a:focus-visible,button:focus-visible{outline:2px solid #b52d1b;outline-offset:2px}
+</style>
+</helmet>
+<div style="background: #efeadf; color: #1c1a17; font-family: 'IBM Plex Sans Condensed', 'Arial Narrow', sans-serif; font-size: 17px; line-height: 1.45; min-height: 100vh; overflow-x: hidden">
+<div style="max-width: 1296px; margin: 0 auto; padding: 24px clamp(16px, 4vw, 72px) 72px">
+<header style="display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 12px 32px; padding-bottom: 10px; border-bottom: 3px solid #1c1a17">
+<a href="Main.dc.html" class="serif" style="font-size: clamp(34px, 5vw, 44px); line-height: 1; letter-spacing: -0.02em; text-decoration: none">Orleans <span style="font-style: italic">em</span> Dados</a>
+<nav class="nav" aria-label="Principal" style="display: flex; flex-wrap: wrap"><a href="Main.dc.html" style="padding: 12px 16px; text-decoration: none; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; font-size: 14px;">Visão geral</a><a href="Receitas.dc.html" style="padding: 12px 16px; text-decoration: none; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; font-size: 14px; border-left: 1px solid #1c1a17;">Receitas</a><a href="Despesas.dc.html" style="padding: 12px 16px; text-decoration: none; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; font-size: 14px; border-left: 1px solid #1c1a17;">Despesas</a><a href="Edu-Resumo.dc.html" aria-current="page" style="padding: 12px 16px; text-decoration: none; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; font-size: 14px; color: #b52d1b; border-left: 1px solid #1c1a17;">Educação</a></nav>
+</header>
+<div class="mono" style="display: flex; flex-wrap: wrap; justify-content: space-between; gap: 4px 24px; padding: 8px 0; font-size: 12px; letter-spacing: 0.06em; text-transform: uppercase">
+<span>Caderno de Educação</span>
+<span>Turmas · formação · temporários</span>
+</div>
+<nav class="abas" aria-label="Abas de Educação" style="display: flex; flex-wrap: wrap; border-top: 1px solid #1c1a17; border-bottom: 1px solid #1c1a17; font-size: 15px"><a href="Edu-Resumo.dc.html" style="min-height: 44px; display: inline-flex; align-items: center; padding: 0 14px; text-decoration: none;">Resumo</a><a href="Edu-Aprendizado.dc.html" style="min-height: 44px; display: inline-flex; align-items: center; padding: 0 14px; text-decoration: none; border-left: 1px solid #c9c1b0;">Aprendizado</a><a href="Edu-Acesso.dc.html" style="min-height: 44px; display: inline-flex; align-items: center; padding: 0 14px; text-decoration: none; border-left: 1px solid #c9c1b0;">Acesso</a><a href="Edu-Permanencia.dc.html" style="min-height: 44px; display: inline-flex; align-items: center; padding: 0 14px; text-decoration: none; border-left: 1px solid #c9c1b0;">Permanência</a><a href="Edu-Professores.dc.html" aria-current="page" style="min-height: 44px; display: inline-flex; align-items: center; padding: 0 14px; text-decoration: none; font-weight: 600; color: #b52d1b; box-shadow: inset 0 -3px 0 #b52d1b; border-left: 1px solid #c9c1b0;">Professores e turmas</a><a href="Edu-Dinheiro.dc.html" style="min-height: 44px; display: inline-flex; align-items: center; padding: 0 14px; text-decoration: none; border-left: 1px solid #c9c1b0;">Dinheiro</a><a href="Edu-Cidade.dc.html" style="min-height: 44px; display: inline-flex; align-items: center; padding: 0 14px; text-decoration: none; border-left: 1px solid #c9c1b0;">Cidade e ensino superior</a></nav>
+<div aria-label="Legenda das comparações" class="mono" style="display: flex; flex-wrap: wrap; align-items: center; gap: 4px 20px; padding: 10px 0; border-bottom: 1px solid #1c1a17; font-size: 12px">
+<span style="text-transform: uppercase; letter-spacing: 0.06em">Comparação</span>
+<span style="display: inline-flex; align-items: center; gap: 6px"><span aria-hidden="true" style="width: 12px; height: 12px; border-radius: 50%; background: #b52d1b"></span>Orleans</span>
+<span style="display: inline-flex; align-items: center; gap: 6px"><span aria-hidden="true" style="width: 12px; height: 12px; border-radius: 50%; border: 2px solid #1c1a17; box-sizing: border-box"></span>Santa Catarina</span>
+<span style="display: inline-flex; align-items: center; gap: 6px"><span aria-hidden="true" style="width: 10px; height: 10px; background: #8a8273"></span>Brasil</span>
+<span style="color: #5a554c">Tudo é fonte única, salvo indicação</span>
+</div>
+<div style="padding: 36px 0 8px; display: flex; flex-direction: column; gap: 14px; max-width: 860px">
+<h1 class="serif" style="margin: 0; font-size: clamp(36px, 4.6vw, 58px); line-height: 1.03; letter-spacing: -0.015em; text-wrap: balance">Quem ensina e como são as turmas</h1>
+<p style="margin: 0; font-size: 18px; text-wrap: pretty">Turmas menores que no estado e muitas horas de creche. Na educação infantil, 36,2% das aulas são dadas por professor com licenciatura na área; em SC, 60,8%. E a parte da carga horária feita por temporários cresceu desde 2020.</p>
+</div><section style="padding-top: 36px; display: flex; flex-direction: column; gap: 18px">
+<div style="display: flex; flex-direction: column; gap: 6px; border-bottom: 1px solid #1c1a17; padding-bottom: 10px">
+<h2 class="serif" style="margin: 0; font-size: clamp(28px, 3.4vw, 36px); line-height: 1.1">Tamanho das turmas e horas na escola</h2>
+<span class="mono" style="font-size: 12px; text-transform: uppercase; letter-spacing: 0.04em; color: #5a554c">INEP · 2025</span>
+
+</div><div style="display: flex; flex-wrap: wrap; gap: 32px 48px"><div style="flex: 1 1 420px; min-width: 0; display: flex; flex-direction: column; gap: 14px"><div style="display: flex; flex-direction: column; gap: 2px"><h3 style="margin: 0; font-size: 19px; font-weight: 600">Alunos por turma</h3><span class="mono" style="font-size: 11px; text-transform: uppercase; letter-spacing: 0.04em; color: #5a554c">Média · escala de 0 a 30</span></div><div style="display: flex; flex-direction: column">
+<sc-for list="{{turma}}" as="r" hint-placeholder-count="4">
+<div style="display: flex; flex-direction: column; gap: 6px; padding: 12px 0; border-bottom: 1px solid #c9c1b0">
+<div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; gap: 2px 16px">
+<span style="font-size: 16px; font-weight: 500">{{r.rotulo}}</span>
+<span class="mono" style="font-size: 13px; display: flex; flex-wrap: wrap; gap: 2px 14px">
+<sc-if value="{{r.temO}}" hint-placeholder-val="{{ true }}"><span style="color: #b52d1b; font-weight: 500">Orleans {{r.oT}}</span></sc-if>
+<sc-if value="{{r.temS}}" hint-placeholder-val="{{ true }}"><span>SC {{r.sT}}</span></sc-if>
+<sc-if value="{{r.temB}}" hint-placeholder-val="{{ true }}"><span style="color: #5a554c">Brasil {{r.bT}}</span></sc-if>
+</span>
+</div>
+<div aria-hidden="true" style="position: relative; height: 20px; margin: 0 8px">
+<div style="position: absolute; left: -8px; right: -8px; top: 9px; border-top: 1px solid #a39b8a"></div>
+<sc-if value="{{r.temB}}" hint-placeholder-val="{{ true }}"><span style="position: absolute; left: {{r.bL}}; top: 5px; width: 10px; height: 10px; margin-left: -5px; background: #8a8273"></span></sc-if>
+<sc-if value="{{r.temS}}" hint-placeholder-val="{{ true }}"><span style="position: absolute; left: {{r.sL}}; top: 3px; width: 14px; height: 14px; margin-left: -7px; border: 2px solid #1c1a17; border-radius: 50%; box-sizing: border-box; background: #efeadf"></span></sc-if>
+<sc-if value="{{r.temO}}" hint-placeholder-val="{{ true }}"><span style="position: absolute; left: {{r.oL}}; top: 2px; width: 16px; height: 16px; margin-left: -8px; border-radius: 50%; background: #b52d1b; box-shadow: 0 0 0 2px #efeadf"></span></sc-if>
+</div>
+<sc-if value="{{r.temNota}}" hint-placeholder-val="{{ false }}"><span style="font-size: 14px; color: #5a554c">{{r.nota}}</span></sc-if>
+</div>
+</sc-for>
+</div></div><div style="flex: 1 1 420px; min-width: 0; display: flex; flex-direction: column; gap: 14px"><div style="display: flex; flex-direction: column; gap: 2px"><h3 style="margin: 0; font-size: 19px; font-weight: 600">Horas de aula por dia</h3><span class="mono" style="font-size: 11px; text-transform: uppercase; letter-spacing: 0.04em; color: #5a554c">Média · escala de 0 a 10 horas</span></div><div style="display: flex; flex-direction: column">
+<sc-for list="{{horas}}" as="r" hint-placeholder-count="4">
+<div style="display: flex; flex-direction: column; gap: 6px; padding: 12px 0; border-bottom: 1px solid #c9c1b0">
+<div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; gap: 2px 16px">
+<span style="font-size: 16px; font-weight: 500">{{r.rotulo}}</span>
+<span class="mono" style="font-size: 13px; display: flex; flex-wrap: wrap; gap: 2px 14px">
+<sc-if value="{{r.temO}}" hint-placeholder-val="{{ true }}"><span style="color: #b52d1b; font-weight: 500">Orleans {{r.oT}}</span></sc-if>
+<sc-if value="{{r.temS}}" hint-placeholder-val="{{ true }}"><span>SC {{r.sT}}</span></sc-if>
+<sc-if value="{{r.temB}}" hint-placeholder-val="{{ true }}"><span style="color: #5a554c">Brasil {{r.bT}}</span></sc-if>
+</span>
+</div>
+<div aria-hidden="true" style="position: relative; height: 20px; margin: 0 8px">
+<div style="position: absolute; left: -8px; right: -8px; top: 9px; border-top: 1px solid #a39b8a"></div>
+<sc-if value="{{r.temB}}" hint-placeholder-val="{{ true }}"><span style="position: absolute; left: {{r.bL}}; top: 5px; width: 10px; height: 10px; margin-left: -5px; background: #8a8273"></span></sc-if>
+<sc-if value="{{r.temS}}" hint-placeholder-val="{{ true }}"><span style="position: absolute; left: {{r.sL}}; top: 3px; width: 14px; height: 14px; margin-left: -7px; border: 2px solid #1c1a17; border-radius: 50%; box-sizing: border-box; background: #efeadf"></span></sc-if>
+<sc-if value="{{r.temO}}" hint-placeholder-val="{{ true }}"><span style="position: absolute; left: {{r.oL}}; top: 2px; width: 16px; height: 16px; margin-left: -8px; border-radius: 50%; background: #b52d1b; box-shadow: 0 0 0 2px #efeadf"></span></sc-if>
+</div>
+<sc-if value="{{r.temNota}}" hint-placeholder-val="{{ false }}"><span style="font-size: 14px; color: #5a554c">{{r.nota}}</span></sc-if>
+</div>
+</sc-for>
+</div></div></div>
+</section><section style="padding-top: 40px; margin-top: 48px; border-top: 3px double #1c1a17; display: flex; flex-direction: column; gap: 18px">
+<div style="display: flex; flex-direction: column; gap: 6px; border-bottom: 1px solid #1c1a17; padding-bottom: 10px">
+<h2 class="serif" style="margin: 0; font-size: clamp(28px, 3.4vw, 36px); line-height: 1.1">Quem dá as aulas</h2>
+<span class="mono" style="font-size: 12px; text-transform: uppercase; letter-spacing: 0.04em; color: #5a554c">INEP · 2025 · percentual de aulas, não de professores</span>
+<p style="margin: 0; font-size: 17px; max-width: 720px; text-wrap: pretty">O INEP conta as aulas, não as pessoas: um mesmo professor pode dar aulas em mais de uma situação. Grupo 1 é licenciatura na área da aula; grupo 3, licenciatura em outra área; grupo 5, sem curso superior.</p>
+</div><div style="display: flex; flex-wrap: wrap; gap: 32px 48px"><div style="flex: 1 1 420px; min-width: 0; display: flex; flex-direction: column; gap: 14px"><div style="display: flex; flex-direction: column; gap: 2px"><h3 style="margin: 0; font-size: 19px; font-weight: 600">Aulas dadas por professor com licenciatura na área</h3><span class="mono" style="font-size: 11px; text-transform: uppercase; letter-spacing: 0.04em; color: #5a554c">Grupo 1 · escala de 0 a 100%</span></div><div style="display: flex; flex-direction: column">
+<sc-for list="{{form}}" as="r" hint-placeholder-count="4">
+<div style="display: flex; flex-direction: column; gap: 6px; padding: 12px 0; border-bottom: 1px solid #c9c1b0">
+<div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; gap: 2px 16px">
+<span style="font-size: 16px; font-weight: 500">{{r.rotulo}}</span>
+<span class="mono" style="font-size: 13px; display: flex; flex-wrap: wrap; gap: 2px 14px">
+<sc-if value="{{r.temO}}" hint-placeholder-val="{{ true }}"><span style="color: #b52d1b; font-weight: 500">Orleans {{r.oT}}</span></sc-if>
+<sc-if value="{{r.temS}}" hint-placeholder-val="{{ true }}"><span>SC {{r.sT}}</span></sc-if>
+<sc-if value="{{r.temB}}" hint-placeholder-val="{{ true }}"><span style="color: #5a554c">Brasil {{r.bT}}</span></sc-if>
+</span>
+</div>
+<div aria-hidden="true" style="position: relative; height: 20px; margin: 0 8px">
+<div style="position: absolute; left: -8px; right: -8px; top: 9px; border-top: 1px solid #a39b8a"></div>
+<sc-if value="{{r.temB}}" hint-placeholder-val="{{ true }}"><span style="position: absolute; left: {{r.bL}}; top: 5px; width: 10px; height: 10px; margin-left: -5px; background: #8a8273"></span></sc-if>
+<sc-if value="{{r.temS}}" hint-placeholder-val="{{ true }}"><span style="position: absolute; left: {{r.sL}}; top: 3px; width: 14px; height: 14px; margin-left: -7px; border: 2px solid #1c1a17; border-radius: 50%; box-sizing: border-box; background: #efeadf"></span></sc-if>
+<sc-if value="{{r.temO}}" hint-placeholder-val="{{ true }}"><span style="position: absolute; left: {{r.oL}}; top: 2px; width: 16px; height: 16px; margin-left: -8px; border-radius: 50%; background: #b52d1b; box-shadow: 0 0 0 2px #efeadf"></span></sc-if>
+</div>
+<sc-if value="{{r.temNota}}" hint-placeholder-val="{{ false }}"><span style="font-size: 14px; color: #5a554c">{{r.nota}}</span></sc-if>
+</div>
+</sc-for>
+</div></div><div style="flex: 1 1 420px; min-width: 0; display: flex; flex-direction: column; gap: 14px"><div style="display: flex; flex-direction: column; gap: 2px"><h3 style="margin: 0; font-size: 19px; font-weight: 600">Educação infantil: formação de quem dá as aulas</h3><span class="mono" style="font-size: 11px; text-transform: uppercase; letter-spacing: 0.04em; color: #5a554c">Todas as redes</span></div><div class="mono" style="display: flex; flex-wrap: wrap; gap: 4px 18px; font-size: 12px"><span style="display: inline-flex; align-items: center; gap: 6px"><span aria-hidden="true" style="width: 12px; height: 12px; background: #1c1a17"></span>Grupo 1</span><span style="display: inline-flex; align-items: center; gap: 6px"><span aria-hidden="true" style="width: 12px; height: 12px; background: #8a8273"></span>Grupo 3</span><span style="display: inline-flex; align-items: center; gap: 6px"><span aria-hidden="true" style="width: 12px; height: 12px; background: repeating-linear-gradient(45deg, #1c1a17 0 1px, transparent 1px 5px); box-shadow: inset 0 0 0 1px #1c1a17"></span>Grupo 5</span><span style="display: inline-flex; align-items: center; gap: 6px"><span aria-hidden="true" style="width: 12px; height: 12px; background: #ddd6c6"></span>Outros</span></div><div style="display: flex; flex-direction: column; gap: 16px">
+<sc-for list="{{infantil}}" as="s" hint-placeholder-count="3">
+<div style="display: flex; flex-direction: column; gap: 6px">
+<div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; gap: 2px 16px"><span style="font-size: 16px; font-weight: 500">{{s.rotulo}}</span><span class="mono" style="font-size: 13px">{{s.total}}</span></div>
+<div style="display: flex; gap: 2px; height: 32px; width: {{s.largura}}">
+<sc-for list="{{s.segs}}" as="g" hint-placeholder-count="3"><div title="{{g.tip}}" style="{{g.st}}"><span class="mono" style="{{g.cl}}">{{g.txt}}</span></div></sc-for>
+</div>
+<sc-if value="{{s.temNota}}" hint-placeholder-val="{{ false }}"><span style="font-size: 14px; color: #5a554c">{{s.nota}}</span></sc-if>
+</div>
+</sc-for>
+</div><div style="display: flex; flex-direction: column; gap: 2px"><h3 style="margin: 0; font-size: 19px; font-weight: 600">Docentes com curso superior</h3><span class="mono" style="font-size: 11px; text-transform: uppercase; letter-spacing: 0.04em; color: #5a554c">Percentual de docentes · escala de 50 a 100%</span></div><div style="display: flex; flex-direction: column">
+<sc-for list="{{sup}}" as="r" hint-placeholder-count="4">
+<div style="display: flex; flex-direction: column; gap: 6px; padding: 12px 0; border-bottom: 1px solid #c9c1b0">
+<div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; gap: 2px 16px">
+<span style="font-size: 16px; font-weight: 500">{{r.rotulo}}</span>
+<span class="mono" style="font-size: 13px; display: flex; flex-wrap: wrap; gap: 2px 14px">
+<sc-if value="{{r.temO}}" hint-placeholder-val="{{ true }}"><span style="color: #b52d1b; font-weight: 500">Orleans {{r.oT}}</span></sc-if>
+<sc-if value="{{r.temS}}" hint-placeholder-val="{{ true }}"><span>SC {{r.sT}}</span></sc-if>
+<sc-if value="{{r.temB}}" hint-placeholder-val="{{ true }}"><span style="color: #5a554c">Brasil {{r.bT}}</span></sc-if>
+</span>
+</div>
+<div aria-hidden="true" style="position: relative; height: 20px; margin: 0 8px">
+<div style="position: absolute; left: -8px; right: -8px; top: 9px; border-top: 1px solid #a39b8a"></div>
+<sc-if value="{{r.temB}}" hint-placeholder-val="{{ true }}"><span style="position: absolute; left: {{r.bL}}; top: 5px; width: 10px; height: 10px; margin-left: -5px; background: #8a8273"></span></sc-if>
+<sc-if value="{{r.temS}}" hint-placeholder-val="{{ true }}"><span style="position: absolute; left: {{r.sL}}; top: 3px; width: 14px; height: 14px; margin-left: -7px; border: 2px solid #1c1a17; border-radius: 50%; box-sizing: border-box; background: #efeadf"></span></sc-if>
+<sc-if value="{{r.temO}}" hint-placeholder-val="{{ true }}"><span style="position: absolute; left: {{r.oL}}; top: 2px; width: 16px; height: 16px; margin-left: -8px; border-radius: 50%; background: #b52d1b; box-shadow: 0 0 0 2px #efeadf"></span></sc-if>
+</div>
+<sc-if value="{{r.temNota}}" hint-placeholder-val="{{ false }}"><span style="font-size: 14px; color: #5a554c">{{r.nota}}</span></sc-if>
+</div>
+</sc-for>
+</div></div></div>
+</section><section style="padding-top: 40px; margin-top: 48px; border-top: 3px double #1c1a17; display: flex; flex-direction: column; gap: 18px">
+<div style="display: flex; flex-direction: column; gap: 6px; border-bottom: 1px solid #1c1a17; padding-bottom: 10px">
+<h2 class="serif" style="margin: 0; font-size: clamp(28px, 3.4vw, 36px); line-height: 1.1">Temporários e salários</h2>
+<span class="mono" style="font-size: 12px; text-transform: uppercase; letter-spacing: 0.04em; color: #5a554c">SIOPE · maio de cada ano, de 2020 a 2026 · profissionais declarados pela Prefeitura</span>
+<p style="margin: 0; font-size: 17px; max-width: 720px; text-wrap: pretty">A parte da carga horária do magistério feita por temporários passou de 10,6% em 2020 para 45,4% em 2026.</p>
+</div><div style="display: flex; flex-wrap: wrap; gap: 32px 48px"><div style="flex: 1 1 420px; min-width: 0; display: flex; flex-direction: column; gap: 14px"><div style="display: flex; flex-direction: column; gap: 2px"><h3 style="margin: 0; font-size: 19px; font-weight: 600">Carga horária temporária no magistério</h3></div><div role="img" aria-label="Carga temporária no magistério: 10,6% em 2020, 26,7% em 2021, 33,1% em 2022, 38,7% em 2023, 35,5% em 2024, 44,3% em 2025 e 45,4% em 2026" style="display: flex; flex-direction: column; gap: 6px">
+<div style="position: relative; height: 200px; border-bottom: 2px solid #1c1a17">
+
+<div style="position: absolute; inset: 0; display: flex; align-items: flex-end; gap: clamp(3px, 0.8vw, 8px)">
+<sc-for list="{{tempMag}}" as="b" hint-placeholder-count="6">
+<div title="{{b.tip}}" style="flex: 1 1 0; min-width: 0; height: 100%; display: flex; flex-direction: column; justify-content: flex-end; align-items: center; gap: 3px">
+<span class="mono" style="font-size: 11px; white-space: nowrap">{{b.rot}}</span>
+<span style="display: block; width: 100%; height: {{b.h}}; background: {{b.cor}}"></span>
+</div>
+</sc-for>
+</div>
+</div>
+<div aria-hidden="true" class="mono" style="display: flex; gap: clamp(3px, 0.8vw, 8px); font-size: 11px">
+<sc-for list="{{tempMag}}" as="b" hint-placeholder-count="6"><span style="flex: 1 1 0; min-width: 0; text-align: center; overflow: hidden">{{b.r}}</span></sc-for>
+</div>
+</div><p style="margin: 0; font-size: 15px">Profissionais do magistério declarados: <span class="mono">111</span> em 2020, <span class="mono">188</span> em 2025, <span class="mono">149</span> em 2026. Nos outros profissionais da educação, a carga temporária chegou a <span class="mono">67,2%</span> em 2026.</p></div><div style="flex: 1 1 420px; min-width: 0; display: flex; flex-direction: column; gap: 14px"><div style="display: flex; flex-direction: column; gap: 2px"><h3 style="margin: 0; font-size: 19px; font-weight: 600">Salário mediano por 40 horas</h3></div><div role="img" aria-label="Mediana por 40 horas, efetivo e temporário, 2020 a 2026: em 2025, R$ 6.956 e R$ 5.841; em 2026, R$ 6.607 e R$ 6.157" style="display: flex; flex-direction: column; gap: 6px">
+<div style="height: 180px; display: flex; align-items: flex-end; gap: clamp(4px, 1vw, 10px); border-bottom: 2px solid #1c1a17"><div style="flex: 1 1 0; min-width: 0; height: 100%; display: flex; align-items: flex-end; gap: 2px">
+<span title="2020, efetivo: R$ 4.738" style="flex: 1 1 0; height: 63.2%; background: #1c1a17"></span>
+<span title="2020, temporário: R$ 3.276" style="flex: 1 1 0; height: 43.7%; background: #b52d1b"></span>
+</div><div style="flex: 1 1 0; min-width: 0; height: 100%; display: flex; align-items: flex-end; gap: 2px">
+<span title="2021, efetivo: R$ 4.738" style="flex: 1 1 0; height: 63.2%; background: #1c1a17"></span>
+<span title="2021, temporário: R$ 3.416" style="flex: 1 1 0; height: 45.5%; background: #b52d1b"></span>
+</div><div style="flex: 1 1 0; min-width: 0; height: 100%; display: flex; align-items: flex-end; gap: 2px">
+<span title="2022, efetivo: R$ 5.661" style="flex: 1 1 0; height: 75.5%; background: #1c1a17"></span>
+<span title="2022, temporário: R$ 3.922" style="flex: 1 1 0; height: 52.3%; background: #b52d1b"></span>
+</div><div style="flex: 1 1 0; min-width: 0; height: 100%; display: flex; align-items: flex-end; gap: 2px">
+<span title="2023, efetivo: R$ 6.775" style="flex: 1 1 0; height: 90.3%; background: #1c1a17"></span>
+<span title="2023, temporário: R$ 4.869" style="flex: 1 1 0; height: 64.9%; background: #b52d1b"></span>
+</div><div style="flex: 1 1 0; min-width: 0; height: 100%; display: flex; align-items: flex-end; gap: 2px">
+<span title="2024, efetivo: R$ 6.715" style="flex: 1 1 0; height: 89.5%; background: #1c1a17"></span>
+<span title="2024, temporário: R$ 5.497" style="flex: 1 1 0; height: 73.3%; background: #b52d1b"></span>
+</div><div style="flex: 1 1 0; min-width: 0; height: 100%; display: flex; align-items: flex-end; gap: 2px">
+<span title="2025, efetivo: R$ 6.956" style="flex: 1 1 0; height: 92.7%; background: #1c1a17"></span>
+<span title="2025, temporário: R$ 5.841" style="flex: 1 1 0; height: 77.9%; background: #b52d1b"></span>
+</div><div style="flex: 1 1 0; min-width: 0; height: 100%; display: flex; align-items: flex-end; gap: 2px">
+<span title="2026, efetivo: R$ 6.607" style="flex: 1 1 0; height: 88.1%; background: #1c1a17"></span>
+<span title="2026, temporário: R$ 6.157" style="flex: 1 1 0; height: 82.1%; background: #b52d1b"></span>
+</div></div>
+<div aria-hidden="true" class="mono" style="display: flex; gap: clamp(4px, 1vw, 10px); font-size: 11px"><span style="flex: 1 1 0; min-width: 0; text-align: center">2020</span><span style="flex: 1 1 0; min-width: 0; text-align: center">2021</span><span style="flex: 1 1 0; min-width: 0; text-align: center">2022</span><span style="flex: 1 1 0; min-width: 0; text-align: center">2023</span><span style="flex: 1 1 0; min-width: 0; text-align: center">2024</span><span style="flex: 1 1 0; min-width: 0; text-align: center">2025</span><span style="flex: 1 1 0; min-width: 0; text-align: center">2026</span></div>
+</div><div class="mono" style="display: flex; flex-wrap: wrap; gap: 4px 18px; font-size: 12px"><span style="display: inline-flex; align-items: center; gap: 6px"><span aria-hidden="true" style="width: 12px; height: 12px; background: #1c1a17"></span>Efetivo</span><span style="display: inline-flex; align-items: center; gap: 6px"><span aria-hidden="true" style="width: 12px; height: 12px; background: #b52d1b"></span>Temporário</span></div><p style="margin: 0; font-size: 15px">Em 2025: <span class="mono">R$ 6.956</span> para efetivos e <span class="mono">R$ 5.841</span> para temporários, por 40 horas semanais. Valores nominais.</p></div></div><div style="display: flex; flex-direction: column"><div style="display: flex; flex-wrap: wrap; justify-content: space-between; gap: 2px 16px; padding: 10px 0; border-bottom: 1px solid #c9c1b0"><span>Remuneração média por 40 h, rede municipal de Orleans</span><span style="font-weight: 600; text-align: right">R$ 3.944,98 · INEP e RAIS, 2021</span></div><div style="display: flex; flex-wrap: wrap; justify-content: space-between; gap: 2px 16px; padding: 10px 0; border-bottom: 1px solid #c9c1b0"><span>Toda a rede pública de SC</span><span style="font-weight: 600; text-align: right">R$ 5.364,76 · INEP e RAIS, 2021</span></div><div style="display: flex; flex-wrap: wrap; justify-content: space-between; gap: 2px 16px; padding: 10px 0; border-bottom: 1px solid #c9c1b0"><span>Redes municipais do Brasil</span><span style="font-weight: 600; text-align: right">R$ 5.154,89 · INEP e RAIS, 2021</span></div></div>
+</section><section style="padding-top: 40px; margin-top: 48px; border-top: 3px double #1c1a17; display: flex; flex-direction: column; gap: 18px">
+<div style="display: flex; flex-direction: column; gap: 6px; border-bottom: 1px solid #1c1a17; padding-bottom: 10px">
+<h2 class="serif" style="margin: 0; font-size: clamp(28px, 3.4vw, 36px); line-height: 1.1">Os professores continuam na mesma escola?</h2>
+<span class="mono" style="font-size: 12px; text-transform: uppercase; letter-spacing: 0.04em; color: #5a554c">INEP · 2025 · percentual de escolas por nível de regularidade dos professores</span>
+<p style="margin: 0; font-size: 17px; max-width: 720px; text-wrap: pretty">O indicador mede se os mesmos professores seguem na escola ao longo dos anos. Em Orleans, nenhuma escola ficou no nível alto.</p>
+</div><div class="mono" style="display: flex; flex-wrap: wrap; gap: 4px 18px; font-size: 12px"><span style="display: inline-flex; align-items: center; gap: 6px"><span aria-hidden="true" style="width: 12px; height: 12px; background: repeating-linear-gradient(45deg, #1c1a17 0 1px, transparent 1px 5px); box-shadow: inset 0 0 0 1px #1c1a17"></span>Baixa</span><span style="display: inline-flex; align-items: center; gap: 6px"><span aria-hidden="true" style="width: 12px; height: 12px; background: #a39b8a"></span>Média-baixa</span><span style="display: inline-flex; align-items: center; gap: 6px"><span aria-hidden="true" style="width: 12px; height: 12px; background: #5a554c"></span>Média-alta</span><span style="display: inline-flex; align-items: center; gap: 6px"><span aria-hidden="true" style="width: 12px; height: 12px; background: #1c1a17"></span>Alta</span></div><div style="display: flex; flex-direction: column; gap: 16px">
+<sc-for list="{{regul}}" as="s" hint-placeholder-count="3">
+<div style="display: flex; flex-direction: column; gap: 6px">
+<div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; gap: 2px 16px"><span style="font-size: 16px; font-weight: 500">{{s.rotulo}}</span><span class="mono" style="font-size: 13px">{{s.total}}</span></div>
+<div style="display: flex; gap: 2px; height: 32px; width: {{s.largura}}">
+<sc-for list="{{s.segs}}" as="g" hint-placeholder-count="3"><div title="{{g.tip}}" style="{{g.st}}"><span class="mono" style="{{g.cl}}">{{g.txt}}</span></div></sc-for>
+</div>
+<sc-if value="{{s.temNota}}" hint-placeholder-val="{{ false }}"><span style="font-size: 14px; color: #5a554c">{{s.nota}}</span></sc-if>
+</div>
+</sc-for>
+</div>
+</section>
+<footer style="margin-top: 56px; border-top: 3px solid #1c1a17; padding-top: 16px; display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px 32px; font-size: 14px">
+<span>Fontes: IBGE, INEP, MEC, SIOPE, SICONFI e Portal da Transparência (Betha). Valores em reais nominais, sem correção pela inflação.</span>
+<span><a href="#">Baixar os dados (CSV)</a> · <a href="Main.dc.html#sobre">Metodologia</a></span>
+</footer>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":3200}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const br = (v, d = 1) => v == null ? '—' : v.toLocaleString('pt-BR', { minimumFractionDigits: d, maximumFractionDigits: d });
+    const pos = (v, mn, mx) => v == null ? '0%' : (Math.max(0, Math.min(1, (v - mn) / (mx - mn))) * 100).toFixed(2) + '%';
+    const cmp = (rotulo, o, s, b, op = {}) => {
+      const mn = op.min ?? 0, mx = op.max ?? 100, d = op.d ?? 1, suf = op.suf ?? '%';
+      const t = (v) => v == null ? '' : br(v, d) + suf;
+      return { rotulo, nota: op.nota || '', temNota: !!op.nota, oL: pos(o, mn, mx), sL: pos(s, mn, mx), bL: pos(b, mn, mx), oT: t(o), sT: t(s), bT: t(b), temS: s != null, temB: b != null, temO: o != null };
+    };
+    const barras = (rotulos, vals, mx, op = {}) => rotulos.map((r, i) => {
+      const txt = op.fmt ? op.fmt(vals[i]) : br(vals[i], op.d ?? 1) + (op.suf ?? '');
+      return { r, h: Math.max(vals[i] / mx * 100, 0.5).toFixed(1) + '%', cor: (op.cor && op.cor(vals[i], i)) || '#1c1a17', rot: (!op.lab || op.lab(i, vals[i])) ? txt : '', tip: r + ': ' + txt };
+    });
+
+    const HATCH = 'repeating-linear-gradient(45deg, #1c1a17 0 1px, transparent 1px 5px)';
+    const seg = (p, bg, txt, tip, escuro) => ({
+      tip, txt: p >= 9 ? txt : '',
+      st: 'width: ' + p.toFixed(2) + '%; min-width: ' + (p > 0 ? '4px' : '0') + '; display: flex; align-items: center; padding: 0 6px; box-sizing: border-box; overflow: hidden; background: ' + bg + (bg.indexOf('repeating') === 0 ? '; box-shadow: inset 0 0 0 1px #1c1a17' : ''),
+      cl: 'font-size: 12px; white-space: nowrap; color: ' + (escuro ? '#efeadf' : '#1c1a17') + (escuro ? '' : '; background: #efeadf; padding: 0 3px')
+    });
+
+    const t30 = { max: 30, suf: '' };
+    const turma = [
+      cmp('Creche', 6.5, 10.4, 13.4, { ...t30, nota: 'Na rede municipal: 6,3 alunos por turma e 11,8 alunos por docente.' }),
+      cmp('Pré-escola', 8.4, 15.8, 16.8, { ...t30, nota: 'Na rede municipal: 8,3 alunos por turma e 11,0 alunos por docente.' }),
+      cmp('Anos iniciais', 16.9, 21.5, 20.8, { ...t30, nota: 'Na rede municipal: 15,8.' }),
+      cmp('Anos finais', 21.1, 24.7, 25.7, t30),
+      cmp('Ensino médio', 22.4, 26.1, 28.4, t30)
+    ];
+    const h10 = { max: 10, suf: ' h' };
+    const horas = [
+      cmp('Creche', 9.1, 9.1, 7.7, h10),
+      cmp('Pré-escola', 6.6, 5.8, 5.2, h10),
+      cmp('Anos iniciais', 4.2, 4.6, 5.1, h10),
+      cmp('Anos finais', 4.1, 4.4, 5.4, h10),
+      cmp('Ensino médio', 4.0, 4.4, 5.9, h10)
+    ];
+    const form = [
+      cmp('Educação infantil', 36.2, 60.8, 64.2, { nota: 'Na rede municipal: 36,9%.' }),
+      cmp('Anos iniciais', 79.9, 83.5, 74.2),
+      cmp('Anos finais, rede municipal', 77.8, 77.0, 51.7),
+      cmp('Anos finais, rede estadual', 38.3, 39.3, 65.2),
+      cmp('Ensino médio', 71.2, 61.6, 65.5)
+    ];
+    const grp = (r, g1, g3, g5) => { const o = Math.max(0, 100 - g1 - g3 - g5); return { rotulo: r, total: br(g1, 1) + '% no grupo 1', largura: '100%', temNota: false, nota: '', segs: [seg(g1, '#1c1a17', br(g1, 0) + '%', 'Grupo 1: ' + br(g1, 1) + '%', true), seg(g3, '#8a8273', br(g3, 0) + '%', 'Grupo 3: ' + br(g3, 1) + '%', false), seg(g5, HATCH, br(g5, 0) + '%', 'Grupo 5: ' + br(g5, 1) + '%', false), seg(o, '#ddd6c6', '', 'Outros grupos: ' + br(o, 1) + '%', false)] }; };
+    const infantil = [grp('Orleans', 36.2, 39.5, 23.1), grp('Santa Catarina', 60.8, 26.3, 9.5), grp('Brasil', 64.2, 17.1, 15.3)];
+    const s50 = { min: 50, max: 100 };
+    const sup = [
+      cmp('Educação infantil', 81.9, 88.3, 82.2, s50),
+      cmp('Anos iniciais', 87.6, 92.2, 87.7, s50),
+      cmp('Anos finais', 91.4, 92.8, 91.7, s50),
+      cmp('Ensino médio', 91.7, 93.9, 95.8, s50)
+    ];
+    const tempMag = barras(['2020','2021','2022','2023','2024','2025','2026'], [10.6, 26.7, 33.1, 38.7, 35.5, 44.3, 45.4], 50, { suf: '%', cor: (v, i) => i >= 5 ? '#b52d1b' : '#1c1a17' });
+    const reg = (r, b, mb, ma, a) => ({ rotulo: r, total: '', largura: '100%', temNota: false, nota: '', segs: [seg(b, HATCH, br(b, 0) + '%', 'Baixa: ' + br(b, 1) + '%', false), seg(mb, '#a39b8a', br(mb, 0) + '%', 'Média-baixa: ' + br(mb, 1) + '%', false), seg(ma, '#5a554c', br(ma, 0) + '%', 'Média-alta: ' + br(ma, 1) + '%', true), seg(a, '#1c1a17', br(a, 0) + '%', 'Alta: ' + br(a, 1) + '%', true)].filter((s, i) => [b, mb, ma, a][i] > 0) });
+    const regul = [
+      reg('Orleans, todas as redes', 37.5, 58.3, 4.2, 0),
+      reg('Santa Catarina, todas as redes', 30.8, 45.9, 21.1, 2.2),
+      reg('Brasil, todas as redes', 10.1, 35.7, 43.5, 10.7),
+      reg('Orleans, rede municipal (cerca de 14 escolas)', 21.4, 78.6, 0, 0),
+      reg('Orleans, rede estadual (cerca de 5 escolas)', 80.0, 20.0, 0, 0)
+    ];
+    return { turma, horas, form, infantil, sup, tempMag, regul };
+  }
+}
+</script>
+</body>
+</html>

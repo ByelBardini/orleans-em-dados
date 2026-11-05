@@ -1,0 +1,1014 @@
+/* As peças do caderno de Educação. Só tokens de styles.css: o tema escuro vem junto. Vermelho só para Orleans. */
+
+/* Escala de texto: rótulo de dado nunca abaixo de 13 px, e tudo cresce com a tela larga. O caderno ocupa a largura
+   toda, como o resto do site; só o texto corrido tem medida máxima, e as grades ganham colunas. */
+:root {
+  --edu-rotulo: clamp(13px, 0.3vw + 8px, 16px);
+  --edu-texto: clamp(15px, 0.35vw + 9px, 19px);
+  --edu-valor: clamp(16px, 0.45vw + 9px, 21px);
+  --edu-largura: none;
+}
+
+.bloco-caderno table:not(.visualmente-oculto) {
+  font-size: var(--edu-texto);
+  font-variant-numeric: tabular-nums;
+}
+
+.bloco-caderno table:not(.visualmente-oculto) th {
+  font-size: var(--edu-rotulo);
+}
+
+.bloco-caderno table:not(.visualmente-oculto, .quadro table) tbody tr:hover {
+  background: var(--realce);
+}
+
+.caderno-cabecalho {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding-bottom: 8px;
+}
+
+.caderno-legenda {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 20px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--tinta);
+  font-family: var(--mono);
+  font-size: var(--edu-rotulo);
+}
+
+.caderno-legenda-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.caderno-titulo {
+  margin: 24px 0 0;
+  font-family: var(--serif);
+  font-size: clamp(36px, 4.6vw, 58px);
+  font-weight: 400;
+  line-height: 1.03;
+  letter-spacing: -0.015em;
+  text-wrap: balance;
+}
+
+.caderno-entrada {
+  max-width: 860px;
+  margin: 0;
+  font-size: 18px;
+  text-wrap: pretty;
+}
+
+.bloco-caderno {
+  padding-top: 36px;
+}
+
+.bloco-cab {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 12px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--tinta);
+}
+
+.bloco-nota {
+  max-width: 860px;
+  font-size: var(--edu-texto);
+  color: var(--apagado);
+  text-wrap: pretty;
+}
+
+.bloco-fonte {
+  margin: 0;
+  font-family: var(--mono);
+  font-size: var(--edu-rotulo);
+  color: var(--apagado);
+}
+
+.edu-escala,
+.edu-sem-dado {
+  font-size: 14px;
+  color: var(--apagado);
+}
+
+/* Comparação: Orleans é o ponto cheio; SC, o anel; Brasil, o quadrado. Forma, além de cor, e os três se veem ao coincidir. */
+.cmp {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+  padding: 10px 0;
+}
+
+.cmp-nome {
+  font-weight: 600;
+}
+
+.cmp-ano {
+  font-family: var(--mono);
+  font-size: var(--edu-rotulo);
+  font-weight: 400;
+  color: var(--apagado);
+}
+
+.cmp-valores {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px 18px;
+  font-family: var(--mono);
+  font-size: var(--edu-valor);
+  color: var(--apagado);
+}
+
+.cmp-valores .orleans {
+  color: var(--vermelho);
+  font-weight: 500;
+}
+
+.cmp-valores .santa-catarina {
+  color: var(--tinta);
+}
+
+.cmp-sem-dado {
+  font-size: 14px;
+  color: var(--apagado);
+}
+
+.cmp-linha {
+  position: relative;
+  height: 28px;
+  margin: 2px 10px;
+}
+
+.cmp-trilho {
+  position: absolute;
+  top: 13px;
+  right: -10px;
+  left: -10px;
+  border-top: 1px solid var(--pontilhado);
+}
+
+.cmp-meta {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  border-left: 2px dashed var(--tinta);
+}
+
+/* A meta numa linha própria, em texto corrido: o que é e até quando, sem sigla de artigo da lei. */
+.cmp-meta-texto {
+  display: block;
+  margin-top: 2px;
+  font-family: var(--sans);
+  font-size: var(--edu-rotulo);
+  color: var(--apagado);
+}
+
+.cmp-ponto,
+.cmp-amostra {
+  box-sizing: border-box;
+}
+
+.cmp-ponto {
+  position: absolute;
+  top: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.cmp-ponto.orleans,
+.cmp-amostra.orleans {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--vermelho);
+}
+
+.cmp-ponto.santa-catarina,
+.cmp-amostra.santa-catarina {
+  width: 20px;
+  height: 20px;
+  border: 2px solid var(--tinta);
+  border-radius: 50%;
+}
+
+.cmp-ponto.brasil,
+.cmp-amostra.brasil {
+  width: 8px;
+  height: 8px;
+  background: var(--apagado);
+  box-shadow: 0 0 0 1px var(--papel);
+}
+
+.cmp-amostra {
+  display: inline-block;
+}
+
+.cmp-amostra.santa-catarina {
+  width: 14px;
+  height: 14px;
+}
+
+.alternador-de-rede button:disabled,
+.alternador-de-rede button:disabled:hover {
+  color: var(--pontilhado);
+  cursor: not-allowed;
+}
+
+/* Série do IDEB */
+.ideb {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 0;
+}
+
+.ideb-area {
+  position: relative;
+  margin: 12px 18px 0 36px;
+}
+
+.ideb-eixo-y {
+  position: absolute;
+  left: -36px;
+  z-index: 1;
+  transform: translateY(-50%);
+  font-family: var(--mono);
+  font-size: var(--edu-rotulo);
+  line-height: 1;
+  color: var(--apagado);
+}
+
+.ideb-grade {
+  position: absolute;
+  right: 0;
+  left: 0;
+  border-top: 1px solid var(--trilho);
+}
+
+.ideb-zona {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  z-index: 2;
+  cursor: crosshair;
+}
+
+.ideb-dica {
+  position: absolute;
+  top: 8px;
+  z-index: 3;
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 4px 10px;
+  min-width: 210px;
+  margin-left: 14px;
+  padding: 10px 14px;
+  background: var(--papel);
+  border: 1px solid var(--tinta);
+  box-shadow: 0 2px 10px rgb(0 0 0 / 0.15);
+  font-size: 15px;
+  pointer-events: none;
+}
+
+.ideb-dica.a-esquerda {
+  transform: translateX(calc(-100% - 28px));
+}
+
+.ideb-dica strong {
+  grid-column: 1 / -1;
+  font-family: var(--serif);
+  font-size: 20px;
+  font-weight: 400;
+}
+
+.ideb-dica-linha {
+  display: contents;
+}
+
+.ideb-dica-valor {
+  font-family: var(--mono);
+  font-size: var(--edu-valor);
+  text-align: right;
+}
+
+.ideb-dica-valor.orleans {
+  color: var(--vermelho);
+  font-weight: 600;
+}
+
+.ideb-figura {
+  position: relative;
+  height: 280px;
+  border-top: 1px dotted var(--pontilhado);
+  border-bottom: 1px solid var(--tinta);
+}
+
+.ideb-figura svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+.ideb-figura polyline {
+  stroke-linejoin: round;
+  stroke-width: 2;
+}
+
+.ideb-figura polyline.orleans {
+  stroke: var(--vermelho);
+  stroke-width: 3;
+}
+
+.ideb-figura polyline.santa-catarina {
+  stroke: var(--tinta);
+}
+
+.ideb-figura polyline.brasil {
+  stroke: var(--apagado);
+  stroke-dasharray: 6 4;
+}
+
+.ideb-guia {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  border-left: 1px dotted var(--pontilhado);
+}
+
+.ideb-ponto {
+  position: absolute;
+  box-sizing: border-box;
+  transform: translate(-50%, 50%);
+}
+
+.ideb-ponto.is-ativo {
+  scale: 1.5;
+}
+
+.ideb-ponto.orleans {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--vermelho);
+}
+
+.ideb-ponto.santa-catarina {
+  width: 10px;
+  height: 10px;
+  border: 2px solid var(--tinta);
+  border-radius: 50%;
+  background: var(--papel);
+}
+
+.ideb-ponto.brasil {
+  width: 7px;
+  height: 7px;
+  background: var(--apagado);
+}
+
+/* A meta de Orleans: anel tracejado e vazado, para não se confundir com o ponto medido. */
+.ideb-meta,
+.ideb-meta-amostra {
+  box-sizing: border-box;
+  width: 16px;
+  height: 16px;
+  border: 2px dashed var(--vermelho);
+  border-radius: 50%;
+}
+
+.ideb-meta {
+  position: absolute;
+  transform: translate(-50%, 50%);
+}
+
+.ideb-meta.is-ativo {
+  scale: 1.4;
+}
+
+.ideb-meta-amostra {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+}
+
+.ideb-valores-meta {
+  color: var(--apagado);
+}
+
+.ideb-anos {
+  position: relative;
+  height: 30px;
+}
+
+.ideb-anos button {
+  position: absolute;
+  top: 0;
+  min-height: 30px;
+  padding: 0;
+  transform: translateX(-50%);
+  border: 0;
+  background: transparent;
+  color: var(--apagado);
+  font-family: var(--mono);
+  font-size: var(--edu-rotulo);
+  cursor: pointer;
+}
+
+.ideb-anos button:hover,
+.ideb-anos button[aria-pressed='true'] {
+  color: var(--tinta);
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.ideb-valores {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px 18px;
+  margin: 0;
+  font-family: var(--mono);
+  font-size: var(--edu-valor);
+}
+
+.ideb-valores .orleans {
+  color: var(--vermelho);
+  font-weight: 500;
+}
+
+.ideb-valores .brasil {
+  color: var(--apagado);
+}
+
+/* Barras por ano */
+.bpa {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+  overflow: hidden;
+  padding-top: 20px;
+}
+
+.bpa-area {
+  position: relative;
+  display: flex;
+  gap: clamp(6px, 1.6vw, 24px);
+  height: 300px;
+  border-bottom: 2px solid var(--tinta);
+}
+
+.bpa-coluna {
+  position: relative;
+  flex: 1 1 0;
+  min-width: 0;
+  cursor: default;
+  outline: none;
+}
+
+.bpa-coluna:focus-visible {
+  box-shadow: 0 0 0 2px var(--tinta);
+}
+
+.bpa-coluna.is-ativa .bpa-barra {
+  background: var(--vermelho);
+}
+
+.bpa-coluna.is-ativa .bpa-valor {
+  color: var(--vermelho);
+  font-weight: 600;
+}
+
+.bpa-dica {
+  position: absolute;
+  left: 50%;
+  z-index: 3;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 170px;
+  padding: 10px 14px;
+  background: var(--papel);
+  border: 1px solid var(--tinta);
+  box-shadow: 0 2px 10px rgb(0 0 0 / 0.15);
+  font-size: 14px;
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+.bpa-dica.a-esquerda {
+  left: auto;
+  right: 50%;
+}
+
+.bpa-dica strong {
+  font-family: var(--serif);
+  font-size: 20px;
+  font-weight: 400;
+}
+
+.bpa-dica-valor {
+  font-family: var(--mono);
+  font-size: 18px;
+  color: var(--vermelho);
+  font-weight: 600;
+}
+
+.bpa-barra {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  min-height: 1px;
+  background: var(--tinta);
+}
+
+.bpa-valor {
+  position: absolute;
+  left: 50%;
+  z-index: 2;
+  padding: 0 3px;
+  background: var(--papel);
+  transform: translateX(-50%);
+  font-family: var(--mono);
+  font-size: 14px;
+  white-space: nowrap;
+}
+
+.bpa-minimo {
+  position: absolute;
+  right: 0;
+  left: 0;
+  z-index: 1;
+  border-top: 2px dashed var(--apagado);
+}
+
+.bpa-minimo span {
+  position: absolute;
+  right: 0;
+  bottom: 2px;
+  padding: 0 4px;
+  background: var(--papel);
+  font-family: var(--mono);
+  font-size: var(--edu-rotulo);
+}
+
+.bpa-minimo-do-ano {
+  position: absolute;
+  right: -2px;
+  left: -2px;
+  z-index: 1;
+  border-top: 2px dashed var(--apagado);
+}
+
+.bpa-anos {
+  display: flex;
+  gap: clamp(6px, 1.6vw, 24px);
+  font-family: var(--mono);
+  font-size: var(--edu-rotulo);
+}
+
+.bpa-anos span {
+  flex: 1 1 0;
+  min-width: 0;
+  overflow: hidden;
+  text-align: center;
+}
+
+/* Barras empilhadas: tons neutros e hachura */
+.emp {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-width: 0;
+}
+
+.emp-legenda {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 18px;
+  font-family: var(--mono);
+  font-size: var(--edu-rotulo);
+}
+
+.emp-legenda span {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.emp-legenda i {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  box-sizing: border-box;
+}
+
+.emp-linhas {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.emp-linha {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.emp-rotulo {
+  font-weight: 600;
+}
+
+.emp-barra {
+  display: flex;
+  height: 28px;
+  overflow: hidden;
+}
+
+.emp-barra span {
+  display: block;
+  box-sizing: border-box;
+}
+
+.emp-valores {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px 18px;
+  font-family: var(--mono);
+  font-size: var(--edu-texto);
+}
+
+.emp-tom-0 {
+  background: var(--tinta);
+}
+
+.emp-tom-1 {
+  background: repeating-linear-gradient(45deg, var(--tinta) 0 1px, transparent 1px 5px);
+  box-shadow: inset 0 0 0 1px var(--tinta);
+}
+
+.emp-tom-2 {
+  background: var(--trilho);
+  box-shadow: inset 0 0 0 1px var(--pontilhado);
+}
+
+.emp-tom-3 {
+  background: var(--apagado);
+}
+
+.emp-tom-4 {
+  background: repeating-linear-gradient(-45deg, var(--apagado) 0 2px, transparent 2px 4px);
+  box-shadow: inset 0 0 0 1px var(--apagado);
+}
+
+/* Em celular, nada pede rolagem lateral: os anos encolhem, e o rótulo do ano fica colado na linha. */
+@media (max-width: 720px) {
+  .ideb-anos button,
+  .bpa-valor,
+  .bpa-anos {
+    font-size: 12px;
+  }
+
+  .bpa-area {
+    height: 220px;
+  }
+
+  .ideb-figura {
+    height: 220px;
+  }
+
+  .caderno-entrada {
+    font-size: 17px;
+  }
+}
+
+/* Barras empilhadas: a fatia sob o mouse ou o foco ganha contorno, as outras esmaecem; a dica tem a cara da `.bpa-dica`. */
+.emp-trilho {
+  position: relative;
+}
+
+.emp-barra span {
+  outline: none;
+  cursor: default;
+}
+
+.emp-barra.tem-ativa span:not(.is-ativa) {
+  opacity: 0.45;
+}
+
+.emp-barra span.is-ativa,
+.emp-barra span:focus-visible {
+  box-shadow: inset 0 0 0 2px var(--tinta);
+}
+
+.emp-dica {
+  top: calc(100% + 6px);
+  transform: translateX(-24px);
+}
+
+.emp-dica.emp-dica-esquerda {
+  transform: translateX(calc(-100% + 24px));
+}
+
+.emp-dica-valor {
+  color: var(--tinta);
+}
+
+/* Barras horizontais: valor ao lado do nome; o item sob o mouse ou o foco fica vermelho, que é o dado de Orleans. */
+.bh {
+  display: flex;
+  flex-direction: column;
+  max-width: none;
+  margin: 0 0 20px;
+  padding: 0;
+  list-style: none;
+}
+
+.bh-item {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--regua);
+  outline: none;
+  cursor: default;
+}
+
+.bh-item:focus-visible {
+  box-shadow: 0 0 0 2px var(--tinta);
+}
+
+.bh-cab {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 2px 12px;
+  font-size: var(--edu-texto);
+}
+
+.bh-valor {
+  font-family: var(--mono);
+  font-size: var(--edu-valor);
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.bh-sem-valor {
+  font-size: var(--edu-texto);
+  color: var(--apagado);
+}
+
+.bh-trilho {
+  display: block;
+  height: 10px;
+  background: var(--trilho);
+}
+
+.bh-barra {
+  display: block;
+  height: 100%;
+  min-width: 1px;
+  background: var(--tinta);
+}
+
+.bh-item.is-ativa .bh-barra {
+  background: var(--vermelho);
+}
+
+.bh-item.is-ativa .bh-valor {
+  color: var(--vermelho);
+}
+
+.bh-dica {
+  top: calc(100% - 4px);
+  left: 0;
+}
+
+/* Setas de Orleans diante de SC e do Brasil: só com sentido declarado. */
+.cmp-diante {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px 16px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: var(--edu-rotulo);
+  color: var(--apagado);
+}
+
+.cmp-diante .bom {
+  color: var(--verde);
+}
+
+.cmp-diante .ruim {
+  color: var(--vermelho);
+}
+
+/* Fonte e detalhes: o botão discreto e o painel que abre embaixo. */
+.detalhes {
+  position: relative;
+  display: inline-block;
+}
+
+.detalhes-botao {
+  padding: 4px 0;
+  border: 0;
+  background: none;
+  color: var(--apagado);
+  font: inherit;
+  font-family: var(--mono);
+  font-size: var(--edu-rotulo);
+  text-decoration: underline dotted;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+
+.detalhes-botao:hover,
+.detalhes.aberto .detalhes-botao {
+  color: var(--tinta);
+}
+
+.detalhes-painel {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  z-index: 5;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: min(380px, 86vw);
+  margin-top: 6px;
+  padding: 14px 16px;
+  background: var(--papel);
+  border: 1px solid var(--tinta);
+  box-shadow: 0 4px 16px rgb(0 0 0 / 0.2);
+  font-size: 14px;
+  line-height: 1.45;
+}
+
+.detalhes-painel[hidden] {
+  display: none;
+}
+
+.detalhes-painel p {
+  margin: 0;
+}
+
+/* Quadros: a tabela larga vira cartões lado a lado, cada um com uma tabela curta que ocupa o cartão. */
+.quadros {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 340px), 1fr));
+  gap: 24px 32px;
+  margin-top: 12px;
+}
+
+.quadro {
+  min-width: 0;
+  padding-top: 10px;
+  border-top: 2px solid var(--tinta);
+}
+
+.quadro-titulo {
+  margin: 0 0 6px;
+  font-family: var(--serif);
+  font-size: clamp(20px, 0.6vw + 14px, 26px);
+  font-weight: 400;
+}
+
+.quadro table {
+  width: 100%;
+  border-collapse: collapse;
+  font-variant-numeric: tabular-nums;
+}
+
+.quadro th,
+.quadro td {
+  padding: 14px 0 14px 20px;
+  border-bottom: 1px solid var(--trilho);
+  text-align: right;
+  vertical-align: baseline;
+  text-transform: none;
+  letter-spacing: normal;
+}
+
+/* A linha com apoio não leva fio embaixo: o fio fica depois do apoio, que fecha o par. */
+.quadro tr.com-apoio th,
+.quadro tr.com-apoio td {
+  padding-bottom: 4px;
+  border-bottom: 0;
+}
+
+.quadro tr.quadro-linha-apoio td {
+  padding: 0 0 14px;
+  text-align: left;
+}
+
+.quadro-apoio .cmp-diante {
+  gap: 4px 0;
+}
+
+.quadro-apoio .cmp-diante li + li::before {
+  content: '·';
+  margin: 0 10px;
+  color: var(--pontilhado);
+}
+
+.quadro thead th {
+  padding-top: 4px;
+  border-bottom: 1px solid var(--regua);
+  font-family: var(--mono);
+  font-size: var(--edu-rotulo);
+  font-weight: 400;
+  color: var(--apagado);
+}
+
+.quadro thead th.quadro-col-destaque {
+  color: var(--vermelho);
+}
+
+.quadro tbody th {
+  padding-left: 0;
+  text-align: left;
+  font-family: var(--sans);
+  font-size: var(--edu-valor);
+  font-weight: 600;
+}
+
+.quadro tbody td {
+  font-family: var(--mono);
+  font-size: var(--edu-texto);
+}
+
+.quadro-destaque {
+  font-family: var(--serif);
+  font-size: clamp(19px, 0.5vw + 14px, 24px);
+  color: var(--vermelho);
+}
+
+.quadro-apoio {
+  display: block;
+  font-family: var(--sans);
+  font-size: var(--edu-rotulo);
+  font-weight: 400;
+  text-transform: none;
+  letter-spacing: normal;
+  color: var(--apagado);
+}
+
+.quadro-nota {
+  margin: 8px 0 0;
+  font-size: var(--edu-rotulo);
+  color: var(--apagado);
+}
+
+/* O realce cobre o item inteiro: o indicador e o apoio dele. A regra geral do site pinta as células da linha sob o
+   mouse, e aqui partiria o item ao meio: dentro do quadro, as células ficam transparentes. */
+.quadro tbody.quadro-item:hover {
+  background: var(--realce);
+}
+
+.quadro tbody tr:hover td,
+.quadro tbody tr:hover th {
+  background: transparent;
+}
+
+/* Gráficos lado a lado: cada um num quadro com moldura, separado do vizinho em qualquer largura. */
+.bloco-caderno :has(> .bpa):not(.bloco-caderno, .detalhes-painel) {
+  min-width: 0;
+  padding: 14px 18px 12px;
+  border: 1px solid var(--regua);
+  border-top: 2px solid var(--tinta);
+}
+
+.bloco-caderno :has(> :has(> .bpa)):not(.bloco-caderno) {
+  gap: 24px clamp(24px, 2vw, 40px);
+}
+
+/* Valores das barras empilhadas: cada um com a amostra do tom e um respiro, para não grudar no vizinho. */
+.emp-valores {
+  gap: 4px 24px;
+}
+
+.emp-valores > span {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.emp-amostra {
+  display: inline-block;
+  flex: none;
+  width: 12px;
+  height: 12px;
+  box-sizing: border-box;
+}

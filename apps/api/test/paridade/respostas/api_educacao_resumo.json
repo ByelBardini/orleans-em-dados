@@ -1,0 +1,187 @@
+{
+  "status": 200,
+  "tipo": "application/json; charset=utf-8",
+  "disposicao": null,
+  "corpo": {
+    "disponivel": true,
+    "faltando": [],
+    "alfabetizacao": {
+      "ano": "2025",
+      "fonte": {
+        "nome": "INEP, Indicador Criança Alfabetizada",
+        "url": "https://www.gov.br/inep/pt-br/areas-de-atuacao/avaliacao-e-exames-educacionais/avaliacao-da-alfabetizacao/resultados"
+      },
+      "redes": {
+        "orleans": "municipal",
+        "santaCatarina": "publica",
+        "brasil": "publica"
+      },
+      "valores": {
+        "orleans": 65,
+        "santaCatarina": 63,
+        "brasil": 66
+      },
+      "metaDeOrleans": 70
+    },
+    "creche": {
+      "ano": "2022",
+      "fonte": {
+        "nome": "IBGE, Censo 2022",
+        "url": "https://servicodados.ibge.gov.br/api/docs/agregados?versao=3"
+      },
+      "rede": "todas",
+      "valores": {
+        "orleans": 50,
+        "santaCatarina": 47,
+        "brasil": 34
+      },
+      "anoAnterior": "2010",
+      "fonteAnterior": {
+        "nome": "IBGE, Censo 2010: quem frequentava ÷ população",
+        "url": "https://servicodados.ibge.gov.br/api/docs/agregados?versao=3"
+      },
+      "orleansNoAnoAnterior": 35
+    },
+    "procuraPorCreche": {
+      "ano": "2025",
+      "fonte": {
+        "nome": "MEC, Retrato da Educação Infantil: a Prefeitura informou ao MEC",
+        "url": "https://www.gov.br/mec/pt-br/pnei/retrato-da-educacao-infantil-no-brasil"
+      },
+      "solicitacoesNaoAtendidas": "Não há demanda"
+    },
+    "abandono": {
+      "ano": "2025",
+      "fonte": {
+        "nome": "INEP, taxas de rendimento",
+        "url": "https://www.gov.br/inep/pt-br/acesso-a-informacao/dados-abertos/indicadores-educacionais/taxas-de-rendimento-escolar"
+      },
+      "rede": "publica",
+      "valores": {
+        "orleans": 6,
+        "santaCatarina": 5,
+        "brasil": 5
+      },
+      "anosIniciais": {
+        "orleans": 0,
+        "santaCatarina": 0.5,
+        "brasil": 1
+      },
+      "anosFinais": {
+        "orleans": 0,
+        "santaCatarina": 0.5,
+        "brasil": 2
+      }
+    },
+    "ideb": {
+      "ano": "2025",
+      "fonte": {
+        "nome": "IBGE, pesquisa 40 (IDEB do INEP)",
+        "url": "https://servicodados.ibge.gov.br/api/docs/pesquisas?versao=1"
+      },
+      "rede": "publica",
+      "valores": {
+        "orleans": 6.6,
+        "santaCatarina": 6.7,
+        "brasil": 6
+      }
+    },
+    "docentesSuperior": null,
+    "turmas": null,
+    "gasto": {
+      "ano": 2025,
+      "fonte": {
+        "nome": "SICONFI, DCA Anexo I-E, função 12, valor liquidado",
+        "url": "https://siconfi.tesouro.gov.br/siconfi/pages/public/consulta_finbra/finbra_list.jsf"
+      },
+      "liquidado": 53000,
+      "conferencia": "conferido",
+      "igualAoAnexo8": false,
+      "porMorador": 2.19,
+      "divisor": {
+        "ano": 2025,
+        "populacao": 24200,
+        "tipo": "estimativa"
+      }
+    },
+    "minimo": {
+      "ano": 2025,
+      "fonte": {
+        "nome": "SIOPE, Anexo 8 do RREO",
+        "url": "https://www.fnde.gov.br/siope/relatorioRREOMunicipal2006.do"
+      },
+      "percentual": 28,
+      "aplicado": 22400000,
+      "minimo": 25,
+      "siconfi": {
+        "percentual": 27.5,
+        "valor": 1500000
+      },
+      "difereDoSiconfi": true
+    },
+    "matriculas": {
+      "ano": "2025",
+      "fonte": {
+        "nome": "IBGE, sinopse do Censo Escolar (INEP)",
+        "url": "https://servicodados.ibge.gov.br/api/docs/pesquisas?versao=1"
+      },
+      "total": 3281,
+      "etapas": [
+        {
+          "etapa": "creche",
+          "total": 560,
+          "municipal": 410,
+          "estadual": null,
+          "federal": null,
+          "privada": 150
+        },
+        {
+          "etapa": "pre_escola",
+          "total": 390,
+          "municipal": 310,
+          "estadual": null,
+          "federal": null,
+          "privada": 80
+        },
+        {
+          "etapa": "fundamental",
+          "total": 1716,
+          "municipal": 420,
+          "estadual": 1062,
+          "federal": null,
+          "privada": 234
+        },
+        {
+          "etapa": "medio",
+          "total": 615,
+          "municipal": null,
+          "estadual": 540,
+          "federal": null,
+          "privada": 75
+        }
+      ]
+    },
+    "alfabetizacaoDosMoradores": {
+      "ano": "2022",
+      "fonte": {
+        "nome": "IBGE, Censo 2022",
+        "url": "https://servicodados.ibge.gov.br/api/docs/agregados?versao=3"
+      },
+      "rede": "todas",
+      "valores": {
+        "orleans": 97.5,
+        "santaCatarina": 97.3,
+        "brasil": 93
+      }
+    },
+    "superior": {
+      "ano": "2024",
+      "fonte": {
+        "nome": "INEP, Censo da Educação Superior",
+        "url": "https://www.gov.br/inep/pt-br/acesso-a-informacao/dados-abertos/microdados/censo-da-educacao-superior"
+      },
+      "instituicao": "FICTICIA",
+      "natureza": "Privada sem fins lucrativos"
+    }
+  }
+}

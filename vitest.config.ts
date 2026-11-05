@@ -24,6 +24,7 @@ export default defineConfig({
       unidade('packages/importadores/tcesc', 'importador-tcesc'),
       unidade('packages/importadores/ibge', 'importador-ibge'),
       unidade('packages/importadores/siconfi', 'importador-siconfi'),
+      unidade('packages/importadores/educacao', 'importador-educacao'),
       unidade('apps/api'),
       unidade('apps/worker'),
       {

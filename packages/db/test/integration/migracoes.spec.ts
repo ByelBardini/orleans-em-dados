@@ -14,8 +14,9 @@ const AQUI = path.dirname(fileURLToPath(import.meta.url));
 const LEGADAS = path.resolve(AQUI, '../../migrations');
 const MIGRACOES = readMigrationFiles({ migrationsFolder: path.resolve(AQUI, '../../drizzle') }).length;
 // Tabelas que nasceram depois das migrações SQL originais.
-const NOVAS = "('execucoes', 'ibge_valores', 'siconfi_funcoes')";
-const VIEWS_NOVAS = "('ibge_valores_publicados', 'siconfi_funcoes_publicadas')";
+const NOVAS = "('execucoes', 'ibge_valores', 'siconfi_funcoes', 'educacao_valores', 'educacao_financas')";
+const VIEWS_NOVAS =
+  "('ibge_valores_publicados', 'siconfi_funcoes_publicadas', 'educacao_valores_publicados', 'educacao_financas_publicadas')";
 
 async function comCliente<T>(url: string, fn: (c: pg.Client) => Promise<T>): Promise<T> {
   const cliente = await conectar(url);
@@ -94,8 +95,8 @@ describe('migrar', () => {
 
     await migrar(url);
 
-    expect(await contagem(url, 'fontes')).toBe(4);
-    expect(await contagem(url, 'consultas')).toBe(10);
+    expect(await contagem(url, 'fontes')).toBe(7);
+    expect(await contagem(url, 'consultas')).toBe(35);
     expect(await contagem(url, 'entidades')).toBe(4);
     expect(await contagem(url, 'unidades_tce')).toBe(5);
   });

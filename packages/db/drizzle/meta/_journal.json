@@ -29,6 +29,20 @@
       "when": 1793667724678,
       "tag": "0003_localidade_do_ibge",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1793846292367,
+      "tag": "0004_educacao",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1793846293367,
+      "tag": "0005_educacao_consultas",
+      "breakpoints": true
     }
   ]
 }

@@ -358,3 +358,58 @@ export const siconfiFuncoes = pgTable(
     check('siconfi_funcoes_tipo_check', sql`${t.tipo} IN ('total', 'funcao', 'subfuncao')`),
   ],
 );
+
+// Educação: contagem, taxa, nota e resposta em texto. `ano` é o ano de referência do lote, e `periodo`,
+// o rótulo da fonte (`2025`, `2021-2022`). Sem número, `valor` é NULL, nunca zero; `texto` guarda a
+// resposta declarada ou "menos de 5". Etapa e recorte vazios são "não se aplica". Vocabulário em docs/context/educacao.md.
+export const educacaoValores = pgTable(
+  'educacao_valores',
+  {
+    coletaId: coletaId(),
+    idExterno: text('id_externo').notNull(),
+    ano: smallint('ano').notNull(),
+    periodo: text('periodo').notNull(),
+    indicador: text('indicador').notNull(),
+    lugar: text('lugar').notNull(), // código do IBGE: 4211702 Orleans, 42 Santa Catarina, 1 Brasil
+    rede: text('rede').notNull(),
+    etapa: text('etapa').notNull(),
+    recorte: text('recorte').notNull(),
+    valor: numeric('valor', { precision: 18, scale: 4 }),
+    texto: text('texto'),
+    unidade: text('unidade').notNull(),
+  },
+  (t) => [
+    primaryKey({ name: 'educacao_valores_pkey', columns: [t.coletaId, t.idExterno] }),
+    fkColeta('educacao_valores', t.coletaId),
+    check(
+      'educacao_valores_rede_check',
+      sql`${t.rede} IN ('publica', 'municipal', 'estadual', 'federal', 'privada', 'todas')`,
+    ),
+  ],
+);
+
+// Educação: dinheiro e índice legal. `valor` em NUMERIC(18,2); `percentual` é o índice que acompanha o
+// valor (Anexo 8, Anexo 14), nulo quando não há. `ano` é o exercício.
+export const educacaoFinancas = pgTable(
+  'educacao_financas',
+  {
+    coletaId: coletaId(),
+    idExterno: text('id_externo').notNull(),
+    ano: smallint('ano').notNull(),
+    periodo: text('periodo').notNull(),
+    indicador: text('indicador').notNull(),
+    lugar: text('lugar').notNull(),
+    rede: text('rede').notNull(),
+    recorte: text('recorte').notNull(),
+    valor: dinheiro('valor'),
+    percentual: numeric('percentual', { precision: 7, scale: 2 }),
+  },
+  (t) => [
+    primaryKey({ name: 'educacao_financas_pkey', columns: [t.coletaId, t.idExterno] }),
+    fkColeta('educacao_financas', t.coletaId),
+    check(
+      'educacao_financas_rede_check',
+      sql`${t.rede} IN ('publica', 'municipal', 'estadual', 'federal', 'privada', 'todas')`,
+    ),
+  ],
+);

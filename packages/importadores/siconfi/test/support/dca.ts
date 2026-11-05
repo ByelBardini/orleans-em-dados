@@ -1,6 +1,7 @@
 // Itens fictícios da DCA e um cliente de mentira que os devolve.
 import type { ClienteSiconfi } from '../../src/cliente';
-import type { ItemDaDca } from '../../src/normalizar';
+import type { ItemDaDca, ItemDoRreo } from '../../src/normalizar';
+import { anexo14Coerente } from './rreo';
 
 export const COLUNAS = {
   empenhado: 'Despesas Empenhadas',
@@ -51,9 +52,17 @@ export const anexoCoerente = ({
 
 export class ClienteSiconfiFake implements ClienteSiconfi {
   anos: number[] = [];
-  constructor(private itens: ItemDaDca[]) {}
+  anosDoRreo: number[] = [];
+  constructor(
+    private itens: ItemDaDca[],
+    private anexo14: (ano: number) => ItemDoRreo[] = (ano) => anexo14Coerente({ ano }),
+  ) {}
   async anexo(ano: number) {
     this.anos.push(ano);
     return this.itens;
+  }
+  async rreo(ano: number) {
+    this.anosDoRreo.push(ano);
+    return this.anexo14(ano);
   }
 }

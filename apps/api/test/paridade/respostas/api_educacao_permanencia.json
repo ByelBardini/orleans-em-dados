@@ -1,0 +1,871 @@
+{
+  "status": 200,
+  "tipo": "application/json; charset=utf-8",
+  "disposicao": null,
+  "corpo": {
+    "disponivel": true,
+    "faltando": [],
+    "rendimento": {
+      "ano": "2025",
+      "fonte": {
+        "nome": "INEP, taxas de rendimento",
+        "url": "https://www.gov.br/inep/pt-br/acesso-a-informacao/dados-abertos/indicadores-educacionais/taxas-de-rendimento-escolar"
+      },
+      "etapas": [
+        {
+          "etapa": "anos_iniciais",
+          "aprovacao": {
+            "indicador": "aprovacao",
+            "etapa": "anos_iniciais",
+            "ano": "2025",
+            "unidade": "%",
+            "fonte": {
+              "nome": "INEP, taxas de rendimento",
+              "url": "https://www.gov.br/inep/pt-br/acesso-a-informacao/dados-abertos/indicadores-educacionais/taxas-de-rendimento-escolar"
+            },
+            "porRede": {
+              "publica": {
+                "orleans": 98,
+                "santaCatarina": 98.5,
+                "brasil": 97
+              },
+              "municipal": {
+                "orleans": 97,
+                "santaCatarina": 98,
+                "brasil": 96
+              }
+            }
+          },
+          "reprovacao": {
+            "indicador": "reprovacao",
+            "etapa": "anos_iniciais",
+            "ano": "2025",
+            "unidade": "%",
+            "fonte": {
+              "nome": "INEP, taxas de rendimento",
+              "url": "https://www.gov.br/inep/pt-br/acesso-a-informacao/dados-abertos/indicadores-educacionais/taxas-de-rendimento-escolar"
+            },
+            "porRede": {
+              "publica": {
+                "orleans": 2,
+                "santaCatarina": 1,
+                "brasil": 2
+              },
+              "municipal": {
+                "orleans": 3,
+                "santaCatarina": 2,
+                "brasil": 3
+              }
+            }
+          },
+          "abandono": {
+            "indicador": "abandono",
+            "etapa": "anos_iniciais",
+            "ano": "2025",
+            "unidade": "%",
+            "fonte": {
+              "nome": "INEP, taxas de rendimento",
+              "url": "https://www.gov.br/inep/pt-br/acesso-a-informacao/dados-abertos/indicadores-educacionais/taxas-de-rendimento-escolar"
+            },
+            "porRede": {
+              "publica": {
+                "orleans": 0,
+                "santaCatarina": 0.5,
+                "brasil": 1
+              },
+              "municipal": {
+                "orleans": 0,
+                "santaCatarina": 0,
+                "brasil": 1
+              }
+            }
+          }
+        },
+        {
+          "etapa": "anos_finais",
+          "aprovacao": {
+            "indicador": "aprovacao",
+            "etapa": "anos_finais",
+            "ano": "2025",
+            "unidade": "%",
+            "fonte": {
+              "nome": "INEP, taxas de rendimento",
+              "url": "https://www.gov.br/inep/pt-br/acesso-a-informacao/dados-abertos/indicadores-educacionais/taxas-de-rendimento-escolar"
+            },
+            "porRede": {
+              "publica": {
+                "orleans": 94,
+                "santaCatarina": 95.5,
+                "brasil": 93
+              },
+              "municipal": {
+                "orleans": 92,
+                "santaCatarina": 97,
+                "brasil": 95
+              }
+            }
+          },
+          "reprovacao": {
+            "indicador": "reprovacao",
+            "etapa": "anos_finais",
+            "ano": "2025",
+            "unidade": "%",
+            "fonte": {
+              "nome": "INEP, taxas de rendimento",
+              "url": "https://www.gov.br/inep/pt-br/acesso-a-informacao/dados-abertos/indicadores-educacionais/taxas-de-rendimento-escolar"
+            },
+            "porRede": {
+              "publica": {
+                "orleans": 6,
+                "santaCatarina": 4,
+                "brasil": 5
+              },
+              "municipal": {
+                "orleans": 8,
+                "santaCatarina": 3,
+                "brasil": 4
+              }
+            }
+          },
+          "abandono": {
+            "indicador": "abandono",
+            "etapa": "anos_finais",
+            "ano": "2025",
+            "unidade": "%",
+            "fonte": {
+              "nome": "INEP, taxas de rendimento",
+              "url": "https://www.gov.br/inep/pt-br/acesso-a-informacao/dados-abertos/indicadores-educacionais/taxas-de-rendimento-escolar"
+            },
+            "porRede": {
+              "publica": {
+                "orleans": 0,
+                "santaCatarina": 0.5,
+                "brasil": 2
+              },
+              "municipal": {
+                "orleans": 0,
+                "santaCatarina": 0,
+                "brasil": 1
+              }
+            }
+          }
+        },
+        {
+          "etapa": "medio",
+          "aprovacao": {
+            "indicador": "aprovacao",
+            "etapa": "medio",
+            "ano": "2025",
+            "unidade": "%",
+            "fonte": {
+              "nome": "INEP, taxas de rendimento",
+              "url": "https://www.gov.br/inep/pt-br/acesso-a-informacao/dados-abertos/indicadores-educacionais/taxas-de-rendimento-escolar"
+            },
+            "porRede": {
+              "publica": {
+                "orleans": 84,
+                "santaCatarina": 86,
+                "brasil": 88
+              },
+              "municipal": {
+                "orleans": null,
+                "santaCatarina": 80,
+                "brasil": 84
+              },
+              "estadual": {
+                "orleans": 84,
+                "santaCatarina": 86,
+                "brasil": 88
+              },
+              "privada": {
+                "orleans": 98,
+                "santaCatarina": 98.5,
+                "brasil": 99
+              },
+              "todas": {
+                "orleans": 90,
+                "santaCatarina": 90,
+                "brasil": 92
+              }
+            }
+          },
+          "reprovacao": {
+            "indicador": "reprovacao",
+            "etapa": "medio",
+            "ano": "2025",
+            "unidade": "%",
+            "fonte": {
+              "nome": "INEP, taxas de rendimento",
+              "url": "https://www.gov.br/inep/pt-br/acesso-a-informacao/dados-abertos/indicadores-educacionais/taxas-de-rendimento-escolar"
+            },
+            "porRede": {
+              "publica": {
+                "orleans": 10,
+                "santaCatarina": 9,
+                "brasil": 7
+              },
+              "municipal": {
+                "orleans": null,
+                "santaCatarina": 15,
+                "brasil": 11
+              },
+              "estadual": {
+                "orleans": 10,
+                "santaCatarina": 9,
+                "brasil": 7
+              },
+              "privada": {
+                "orleans": 2,
+                "santaCatarina": 1.5,
+                "brasil": 1
+              },
+              "todas": {
+                "orleans": 6,
+                "santaCatarina": 5,
+                "brasil": 4
+              }
+            }
+          },
+          "abandono": {
+            "indicador": "abandono",
+            "etapa": "medio",
+            "ano": "2025",
+            "unidade": "%",
+            "fonte": {
+              "nome": "INEP, taxas de rendimento",
+              "url": "https://www.gov.br/inep/pt-br/acesso-a-informacao/dados-abertos/indicadores-educacionais/taxas-de-rendimento-escolar"
+            },
+            "porRede": {
+              "publica": {
+                "orleans": 6,
+                "santaCatarina": 5,
+                "brasil": 5
+              },
+              "municipal": {
+                "orleans": null,
+                "santaCatarina": 5,
+                "brasil": 5
+              },
+              "estadual": {
+                "orleans": 6,
+                "santaCatarina": 5,
+                "brasil": 5
+              },
+              "privada": {
+                "orleans": 0,
+                "santaCatarina": 0,
+                "brasil": 0
+              },
+              "todas": {
+                "orleans": 4,
+                "santaCatarina": 5,
+                "brasil": 4
+              }
+            }
+          }
+        }
+      ]
+    },
+    "series": {
+      "ano": "2025",
+      "fonte": {
+        "nome": "INEP, taxas de rendimento",
+        "url": "https://www.gov.br/inep/pt-br/acesso-a-informacao/dados-abertos/indicadores-educacionais/taxas-de-rendimento-escolar"
+      },
+      "fonteDasMatriculas": {
+        "nome": "IBGE, sinopse do Censo Escolar (INEP)",
+        "url": "https://servicodados.ibge.gov.br/api/docs/pesquisas?versao=1"
+      },
+      "series": [
+        {
+          "etapa": "ano_1",
+          "reprovacao": {
+            "indicador": "reprovacao",
+            "etapa": "ano_1",
+            "ano": "2025",
+            "unidade": "%",
+            "fonte": {
+              "nome": "INEP, taxas de rendimento",
+              "url": "https://www.gov.br/inep/pt-br/acesso-a-informacao/dados-abertos/indicadores-educacionais/taxas-de-rendimento-escolar"
+            },
+            "porRede": {}
+          },
+          "abandono": {
+            "indicador": "abandono",
+            "etapa": "ano_1",
+            "ano": "2025",
+            "unidade": "%",
+            "fonte": {
+              "nome": "INEP, taxas de rendimento",
+              "url": "https://www.gov.br/inep/pt-br/acesso-a-informacao/dados-abertos/indicadores-educacionais/taxas-de-rendimento-escolar"
+            },
+            "porRede": {}
+          },
+          "matriculas": {
+            "publica": 150,
+            "municipal": 80,
+            "estadual": 70,
+            "privada": 30,
+            "todas": 180
+          }
+        },
+        {
+          "etapa": "ano_2",
+          "reprovacao": {
+            "indicador": "reprovacao",
+            "etapa": "ano_2",
+            "ano": "2025",
+            "unidade": "%",
+            "fonte": {
+              "nome": "INEP, taxas de rendimento",
+              "url": "https://www.gov.br/inep/pt-br/acesso-a-informacao/dados-abertos/indicadores-educacionais/taxas-de-rendimento-escolar"
+            },
+            "porRede": {
+              "municipal": {
+                "orleans": 10,
+                "santaCatarina": 5,
+                "brasil": 3
+              }
+            }
+          },
+          "abandono": {
+            "indicador": "abandono",
+            "etapa": "ano_2",
+            "ano": "2025",
+            "unidade": "%",
+            "fonte": {
+              "nome": "INEP, taxas de rendimento",
+              "url": "https://www.gov.br/inep/pt-br/acesso-a-informacao/dados-abertos/indicadores-educacionais/taxas-de-rendimento-escolar"
+            },
+            "porRede": {
+              "municipal": {
+                "orleans": 0,
+                "santaCatarina": 0,
+                "brasil": 0
+              }
+            }
+          },
+          "matriculas": {
+            "publica": 154,
+            "municipal": 82,
+            "estadual": 72,
+            "privada": 30,
+            "todas": 184
+          }
+        },
+        {
+          "etapa": "ano_3",
+          "reprovacao": {
+            "indicador": "reprovacao",
+            "etapa": "ano_3",
+            "ano": "2025",
+            "unidade": "%",
+            "fonte": {
+              "nome": "INEP, taxas de rendimento",
+              "url": "https://www.gov.br/inep/pt-br/acesso-a-informacao/dados-abertos/indicadores-educacionais/taxas-de-rendimento-escolar"
+            },
+            "porRede": {}
+          },
+          "abandono": {
+            "indicador": "abandono",
+            "etapa": "ano_3",
+            "ano": "2025",
+            "unidade": "%",
+            "fonte": {
+              "nome": "INEP, taxas de rendimento",
+              "url": "https://www.gov.br/inep/pt-br/acesso-a-informacao/dados-abertos/indicadores-educacionais/taxas-de-rendimento-escolar"
+            },
+            "porRede": {}
+          },
+          "matriculas": {
+            "publica": 158,
+            "municipal": 84,
+            "estadual": 74,
+            "privada": 28,
+            "todas": 186
+          }
+        },
+        {
+          "etapa": "ano_4",
+          "reprovacao": {
+            "indicador": "reprovacao",
+            "etapa": "ano_4",
+            "ano": "2025",
+            "unidade": "%",
+            "fonte": {
+              "nome": "INEP, taxas de rendimento",
+              "url": "https://www.gov.br/inep/pt-br/acesso-a-informacao/dados-abertos/indicadores-educacionais/taxas-de-rendimento-escolar"
+            },
+            "porRede": {}
+          },
+          "abandono": {
+            "indicador": "abandono",
+            "etapa": "ano_4",
+            "ano": "2025",
+            "unidade": "%",
+            "fonte": {
+              "nome": "INEP, taxas de rendimento",
+              "url": "https://www.gov.br/inep/pt-br/acesso-a-informacao/dados-abertos/indicadores-educacionais/taxas-de-rendimento-escolar"
+            },
+            "porRede": {}
+          },
+          "matriculas": {
+            "publica": 162,
+            "municipal": 86,
+            "estadual": 76,
+            "privada": 28,
+            "todas": 190
+          }
+        },
+        {
+          "etapa": "ano_5",
+          "reprovacao": {
+            "indicador": "reprovacao",
+            "etapa": "ano_5",
+            "ano": "2025",
+            "unidade": "%",
+            "fonte": {
+              "nome": "INEP, taxas de rendimento",
+              "url": "https://www.gov.br/inep/pt-br/acesso-a-informacao/dados-abertos/indicadores-educacionais/taxas-de-rendimento-escolar"
+            },
+            "porRede": {}
+          },
+          "abandono": {
+            "indicador": "abandono",
+            "etapa": "ano_5",
+            "ano": "2025",
+            "unidade": "%",
+            "fonte": {
+              "nome": "INEP, taxas de rendimento",
+              "url": "https://www.gov.br/inep/pt-br/acesso-a-informacao/dados-abertos/indicadores-educacionais/taxas-de-rendimento-escolar"
+            },
+            "porRede": {}
+          },
+          "matriculas": {
+            "publica": 166,
+            "municipal": 88,
+            "estadual": 78,
+            "privada": 26,
+            "todas": 192
+          }
+        },
+        {
+          "etapa": "ano_6",
+          "reprovacao": {
+            "indicador": "reprovacao",
+            "etapa": "ano_6",
+            "ano": "2025",
+            "unidade": "%",
+            "fonte": {
+              "nome": "INEP, taxas de rendimento",
+              "url": "https://www.gov.br/inep/pt-br/acesso-a-informacao/dados-abertos/indicadores-educacionais/taxas-de-rendimento-escolar"
+            },
+            "porRede": {}
+          },
+          "abandono": {
+            "indicador": "abandono",
+            "etapa": "ano_6",
+            "ano": "2025",
+            "unidade": "%",
+            "fonte": {
+              "nome": "INEP, taxas de rendimento",
+              "url": "https://www.gov.br/inep/pt-br/acesso-a-informacao/dados-abertos/indicadores-educacionais/taxas-de-rendimento-escolar"
+            },
+            "porRede": {}
+          },
+          "matriculas": {
+            "publica": 180,
+            "municipal": null,
+            "estadual": 180,
+            "privada": 24,
+            "todas": 204
+          }
+        },
+        {
+          "etapa": "ano_7",
+          "reprovacao": {
+            "indicador": "reprovacao",
+            "etapa": "ano_7",
+            "ano": "2025",
+            "unidade": "%",
+            "fonte": {
+              "nome": "INEP, taxas de rendimento",
+              "url": "https://www.gov.br/inep/pt-br/acesso-a-informacao/dados-abertos/indicadores-educacionais/taxas-de-rendimento-escolar"
+            },
+            "porRede": {}
+          },
+          "abandono": {
+            "indicador": "abandono",
+            "etapa": "ano_7",
+            "ano": "2025",
+            "unidade": "%",
+            "fonte": {
+              "nome": "INEP, taxas de rendimento",
+              "url": "https://www.gov.br/inep/pt-br/acesso-a-informacao/dados-abertos/indicadores-educacionais/taxas-de-rendimento-escolar"
+            },
+            "porRede": {}
+          },
+          "matriculas": {
+            "publica": 177,
+            "municipal": null,
+            "estadual": 177,
+            "privada": 24,
+            "todas": 201
+          }
+        },
+        {
+          "etapa": "ano_8",
+          "reprovacao": {
+            "indicador": "reprovacao",
+            "etapa": "ano_8",
+            "ano": "2025",
+            "unidade": "%",
+            "fonte": {
+              "nome": "INEP, taxas de rendimento",
+              "url": "https://www.gov.br/inep/pt-br/acesso-a-informacao/dados-abertos/indicadores-educacionais/taxas-de-rendimento-escolar"
+            },
+            "porRede": {}
+          },
+          "abandono": {
+            "indicador": "abandono",
+            "etapa": "ano_8",
+            "ano": "2025",
+            "unidade": "%",
+            "fonte": {
+              "nome": "INEP, taxas de rendimento",
+              "url": "https://www.gov.br/inep/pt-br/acesso-a-informacao/dados-abertos/indicadores-educacionais/taxas-de-rendimento-escolar"
+            },
+            "porRede": {}
+          },
+          "matriculas": {
+            "publica": 170,
+            "municipal": null,
+            "estadual": 170,
+            "privada": 22,
+            "todas": 192
+          }
+        },
+        {
+          "etapa": "ano_9",
+          "reprovacao": {
+            "indicador": "reprovacao",
+            "etapa": "ano_9",
+            "ano": "2025",
+            "unidade": "%",
+            "fonte": {
+              "nome": "INEP, taxas de rendimento",
+              "url": "https://www.gov.br/inep/pt-br/acesso-a-informacao/dados-abertos/indicadores-educacionais/taxas-de-rendimento-escolar"
+            },
+            "porRede": {}
+          },
+          "abandono": {
+            "indicador": "abandono",
+            "etapa": "ano_9",
+            "ano": "2025",
+            "unidade": "%",
+            "fonte": {
+              "nome": "INEP, taxas de rendimento",
+              "url": "https://www.gov.br/inep/pt-br/acesso-a-informacao/dados-abertos/indicadores-educacionais/taxas-de-rendimento-escolar"
+            },
+            "porRede": {}
+          },
+          "matriculas": {
+            "publica": 165,
+            "municipal": null,
+            "estadual": 165,
+            "privada": 22,
+            "todas": 187
+          }
+        },
+        {
+          "etapa": "serie_1",
+          "reprovacao": {
+            "indicador": "reprovacao",
+            "etapa": "serie_1",
+            "ano": "2025",
+            "unidade": "%",
+            "fonte": {
+              "nome": "INEP, taxas de rendimento",
+              "url": "https://www.gov.br/inep/pt-br/acesso-a-informacao/dados-abertos/indicadores-educacionais/taxas-de-rendimento-escolar"
+            },
+            "porRede": {
+              "publica": {
+                "orleans": 12,
+                "santaCatarina": 11,
+                "brasil": 10
+              },
+              "estadual": {
+                "orleans": 20,
+                "santaCatarina": 12,
+                "brasil": 10
+              }
+            }
+          },
+          "abandono": {
+            "indicador": "abandono",
+            "etapa": "serie_1",
+            "ano": "2025",
+            "unidade": "%",
+            "fonte": {
+              "nome": "INEP, taxas de rendimento",
+              "url": "https://www.gov.br/inep/pt-br/acesso-a-informacao/dados-abertos/indicadores-educacionais/taxas-de-rendimento-escolar"
+            },
+            "porRede": {
+              "publica": {
+                "orleans": 8,
+                "santaCatarina": 7,
+                "brasil": 6
+              },
+              "estadual": {
+                "orleans": 10,
+                "santaCatarina": 8,
+                "brasil": 6
+              }
+            }
+          },
+          "matriculas": {
+            "publica": 200,
+            "municipal": null,
+            "estadual": 200,
+            "privada": 30,
+            "todas": 230
+          }
+        },
+        {
+          "etapa": "serie_2",
+          "reprovacao": {
+            "indicador": "reprovacao",
+            "etapa": "serie_2",
+            "ano": "2025",
+            "unidade": "%",
+            "fonte": {
+              "nome": "INEP, taxas de rendimento",
+              "url": "https://www.gov.br/inep/pt-br/acesso-a-informacao/dados-abertos/indicadores-educacionais/taxas-de-rendimento-escolar"
+            },
+            "porRede": {}
+          },
+          "abandono": {
+            "indicador": "abandono",
+            "etapa": "serie_2",
+            "ano": "2025",
+            "unidade": "%",
+            "fonte": {
+              "nome": "INEP, taxas de rendimento",
+              "url": "https://www.gov.br/inep/pt-br/acesso-a-informacao/dados-abertos/indicadores-educacionais/taxas-de-rendimento-escolar"
+            },
+            "porRede": {}
+          },
+          "matriculas": {
+            "publica": 180,
+            "municipal": null,
+            "estadual": 180,
+            "privada": 25,
+            "todas": 205
+          }
+        },
+        {
+          "etapa": "serie_3",
+          "reprovacao": {
+            "indicador": "reprovacao",
+            "etapa": "serie_3",
+            "ano": "2025",
+            "unidade": "%",
+            "fonte": {
+              "nome": "INEP, taxas de rendimento",
+              "url": "https://www.gov.br/inep/pt-br/acesso-a-informacao/dados-abertos/indicadores-educacionais/taxas-de-rendimento-escolar"
+            },
+            "porRede": {}
+          },
+          "abandono": {
+            "indicador": "abandono",
+            "etapa": "serie_3",
+            "ano": "2025",
+            "unidade": "%",
+            "fonte": {
+              "nome": "INEP, taxas de rendimento",
+              "url": "https://www.gov.br/inep/pt-br/acesso-a-informacao/dados-abertos/indicadores-educacionais/taxas-de-rendimento-escolar"
+            },
+            "porRede": {}
+          },
+          "matriculas": {
+            "publica": 160,
+            "municipal": null,
+            "estadual": 160,
+            "privada": 20,
+            "todas": 180
+          }
+        },
+        {
+          "etapa": "serie_4",
+          "reprovacao": {
+            "indicador": "reprovacao",
+            "etapa": "serie_4",
+            "ano": "2025",
+            "unidade": "%",
+            "fonte": {
+              "nome": "INEP, taxas de rendimento",
+              "url": "https://www.gov.br/inep/pt-br/acesso-a-informacao/dados-abertos/indicadores-educacionais/taxas-de-rendimento-escolar"
+            },
+            "porRede": {}
+          },
+          "abandono": {
+            "indicador": "abandono",
+            "etapa": "serie_4",
+            "ano": "2025",
+            "unidade": "%",
+            "fonte": {
+              "nome": "INEP, taxas de rendimento",
+              "url": "https://www.gov.br/inep/pt-br/acesso-a-informacao/dados-abertos/indicadores-educacionais/taxas-de-rendimento-escolar"
+            },
+            "porRede": {}
+          },
+          "matriculas": {
+            "publica": null,
+            "municipal": null,
+            "estadual": null,
+            "privada": null,
+            "todas": null
+          }
+        }
+      ]
+    },
+    "distorcao": {
+      "ano": "2025",
+      "fonte": {
+        "nome": "INEP, distorção idade-série",
+        "url": "https://www.gov.br/inep/pt-br/acesso-a-informacao/dados-abertos/indicadores-educacionais/taxas-de-distorcao-idade-serie"
+      },
+      "etapas": [
+        {
+          "indicador": "distorcao",
+          "etapa": "anos_iniciais",
+          "ano": "2025",
+          "unidade": "%",
+          "fonte": {
+            "nome": "INEP, distorção idade-série",
+            "url": "https://www.gov.br/inep/pt-br/acesso-a-informacao/dados-abertos/indicadores-educacionais/taxas-de-distorcao-idade-serie"
+          },
+          "porRede": {}
+        },
+        {
+          "indicador": "distorcao",
+          "etapa": "anos_finais",
+          "ano": "2025",
+          "unidade": "%",
+          "fonte": {
+            "nome": "INEP, distorção idade-série",
+            "url": "https://www.gov.br/inep/pt-br/acesso-a-informacao/dados-abertos/indicadores-educacionais/taxas-de-distorcao-idade-serie"
+          },
+          "porRede": {
+            "publica": {
+              "orleans": 15,
+              "santaCatarina": 13,
+              "brasil": 14
+            },
+            "municipal": {
+              "orleans": 18,
+              "santaCatarina": 13.5,
+              "brasil": 19
+            }
+          }
+        },
+        {
+          "indicador": "distorcao",
+          "etapa": "medio",
+          "ano": "2025",
+          "unidade": "%",
+          "fonte": {
+            "nome": "INEP, distorção idade-série",
+            "url": "https://www.gov.br/inep/pt-br/acesso-a-informacao/dados-abertos/indicadores-educacionais/taxas-de-distorcao-idade-serie"
+          },
+          "porRede": {
+            "publica": {
+              "orleans": 17,
+              "santaCatarina": 15,
+              "brasil": 18
+            },
+            "municipal": {
+              "orleans": null,
+              "santaCatarina": 20,
+              "brasil": 22
+            }
+          }
+        }
+      ]
+    },
+    "evasao": {
+      "ano": "2021-2022",
+      "fonte": {
+        "nome": "INEP, taxas de transição",
+        "url": "https://www.gov.br/inep/pt-br/acesso-a-informacao/dados-abertos/indicadores-educacionais/taxas-de-transicao"
+      },
+      "etapas": [
+        {
+          "indicador": "evasao",
+          "etapa": "anos_iniciais",
+          "ano": "2021-2022",
+          "unidade": "%",
+          "fonte": {
+            "nome": "INEP, taxas de transição",
+            "url": "https://www.gov.br/inep/pt-br/acesso-a-informacao/dados-abertos/indicadores-educacionais/taxas-de-transicao"
+          },
+          "porRede": {
+            "publica": {
+              "orleans": 0.5,
+              "santaCatarina": 1,
+              "brasil": 1.5
+            },
+            "municipal": {
+              "orleans": null,
+              "santaCatarina": 0.5,
+              "brasil": 1
+            }
+          }
+        },
+        {
+          "indicador": "evasao",
+          "etapa": "anos_finais",
+          "ano": "2021-2022",
+          "unidade": "%",
+          "fonte": {
+            "nome": "INEP, taxas de transição",
+            "url": "https://www.gov.br/inep/pt-br/acesso-a-informacao/dados-abertos/indicadores-educacionais/taxas-de-transicao"
+          },
+          "porRede": {}
+        },
+        {
+          "indicador": "evasao",
+          "etapa": "medio",
+          "ano": "2021-2022",
+          "unidade": "%",
+          "fonte": {
+            "nome": "INEP, taxas de transição",
+            "url": "https://www.gov.br/inep/pt-br/acesso-a-informacao/dados-abertos/indicadores-educacionais/taxas-de-transicao"
+          },
+          "porRede": {
+            "publica": {
+              "orleans": 9,
+              "santaCatarina": 8,
+              "brasil": 7.5
+            },
+            "estadual": {
+              "orleans": 9,
+              "santaCatarina": 8.5,
+              "brasil": 8
+            },
+            "privada": {
+              "orleans": 1,
+              "santaCatarina": 1.5,
+              "brasil": 1
+            },
+            "todas": {
+              "orleans": 8,
+              "santaCatarina": 7,
+              "brasil": 7
+            }
+          }
+        }
+      ]
+    }
+  }
+}

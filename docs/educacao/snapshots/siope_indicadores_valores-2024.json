@@ -1,0 +1,14 @@
+{
+  "meta": {"consultaId":900404,"ano":2024,"filtro":{"arquivo":"indicadores_municipal_2024.csv","coluna":"2024 - 6º bimestre","extrato":false},"iniciadoEm":"2026-11-05T03:16:05.275Z","coletadoEm":"2026-11-05T03:16:05.275Z","totalHits":9,"capturados":9,"idsUnicos":9,"camposAusentes":{},"conferencia":[],"status":"totalizador_conciliado","erros":[]},
+  "registros": [
+    {"id":"4211702:municipal::siope_por_aluno_infantil:2024","indicador":"siope_por_aluno_infantil","lugar":"4211702","rede":"municipal","recorte":"","periodo":"2024","valor":"11529.53","percentual":null},
+    {"id":"4211702:municipal::siope_por_aluno_fundamental:2024","indicador":"siope_por_aluno_fundamental","lugar":"4211702","rede":"municipal","recorte":"","periodo":"2024","valor":"15954.33","percentual":null},
+    {"id":"4211702:municipal::siope_por_aluno_educacao_basica:2024","indicador":"siope_por_aluno_educacao_basica","lugar":"4211702","rede":"municipal","recorte":"","periodo":"2024","valor":"16017.80","percentual":null},
+    {"id":"4211702:municipal::siope_professores_por_aluno:2024","indicador":"siope_professores_por_aluno","lugar":"4211702","rede":"municipal","recorte":"","periodo":"2024","valor":"7090.03","percentual":null},
+    {"id":"4211702:municipal::siope_nao_docentes_por_aluno:2024","indicador":"siope_nao_docentes_por_aluno","lugar":"4211702","rede":"municipal","recorte":"","periodo":"2024","valor":null,"percentual":null},
+    {"id":"4211702:municipal::siope_saldo_financeiro_fundeb:2024","indicador":"siope_saldo_financeiro_fundeb","lugar":"4211702","rede":"municipal","recorte":"","periodo":"2024","valor":"1186295.74","percentual":null},
+    {"id":"4211702:municipal::siope_fundeb_nao_utilizado:2024","indicador":"siope_fundeb_nao_utilizado","lugar":"4211702","rede":"municipal","recorte":"","periodo":"2024","valor":"202475.58","percentual":null},
+    {"id":"4211702:municipal::siope_educacao_valor_exigido:2024","indicador":"siope_educacao_valor_exigido","lugar":"4211702","rede":"municipal","recorte":"","periodo":"2024","valor":"23174280.04","percentual":null},
+    {"id":"4211702:municipal::siope_educacao_valor_aplicado:2024","indicador":"siope_educacao_valor_aplicado","lugar":"4211702","rede":"municipal","recorte":"","periodo":"2024","valor":"24698020.91","percentual":null}
+  ]
+}

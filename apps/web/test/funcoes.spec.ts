@@ -16,6 +16,7 @@ const funcao = (codigo: string, nome: string, p: number, pago?: number) => ({
 const ano = (numero: number, funcoes: Ano['funcoes']): Ano => ({
   ano: numero,
   conferencia: 'sem_tce',
+  conferenciaEducacao: 'sem_betha',
   total: { empenhado: 1, liquidado: 1, pago: 1 },
   funcoes,
   camara: null,

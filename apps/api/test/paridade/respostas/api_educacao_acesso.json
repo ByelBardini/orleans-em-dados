@@ -1,0 +1,282 @@
+{
+  "status": 200,
+  "tipo": "application/json; charset=utf-8",
+  "disposicao": null,
+  "corpo": {
+    "disponivel": true,
+    "faltando": [],
+    "frequencia": {
+      "ano": "2022",
+      "anoAnterior": "2010",
+      "fonte": {
+        "nome": "IBGE, Censo 2022",
+        "url": "https://servicodados.ibge.gov.br/api/docs/agregados?versao=3"
+      },
+      "fonteAnterior": {
+        "nome": "IBGE, Censo 2010: quem frequentava ÷ população",
+        "url": "https://servicodados.ibge.gov.br/api/docs/agregados?versao=3"
+      },
+      "faixas": [
+        {
+          "faixa": "0 a 3 anos",
+          "comparacao": {
+            "indicador": "frequencia_escolar",
+            "etapa": "0 a 3 anos",
+            "ano": "2022",
+            "unidade": "%",
+            "fonte": {
+              "nome": "IBGE, Censo 2022",
+              "url": "https://servicodados.ibge.gov.br/api/docs/agregados?versao=3"
+            },
+            "porRede": {
+              "todas": {
+                "orleans": 50,
+                "santaCatarina": 47,
+                "brasil": 34
+              }
+            },
+            "meta": {
+              "valor": 60,
+              "referencia": "até 2036, no Plano Nacional de Educação"
+            }
+          },
+          "noAnoAnterior": {
+            "orleans": 35,
+            "santaCatarina": 35,
+            "brasil": 35
+          }
+        },
+        {
+          "faixa": "4 a 5 anos",
+          "comparacao": {
+            "indicador": "frequencia_escolar",
+            "etapa": "4 a 5 anos",
+            "ano": "2022",
+            "unidade": "%",
+            "fonte": {
+              "nome": "IBGE, Censo 2022",
+              "url": "https://servicodados.ibge.gov.br/api/docs/agregados?versao=3"
+            },
+            "porRede": {
+              "todas": {
+                "orleans": 85,
+                "santaCatarina": 90,
+                "brasil": 87
+              }
+            },
+            "meta": {
+              "valor": 100,
+              "referencia": "até 2028, no Plano Nacional de Educação"
+            }
+          },
+          "noAnoAnterior": {
+            "orleans": 78.3,
+            "santaCatarina": 78.3,
+            "brasil": 78.3
+          }
+        },
+        {
+          "faixa": "6 a 14 anos",
+          "comparacao": {
+            "indicador": "frequencia_escolar",
+            "etapa": "6 a 14 anos",
+            "ano": "2022",
+            "unidade": "%",
+            "fonte": {
+              "nome": "IBGE, Censo 2022",
+              "url": "https://servicodados.ibge.gov.br/api/docs/agregados?versao=3"
+            },
+            "porRede": {
+              "todas": {
+                "orleans": 97,
+                "santaCatarina": 97,
+                "brasil": 97
+              }
+            },
+            "meta": {
+              "valor": 100,
+              "referencia": "até 2029, para toda a faixa de 6 a 17 anos, no Plano Nacional de Educação"
+            }
+          },
+          "noAnoAnterior": {
+            "orleans": 98.3,
+            "santaCatarina": 98.3,
+            "brasil": 98.3
+          }
+        },
+        {
+          "faixa": "15 a 17 anos",
+          "comparacao": {
+            "indicador": "frequencia_escolar",
+            "etapa": "15 a 17 anos",
+            "ano": "2022",
+            "unidade": "%",
+            "fonte": {
+              "nome": "IBGE, Censo 2022",
+              "url": "https://servicodados.ibge.gov.br/api/docs/agregados?versao=3"
+            },
+            "porRede": {
+              "todas": {
+                "orleans": 88,
+                "santaCatarina": 88,
+                "brasil": 88
+              }
+            },
+            "meta": {
+              "valor": 100,
+              "referencia": "até 2029, para toda a faixa de 6 a 17 anos, no Plano Nacional de Educação"
+            }
+          },
+          "noAnoAnterior": {
+            "orleans": 79.1,
+            "santaCatarina": 79.1,
+            "brasil": 79.1
+          }
+        },
+        {
+          "faixa": "18 a 24 anos",
+          "comparacao": {
+            "indicador": "frequencia_escolar",
+            "etapa": "18 a 24 anos",
+            "ano": "2022",
+            "unidade": "%",
+            "fonte": {
+              "nome": "IBGE, Censo 2022",
+              "url": "https://servicodados.ibge.gov.br/api/docs/agregados?versao=3"
+            },
+            "porRede": {
+              "todas": {
+                "orleans": 25,
+                "santaCatarina": 25,
+                "brasil": 25
+              }
+            }
+          },
+          "noAnoAnterior": {
+            "orleans": 28.9,
+            "santaCatarina": 28.9,
+            "brasil": 28.9
+          }
+        }
+      ]
+    },
+    "matriculas": {
+      "ano": "2025",
+      "fonte": {
+        "nome": "IBGE, sinopse do Censo Escolar (INEP)",
+        "url": "https://servicodados.ibge.gov.br/api/docs/pesquisas?versao=1"
+      },
+      "total": 3281,
+      "etapas": [
+        {
+          "etapa": "creche",
+          "total": 560,
+          "municipal": 410,
+          "estadual": null,
+          "federal": null,
+          "privada": 150
+        },
+        {
+          "etapa": "pre_escola",
+          "total": 390,
+          "municipal": 310,
+          "estadual": null,
+          "federal": null,
+          "privada": 80
+        },
+        {
+          "etapa": "fundamental",
+          "total": 1716,
+          "municipal": 420,
+          "estadual": 1062,
+          "federal": null,
+          "privada": 234
+        },
+        {
+          "etapa": "medio",
+          "total": 615,
+          "municipal": null,
+          "estadual": 540,
+          "federal": null,
+          "privada": 75
+        }
+      ],
+      "escolasEDocentes": [
+        {
+          "etapa": "educacao_infantil",
+          "escolas": 14,
+          "docentes": 70
+        },
+        {
+          "etapa": "fundamental",
+          "escolas": 12,
+          "docentes": 150
+        },
+        {
+          "etapa": "medio",
+          "escolas": 3,
+          "docentes": 60
+        }
+      ]
+    },
+    "outroMunicipio": {
+      "ano": "2022",
+      "fonte": {
+        "nome": "IBGE, Censo 2022",
+        "url": "https://servicodados.ibge.gov.br/api/docs/agregados?versao=3"
+      },
+      "comparacao": {
+        "indicador": "estudam_em_outro_municipio",
+        "etapa": "",
+        "ano": "2022",
+        "unidade": "%",
+        "fonte": {
+          "nome": "IBGE, Censo 2022",
+          "url": "https://servicodados.ibge.gov.br/api/docs/agregados?versao=3"
+        },
+        "porRede": {
+          "todas": {
+            "orleans": 10,
+            "santaCatarina": 10,
+            "brasil": 10
+          }
+        }
+      },
+      "estudantes": 5000,
+      "emOutroMunicipio": 500
+    },
+    "retrato": {
+      "ano": "2025",
+      "fonte": {
+        "nome": "MEC, Retrato da Educação Infantil: a Prefeitura informou ao MEC",
+        "url": "https://www.gov.br/mec/pt-br/pnei/retrato-da-educacao-infantil-no-brasil"
+      },
+      "solicitacoesNaoAtendidas": "Não há demanda",
+      "quantidadeNaLista": null,
+      "listaUnificada": "Sim, cadastro único do município",
+      "listasDivulgadas": "Sim",
+      "criteriosDePrioridade": "Não há critérios; ordem de cadastramento (ordem de chegada)",
+      "idadeInicial": "De 3 a 6 meses",
+      "foraDaPreEscola": "Não se aplica",
+      "nivelDeOrleans": "basico",
+      "distribuicaoEmSc": [
+        {
+          "nivel": "inicial",
+          "municipios": 40
+        },
+        {
+          "nivel": "elementar",
+          "municipios": 150
+        },
+        {
+          "nivel": "basico",
+          "municipios": 90
+        },
+        {
+          "nivel": "avancado",
+          "municipios": 15
+        }
+      ]
+    }
+  }
+}
