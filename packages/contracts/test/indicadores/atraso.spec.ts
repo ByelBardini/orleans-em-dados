@@ -76,3 +76,15 @@ describe('situacaoDaAtualizacao — outros exercícios', () => {
     expect(() => situacao(2026, 'ontem')).toThrow('ontem');
   });
 });
+
+describe('situacaoDaAtualizacao — dado anual', () => {
+  const ANUAL: Periodicidade = { exercicioCorrente: 'anual', exercicioAnterior: 'anual' };
+
+  it('com 13 meses desde a extração, está em dia: a fonte só publica uma vez por ano', () => {
+    expect(situacaoDaAtualizacao(ANUAL, 2026, '2025-02-10T06:00:00.000Z', AGORA).situacao).toBe('em_dia');
+  });
+
+  it('com 25 meses desde a extração, está atrasado', () => {
+    expect(situacaoDaAtualizacao(ANUAL, 2026, '2024-02-10T06:00:00.000Z', AGORA).situacao).toBe('atrasado');
+  });
+});

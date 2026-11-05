@@ -54,9 +54,20 @@ describe('INDICADORES', () => {
     expect(new Set(ids).size).toBe(ids.length);
     for (const i of INDICADORES) {
       expect(i.nome.length, i.id).toBeGreaterThan(0);
-      const esperada = ['ibge', 'siconfi'].includes(i.importador) ? 'mensal' : 'diaria';
+      const anual =
+        ['educacao-censo', 'educacao-comparacao', 'rede-escolar'].includes(i.id) ||
+        ['inep', 'siope', 'mec'].includes(i.importador);
+      const esperada = anual ? 'anual' : ['ibge', 'siconfi'].includes(i.importador) ? 'mensal' : 'diaria';
       expect(i.periodicidade.exercicioCorrente, i.id).toBe(esperada);
     }
+  });
+
+  it('os índices do SIOPE são conferidos contra o RREO, e a contribuição do Fundeb contra o TCE-SC', () => {
+    const contra = Object.fromEntries(INDICADORES.map((i) => [i.id, i.conferidoContra]));
+    expect(contra['indice-educacao']).toBe(900202);
+    expect(contra['fundeb-remuneracao']).toBe(900202);
+    expect(contra['fundeb-contribuicao']).toBe(900001);
+    expect(contra['fundeb-resultado']).toBeNull();
   });
 
   it('a fonte de cada indicador é a da especificação §7.1', () => {
@@ -72,8 +83,37 @@ describe('INDICADORES', () => {
       censo: 900102,
       pib: 900103,
       comparacao: 900104,
+      'educacao-censo': 900105,
+      'educacao-comparacao': 900106,
+      'rede-escolar': 900107,
       'despesa-por-funcao-total': 900201,
       'despesa-por-funcao-divisao': 900201,
+      'indice-educacao-rreo': 900202,
+      'fundeb-remuneracao-rreo': 900202,
+      'rendimento-escolar': 900301,
+      'transicao-escolar': 900302,
+      'distorcao-idade-serie': 900303,
+      'alunos-por-turma': 900304,
+      'horas-aula': 900305,
+      'docentes-com-superior': 900306,
+      'adequacao-docente': 900307,
+      'regularidade-docente': 900308,
+      'esforco-docente': 900309,
+      'remuneracao-rais': 900310,
+      'nivel-socioeconomico': 900311,
+      'alfabetizacao-2o-ano': 900312,
+      'ideb-comparacao': 900313,
+      enem: 900314,
+      'ensino-superior': 900315,
+      'indice-educacao': 900402,
+      'fundeb-remuneracao': 900402,
+      'fundeb-contribuicao': 900402,
+      'fundeb-resultado': 900402,
+      'indicadores-siope': 900401,
+      'investimento-por-aluno': 900404,
+      'remuneracao-medianas': 900403,
+      'carga-temporaria': 900405,
+      'retrato-educacao-infantil': 900501,
     });
   });
 

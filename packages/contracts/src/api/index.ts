@@ -3,6 +3,16 @@ export * from './comuns';
 export * from './conferencias';
 export * from './despesas';
 export * from './discrepancias';
+export * from './educacao';
+// Uma linha por aba do caderno: os nomes levam o prefixo `educacao<Aba>`, para não colidir.
+export * from './educacao/acesso';
+export * from './educacao/dinheiro';
+export * from './educacao/cidade';
+export * from './educacao/aprendizado';
+export * from './educacao/permanencia';
+export * from './educacao/discrepancias';
+export * from './educacao/professores';
+export * from './educacao/resumo';
 export * from './empenhos';
 export * from './erro';
 export * from './funcoes';
