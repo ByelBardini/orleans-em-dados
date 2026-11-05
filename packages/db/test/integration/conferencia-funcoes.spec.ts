@@ -87,7 +87,7 @@ describe('conferirFuncoes', () => {
   });
 
   it('lê só o publicado: cópia antiga da DCA, gravada e não publicada, não entra na soma', async () => {
-    const consulta = criarImportadorSiconfi({ cliente: { anexo: async () => [] } }).consultas[0]!;
+    const consulta = criarImportadorSiconfi({ cliente: { anexo: async () => [], rreo: async () => [] } }).consultas[0]!;
     const antiga = siconfiFuncoes({ contas: { '12 - Educação': ['1.00', '1.00', '1.00'] } });
     antiga.meta.status = 'rejeitado';
     await gravarSnapshot(consulta, antiga, 'arquivo', new RepositorioDeLotesPostgres());
