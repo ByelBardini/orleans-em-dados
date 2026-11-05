@@ -1,0 +1,15 @@
+{
+  "meta": {"consultaId":900403,"ano":2026,"filtro":{"arquivo":"Relatório de Remuneração do SIOPE","foto":"maio","extrato":false},"iniciadoEm":"2026-11-05T03:16:05.275Z","coletadoEm":"2026-11-05T03:16:05.275Z","totalHits":10,"capturados":10,"idsUnicos":10,"camposAusentes":{},"conferencia":[{"campo":"total","titulo":"Total (a + b + c)","descricao":"Soma das linhas = linha de total da planilha","fonte":"6269782.74","calculado":"6269782.74","diferenca":"0.00"}],"status":"totalizador_conciliado","erros":[]},
+  "registros": [
+    {"id":"4211702:municipal:outros:todos:mediana_40h:2026-05","indicador":"mediana_40h","lugar":"4211702","rede":"municipal","recorte":"outros:todos","periodo":"2026-05","valor":"2555.05","percentual":null},
+    {"id":"4211702:municipal:outros:efetivo:mediana_40h:2026-05","indicador":"mediana_40h","lugar":"4211702","rede":"municipal","recorte":"outros:efetivo","periodo":"2026-05","valor":"2658.35","percentual":null},
+    {"id":"4211702:municipal:outros:temporario:mediana_40h:2026-05","indicador":"mediana_40h","lugar":"4211702","rede":"municipal","recorte":"outros:temporario","periodo":"2026-05","valor":"2555.05","percentual":null},
+    {"id":"4211702:municipal:outros:efetivo:mediana_vencimento_40h:2026-05","indicador":"mediana_vencimento_40h","lugar":"4211702","rede":"municipal","recorte":"outros:efetivo","periodo":"2026-05","valor":"2606.21","percentual":null},
+    {"id":"4211702:municipal:outros:temporario:mediana_vencimento_40h:2026-05","indicador":"mediana_vencimento_40h","lugar":"4211702","rede":"municipal","recorte":"outros:temporario","periodo":"2026-05","valor":"2555.05","percentual":null},
+    {"id":"4211702:municipal:magisterio:todos:mediana_40h:2026-05","indicador":"mediana_40h","lugar":"4211702","rede":"municipal","recorte":"magisterio:todos","periodo":"2026-05","valor":"6156.76","percentual":null},
+    {"id":"4211702:municipal:magisterio:efetivo:mediana_40h:2026-05","indicador":"mediana_40h","lugar":"4211702","rede":"municipal","recorte":"magisterio:efetivo","periodo":"2026-05","valor":"6606.76","percentual":null},
+    {"id":"4211702:municipal:magisterio:temporario:mediana_40h:2026-05","indicador":"mediana_40h","lugar":"4211702","rede":"municipal","recorte":"magisterio:temporario","periodo":"2026-05","valor":"6156.76","percentual":null},
+    {"id":"4211702:municipal:magisterio:efetivo:mediana_vencimento_40h:2026-05","indicador":"mediana_vencimento_40h","lugar":"4211702","rede":"municipal","recorte":"magisterio:efetivo","periodo":"2026-05","valor":"5130.63","percentual":null},
+    {"id":"4211702:municipal:magisterio:temporario:mediana_vencimento_40h:2026-05","indicador":"mediana_vencimento_40h","lugar":"4211702","rede":"municipal","recorte":"magisterio:temporario","periodo":"2026-05","valor":"5130.63","percentual":null}
+  ]
+}

@@ -1,0 +1,25 @@
+{
+  "fonte": "Painel Retrato da Educação Infantil no Brasil 2025 (MEC/Gaepe-Brasil), lido na tela",
+  "gerado_em": "2026-11-05",
+  "regras": [
+    "É a resposta do próprio município ao questionário, não uma contagem de crianças.",
+    "Na tela: \"a Prefeitura informou ao MEC\", nunca \"não há fila\"."
+  ],
+  "ano": 2025,
+  "respostas": {
+    "solicitacoes_nao_atendidas_creche": "Não há demanda",
+    "quantidade_na_lista_de_espera": null,
+    "lista_unificada": "Sim, cadastro único do município",
+    "listas_divulgadas_ao_publico": "Sim",
+    "criterios_de_prioridade": "Não há critérios; ordem de cadastramento (ordem de chegada)",
+    "idade_inicial_creche": "De 3 a 6 meses",
+    "criancas_fora_da_pre_escola_por_falta_de_vaga": "Não se aplica",
+    "nivel_de_gestao_da_demanda": "Básico (3º de 4)"
+  },
+  "distribuicao_sc": {
+    "inicial": 45,
+    "elementar": 143,
+    "basico": 90,
+    "avancado": 17
+  }
+}

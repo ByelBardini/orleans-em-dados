@@ -1,0 +1,150 @@
+{
+  "fonte": "Portal da Transparência Betha (consultas 57170 e 57153) e Farol TCE-SC (receitas), snapshots de data/",
+  "gerado_em": "2026-11-05",
+  "regras": [
+    "Só totais por ação, natureza e rubrica; nenhum credor ou empenho é mantido.",
+    "Ações agrupadas pelo nome, porque o número da ação muda entre exercícios.",
+    "Dedução do Fundeb com sinal negativo, como no TCE-SC.",
+    "Só exercícios encerrados."
+  ],
+  "exercicios": {
+    "2024": {
+      "acoes": [
+        {
+          "acao": "Manutenção do Ensino Fundamental",
+          "empenhado": "13624746.48",
+          "liquidado": "13624746.48",
+          "pago": "13624746.48"
+        },
+        {
+          "acao": "Manutenção do Ensino Infantil",
+          "empenhado": "11955407.22",
+          "liquidado": "11955407.22",
+          "pago": "11955407.22"
+        },
+        {
+          "acao": "Manutenção do Transporte Escolar",
+          "empenhado": "3541922.02",
+          "liquidado": "3541922.02",
+          "pago": "3541922.02"
+        },
+        {
+          "acao": "Manutenção da Merenda Escolar",
+          "empenhado": "1124576.23",
+          "liquidado": "1124576.23",
+          "pago": "1124576.23"
+        },
+        {
+          "acao": "Aquisição de Terreno, Construção, Ampliação e Reforma da Rede Física - Ensino Fundamental",
+          "empenhado": "627358.93",
+          "liquidado": "627358.93",
+          "pago": "627358.93"
+        },
+        {
+          "acao": "Auxilio Financeiro e Transporte Escolar Universitário",
+          "empenhado": "378632.55",
+          "liquidado": "378632.55",
+          "pago": "378632.55"
+        },
+        {
+          "acao": "Aquisição de Terreno, Construção, Ampliação e Reforma da Rede Física - Educação Infantil",
+          "empenhado": "254360.50",
+          "liquidado": "254360.50",
+          "pago": "254360.50"
+        },
+        {
+          "acao": "Aquisição de Veículo - Educação",
+          "empenhado": "0.00",
+          "liquidado": "0.00",
+          "pago": "0.00"
+        }
+      ],
+      "liquidado_total": "31507003.93",
+      "empenhado_total": "31507003.93",
+      "liquidado_por_natureza": {
+        "custeio": "9823961.56",
+        "pessoal": "20157021.51",
+        "investimento": "1526020.86"
+      },
+      "repasses": {
+        "Fundeb": "16277090.17",
+        "Transporte escolar, repasse do Estado": "1143843.34",
+        "Salário-educação": "1013607.65",
+        "Convênio com o Estado, educação": "350000.00",
+        "PNAE, alimentação escolar": "323526.00",
+        "PNATE, transporte escolar": "156268.72",
+        "Programa Escola em Tempo Integral": "131582.30"
+      },
+      "deducao_fundeb_tce": "-14184101.03"
+    },
+    "2025": {
+      "acoes": [
+        {
+          "acao": "Manutenção do Ensino Fundamental",
+          "empenhado": "16649151.33",
+          "liquidado": "16625068.03",
+          "pago": "16625068.03"
+        },
+        {
+          "acao": "Manutenção do Ensino Infantil",
+          "empenhado": "15189792.01",
+          "liquidado": "14851456.60",
+          "pago": "14851456.60"
+        },
+        {
+          "acao": "Manutenção do Transporte Escolar",
+          "empenhado": "3952474.53",
+          "liquidado": "3952474.53",
+          "pago": "3952474.53"
+        },
+        {
+          "acao": "Manutenção da Merenda Escolar",
+          "empenhado": "1653525.59",
+          "liquidado": "1653525.59",
+          "pago": "1653525.59"
+        },
+        {
+          "acao": "Auxilio Financeiro e Transporte Escolar Universitário",
+          "empenhado": "399200.00",
+          "liquidado": "399200.00",
+          "pago": "399200.00"
+        },
+        {
+          "acao": "Aquisição de Terreno, Construção, Ampliação e Reforma da Rede Física - Educação Infantil",
+          "empenhado": "0.00",
+          "liquidado": "0.00",
+          "pago": "0.00"
+        },
+        {
+          "acao": "Aquisição de Terreno, Construção, Ampliação e Reforma da Rede Física - Ensino Fundamental",
+          "empenhado": "0.00",
+          "liquidado": "0.00",
+          "pago": "0.00"
+        },
+        {
+          "acao": "Aquisição de Veículo - Educação",
+          "empenhado": "0.00",
+          "liquidado": "0.00",
+          "pago": "0.00"
+        }
+      ],
+      "liquidado_total": "37481724.75",
+      "empenhado_total": "37844143.46",
+      "liquidado_por_natureza": {
+        "investimento": "184966.05",
+        "custeio": "11712237.70",
+        "pessoal": "25584521.00"
+      },
+      "repasses": {
+        "Fundeb": "17451040.54",
+        "Transporte escolar, repasse do Estado": "1258438.07",
+        "Salário-educação": "1068417.78",
+        "Complementação da União ao Fundeb, VAAR": "738244.26",
+        "PNAE, alimentação escolar": "332568.00",
+        "PNATE, transporte escolar": "143212.68",
+        "Programa Escola em Tempo Integral": "27961.23"
+      },
+      "deducao_fundeb_tce": "-15931717.85"
+    }
+  }
+}

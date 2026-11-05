@@ -1,0 +1,14 @@
+{
+  "meta": {"consultaId":900401,"ano":2022,"filtro":{"arquivo":"indicadores_municipal_2022.csv","coluna":"2022 - 6º bimestre","extrato":false},"iniciadoEm":"2026-11-05T03:16:05.275Z","coletadoEm":"2026-11-05T03:16:05.275Z","totalHits":9,"capturados":9,"idsUnicos":9,"camposAusentes":{},"conferencia":[],"status":"totalizador_conciliado","erros":[]},
+  "registros": [
+    {"id":"4211702:municipal:::siope_indice_educacao:2022","indicador":"siope_indice_educacao","lugar":"4211702","rede":"municipal","etapa":"","recorte":"","periodo":"2022","valor":"27.62","texto":null,"unidade":"%"},
+    {"id":"4211702:municipal:::siope_fundeb_remuneracao:2022","indicador":"siope_fundeb_remuneracao","lugar":"4211702","rede":"municipal","etapa":"","recorte":"","periodo":"2022","valor":"86.03","texto":null,"unidade":"%"},
+    {"id":"4211702:municipal:::siope_fundeb_outras_despesas:2022","indicador":"siope_fundeb_outras_despesas","lugar":"4211702","rede":"municipal","etapa":"","recorte":"","periodo":"2022","valor":"11.14","texto":null,"unidade":"%"},
+    {"id":"4211702:municipal:::siope_fundeb_nao_aplicado:2022","indicador":"siope_fundeb_nao_aplicado","lugar":"4211702","rede":"municipal","etapa":"","recorte":"","periodo":"2022","valor":"2.83","texto":null,"unidade":"%"},
+    {"id":"4211702:municipal:::siope_fundeb_em_infantil:2022","indicador":"siope_fundeb_em_infantil","lugar":"4211702","rede":"municipal","etapa":"","recorte":"","periodo":"2022","valor":"39.51","texto":null,"unidade":"%"},
+    {"id":"4211702:municipal:::siope_fundeb_em_fundamental:2022","indicador":"siope_fundeb_em_fundamental","lugar":"4211702","rede":"municipal","etapa":"","recorte":"","periodo":"2022","valor":"57.66","texto":null,"unidade":"%"},
+    {"id":"4211702:municipal:::siope_despesa_infantil:2022","indicador":"siope_despesa_infantil","lugar":"4211702","rede":"municipal","etapa":"","recorte":"","periodo":"2022","valor":"16.07","texto":null,"unidade":"%"},
+    {"id":"4211702:municipal:::siope_despesa_fundamental:2022","indicador":"siope_despesa_fundamental","lugar":"4211702","rede":"municipal","etapa":"","recorte":"","periodo":"2022","valor":"43.02","texto":null,"unidade":"%"},
+    {"id":"4211702:municipal:::siope_educacao_na_despesa_total:2022","indicador":"siope_educacao_na_despesa_total","lugar":"4211702","rede":"municipal","etapa":"","recorte":"","periodo":"2022","valor":"29.26","texto":null,"unidade":"%"}
+  ]
+}

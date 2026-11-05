@@ -1,0 +1,1083 @@
+{
+  "fonte": "API de Agregados v3 do IBGE, Censo 2022 e 2010",
+  "gerado_em": "2026-11-05",
+  "regras": [
+    "Retrato das consultas documentadas em fontes-api.md; cada bloco traz a URL exata.",
+    "\"-\" do SIDRA é zero absoluto. Símbolos sem número viram null.",
+    "Dados de amostra: frequência, instrução e local da escola. Alfabetização vem do universo do Censo."
+  ],
+  "consultas": {
+    "alfabetizacao_sexo": {
+      "titulo": "Taxa de alfabetização, 15 anos ou mais, por sexo",
+      "tabela": 10091,
+      "periodo": "2022",
+      "url": "https://servicodados.ibge.gov.br/api/v3/agregados/10091/periodos/all/variaveis/2513?localidades=N6[4211702]|N3[42]|N1[all]&classificacao=2[all]|58[95253]|2661[32776]|1[6795]",
+      "linhas": [
+        {
+          "variavel": "Taxa de alfabetização das pessoas de 15 anos ou mais de idade",
+          "unidade": "%",
+          "categoria": "Total",
+          "orleans": 97.27,
+          "santa_catarina": 97.33,
+          "brasil": 93
+        },
+        {
+          "variavel": "Taxa de alfabetização das pessoas de 15 anos ou mais de idade",
+          "unidade": "%",
+          "categoria": "Homens",
+          "orleans": 97.19,
+          "santa_catarina": 97.38,
+          "brasil": 92.49
+        },
+        {
+          "variavel": "Taxa de alfabetização das pessoas de 15 anos ou mais de idade",
+          "unidade": "%",
+          "categoria": "Mulheres",
+          "orleans": 97.34,
+          "santa_catarina": 97.28,
+          "brasil": 93.48
+        }
+      ]
+    },
+    "alfabetizacao_idade": {
+      "titulo": "Taxa de alfabetização por grupo de idade",
+      "tabela": 10091,
+      "periodo": "2022",
+      "url": "https://servicodados.ibge.gov.br/api/v3/agregados/10091/periodos/all/variaveis/2513?localidades=N6[4211702]|N3[42]|N1[all]&classificacao=2[6794]|58[all]|2661[32776]|1[6795]",
+      "linhas": [
+        {
+          "variavel": "Taxa de alfabetização das pessoas de 15 anos ou mais de idade",
+          "unidade": "%",
+          "categoria": "Total",
+          "orleans": 97.27,
+          "santa_catarina": 97.33,
+          "brasil": 93
+        },
+        {
+          "variavel": "Taxa de alfabetização das pessoas de 15 anos ou mais de idade",
+          "unidade": "%",
+          "categoria": "15 a 17 anos",
+          "orleans": 99.23,
+          "santa_catarina": 99.19,
+          "brasil": 98.41
+        },
+        {
+          "variavel": "Taxa de alfabetização das pessoas de 15 anos ou mais de idade",
+          "unidade": "%",
+          "categoria": "18 e 19 anos",
+          "orleans": 98.58,
+          "santa_catarina": 99.25,
+          "brasil": 98.54
+        },
+        {
+          "variavel": "Taxa de alfabetização das pessoas de 15 anos ou mais de idade",
+          "unidade": "%",
+          "categoria": "20 a 24 anos",
+          "orleans": 99.26,
+          "santa_catarina": 99.27,
+          "brasil": 98.46
+        },
+        {
+          "variavel": "Taxa de alfabetização das pessoas de 15 anos ou mais de idade",
+          "unidade": "%",
+          "categoria": "25 a 34 anos",
+          "orleans": 99.3,
+          "santa_catarina": 99.25,
+          "brasil": 98.04
+        },
+        {
+          "variavel": "Taxa de alfabetização das pessoas de 15 anos ou mais de idade",
+          "unidade": "%",
+          "categoria": "35 a 44 anos",
+          "orleans": 98.58,
+          "santa_catarina": 98.83,
+          "brasil": 95.89
+        },
+        {
+          "variavel": "Taxa de alfabetização das pessoas de 15 anos ou mais de idade",
+          "unidade": "%",
+          "categoria": "45 a 54 anos",
+          "orleans": 97.36,
+          "santa_catarina": 97.37,
+          "brasil": 92.17
+        },
+        {
+          "variavel": "Taxa de alfabetização das pessoas de 15 anos ou mais de idade",
+          "unidade": "%",
+          "categoria": "55 a 64 anos",
+          "orleans": 95.12,
+          "santa_catarina": 95.72,
+          "brasil": 88.53
+        },
+        {
+          "variavel": "Taxa de alfabetização das pessoas de 15 anos ou mais de idade",
+          "unidade": "%",
+          "categoria": "65 anos ou mais",
+          "orleans": 92.36,
+          "santa_catarina": 91.06,
+          "brasil": 79.75
+        },
+        {
+          "variavel": "Taxa de alfabetização das pessoas de 15 anos ou mais de idade",
+          "unidade": "%",
+          "categoria": "75 anos ou mais",
+          "orleans": 89.75,
+          "santa_catarina": 87.57,
+          "brasil": 73.95
+        }
+      ]
+    },
+    "alfabetizacao_situacao": {
+      "titulo": "Taxa de alfabetização por situação do domicílio",
+      "tabela": 10091,
+      "periodo": "2022",
+      "url": "https://servicodados.ibge.gov.br/api/v3/agregados/10091/periodos/all/variaveis/2513?localidades=N6[4211702]|N3[42]|N1[all]&classificacao=2[6794]|58[95253]|2661[32776]|1[all]",
+      "linhas": [
+        {
+          "variavel": "Taxa de alfabetização das pessoas de 15 anos ou mais de idade",
+          "unidade": "%",
+          "categoria": "Total",
+          "orleans": 97.27,
+          "santa_catarina": 97.33,
+          "brasil": 93
+        },
+        {
+          "variavel": "Taxa de alfabetização das pessoas de 15 anos ou mais de idade",
+          "unidade": "%",
+          "categoria": "Urbana",
+          "orleans": 97.43,
+          "santa_catarina": 97.63,
+          "brasil": 94.56
+        },
+        {
+          "variavel": "Taxa de alfabetização das pessoas de 15 anos ou mais de idade",
+          "unidade": "%",
+          "categoria": "Rural",
+          "orleans": 96.62,
+          "santa_catarina": 95.06,
+          "brasil": 81.84
+        }
+      ]
+    },
+    "alfabetizacao_pessoas": {
+      "titulo": "Pessoas de 15 anos ou mais por alfabetização",
+      "tabela": 10092,
+      "periodo": "2022",
+      "url": "https://servicodados.ibge.gov.br/api/v3/agregados/10092/periodos/all/variaveis/950?localidades=N6[4211702]|N3[42]|N1[all]&classificacao=59[all]|2[6794]|58[95253]|2661[32776]|1[6795]",
+      "linhas": [
+        {
+          "variavel": "Pessoas de 15 anos ou mais de idade",
+          "unidade": "Pessoas",
+          "categoria": "Total",
+          "orleans": 19493,
+          "santa_catarina": 6187151,
+          "brasil": 162951495
+        },
+        {
+          "variavel": "Pessoas de 15 anos ou mais de idade",
+          "unidade": "Pessoas",
+          "categoria": "Alfabetizadas",
+          "orleans": 18960,
+          "santa_catarina": 6021965,
+          "brasil": 151547694
+        },
+        {
+          "variavel": "Pessoas de 15 anos ou mais de idade",
+          "unidade": "Pessoas",
+          "categoria": "Não alfabetizadas",
+          "orleans": 533,
+          "santa_catarina": 165186,
+          "brasil": 11403801
+        }
+      ]
+    },
+    "frequencia_idade": {
+      "titulo": "Taxa bruta de frequência escolar por idade",
+      "tabela": 10056,
+      "periodo": "2022",
+      "url": "https://servicodados.ibge.gov.br/api/v3/agregados/10056/periodos/all/variaveis/3795?localidades=N6[4211702]|N3[42]|N1[all]&classificacao=58[95253,99749,47813,31615,2792,100052,108866]|2[6794]|86[95251]",
+      "linhas": [
+        {
+          "variavel": "Taxa de frequência escolar bruta",
+          "unidade": "%",
+          "categoria": "Total",
+          "orleans": 21.68,
+          "santa_catarina": 25.57,
+          "brasil": 26.46
+        },
+        {
+          "variavel": "Taxa de frequência escolar bruta",
+          "unidade": "%",
+          "categoria": "0 a 3 anos",
+          "orleans": 49.83,
+          "santa_catarina": 47.82,
+          "brasil": 33.88
+        },
+        {
+          "variavel": "Taxa de frequência escolar bruta",
+          "unidade": "%",
+          "categoria": "4 a 5 anos",
+          "orleans": 83.46,
+          "santa_catarina": 90.16,
+          "brasil": 86.73
+        },
+        {
+          "variavel": "Taxa de frequência escolar bruta",
+          "unidade": "%",
+          "categoria": "6 a 14 anos",
+          "orleans": 96.75,
+          "santa_catarina": 98.62,
+          "brasil": 98.26
+        },
+        {
+          "variavel": "Taxa de frequência escolar bruta",
+          "unidade": "%",
+          "categoria": "15 a 17 anos",
+          "orleans": 88.64,
+          "santa_catarina": 86.85,
+          "brasil": 85.25
+        },
+        {
+          "variavel": "Taxa de frequência escolar bruta",
+          "unidade": "%",
+          "categoria": "18 a 24 anos",
+          "orleans": 25.12,
+          "santa_catarina": 28.34,
+          "brasil": 27.68
+        },
+        {
+          "variavel": "Taxa de frequência escolar bruta",
+          "unidade": "%",
+          "categoria": "25 anos ou mais",
+          "orleans": 2.11,
+          "santa_catarina": 5.52,
+          "brasil": 6.1
+        }
+      ]
+    },
+    "escolarizacao_idade": {
+      "titulo": "Taxa de escolarização por idade",
+      "tabela": 10139,
+      "periodo": "2022",
+      "url": "https://servicodados.ibge.gov.br/api/v3/agregados/10139/periodos/all/variaveis/12805?localidades=N6[4211702]|N3[42]|N1[all]&classificacao=2[6794]|58[all]|839[46583]",
+      "linhas": [
+        {
+          "variavel": "Taxa de escolarização das pessoas de 6 anos ou mais de idade",
+          "unidade": "%",
+          "categoria": "Total",
+          "orleans": 18.57,
+          "santa_catarina": 22.64,
+          "brasil": 24.34
+        },
+        {
+          "variavel": "Taxa de escolarização das pessoas de 6 anos ou mais de idade",
+          "unidade": "%",
+          "categoria": "6 a 14 anos",
+          "orleans": 96.75,
+          "santa_catarina": 98.62,
+          "brasil": 98.26
+        },
+        {
+          "variavel": "Taxa de escolarização das pessoas de 6 anos ou mais de idade",
+          "unidade": "%",
+          "categoria": "15 a 17 anos",
+          "orleans": 88.64,
+          "santa_catarina": 86.85,
+          "brasil": 85.25
+        },
+        {
+          "variavel": "Taxa de escolarização das pessoas de 6 anos ou mais de idade",
+          "unidade": "%",
+          "categoria": "18 a 24 anos",
+          "orleans": 25.12,
+          "santa_catarina": 28.34,
+          "brasil": 27.68
+        },
+        {
+          "variavel": "Taxa de escolarização das pessoas de 6 anos ou mais de idade",
+          "unidade": "%",
+          "categoria": "25 anos ou mais",
+          "orleans": 2.11,
+          "santa_catarina": 5.52,
+          "brasil": 6.1
+        }
+      ]
+    },
+    "ate_5_anos_nivel": {
+      "titulo": "Até 5 anos que frequentavam, por nível",
+      "tabela": 10057,
+      "periodo": "2022",
+      "url": "https://servicodados.ibge.gov.br/api/v3/agregados/10057/periodos/all/variaveis/13282?localidades=N6[4211702]|N3[42]|N1[all]&classificacao=11798[all]|58[95253,99749,47813]|2[6794]|86[95251]",
+      "linhas": [
+        {
+          "variavel": "Pessoas de até 5 anos de idade que frequentavam escola ou creche",
+          "unidade": "Pessoas",
+          "categoria": "Total",
+          "orleans": 1056,
+          "santa_catarina": 350430,
+          "brasil": 8040891
+        },
+        {
+          "variavel": "Pessoas de até 5 anos de idade que frequentavam escola ou creche",
+          "unidade": "Pessoas",
+          "categoria": "0 a 3 anos",
+          "orleans": 574,
+          "santa_catarina": 176646,
+          "brasil": 3387902
+        },
+        {
+          "variavel": "Pessoas de até 5 anos de idade que frequentavam escola ou creche",
+          "unidade": "Pessoas",
+          "categoria": "4 a 5 anos",
+          "orleans": 482,
+          "santa_catarina": 173784,
+          "brasil": 4652988
+        },
+        {
+          "variavel": "Pessoas de até 5 anos de idade que frequentavam escola ou creche",
+          "unidade": "Pessoas",
+          "categoria": "Creche",
+          "orleans": 762,
+          "santa_catarina": 237032,
+          "brasil": 4199473
+        },
+        {
+          "variavel": "Pessoas de até 5 anos de idade que frequentavam escola ou creche",
+          "unidade": "Pessoas",
+          "categoria": "Creche · 0 a 3 anos",
+          "orleans": 562,
+          "santa_catarina": 168255,
+          "brasil": 2919871
+        },
+        {
+          "variavel": "Pessoas de até 5 anos de idade que frequentavam escola ou creche",
+          "unidade": "Pessoas",
+          "categoria": "Creche · 4 a 5 anos",
+          "orleans": 200,
+          "santa_catarina": 68777,
+          "brasil": 1279602
+        },
+        {
+          "variavel": "Pessoas de até 5 anos de idade que frequentavam escola ou creche",
+          "unidade": "Pessoas",
+          "categoria": "Pré-escolar",
+          "orleans": 290,
+          "santa_catarina": 108903,
+          "brasil": 3595612
+        },
+        {
+          "variavel": "Pessoas de até 5 anos de idade que frequentavam escola ou creche",
+          "unidade": "Pessoas",
+          "categoria": "Pré-escolar · 0 a 3 anos",
+          "orleans": 12,
+          "santa_catarina": 8391,
+          "brasil": 468031
+        },
+        {
+          "variavel": "Pessoas de até 5 anos de idade que frequentavam escola ou creche",
+          "unidade": "Pessoas",
+          "categoria": "Pré-escolar · 4 a 5 anos",
+          "orleans": 278,
+          "santa_catarina": 100512,
+          "brasil": 3127580
+        },
+        {
+          "variavel": "Pessoas de até 5 anos de idade que frequentavam escola ou creche",
+          "unidade": "Pessoas",
+          "categoria": "Regular de ensino fundamental",
+          "orleans": 4,
+          "santa_catarina": 4495,
+          "brasil": 245806
+        },
+        {
+          "variavel": "Pessoas de até 5 anos de idade que frequentavam escola ou creche",
+          "unidade": "Pessoas",
+          "categoria": "Regular de ensino fundamental · 0 a 3 anos",
+          "orleans": 0,
+          "santa_catarina": 0,
+          "brasil": 0
+        },
+        {
+          "variavel": "Pessoas de até 5 anos de idade que frequentavam escola ou creche",
+          "unidade": "Pessoas",
+          "categoria": "Regular de ensino fundamental · 4 a 5 anos",
+          "orleans": 4,
+          "santa_catarina": 4495,
+          "brasil": 245806
+        }
+      ]
+    },
+    "de_6_a_17_nivel": {
+      "titulo": "De 6 a 17 anos que frequentavam, por nível",
+      "tabela": 10058,
+      "periodo": "2022",
+      "url": "https://servicodados.ibge.gov.br/api/v3/agregados/10058/periodos/all/variaveis/13283?localidades=N6[4211702]|N3[42]|N1[all]&classificacao=11798[all]|58[95253]|2[6794]|86[95251]",
+      "linhas": [
+        {
+          "variavel": "Pessoas de 6 a 17 anos de idade que frequentavam escola",
+          "unidade": "Pessoas",
+          "categoria": "Total",
+          "orleans": 3114,
+          "santa_catarina": 1093765,
+          "brasil": 31702454
+        },
+        {
+          "variavel": "Pessoas de 6 a 17 anos de idade que frequentavam escola",
+          "unidade": "Pessoas",
+          "categoria": "Creche",
+          "orleans": 26,
+          "santa_catarina": 5508,
+          "brasil": 113794
+        },
+        {
+          "variavel": "Pessoas de 6 a 17 anos de idade que frequentavam escola",
+          "unidade": "Pessoas",
+          "categoria": "Pré-escolar",
+          "orleans": 177,
+          "santa_catarina": 51371,
+          "brasil": 1588533
+        },
+        {
+          "variavel": "Pessoas de 6 a 17 anos de idade que frequentavam escola",
+          "unidade": "Pessoas",
+          "categoria": "Alfabetização de jovens e adultos",
+          "orleans": 0,
+          "santa_catarina": 2432,
+          "brasil": 78236
+        },
+        {
+          "variavel": "Pessoas de 6 a 17 anos de idade que frequentavam escola",
+          "unidade": "Pessoas",
+          "categoria": "Regular de ensino fundamental",
+          "orleans": 2355,
+          "santa_catarina": 835535,
+          "brasil": 24129039
+        },
+        {
+          "variavel": "Pessoas de 6 a 17 anos de idade que frequentavam escola",
+          "unidade": "Pessoas",
+          "categoria": "Educação de jovens e adultos do ensino fundamental",
+          "orleans": 13,
+          "santa_catarina": 4321,
+          "brasil": 114699
+        },
+        {
+          "variavel": "Pessoas de 6 a 17 anos de idade que frequentavam escola",
+          "unidade": "Pessoas",
+          "categoria": "Regular do ensino médio",
+          "orleans": 534,
+          "santa_catarina": 191218,
+          "brasil": 5582157
+        },
+        {
+          "variavel": "Pessoas de 6 a 17 anos de idade que frequentavam escola",
+          "unidade": "Pessoas",
+          "categoria": "Educação de jovens e adultos do ensino médio",
+          "orleans": 0,
+          "santa_catarina": 991,
+          "brasil": 28738
+        },
+        {
+          "variavel": "Pessoas de 6 a 17 anos de idade que frequentavam escola",
+          "unidade": "Pessoas",
+          "categoria": "Superior de graduação",
+          "orleans": 8,
+          "santa_catarina": 2389,
+          "brasil": 67257
+        }
+      ]
+    },
+    "de_18_ou_mais_nivel": {
+      "titulo": "18 anos ou mais que frequentavam, por nível",
+      "tabela": 10059,
+      "periodo": "2022",
+      "url": "https://servicodados.ibge.gov.br/api/v3/agregados/10059/periodos/all/variaveis/13284?localidades=N6[4211702]|N3[42]|N1[all]&classificacao=11798[all]|58[95253]|2[6794]|86[95251]",
+      "linhas": [
+        {
+          "variavel": "Pessoas de 18 anos ou mais de idade que frequentavam escola",
+          "unidade": "Pessoas",
+          "categoria": "Total",
+          "orleans": 958,
+          "santa_catarina": 502140,
+          "brasil": 13988517
+        },
+        {
+          "variavel": "Pessoas de 18 anos ou mais de idade que frequentavam escola",
+          "unidade": "Pessoas",
+          "categoria": "Alfabetização de jovens e adultos",
+          "orleans": 10,
+          "santa_catarina": 11398,
+          "brasil": 507954
+        },
+        {
+          "variavel": "Pessoas de 18 anos ou mais de idade que frequentavam escola",
+          "unidade": "Pessoas",
+          "categoria": "Regular de ensino fundamental",
+          "orleans": 18,
+          "santa_catarina": 41154,
+          "brasil": 1492533
+        },
+        {
+          "variavel": "Pessoas de 18 anos ou mais de idade que frequentavam escola",
+          "unidade": "Pessoas",
+          "categoria": "Educação de jovens e adultos do ensino fundamental",
+          "orleans": 26,
+          "santa_catarina": 8424,
+          "brasil": 413617
+        },
+        {
+          "variavel": "Pessoas de 18 anos ou mais de idade que frequentavam escola",
+          "unidade": "Pessoas",
+          "categoria": "Regular do ensino médio",
+          "orleans": 196,
+          "santa_catarina": 94440,
+          "brasil": 3533345
+        },
+        {
+          "variavel": "Pessoas de 18 anos ou mais de idade que frequentavam escola",
+          "unidade": "Pessoas",
+          "categoria": "Educação de jovens e adultos do ensino médio",
+          "orleans": 28,
+          "santa_catarina": 16134,
+          "brasil": 506177
+        },
+        {
+          "variavel": "Pessoas de 18 anos ou mais de idade que frequentavam escola",
+          "unidade": "Pessoas",
+          "categoria": "Superior de graduação",
+          "orleans": 577,
+          "santa_catarina": 274150,
+          "brasil": 6283503
+        },
+        {
+          "variavel": "Pessoas de 18 anos ou mais de idade que frequentavam escola",
+          "unidade": "Pessoas",
+          "categoria": "Especialização de nível superior",
+          "orleans": 78,
+          "santa_catarina": 43745,
+          "brasil": 908860
+        },
+        {
+          "variavel": "Pessoas de 18 anos ou mais de idade que frequentavam escola",
+          "unidade": "Pessoas",
+          "categoria": "Mestrado",
+          "orleans": 25,
+          "santa_catarina": 8207,
+          "brasil": 224204
+        },
+        {
+          "variavel": "Pessoas de 18 anos ou mais de idade que frequentavam escola",
+          "unidade": "Pessoas",
+          "categoria": "Doutorado",
+          "orleans": 0,
+          "santa_catarina": 4486,
+          "brasil": 118324
+        }
+      ]
+    },
+    "instrucao_25_mais": {
+      "titulo": "Pessoas de 25 anos ou mais por nível de instrução",
+      "tabela": 10061,
+      "periodo": "2022",
+      "url": "https://servicodados.ibge.gov.br/api/v3/agregados/10061/periodos/all/variaveis/2667?localidades=N6[4211702]|N3[42]|N1[all]&classificacao=1568[all]|58[108866]|2[6794]|86[95251]",
+      "linhas": [
+        {
+          "variavel": "Pessoas de 18 anos ou mais de idade",
+          "unidade": "Pessoas",
+          "categoria": "25 anos ou mais",
+          "orleans": 16182,
+          "santa_catarina": 5132802,
+          "brasil": 133108020
+        },
+        {
+          "variavel": "Pessoas de 18 anos ou mais de idade",
+          "unidade": "Pessoas",
+          "categoria": "Sem instrução e fundamental incompleto · 25 anos ou mais",
+          "orleans": 5870,
+          "santa_catarina": 1565695,
+          "brasil": 46912823
+        },
+        {
+          "variavel": "Pessoas de 18 anos ou mais de idade",
+          "unidade": "Pessoas",
+          "categoria": "Fundamental completo e médio incompleto · 25 anos ou mais",
+          "orleans": 2626,
+          "santa_catarina": 787457,
+          "brasil": 18666167
+        },
+        {
+          "variavel": "Pessoas de 18 anos ou mais de idade",
+          "unidade": "Pessoas",
+          "categoria": "Médio completo e superior incompleto · 25 anos ou mais",
+          "orleans": 4459,
+          "santa_catarina": 1682455,
+          "brasil": 43044784
+        },
+        {
+          "variavel": "Pessoas de 18 anos ou mais de idade",
+          "unidade": "Pessoas",
+          "categoria": "Superior completo · 25 anos ou mais",
+          "orleans": 3228,
+          "santa_catarina": 1097195,
+          "brasil": 24484247
+        }
+      ]
+    },
+    "superior_25_mais_sexo": {
+      "titulo": "Superior completo, 25 anos ou mais, por sexo",
+      "tabela": 10061,
+      "periodo": "2022",
+      "url": "https://servicodados.ibge.gov.br/api/v3/agregados/10061/periodos/all/variaveis/2667?localidades=N6[4211702]|N3[42]|N1[all]&classificacao=1568[99713]|58[108866]|2[all]|86[95251]",
+      "linhas": [
+        {
+          "variavel": "Pessoas de 18 anos ou mais de idade",
+          "unidade": "Pessoas",
+          "categoria": "Superior completo · 25 anos ou mais",
+          "orleans": 3228,
+          "santa_catarina": 1097195,
+          "brasil": 24484247
+        },
+        {
+          "variavel": "Pessoas de 18 anos ou mais de idade",
+          "unidade": "Pessoas",
+          "categoria": "Superior completo · 25 anos ou mais · Homens",
+          "orleans": 1465,
+          "santa_catarina": 465103,
+          "brasil": 9954638
+        },
+        {
+          "variavel": "Pessoas de 18 anos ou mais de idade",
+          "unidade": "Pessoas",
+          "categoria": "Superior completo · 25 anos ou mais · Mulheres",
+          "orleans": 1763,
+          "santa_catarina": 632092,
+          "brasil": 14529609
+        }
+      ]
+    },
+    "anos_de_estudo": {
+      "titulo": "Média de anos de estudo",
+      "tabela": 10062,
+      "periodo": "2022",
+      "url": "https://servicodados.ibge.gov.br/api/v3/agregados/10062/periodos/all/variaveis/13285?localidades=N6[4211702]|N3[42]|N1[all]&classificacao=58[95253,108866,100052]|2[all]|86[95251]",
+      "linhas": [
+        {
+          "variavel": "Número médio de anos de estudo das pessoas de 11 anos ou mais de idade",
+          "unidade": "Anos",
+          "categoria": "Total",
+          "orleans": 9.7,
+          "santa_catarina": 10.2,
+          "brasil": 9.5
+        },
+        {
+          "variavel": "Número médio de anos de estudo das pessoas de 11 anos ou mais de idade",
+          "unidade": "Anos",
+          "categoria": "Homens",
+          "orleans": 9.6,
+          "santa_catarina": 10,
+          "brasil": 9.3
+        },
+        {
+          "variavel": "Número médio de anos de estudo das pessoas de 11 anos ou mais de idade",
+          "unidade": "Anos",
+          "categoria": "Mulheres",
+          "orleans": 9.9,
+          "santa_catarina": 10.3,
+          "brasil": 9.8
+        },
+        {
+          "variavel": "Número médio de anos de estudo das pessoas de 11 anos ou mais de idade",
+          "unidade": "Anos",
+          "categoria": "25 anos ou mais",
+          "orleans": 9.7,
+          "santa_catarina": 10.3,
+          "brasil": 9.6
+        },
+        {
+          "variavel": "Número médio de anos de estudo das pessoas de 11 anos ou mais de idade",
+          "unidade": "Anos",
+          "categoria": "25 anos ou mais · Homens",
+          "orleans": 9.5,
+          "santa_catarina": 10.1,
+          "brasil": 9.3
+        },
+        {
+          "variavel": "Número médio de anos de estudo das pessoas de 11 anos ou mais de idade",
+          "unidade": "Anos",
+          "categoria": "25 anos ou mais · Mulheres",
+          "orleans": 9.9,
+          "santa_catarina": 10.4,
+          "brasil": 9.8
+        },
+        {
+          "variavel": "Número médio de anos de estudo das pessoas de 11 anos ou mais de idade",
+          "unidade": "Anos",
+          "categoria": "18 a 24 anos",
+          "orleans": 12,
+          "santa_catarina": 11.8,
+          "brasil": 11.4
+        },
+        {
+          "variavel": "Número médio de anos de estudo das pessoas de 11 anos ou mais de idade",
+          "unidade": "Anos",
+          "categoria": "18 a 24 anos · Homens",
+          "orleans": 11.8,
+          "santa_catarina": 11.4,
+          "brasil": 11
+        },
+        {
+          "variavel": "Número médio de anos de estudo das pessoas de 11 anos ou mais de idade",
+          "unidade": "Anos",
+          "categoria": "18 a 24 anos · Mulheres",
+          "orleans": 12.2,
+          "santa_catarina": 12.1,
+          "brasil": 11.8
+        }
+      ]
+    },
+    "local_da_escola": {
+      "titulo": "Quem estuda, por local da escola",
+      "tabela": 10324,
+      "periodo": "2022",
+      "url": "https://servicodados.ibge.gov.br/api/v3/agregados/10324/periodos/all/variaveis/2021?localidades=N6[4211702]|N3[42]|N1[all]&classificacao=468[all]|2[6794]|58[95253]|11322[79175]",
+      "linhas": [
+        {
+          "variavel": "Pessoas residentes em domicílios particulares, que frequentavam escola ou creche",
+          "unidade": "Pessoas",
+          "categoria": "Total",
+          "orleans": 5129,
+          "santa_catarina": 1943362,
+          "brasil": 53651775
+        },
+        {
+          "variavel": "Pessoas residentes em domicílios particulares, que frequentavam escola ou creche",
+          "unidade": "Pessoas",
+          "categoria": "Município de residência",
+          "orleans": 4619,
+          "santa_catarina": 1775701,
+          "brasil": 49718633
+        },
+        {
+          "variavel": "Pessoas residentes em domicílios particulares, que frequentavam escola ou creche",
+          "unidade": "Pessoas",
+          "categoria": "Outro município",
+          "orleans": 510,
+          "santa_catarina": 163084,
+          "brasil": 3837262
+        },
+        {
+          "variavel": "Pessoas residentes em domicílios particulares, que frequentavam escola ou creche",
+          "unidade": "Pessoas",
+          "categoria": "País estrangeiro",
+          "orleans": 0,
+          "santa_catarina": 3639,
+          "brasil": 75339
+        }
+      ]
+    },
+    "outro_municipio_curso": {
+      "titulo": "Quem estuda em outro município, por curso",
+      "tabela": 10324,
+      "periodo": "2022",
+      "url": "https://servicodados.ibge.gov.br/api/v3/agregados/10324/periodos/all/variaveis/2021?localidades=N6[4211702]|N3[42]|N1[all]&classificacao=468[12164]|2[6794]|58[95253]|11322[all]",
+      "linhas": [
+        {
+          "variavel": "Pessoas residentes em domicílios particulares, que frequentavam escola ou creche",
+          "unidade": "Pessoas",
+          "categoria": "Outro município",
+          "orleans": 510,
+          "santa_catarina": 163084,
+          "brasil": 3837262
+        },
+        {
+          "variavel": "Pessoas residentes em domicílios particulares, que frequentavam escola ou creche",
+          "unidade": "Pessoas",
+          "categoria": "Outro município · Creche",
+          "orleans": 30,
+          "santa_catarina": 4353,
+          "brasil": 72227
+        },
+        {
+          "variavel": "Pessoas residentes em domicílios particulares, que frequentavam escola ou creche",
+          "unidade": "Pessoas",
+          "categoria": "Outro município · Pré-escolar",
+          "orleans": 42,
+          "santa_catarina": 3709,
+          "brasil": 96929
+        },
+        {
+          "variavel": "Pessoas residentes em domicílios particulares, que frequentavam escola ou creche",
+          "unidade": "Pessoas",
+          "categoria": "Outro município · Alfabetização de jovens e adultos",
+          "orleans": 0,
+          "santa_catarina": 1642,
+          "brasil": 54430
+        },
+        {
+          "variavel": "Pessoas residentes em domicílios particulares, que frequentavam escola ou creche",
+          "unidade": "Pessoas",
+          "categoria": "Outro município · Fundamental",
+          "orleans": 170,
+          "santa_catarina": 32858,
+          "brasil": 854061
+        },
+        {
+          "variavel": "Pessoas residentes em domicílios particulares, que frequentavam escola ou creche",
+          "unidade": "Pessoas",
+          "categoria": "Outro município · Médio",
+          "orleans": 32,
+          "santa_catarina": 26297,
+          "brasil": 638097
+        },
+        {
+          "variavel": "Pessoas residentes em domicílios particulares, que frequentavam escola ou creche",
+          "unidade": "Pessoas",
+          "categoria": "Outro município · Superior de graduação",
+          "orleans": 188,
+          "santa_catarina": 74231,
+          "brasil": 1726114
+        },
+        {
+          "variavel": "Pessoas residentes em domicílios particulares, que frequentavam escola ou creche",
+          "unidade": "Pessoas",
+          "categoria": "Outro município · Especialização de nível superior, mestrado ou doutorado",
+          "orleans": 48,
+          "santa_catarina": 19995,
+          "brasil": 395404
+        }
+      ]
+    },
+    "graduacao_local": {
+      "titulo": "Graduação por local da escola",
+      "tabela": 10324,
+      "periodo": "2022",
+      "url": "https://servicodados.ibge.gov.br/api/v3/agregados/10324/periodos/all/variaveis/2021?localidades=N6[4211702]|N3[42]|N1[all]&classificacao=468[all]|2[6794]|58[95253]|11322[121405]",
+      "linhas": [
+        {
+          "variavel": "Pessoas residentes em domicílios particulares, que frequentavam escola ou creche",
+          "unidade": "Pessoas",
+          "categoria": "Superior de graduação",
+          "orleans": 585,
+          "santa_catarina": 275750,
+          "brasil": 6338809
+        },
+        {
+          "variavel": "Pessoas residentes em domicílios particulares, que frequentavam escola ou creche",
+          "unidade": "Pessoas",
+          "categoria": "Município de residência · Superior de graduação",
+          "orleans": 398,
+          "santa_catarina": 199762,
+          "brasil": 4562647
+        },
+        {
+          "variavel": "Pessoas residentes em domicílios particulares, que frequentavam escola ou creche",
+          "unidade": "Pessoas",
+          "categoria": "Outro município · Superior de graduação",
+          "orleans": 188,
+          "santa_catarina": 74231,
+          "brasil": 1726114
+        },
+        {
+          "variavel": "Pessoas residentes em domicílios particulares, que frequentavam escola ou creche",
+          "unidade": "Pessoas",
+          "categoria": "País estrangeiro · Superior de graduação",
+          "orleans": 0,
+          "santa_catarina": 991,
+          "brasil": 34079
+        }
+      ]
+    },
+    "pos_graduacao_local": {
+      "titulo": "Especialização, mestrado ou doutorado por local",
+      "tabela": 10324,
+      "periodo": "2022",
+      "url": "https://servicodados.ibge.gov.br/api/v3/agregados/10324/periodos/all/variaveis/2021?localidades=N6[4211702]|N3[42]|N1[all]&classificacao=468[all]|2[6794]|58[95253]|11322[12123]",
+      "linhas": [
+        {
+          "variavel": "Pessoas residentes em domicílios particulares, que frequentavam escola ou creche",
+          "unidade": "Pessoas",
+          "categoria": "Especialização de nível superior, mestrado ou doutorado",
+          "orleans": 103,
+          "santa_catarina": 56421,
+          "brasil": 1249798
+        },
+        {
+          "variavel": "Pessoas residentes em domicílios particulares, que frequentavam escola ou creche",
+          "unidade": "Pessoas",
+          "categoria": "Município de residência · Especialização de nível superior, mestrado ou doutorado",
+          "orleans": 55,
+          "santa_catarina": 35548,
+          "brasil": 833496
+        },
+        {
+          "variavel": "Pessoas residentes em domicílios particulares, que frequentavam escola ou creche",
+          "unidade": "Pessoas",
+          "categoria": "Outro município · Especialização de nível superior, mestrado ou doutorado",
+          "orleans": 48,
+          "santa_catarina": 19995,
+          "brasil": 395404
+        },
+        {
+          "variavel": "Pessoas residentes em domicílios particulares, que frequentavam escola ou creche",
+          "unidade": "Pessoas",
+          "categoria": "País estrangeiro · Especialização de nível superior, mestrado ou doutorado",
+          "orleans": 0,
+          "santa_catarina": 707,
+          "brasil": 16326
+        }
+      ]
+    },
+    "frequencia_2010": {
+      "titulo": "Censo 2010: população e quem frequentava, por idade",
+      "tabela": 1549,
+      "periodo": "2010",
+      "url": "https://servicodados.ibge.gov.br/api/v3/agregados/1549/periodos/all/variaveis/93,364?localidades=N6[4211702]|N3[42]|N1[all]&classificacao=58[all]",
+      "linhas": [
+        {
+          "variavel": "População residente",
+          "unidade": "Pessoas",
+          "categoria": "Total",
+          "orleans": 21393,
+          "santa_catarina": 6248436,
+          "brasil": 190755799
+        },
+        {
+          "variavel": "População residente",
+          "unidade": "Pessoas",
+          "categoria": "0 a 3 anos",
+          "orleans": 1046,
+          "santa_catarina": 322698,
+          "brasil": 10938914
+        },
+        {
+          "variavel": "População residente",
+          "unidade": "Pessoas",
+          "categoria": "4 ou 5 anos",
+          "orleans": 581,
+          "santa_catarina": 169515,
+          "brasil": 5801583
+        },
+        {
+          "variavel": "População residente",
+          "unidade": "Pessoas",
+          "categoria": "6 anos",
+          "orleans": 256,
+          "santa_catarina": 85258,
+          "brasil": 2891614
+        },
+        {
+          "variavel": "População residente",
+          "unidade": "Pessoas",
+          "categoria": "7 a 14 anos",
+          "orleans": 2672,
+          "santa_catarina": 785639,
+          "brasil": 26309525
+        },
+        {
+          "variavel": "População residente",
+          "unidade": "Pessoas",
+          "categoria": "15 a 17 anos",
+          "orleans": 1124,
+          "santa_catarina": 326770,
+          "brasil": 10353865
+        },
+        {
+          "variavel": "População residente",
+          "unidade": "Pessoas",
+          "categoria": "18 ou 19 anos",
+          "orleans": 795,
+          "santa_catarina": 218635,
+          "brasil": 6632922
+        },
+        {
+          "variavel": "População residente",
+          "unidade": "Pessoas",
+          "categoria": "20 a 24 anos",
+          "orleans": 1913,
+          "santa_catarina": 565607,
+          "brasil": 17240864
+        },
+        {
+          "variavel": "População residente",
+          "unidade": "Pessoas",
+          "categoria": "25 anos ou mais",
+          "orleans": 13007,
+          "santa_catarina": 3774314,
+          "brasil": 110586512
+        },
+        {
+          "variavel": "População residente que frequentava escola ou creche",
+          "unidade": "Pessoas",
+          "categoria": "Total",
+          "orleans": 6043,
+          "santa_catarina": 1828319,
+          "brasil": 59565188
+        },
+        {
+          "variavel": "População residente que frequentava escola ou creche",
+          "unidade": "Pessoas",
+          "categoria": "0 a 3 anos",
+          "orleans": 359,
+          "santa_catarina": 111404,
+          "brasil": 2575954
+        },
+        {
+          "variavel": "População residente que frequentava escola ou creche",
+          "unidade": "Pessoas",
+          "categoria": "4 ou 5 anos",
+          "orleans": 474,
+          "santa_catarina": 135705,
+          "brasil": 4647011
+        },
+        {
+          "variavel": "População residente que frequentava escola ou creche",
+          "unidade": "Pessoas",
+          "categoria": "6 anos",
+          "orleans": 256,
+          "santa_catarina": 81435,
+          "brasil": 2746435
+        },
+        {
+          "variavel": "População residente que frequentava escola ou creche",
+          "unidade": "Pessoas",
+          "categoria": "7 a 14 anos",
+          "orleans": 2616,
+          "santa_catarina": 770462,
+          "brasil": 25488399
+        },
+        {
+          "variavel": "População residente que frequentava escola ou creche",
+          "unidade": "Pessoas",
+          "categoria": "15 a 17 anos",
+          "orleans": 874,
+          "santa_catarina": 261988,
+          "brasil": 8626343
+        },
+        {
+          "variavel": "População residente que frequentava escola ou creche",
+          "unidade": "Pessoas",
+          "categoria": "18 ou 19 anos",
+          "orleans": 296,
+          "santa_catarina": 85370,
+          "brasil": 2983999
+        },
+        {
+          "variavel": "População residente que frequentava escola ou creche",
+          "unidade": "Pessoas",
+          "categoria": "20 a 24 anos",
+          "orleans": 490,
+          "santa_catarina": 143353,
+          "brasil": 4331498
+        },
+        {
+          "variavel": "População residente que frequentava escola ou creche",
+          "unidade": "Pessoas",
+          "categoria": "25 anos ou mais",
+          "orleans": 677,
+          "santa_catarina": 238600,
+          "brasil": 8165549
+        }
+      ]
+    }
+  }
+}

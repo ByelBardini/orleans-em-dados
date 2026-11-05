@@ -1,0 +1,382 @@
+{
+  "fonte": "Indicadores calculados a partir dos demais extratos e das APIs do SICONFI e do IBGE; fórmulas em indicadores.md",
+  "gerado_em": "2026-11-05",
+  "regras": [
+    "Reais nominais, sem correção pela inflação.",
+    "Soma em centavos inteiros.",
+    "População de cada ano: o ponto mais recente até o ano, como populacaoDoAno de packages/contracts.",
+    "Gasto por matrícula é cálculo nosso: o valor oficial por aluno está em indicadores-siope.json."
+  ],
+  "despesa_educacao": {
+    "2018": {
+      "liquidado": "19064826.60",
+      "participacao_no_total_pct": 26.5,
+      "por_morador": "836.73",
+      "populacao_usada": {
+        "ano": 2018,
+        "pessoas": 22785
+      },
+      "composicao_pct": {
+        "fundamental": 69.3,
+        "infantil": 25.2,
+        "superior": 2.7,
+        "demais": 2.9
+      },
+      "auxilio_superior": "520000.00"
+    },
+    "2019": {
+      "liquidado": "20330545.04",
+      "participacao_no_total_pct": 25.5,
+      "por_morador": "887.33",
+      "populacao_usada": {
+        "ano": 2019,
+        "pessoas": 22912
+      },
+      "composicao_pct": {
+        "fundamental": 70.9,
+        "infantil": 23.9,
+        "superior": 1.8,
+        "demais": 3.4
+      },
+      "auxilio_superior": "360800.00"
+    },
+    "2020": {
+      "liquidado": "17609795.23",
+      "participacao_no_total_pct": 20.1,
+      "por_morador": "764.38",
+      "populacao_usada": {
+        "ano": 2020,
+        "pessoas": 23038
+      },
+      "composicao_pct": {
+        "fundamental": 67.5,
+        "infantil": 29.9,
+        "superior": 1.1,
+        "demais": 1.4
+      },
+      "auxilio_superior": "200000.00"
+    },
+    "2021": {
+      "liquidado": "19656731.12",
+      "participacao_no_total_pct": 21.5,
+      "por_morador": "848.70",
+      "populacao_usada": {
+        "ano": 2021,
+        "pessoas": 23161
+      },
+      "composicao_pct": {
+        "fundamental": 63.9,
+        "infantil": 31.4,
+        "superior": 1.1,
+        "demais": 3.6
+      },
+      "auxilio_superior": "220000.00"
+    },
+    "2022": {
+      "liquidado": "27682212.51",
+      "participacao_no_total_pct": 24.5,
+      "por_morador": "1169.95",
+      "populacao_usada": {
+        "ano": 2022,
+        "pessoas": 23661
+      },
+      "composicao_pct": {
+        "fundamental": 72.3,
+        "infantil": 23.6,
+        "superior": 1.1,
+        "demais": 3
+      },
+      "auxilio_superior": "313900.00"
+    },
+    "2023": {
+      "liquidado": "30599230.27",
+      "participacao_no_total_pct": 25.5,
+      "por_morador": "1293.23",
+      "populacao_usada": {
+        "ano": 2022,
+        "pessoas": 23661
+      },
+      "composicao_pct": {
+        "fundamental": 60.5,
+        "infantil": 34.9,
+        "superior": 1,
+        "demais": 3.6
+      },
+      "auxilio_superior": "300000.00"
+    },
+    "2024": {
+      "liquidado": "31507003.93",
+      "participacao_no_total_pct": 22.4,
+      "por_morador": "1287.37",
+      "populacao_usada": {
+        "ano": 2024,
+        "pessoas": 24474
+      },
+      "composicao_pct": {
+        "fundamental": 56.5,
+        "infantil": 38.8,
+        "superior": 1.2,
+        "demais": 3.6
+      },
+      "auxilio_superior": "378632.55"
+    },
+    "2025": {
+      "liquidado": "37481724.75",
+      "participacao_no_total_pct": 25.6,
+      "por_morador": "1518.34",
+      "populacao_usada": {
+        "ano": 2025,
+        "pessoas": 24686
+      },
+      "composicao_pct": {
+        "fundamental": 54.9,
+        "infantil": 39.6,
+        "superior": 1.1,
+        "demais": 4.4
+      },
+      "auxilio_superior": "399200.00"
+    }
+  },
+  "gasto_por_matricula_municipal": {
+    "2018": {
+      "matriculas": {
+        "infantil": 891,
+        "fundamental": 805
+      },
+      "gasto_infantil": "5382.41",
+      "gasto_fundamental": "16404.34",
+      "gasto_total": "11241.05"
+    },
+    "2019": {
+      "matriculas": {
+        "infantil": 873,
+        "fundamental": 839
+      },
+      "gasto_infantil": "5574.34",
+      "gasto_fundamental": "17188.03",
+      "gasto_total": "11875.32"
+    },
+    "2020": {
+      "matriculas": {
+        "infantil": 919,
+        "fundamental": 821
+      },
+      "gasto_infantil": "5735.02",
+      "gasto_fundamental": "14488.91",
+      "gasto_total": "10120.57"
+    },
+    "2021": {
+      "matriculas": {
+        "infantil": 834,
+        "fundamental": 882
+      },
+      "gasto_infantil": "7395.97",
+      "gasto_fundamental": "14246.43",
+      "gasto_total": "11454.97"
+    },
+    "2022": {
+      "matriculas": {
+        "infantil": 917,
+        "fundamental": 917
+      },
+      "gasto_infantil": "7118.42",
+      "gasto_fundamental": "21831.84",
+      "gasto_total": "15093.90"
+    },
+    "2023": {
+      "matriculas": {
+        "infantil": 940,
+        "fundamental": 908
+      },
+      "gasto_infantil": "11355.40",
+      "gasto_fundamental": "20396.71",
+      "gasto_total": "16558.03"
+    },
+    "2024": {
+      "matriculas": {
+        "infantil": 992,
+        "fundamental": 858
+      },
+      "gasto_infantil": "12308.23",
+      "gasto_fundamental": "20738.96",
+      "gasto_total": "17030.81"
+    },
+    "2025": {
+      "matriculas": {
+        "infantil": 1025,
+        "fundamental": 934
+      },
+      "gasto_infantil": "14489.23",
+      "gasto_fundamental": "22031.63",
+      "gasto_total": "19133.09"
+    }
+  },
+  "alunos_por_docente_municipal": {
+    "2018": {
+      "creche": 16.4,
+      "pre_escola": 12.1
+    },
+    "2019": {
+      "creche": 14.9,
+      "pre_escola": 13.3
+    },
+    "2020": {
+      "creche": 13.2,
+      "pre_escola": 13.9
+    },
+    "2021": {
+      "creche": 11.7,
+      "pre_escola": 15.4
+    },
+    "2022": {
+      "creche": 14.4,
+      "pre_escola": 12.5
+    },
+    "2023": {
+      "creche": 13.4,
+      "pre_escola": 13.1
+    },
+    "2024": {
+      "creche": 12.5,
+      "pre_escola": 12.3
+    },
+    "2025": {
+      "creche": 11.8,
+      "pre_escola": 11
+    }
+  },
+  "natureza_da_despesa": {
+    "2024": {
+      "pessoal_pct": 64,
+      "custeio_pct": 31.2,
+      "investimento_pct": 4.8,
+      "confere_com_anexo8": true
+    },
+    "2025": {
+      "pessoal_pct": 68.3,
+      "custeio_pct": 31.2,
+      "investimento_pct": 0.5,
+      "confere_com_anexo8": true
+    }
+  },
+  "repasse_x_gasto": {
+    "2024": {
+      "transporte": {
+        "gasto": "3541922.02",
+        "repasses": "1300112.06",
+        "repasse_sobre_gasto_pct": 36.7
+      },
+      "merenda": {
+        "gasto": "1124576.23",
+        "pnae": "323526.00",
+        "repasse_sobre_gasto_pct": 28.8
+      }
+    },
+    "2025": {
+      "transporte": {
+        "gasto": "3952474.53",
+        "repasses": "1401650.75",
+        "repasse_sobre_gasto_pct": 35.5
+      },
+      "merenda": {
+        "gasto": "1653525.59",
+        "pnae": "332568.00",
+        "repasse_sobre_gasto_pct": 20.1
+      }
+    }
+  },
+  "fundeb": {
+    "2020": {
+      "resultado_liquido_oficial": "1471934.28",
+      "contribuicao": null,
+      "confere_com_tce": null
+    },
+    "2021": {
+      "resultado_liquido_oficial": "2074559.33",
+      "contribuicao": "9486792.52",
+      "confere_com_tce": null
+    },
+    "2022": {
+      "resultado_liquido_oficial": "1767685.36",
+      "contribuicao": "11585159.16",
+      "confere_com_tce": null
+    },
+    "2023": {
+      "resultado_liquido_oficial": "2615014.29",
+      "contribuicao": "11607050.09",
+      "confere_com_tce": null
+    },
+    "2024": {
+      "resultado_liquido_oficial": "2092989.14",
+      "contribuicao": "14184101.03",
+      "confere_com_tce": true
+    },
+    "2025": {
+      "resultado_liquido_oficial": "1435438.97",
+      "contribuicao": "15931717.85",
+      "confere_com_tce": true
+    }
+  },
+  "instrucao_e_deslocamento_2022": {
+    "orleans": {
+      "sem_instrucao_ou_fundamental_incompleto_pct": 36.3,
+      "medio_completo_ou_mais_pct": 47.5,
+      "superior_completo_pct": 19.9,
+      "estuda_em_outro_municipio_pct": 9.9,
+      "graduacao_em_outro_municipio_pct": 32.1
+    },
+    "santa_catarina": {
+      "sem_instrucao_ou_fundamental_incompleto_pct": 30.5,
+      "medio_completo_ou_mais_pct": 54.2,
+      "superior_completo_pct": 21.4,
+      "estuda_em_outro_municipio_pct": 8.4,
+      "graduacao_em_outro_municipio_pct": 26.9
+    },
+    "brasil": {
+      "sem_instrucao_ou_fundamental_incompleto_pct": 35.2,
+      "medio_completo_ou_mais_pct": 50.7,
+      "superior_completo_pct": 18.4,
+      "estuda_em_outro_municipio_pct": 7.2,
+      "graduacao_em_outro_municipio_pct": 27.2
+    }
+  },
+  "frequencia_2010_pct": {
+    "orleans": {
+      "de_0_a_3": 34.3,
+      "de_4_a_5": 81.6,
+      "de_6_a_14": 98.1,
+      "de_15_a_17": 77.8
+    },
+    "santa_catarina": {
+      "de_0_a_3": 34.5,
+      "de_4_a_5": 80.1,
+      "de_6_a_14": 97.8,
+      "de_15_a_17": 80.2
+    },
+    "brasil": {
+      "de_0_a_3": 23.5,
+      "de_4_a_5": 80.1,
+      "de_6_a_14": 96.7,
+      "de_15_a_17": 83.3
+    }
+  },
+  "enem_presentes_sobre_3a_serie_pct": {
+    "2024": {
+      "todas": 48.2,
+      "estadual": 43.6,
+      "privada": 68.3
+    },
+    "2025": {
+      "todas": 48.2,
+      "estadual": 44.3,
+      "privada": 68.8
+    }
+  },
+  "superior_presencial_2024_pct": {
+    "mulheres": 60.4,
+    "noturno": 88,
+    "de_18_a_24": 77.7,
+    "escola_publica": 71.7,
+    "prouni": 22.6
+  }
+}
