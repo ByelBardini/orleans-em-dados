@@ -61,7 +61,11 @@ describe('catálogo das fontes novas', () => {
       { id: 900102, fonte_id: 'ibge', chave: 'ibge_censo' },
       { id: 900103, fonte_id: 'ibge', chave: 'ibge_pib' },
       { id: 900104, fonte_id: 'ibge', chave: 'ibge_comparacao' },
+      { id: 900105, fonte_id: 'ibge', chave: 'ibge_educacao_censo' },
+      { id: 900106, fonte_id: 'ibge', chave: 'ibge_educacao_comparacao' },
+      { id: 900107, fonte_id: 'ibge', chave: 'ibge_rede_escolar' },
       { id: 900201, fonte_id: 'siconfi', chave: 'siconfi_funcoes' },
+      { id: 900202, fonte_id: 'siconfi', chave: 'siconfi_indices' },
     ]);
   });
 });
