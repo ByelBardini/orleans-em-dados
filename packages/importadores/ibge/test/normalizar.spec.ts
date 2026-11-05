@@ -1,5 +1,12 @@
 import { describe, expect, it } from 'vitest';
-import { normalizarValor, registrosDaResposta, type RespostaDoAgregado } from '../src/normalizar';
+import {
+  normalizarValor,
+  registrosDaResposta,
+  type RespostaDoAgregado,
+  normalizarPesquisa,
+  registrosDaPesquisa,
+  semRepetidos,
+} from '../src/normalizar';
 
 const LOCALIDADE = { id: '4211702', nivel: { id: 'N6', nome: 'Município' }, nome: 'Orleans (SC)' };
 
@@ -177,5 +184,129 @@ describe('localidades da comparação', () => {
     const [registro] = registrosDaResposta('6579', resposta(POPULACAO, [{ serie: { '2025': '10' } }]));
 
     expect(() => normalizarValor(registro!, ['1', '42'])).toThrow('4211702');
+  });
+});
+
+describe('registrosDaPesquisa', () => {
+  const municipal = { id: 5, indicador: 'Municipal', unidade: { id: 'matrículas' }, children: [] };
+  const serie = { id: 4, indicador: '1º ano', unidade: { id: 'matrículas' }, children: [municipal] };
+  const etapa = { id: 3, indicador: 'Ensino fundamental', unidade: { id: 'matrículas' }, children: [serie] };
+  const ARVORE = [
+    { id: 1, indicador: 'Ensino básico', children: [{ id: 2, indicador: 'Matrículas', children: [etapa] }] },
+  ];
+  const IDEB = [
+    {
+      id: 30277,
+      indicador: 'Índice de Desenvolvimento da Educação Básica',
+      children: [{ id: 78186, indicador: 'Ensino médio', children: [] }],
+    },
+  ];
+  const resultado = (id: number, localidade: string, res: Record<string, string | null>) => [
+    { id, res: [{ localidade, res }] },
+  ];
+
+  it('caminho da árvore vira categoria sem a raiz, com tabela, variável e unidade', () => {
+    const [registro] = registrosDaPesquisa('13', ARVORE, resultado(5, '42', { '2025': '60' }));
+
+    expect(registro).toEqual({
+      id: '42:pesquisa-13:5:2025:Matrículas > Ensino fundamental > 1º ano > Municipal',
+      tabela: 'pesquisa-13',
+      variavel: '5',
+      unidade: 'matrículas',
+      periodo: '2025',
+      categoria: 'Matrículas > Ensino fundamental > 1º ano > Municipal',
+      localidade: '42',
+      valor: '60',
+    });
+  });
+
+  it('Orleans vem sem o dígito verificador e sai com o código de sete dígitos, sem prefixo no id', () => {
+    const [registro] = registrosDaPesquisa('13', ARVORE, resultado(3, '421170', { '2025': '100' }));
+
+    expect(registro?.localidade).toBe('4211702');
+    expect(registro?.id).toBe('pesquisa-13:3:2025:Matrículas > Ensino fundamental');
+  });
+
+  it('IDEB não tem unidade na árvore e sai como índice, sem a raiz na categoria', () => {
+    const [registro] = registrosDaPesquisa('40', IDEB, resultado(78186, '42', { '2025': '3.9' }));
+
+    expect(registro?.unidade).toBe('índice');
+    expect(registro?.categoria).toBe('Ensino médio');
+  });
+
+  it('ensino superior mantém a raiz: sem ela, "Matrículas > Municipal" não diria a etapa', () => {
+    const superior = [
+      {
+        id: 78118,
+        indicador: 'Ensino superior',
+        children: [{ id: 5918, indicador: 'Matrículas', unidade: { id: 'matrículas' }, children: [] }],
+      },
+    ];
+
+    const [registro] = registrosDaPesquisa('13', superior, resultado(5918, '42', { '2025': '10' }));
+
+    expect(registro?.categoria).toBe('Ensino superior > Matrículas');
+  });
+
+  it('id fora da árvore vira registro sem categoria, para a normalização recusar', () => {
+    const [registro] = registrosDaPesquisa('13', ARVORE, resultado(999, '42', { '2025': '1' }));
+
+    expect(registro?.categoria).toBeNull();
+    expect(registro?.id).toBe('42:pesquisa-13:999:2025:');
+  });
+
+  it('resposta que não é lista lança citando a pesquisa', () => {
+    expect(() => registrosDaPesquisa('13', ARVORE, { erro: 'x' })).toThrow('pesquisa 13');
+  });
+});
+
+describe('normalizarPesquisa', () => {
+  const registro = (valor: unknown, campos: Record<string, unknown> = {}) => ({
+    id: 'pesquisa-40:78188:2025:Ensino fundamental',
+    tabela: 'pesquisa-40',
+    variavel: '78188',
+    unidade: 'índice',
+    periodo: '2025',
+    categoria: 'Ensino fundamental',
+    localidade: '4211702',
+    valor,
+    ...campos,
+  });
+  const ACEITAS = ['4211702', '42'];
+
+  it('número fica como veio, em texto', () => {
+    expect(normalizarPesquisa(registro('6.0'), ACEITAS)).toMatchObject({ valor: '6.0', simbolo: null });
+  });
+
+  it('traço na pesquisa é sem dado: nulo com o símbolo, diferente do zero do SIDRA', () => {
+    expect(normalizarPesquisa(registro('-'), ACEITAS)).toMatchObject({ valor: null, simbolo: '-' });
+  });
+
+  it.each([[''], [null]])('valor %j fica nulo, sem símbolo', (valor) => {
+    expect(normalizarPesquisa(registro(valor), ACEITAS)).toMatchObject({ valor: null, simbolo: null });
+  });
+
+  it('texto desconhecido recusa o registro citando o valor', () => {
+    expect(() => normalizarPesquisa(registro('n/d'), ACEITAS)).toThrow('n/d');
+  });
+
+  it('indicador fora da árvore recusa o registro citando o id', () => {
+    expect(() => normalizarPesquisa(registro('5', { categoria: null }), ACEITAS)).toThrow('78188');
+  });
+
+  it('localidade fora das aceitas recusa o registro', () => {
+    expect(() => normalizarPesquisa(registro('5', { localidade: '1' }), ACEITAS)).toThrow('localidade 1');
+  });
+});
+
+describe('semRepetidos', () => {
+  const r = (id: string, valor: string) => ({ id, valor });
+
+  it('o mesmo id com o mesmo conteúdo, vindo de dois recortes, fica uma vez', () => {
+    expect(semRepetidos([r('a', '1'), r('b', '2'), r('a', '1')])).toEqual([r('a', '1'), r('b', '2')]);
+  });
+
+  it('o mesmo id com valor diferente fica duas vezes, para o executor recusar', () => {
+    expect(semRepetidos([r('a', '1'), r('a', '2')])).toEqual([r('a', '1'), r('a', '2')]);
   });
 });
