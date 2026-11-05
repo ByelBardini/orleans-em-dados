@@ -1,11 +1,16 @@
 # Fontes de dados
 
-| Fonte                                                                                                    | Papel                                                             | Status no projeto                                                                        |
-| -------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------- | ---------------------------------------------------------------------------------------- |
-| [Portal da Transparência Betha — Orleans](https://transparencia.betha.cloud/#/mJRAZlfGu2RI9KNBWj49aw==)  | Dados operacionais de Prefeitura, FMS, SAMAE e Fundação Ambiental | **Integrada**: consultas `57153`, `57140` e `57170`                                      |
-| [TCE-SC / Farol](https://servicos.tcesc.tc.br/farol_externo/)                                            | Conferência e Câmara Municipal                                    | **Coletor integrado** (receitas e empenhos); ver `packages/importadores/tcesc/README.md` |
-| [SICONFI](https://www.siconfi.tesouro.gov.br/) / [API](https://apidatalake.tesouro.gov.br/docs/siconfi/) | Despesa por função (DCA Anexo I-E)                                | **Integrada**: consulta `900201`; RREO e RGF continuam fora                              |
-| [IBGE](https://servicodados.ibge.gov.br/api/docs)                                                        | População, Censo 2022 e PIB                                       | **Integrada**: consultas `900101`, `900102` e `900103`                                   |
+| Fonte                                                                                                    | Papel                                                                    | Status no projeto                                                                        |
+| -------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------- |
+| [Portal da Transparência Betha — Orleans](https://transparencia.betha.cloud/#/mJRAZlfGu2RI9KNBWj49aw==)  | Dados operacionais de Prefeitura, FMS, SAMAE e Fundação Ambiental        | **Integrada**: consultas `57153`, `57140` e `57170`                                      |
+| [TCE-SC / Farol](https://servicos.tcesc.tc.br/farol_externo/)                                            | Conferência e Câmara Municipal                                           | **Coletor integrado** (receitas e empenhos); ver `packages/importadores/tcesc/README.md` |
+| [SICONFI](https://www.siconfi.tesouro.gov.br/) / [API](https://apidatalake.tesouro.gov.br/docs/siconfi/) | Despesa por função (DCA Anexo I-E) e índices de educação (RREO Anexo 14) | **Integrada**: consultas `900201` e `900202`; o resto do RREO e o RGF continuam fora     |
+| [IBGE](https://servicodados.ibge.gov.br/api/docs)                                                        | População, Censo 2022, PIB, Censo de educação, IDEB e rede escolar       | **Integrada**: consultas `900101` a `900107`                                             |
+| [INEP](https://www.gov.br/inep/pt-br/acesso-a-informacao/dados-abertos)                                  | Indicadores educacionais, IDEB, ENEM e ensino superior                   | **Por snapshot**: consultas `900301` a `900315`                                          |
+| [SIOPE](https://www.gov.br/fnde/pt-br/assuntos/sistemas/siope)                                           | Índices legais, investimento por aluno e remuneração declarada           | **Por snapshot**: consultas `900401` a `900405`, exercícios de 2020 em diante            |
+| [MEC](https://www.gov.br/mec/pt-br/pnei/retrato-da-educacao-infantil-no-brasil)                          | Retrato da Educação Infantil: resposta do município                      | **Por snapshot**: consulta `900501`                                                      |
+
+As fontes de educação (IBGE, INEP, SIOPE, SICONFI e MEC) estão em [educacao/README.md](educacao/README.md). IBGE e SICONFI são coletados por API; INEP, SIOPE e MEC, por snapshot versionado (seção Educação, abaixo).
 
 ## IBGE: agregados usados
 
@@ -35,6 +40,25 @@ Símbolos do SIDRA: `...`, `..` e `X` ficam sem valor, com o símbolo guardado. 
 - Função não é entidade: Saúde é igual ao FMS em 2024 e 2025, mas Saneamento 2024 (R$ 10.902.059,23) difere do SAMAE no TCE-SC (R$ 10.791.652,53). Por isso, cada função é fonte única.
 - O campo `populacao` da resposta não é usado: traz 23.531 em 2024 e 2025, diferente do IBGE.
 - A DCA do exercício é entregue até 30 de abril do ano seguinte. Conta em formato desconhecido é recusada, porque o quadro já mudou de um ano para outro.
+
+### RREO Anexo 14
+
+`https://apidatalake.tesouro.gov.br/ords/siconfi/tt/rreo?an_exercicio=<ano>&nr_periodo=6&co_tipo_demonstrativo=RREO&no_anexo=RREO-Anexo 14&id_ente=4211702`. Consulta `siconfi_indices` (`900202`). Só as contas do mínimo de educação e do Fundeb na remuneração são guardadas, para comparar com o SIOPE. Igualdade do percentual não confere: a comparação é do valor.
+
+## Educação: INEP, SIOPE e MEC
+
+Essas fontes não têm API utilizável: o INEP publica arquivos, os relatórios do SIOPE têm CAPTCHA, e o Retrato do MEC é um painel. Um extrator local lê os arquivos e gera snapshots agregados em `docs/educacao/snapshots/`, versionados, que entram no banco com `pnpm importar --arquivo`. Em produção, não se baixa nada, e os importadores não têm agenda. Passo a passo em [educacao/fontes-download.md](educacao/fontes-download.md).
+
+| Fonte | Cobre                                                                                                                                                            | Selo                                                   |
+| ----- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------ |
+| INEP  | Rendimento, transição, distorção, turmas, horas, formação, regularidade, esforço, RAIS de 2021, nível socioeconômico, alfabetização, IDEB, ENEM, ensino superior | Fonte única                                            |
+| SIOPE | Indicadores, Anexo 8 e remuneração declarada                                                                                                                     | Fonte única; comparado com o RREO Anexo 14 nos índices |
+| MEC   | Respostas de Orleans ao Retrato da Educação Infantil 2025                                                                                                        | Fonte única, com "a Prefeitura informou ao MEC"        |
+
+- **O que veio de extrato:** nos lotes do INEP em que faltou o arquivo municipal original, Orleans vem de `docs/educacao/extratos/inep-orleans.json`, e `meta.filtro.extrato` diz isso. A lista e como refazer estão em [educacao/README.md](educacao/README.md).
+- **Transcrito à mão:** o Anexo 8, em PDF, e o Retrato do MEC, lido em tela, ficam em `docs/educacao/curados/`. No Anexo 8, `aplicado ÷ receita` tem de bater com o percentual do PDF. O Retrato ainda precisa de uma nova leitura na tela.
+- **SIOPE de 2012 a 2019 não entrou:** os snapshots começam em 2020. Os relatórios desses anos pedem CAPTCHA, e o Painel SIOPE, que abre sem ele, foi lido em tela e não vai ao ar sem conferir. Os arquivos abertos do SIOPE, que param em 2019, também não entraram. Quando os relatórios forem baixados, entram no gráfico do mínimo, com o Fundeb de 2018 e 2019.
+- **Dados pessoais:** só o relatório de remuneração do SIOPE traz nome e CPF. Nome e CPF ficam em memória, para contar cada pessoa uma vez, e só saem totais e medianas: contagem abaixo de 5 vira "menos de 5", e mediana exige 10 pessoas. O original nunca é versionado: `data/`, `*.xlsx` e `*.xls` ficam fora do git. A guarda do importador recusa registro com padrão de CPF ou campo de nome, e `pnpm extrair educacao varrer` procura nos snapshots os nomes e CPFs das planilhas e tem de dizer 0 achados.
 
 ## Consultas Betha integradas
 
