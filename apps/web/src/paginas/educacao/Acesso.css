@@ -1,0 +1,267 @@
+/* A aba Acesso. O Vite junta tudo num CSS só: toda classe leva o prefixo `edu-acesso-`, e só tokens de styles.css. */
+
+.edu-acesso-csv {
+  margin: 16px 0 0;
+}
+
+.edu-acesso-frase {
+  max-width: 760px;
+  margin: 0 0 16px;
+  font-size: 17px;
+  text-wrap: pretty;
+}
+
+/* Frequência: as faixas em grade, cada coluna com pelo menos ~420 px; abaixo disso, uma coluna só. */
+.edu-acesso-faixas {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 420px), 1fr));
+  gap: 8px 48px;
+}
+
+.edu-acesso-faixa {
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--regua);
+}
+
+/* 2010 separado da meta: um fio fino e um respiro, para as duas linhas não grudarem. */
+.edu-acesso-anterior {
+  margin: 10px 0 0;
+  padding-top: 8px;
+  border-top: 1px dotted var(--regua);
+  font-family: var(--mono);
+  font-size: var(--edu-rotulo);
+  color: var(--apagado);
+}
+
+.edu-acesso-como-ler {
+  margin-top: 6px;
+}
+
+.edu-acesso-como-ler summary {
+  font-weight: 600;
+  color: var(--tinta);
+  cursor: pointer;
+}
+
+.edu-acesso-como-ler ul {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin: 8px 0 0;
+  padding-left: 20px;
+}
+
+.edu-acesso-dupla {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 420px), 1fr));
+  gap: 0 48px;
+  max-width: var(--edu-largura);
+}
+
+/* Escolas e docentes: um cartão por etapa, com os números grandes. */
+.edu-acesso-cartoes {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 160px), 1fr));
+  gap: 20px 28px;
+  margin: 4px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.edu-acesso-cartoes li {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-top: 12px;
+  border-top: 2px solid var(--tinta);
+}
+
+.edu-acesso-cartao-nome {
+  font-family: var(--mono);
+  font-size: var(--edu-rotulo);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.edu-acesso-cartao-numeros {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-size: var(--edu-texto);
+}
+
+.edu-acesso-numero {
+  font-family: var(--serif);
+  font-size: 36px;
+  line-height: 1.1;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Retrato do MEC: pergunta em cima, resposta embaixo, com ar entre os pares. */
+.edu-acesso-retrato {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 420px), 1fr));
+  gap: 32px 56px;
+  align-items: start;
+}
+
+.edu-acesso-respostas {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+}
+
+.edu-acesso-respostas > div {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 14px 0;
+  border-bottom: 1px solid var(--regua);
+}
+
+.edu-acesso-respostas > div:first-child {
+  padding-top: 4px;
+}
+
+.edu-acesso-respostas dt {
+  font-size: var(--edu-texto);
+  color: var(--apagado);
+}
+
+.edu-acesso-respostas dd {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+  text-wrap: pretty;
+}
+
+/* Título e abertura da classificação do MEC, acima do gráfico e das respostas. */
+.edu-acesso-titulo-niveis {
+  margin: 32px 0 0;
+  font-size: 19px;
+}
+
+.edu-acesso-base h4 {
+  margin: 0;
+  font-size: 17px;
+}
+
+.edu-acesso-base .edu-acesso-apoio {
+  margin-bottom: 8px;
+}
+
+/* O eixo dito em cima das barras; o espaço embaixo dele abriga a dica. */
+.edu-acesso-eixo {
+  margin: 0 0 40px;
+  font-size: var(--edu-rotulo);
+  color: var(--apagado);
+}
+
+.edu-acesso-apoio {
+  margin: 4px 0 40px;
+  font-size: var(--edu-texto);
+  color: var(--apagado);
+}
+
+.edu-acesso-niveis {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* A barra cresce de baixo; a altura vem dos dados, sobre a área fixa da coluna. */
+.edu-acesso-niveis li {
+  position: relative;
+  display: grid;
+  grid-template-rows: 22px 150px auto 20px;
+  justify-items: center;
+  gap: 6px;
+  outline: none;
+  cursor: default;
+}
+
+.edu-acesso-niveis li:focus-visible {
+  box-shadow: 0 0 0 2px var(--tinta);
+}
+
+.edu-acesso-nivel-valor {
+  font-family: var(--mono);
+  font-size: var(--edu-valor);
+}
+
+.edu-acesso-nivel-barra {
+  grid-row: 2;
+  align-self: end;
+  width: 60%;
+  background: var(--apagado);
+}
+
+.edu-acesso-niveis li.is-ativo:not(.edu-acesso-de-orleans) .edu-acesso-nivel-barra {
+  background: var(--tinta);
+}
+
+.edu-acesso-niveis li.is-ativo .edu-acesso-nivel-valor {
+  font-weight: 600;
+}
+
+.edu-acesso-nivel-nome {
+  grid-row: 3;
+  width: 100%;
+  box-sizing: border-box;
+  padding: 8px 2px;
+  border: 1px solid var(--tinta);
+  font-size: var(--edu-texto);
+  text-align: center;
+}
+
+.edu-acesso-nivel-orleans {
+  grid-row: 4;
+  font-family: var(--mono);
+  font-size: var(--edu-rotulo);
+  font-weight: 500;
+  color: var(--vermelho);
+}
+
+.edu-acesso-de-orleans .edu-acesso-nivel-barra {
+  background: var(--vermelho);
+}
+
+.edu-acesso-de-orleans .edu-acesso-nivel-nome {
+  border: 2px solid var(--vermelho);
+  font-weight: 600;
+  color: var(--vermelho);
+}
+
+/* A dica tem a cara da `.bpa-dica`; o valor só fica vermelho no nível de Orleans. */
+.edu-acesso-nivel-dica {
+  bottom: calc(100% - 16px);
+}
+
+.edu-acesso-nivel-dica-valor {
+  color: var(--tinta);
+}
+
+.edu-acesso-de-orleans .edu-acesso-nivel-dica-valor,
+.edu-acesso-nivel-dica-orleans {
+  color: var(--vermelho);
+}
+
+.edu-acesso-frase-nivel {
+  margin: 8px 0 24px;
+  max-width: 760px;
+  font-size: 17px;
+  text-wrap: pretty;
+}
+
+@media (max-width: 720px) {
+  .edu-acesso-niveis li {
+    grid-template-rows: 22px 110px auto 20px;
+  }
+
+  .edu-acesso-nivel-nome {
+    font-size: var(--edu-rotulo);
+  }
+}

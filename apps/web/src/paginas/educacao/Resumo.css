@@ -1,0 +1,207 @@
+/* A aba Resumo. O Vite junta tudo num CSS só: toda classe leva o prefixo `edu-resumo-`, e só tokens de styles.css. */
+
+.edu-resumo-csv {
+  margin: 16px 0 0;
+}
+
+/* Três cartões por linha em tela larga (as seis perguntas fecham duas linhas), dois a partir de ~720 px, um no
+   celular. Cada cartão ocupa três trilhas da grade (pergunta, resposta, pé) por subgrid: na mesma linha, as respostas
+   começam na mesma altura e os pés ficam alinhados. */
+.edu-resumo-cartoes {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0 40px;
+  max-width: var(--edu-largura);
+  padding-top: 20px;
+}
+
+.edu-resumo-cartao {
+  display: grid;
+  grid-row: span 3;
+  grid-template-rows: subgrid;
+  row-gap: 14px;
+  min-width: 0;
+  padding: 20px 0 28px;
+  border-top: 2px solid var(--tinta);
+}
+
+.edu-resumo-cartao p {
+  margin: 0;
+  text-wrap: pretty;
+}
+
+.edu-resumo-pergunta {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.edu-resumo-pergunta h2 {
+  margin: 0;
+  font-family: var(--serif);
+  font-size: 26px;
+  font-style: italic;
+  font-weight: 400;
+  line-height: 1.15;
+}
+
+/* A resposta: o número grande, a frase colada nele e as setas. */
+.edu-resumo-resposta {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.edu-resumo-numero {
+  font-family: var(--serif);
+  font-size: clamp(44px, 4.2vw, 60px);
+  line-height: 1;
+  color: var(--vermelho);
+  white-space: nowrap;
+}
+
+.edu-resumo-frase {
+  margin-top: -4px;
+  font-size: 17px;
+  line-height: 1.4;
+}
+
+.edu-resumo-sem-dado {
+  font-size: var(--edu-texto);
+  color: var(--apagado);
+}
+
+.edu-resumo-minimo {
+  padding-top: 8px;
+  border-top: 1px solid var(--regua);
+  font-size: var(--edu-texto);
+}
+
+/* O pé: o link para a aba e o "Fonte e detalhes" numa linha só, no fim do cartão. */
+.edu-resumo-rodape {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 4px 16px;
+  position: relative;
+  align-self: end;
+}
+
+.edu-resumo-link {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  font-family: var(--mono);
+  font-size: var(--edu-rotulo);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+/* O painel se ancora no pé, e não no botão: abre rente à direita do cartão e nunca sai da coluna. */
+.edu-resumo-rodape .detalhes {
+  position: static;
+}
+
+.edu-resumo-rodape .detalhes-painel {
+  right: 0;
+  left: auto;
+  width: min(380px, 100%);
+}
+
+/* Em poucos números: número, rótulo e a linha do selo alinhados entre as colunas. */
+.edu-resumo-poucos {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(260px, 100%), 1fr));
+  gap: 0 40px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.edu-resumo-poucos li {
+  display: grid;
+  grid-row: span 3;
+  grid-template-rows: subgrid;
+  align-content: start;
+  gap: 6px;
+  padding: 14px 0 20px;
+  border-top: 1px solid var(--regua);
+}
+
+.edu-resumo-pouco {
+  font-family: var(--serif);
+  font-size: 48px;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.edu-resumo-poucos li > span:nth-child(2) {
+  font-size: var(--edu-valor);
+}
+
+.edu-resumo-detalhe {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 16px;
+}
+
+/* Quem cuida de quê: a etapa e, logo ao lado, quem atende. */
+.edu-resumo-quem {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr));
+  gap: 0 40px;
+  margin: 0;
+}
+
+.edu-resumo-quem > div {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 4px;
+  align-content: start;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--regua);
+  font-size: var(--edu-valor);
+}
+
+.edu-resumo-quem dt {
+  color: var(--apagado);
+}
+
+.edu-resumo-quem dd {
+  margin: 0;
+  font-weight: 600;
+}
+
+.edu-resumo-quem-pe {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 16px;
+  margin-top: 12px;
+  font-size: var(--edu-texto);
+  color: var(--apagado);
+}
+
+.edu-resumo-quem-pe > p {
+  margin: 0;
+}
+
+@media (max-width: 1100px) {
+  .edu-resumo-cartoes {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 720px) {
+  .edu-resumo-cartoes {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .edu-resumo-numero,
+  .edu-resumo-pouco {
+    white-space: normal;
+  }
+}

@@ -1,0 +1,118 @@
+/* A aba Aprendizado. O Vite junta tudo num CSS só: toda classe leva o prefixo `edu-aprendizado-`, e só tokens de styles.css. */
+
+.edu-aprendizado-csv {
+  margin: 16px 0 0;
+}
+
+.edu-aprendizado-frase {
+  max-width: 760px;
+  margin: 0 0 14px;
+  font-size: 18px;
+  text-wrap: pretty;
+}
+
+.edu-aprendizado-frase-etapa {
+  max-width: 640px;
+  margin: 0 0 10px;
+  font-size: var(--edu-valor);
+  text-wrap: pretty;
+}
+
+.edu-aprendizado-apoio {
+  max-width: 760px;
+  margin: 8px 0 0;
+  font-size: 14px;
+  color: var(--apagado);
+}
+
+/* Alfabetização: a série ocupa o que sobra; o quadro das metas fica ao lado ou embaixo. */
+.edu-aprendizado-dupla {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: 24px 48px;
+}
+
+.edu-aprendizado-figura {
+  flex: 1 1 520px;
+  min-width: 0;
+}
+
+.edu-aprendizado-metas {
+  flex: 1 1 340px;
+  min-width: 0;
+}
+
+.edu-aprendizado-alternador {
+  margin: 32px 0 0;
+}
+
+/* IDEB: uma etapa por linha; duas só se cada uma tiver pelo menos 460 px. */
+.edu-aprendizado-series {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 460px), 1fr));
+  gap: 40px 56px;
+}
+
+.edu-aprendizado-etapa h3,
+.edu-aprendizado-subtitulo {
+  margin: 0 0 6px;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.edu-aprendizado-subtitulo {
+  margin-top: 36px;
+}
+
+/* Orleans por rede: cada etapa é um quadro com colunas próprias; os quadros ficam lado a lado, como os de Quadros. */
+.edu-aprendizado-por-rede {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 340px), 1fr));
+  gap: 0 32px;
+}
+
+/* As setas de Orleans diante de SC e do Brasil, e os detalhes ao lado, logo abaixo da frase. */
+.edu-aprendizado-diante {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 24px;
+  margin: -6px 0 16px;
+}
+
+/* Seis áreas: três por linha em tela larga, duas em média, uma no celular; as linhas fecham iguais. */
+.edu-aprendizado-notas {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px 56px;
+  max-width: var(--edu-largura);
+}
+
+.edu-aprendizado-estreito {
+  max-width: none;
+}
+
+@media (max-width: 1100px) {
+  .edu-aprendizado-notas {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 720px) {
+  .edu-aprendizado-notas {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@media (max-width: 1100px) {
+  .edu-aprendizado-notas {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 720px) {
+  .edu-aprendizado-notas {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

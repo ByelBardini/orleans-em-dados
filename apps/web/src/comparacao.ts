@@ -9,7 +9,11 @@ export const umaCasa = (v: number) => v.toLocaleString('pt-BR', { minimumFractio
 export function posicao(
   orleans: number | null,
   lugar: number | null,
-  { em, maiorEBom = false }: { em: 'percentual' | 'pontos'; maiorEBom?: boolean },
+  {
+    em,
+    maiorEBom = false,
+    menorEBom = false,
+  }: { em: 'percentual' | 'pontos'; maiorEBom?: boolean; menorEBom?: boolean },
 ): Posicao | null {
   if (orleans === null || lugar === null) return null;
   if (em === 'percentual' && lugar === 0) return null;
@@ -22,6 +26,6 @@ export function posicao(
   return {
     sentido: acima ? 'acima' : 'abaixo',
     texto: quanto,
-    tom: maiorEBom ? (acima ? 'bom' : 'ruim') : null,
+    tom: maiorEBom ? (acima ? 'bom' : 'ruim') : menorEBom ? (acima ? 'ruim' : 'bom') : null,
   };
 }

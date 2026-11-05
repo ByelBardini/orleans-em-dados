@@ -140,11 +140,32 @@ h3 {
   white-space: nowrap;
 }
 
+/* Tabela não respeita `width` sem layout fixo: a oculta alargava a página no celular. */
+table.visualmente-oculto {
+  table-layout: fixed;
+}
+
+table.visualmente-oculto :is(th, td) {
+  overflow: hidden;
+  max-width: 1px;
+  padding: 0;
+}
+
 /* ---------- moldura ---------- */
 
+/* A página ocupa pelo menos a altura da janela, e o conteúdo cresce: com pouco conteúdo, o rodapé fica no pé da tela. */
 .pagina {
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  min-height: 100dvh;
   margin: 0;
-  padding: 24px var(--margem) 64px;
+  padding: 24px var(--margem) 32px;
+}
+
+.pagina > main {
+  flex: 1 0 auto;
 }
 
 .faixa-meta {
