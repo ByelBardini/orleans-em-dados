@@ -1,7 +1,13 @@
 // Monta as respostas da despesa por função: o valor é fonte única por função, e o nível da
-// conferência (`conferirFuncoes`) vale para o total e para a Legislativa.
+// conferência (`conferirFuncoes`) vale para o total e para a Legislativa. A função 12 tem conferência
+// própria com a Betha (`conferirGastoEducacao`).
 import { populacaoDoAno, type Funcoes, type FuncoesSerie } from '@orleans-em-dados/contracts';
-import { conferirFuncoes, type ConferenciaDeFuncoes } from '@orleans-em-dados/db/conferencias';
+import {
+  conferirFuncoes,
+  conferirGastoEducacao,
+  type ConferenciaDeFuncoes,
+  type ConferenciaDoGastoEducacao,
+} from '@orleans-em-dados/db/conferencias';
 import type { ColetaPublicada } from '../coletas/coletas.dao';
 import { populacaoPublicada } from '../municipio/municipio.service';
 import { linhasDasFuncoes, totaisDasFuncoes, type Etapas, type LinhaDaFuncao } from './funcoes.dao';
@@ -31,11 +37,16 @@ const porMoradorDe = (etapas: Etapas, populacao: number | null): Etapas | null =
 const nivelDe = (conferencia: ConferenciaDeFuncoes): Funcoes['conferencia'] =>
   conferencia.estado === 'sem_dca' ? 'sem_tce' : conferencia.estado;
 
+/** `sem_dca` aqui é DCA de exemplo: sem par, como o ano sem a Betha. */
+const nivelDaEducacao = (conferencia: ConferenciaDoGastoEducacao): Funcoes['conferenciaEducacao'] =>
+  conferencia.estado === 'sem_dca' ? 'sem_betha' : conferencia.estado;
+
 export async function funcoesDoAno({ meta }: ColetaPublicada, ano: number): Promise<Funcoes> {
-  const [linhas, [total], conferencia, serie] = await Promise.all([
+  const [linhas, [total], conferencia, educacao, serie] = await Promise.all([
     linhasDasFuncoes(ano),
     totaisDasFuncoes(ano),
     conferirFuncoes(ano),
+    conferirGastoEducacao(ano),
     populacaoPublicada(),
   ]);
   const divisor = populacaoDoAno(serie, ano);
@@ -50,6 +61,8 @@ export async function funcoesDoAno({ meta }: ColetaPublicada, ano: number): Prom
     conferencia: nivelDe(conferencia),
     diferenca:
       conferencia.estado === 'diferenca' ? { total: conferencia.total, legislativa: conferencia.legislativa } : null,
+    conferenciaEducacao: nivelDaEducacao(educacao),
+    diferencaEducacao: educacao.estado === 'diferenca' ? educacao.etapas : null,
     total: totais,
     divisor,
     porMorador: porMoradorDe(totais, populacao),
@@ -80,9 +93,11 @@ export async function serieDasFuncoes(): Promise<FuncoesSerie> {
     totais.map(async ({ ano, ...total }) => {
       const dasFuncoes = linhas.filter((l) => l.ano === ano && l.tipo === 'funcao');
       const camara = dasFuncoes.find((l) => l.codigo === CODIGO_DA_CAMARA);
+      const [conferencia, educacao] = await Promise.all([conferirFuncoes(ano), conferirGastoEducacao(ano)]);
       return {
         ano,
-        conferencia: nivelDe(await conferirFuncoes(ano)),
+        conferencia: nivelDe(conferencia),
+        conferenciaEducacao: nivelDaEducacao(educacao),
         total,
         funcoes: dasFuncoes
           .filter((l) => l.codigo !== CODIGO_DA_CAMARA)

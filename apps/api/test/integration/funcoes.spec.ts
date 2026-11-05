@@ -3,7 +3,7 @@ import { funcoesSchema, funcoesSerieSchema } from '@orleans-em-dados/contracts';
 import { pool } from '@orleans-em-dados/db';
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 import { popularCenario } from '../../../../packages/importadores/fixtures/src/banco-de-teste';
-import { siconfiFuncoes } from '../../../../packages/importadores/fixtures/src/snapshots';
+import { despesa, siconfiFuncoes, snapshot } from '../../../../packages/importadores/fixtures/src/snapshots';
 import { criarApp } from '../../src/app';
 
 let app: FastifyInstance;
@@ -157,6 +157,50 @@ describe('GET /api/funcoes', () => {
     expect(corpo.diferenca.legislativa.estado).toBe('conferido');
   });
 
+  it('função 12 igual à soma das ações da Betha sai com a conferência da Educação, sem diferença', async () => {
+    const { corpo } = await do2025();
+
+    expect(corpo.conferenciaEducacao).toBe('conferido');
+    expect(corpo.diferencaEducacao).toBeNull();
+  });
+
+  it('um centavo a menos na Betha põe a Educação em diferença, com a etapa, sem mexer na conferência do total', async () => {
+    await popularCenario({
+      despesas: snapshot(57170, [
+        despesa(
+          '728:1',
+          '33903000000000',
+          { numero: '54', nome: 'Manutenção do Ensino Fundamental' },
+          0,
+          53000,
+          52999.99,
+          53000,
+        ),
+      ]),
+    });
+
+    const { corpo } = await do2025();
+
+    expect(corpo.conferenciaEducacao).toBe('diferenca');
+    expect(corpo.diferencaEducacao[1]).toEqual({
+      etapa: 'liquidado',
+      dca: 53000,
+      betha: 52999.99,
+      diferenca: 0.01,
+      maior: 'dca',
+    });
+    expect(corpo.diferencaEducacao[0].maior).toBeNull();
+  });
+
+  it('ano sem coleta da Betha fica sem_betha na Educação', async () => {
+    await popularCenario({ siconfiFuncoes: [siconfiFuncoes({ ano: 2023 })] });
+
+    const { corpo } = await pedir('/api/funcoes?ano=2023');
+
+    expect(corpo.conferenciaEducacao).toBe('sem_betha');
+    expect(corpo.diferencaEducacao).toBeNull();
+  });
+
   it.each([
     ['/api/funcoes?ano=2019', 'Sem despesa por função para 2019'],
     ['/api/funcoes?ano=abc', 'Sem despesa por função para abc'],
@@ -197,6 +241,13 @@ describe('GET /api/funcoes/serie', () => {
     });
     expect(funcao(corpo.anos[2], '12')).toMatchObject({ empenhado: 53000, participacao: { empenhado: 27.18 } });
     expect(funcao(corpo.anos[2], '01')).toBeUndefined();
+  });
+
+  it('cada ano traz a conferência da Educação: sem a Betha, sem_betha', async () => {
+    const { corpo } = await pedir('/api/funcoes/serie');
+
+    expect(corpo.anos[0]).toMatchObject({ ano: 2018, conferenciaEducacao: 'sem_betha' });
+    expect(corpo.anos[2]).toMatchObject({ ano: 2025, conferenciaEducacao: 'conferido' });
   });
 
   it('sem coleta, a série é vazia', async () => {
