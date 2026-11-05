@@ -7,7 +7,12 @@ export interface ClienteIbge {
   agregado(consulta: ConsultaDeAgregado): Promise<RespostaDoAgregado>;
 }
 
-export class IbgeClienteHttp implements ClienteIbge {
+export interface ClienteDePesquisas {
+  arvore(pesquisa: string): Promise<unknown>;
+  resultados(pesquisa: string, local: string): Promise<unknown>;
+}
+
+export class IbgeClienteHttp implements ClienteIbge, ClienteDePesquisas {
   constructor(
     private readonly transporte: TransporteHttp = fetch,
     private readonly esperar: (ms: number) => Promise<void> = esperarDeVerdade,
@@ -21,15 +26,26 @@ export class IbgeClienteHttp implements ClienteIbge {
     localidades = `N6[${IBGE.municipio}]`,
   }: ConsultaDeAgregado): Promise<RespostaDoAgregado> {
     const filtro = classificacao ? `&classificacao=${classificacao}` : '';
-    return this.#get(`/${tabela}/periodos/all/variaveis/${variaveis.join('|')}?localidades=${localidades}${filtro}`);
+    return this.#get(
+      IBGE.api,
+      `/${tabela}/periodos/all/variaveis/${variaveis.join('|')}?localidades=${localidades}${filtro}`,
+    );
+  }
+
+  arvore(pesquisa: string): Promise<unknown> {
+    return this.#get(IBGE.apiDePesquisas, `/${pesquisa}/indicadores/0`);
+  }
+
+  resultados(pesquisa: string, local: string): Promise<unknown> {
+    return this.#get(IBGE.apiDePesquisas, `/${pesquisa}/periodos/all/indicadores/0/resultados/${local}`);
   }
 
   // Em 429/5xx e erro de rede, tenta novamente com espera exponencial; o resto é definitivo.
-  async #get(caminho: string): Promise<RespostaDoAgregado> {
+  async #get(base: string, caminho: string): Promise<RespostaDoAgregado> {
     for (let tentativa = 1; ; tentativa++) {
       let r: Response;
       try {
-        r = await this.transporte(`${IBGE.api}${caminho}`, {
+        r = await this.transporte(`${base}${caminho}`, {
           headers: { Accept: 'application/json' },
           signal: AbortSignal.timeout(60_000),
         });

@@ -1,6 +1,7 @@
 // Respostas fictícias dos agregados e um cliente de mentira que as devolve por tabela.
-import type { ClienteIbge } from '../../src/cliente';
+import type { ClienteDePesquisas, ClienteIbge } from '../../src/cliente';
 import type { ConsultaDeAgregado } from '../../src/config';
+import { respostasDaEducacao, respostasDasPesquisas, type RespostasDasPesquisas } from './educacao';
 
 const LOCALIDADE = { id: '4211702', nivel: { id: 'N6', nome: 'Município' }, nome: 'Orleans (SC)' };
 
@@ -19,13 +20,23 @@ export const variavel = (id: string, unidade: string, partes: Parte[]) => ({
   })),
 });
 
-export class ClienteIbgeFake implements ClienteIbge {
+export class ClienteIbgeFake implements ClienteIbge, ClienteDePesquisas {
   pedidos: ConsultaDeAgregado[] = [];
+  pedidosDePesquisa: string[] = [];
   /** `comparacao` responde aos pedidos com `localidades`; sem ela, `respostas` responde a todos. */
   constructor(
     private respostas: Record<string, unknown>,
     private comparacao: Record<string, unknown> = respostas,
+    private pesquisas: RespostasDasPesquisas = respostasDasPesquisas(),
   ) {}
+  async arvore(pesquisa: string) {
+    this.pedidosDePesquisa.push(`arvore:${pesquisa}`);
+    return this.pesquisas.arvores[pesquisa];
+  }
+  async resultados(pesquisa: string, local: string) {
+    this.pedidosDePesquisa.push(`resultados:${pesquisa}:${local}`);
+    return this.pesquisas.resultados[`${pesquisa}:${local}`];
+  }
   async agregado(consulta: ConsultaDeAgregado) {
     this.pedidos.push(consulta);
     const resposta = (consulta.localidades ? this.comparacao : this.respostas)[consulta.tabela];
@@ -96,7 +107,12 @@ export const respostasDoPib = ({ pib2021 = '1000', comPib = true }: { pib2021?: 
   };
 };
 
-export const respostasCompletas = () => ({ ...respostasDaPopulacao(), ...respostasDoCenso(), ...respostasDoPib() });
+export const respostasCompletas = () => ({
+  ...respostasDaPopulacao(),
+  ...respostasDoCenso(),
+  ...respostasDoPib(),
+  ...respostasDaEducacao(),
+});
 
 type Respostas = Record<string, ReturnType<typeof variavel>[]>;
 
