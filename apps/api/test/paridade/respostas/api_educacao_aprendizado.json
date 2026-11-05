@@ -1,0 +1,1214 @@
+{
+  "status": 200,
+  "tipo": "application/json; charset=utf-8",
+  "disposicao": null,
+  "corpo": {
+    "disponivel": true,
+    "faltando": [],
+    "alfabetizacao": {
+      "ano": "2025",
+      "fonte": {
+        "nome": "INEP, Indicador Criança Alfabetizada",
+        "url": "https://www.gov.br/inep/pt-br/areas-de-atuacao/avaliacao-e-exames-educacionais/avaliacao-da-alfabetizacao/resultados"
+      },
+      "redes": {
+        "orleans": "municipal",
+        "santaCatarina": "publica",
+        "brasil": "publica"
+      },
+      "serie": [
+        {
+          "ano": "2023",
+          "valores": {
+            "orleans": 60,
+            "santaCatarina": 60,
+            "brasil": 56
+          }
+        },
+        {
+          "ano": "2024",
+          "valores": {
+            "orleans": 70,
+            "santaCatarina": 62,
+            "brasil": 59
+          }
+        },
+        {
+          "ano": "2025",
+          "valores": {
+            "orleans": 65,
+            "santaCatarina": 63,
+            "brasil": 66
+          }
+        }
+      ],
+      "metas": [
+        {
+          "ano": "2024",
+          "orleans": 68,
+          "santaCatarina": 65,
+          "brasil": 60
+        },
+        {
+          "ano": "2025",
+          "orleans": 70,
+          "santaCatarina": 67,
+          "brasil": 64
+        },
+        {
+          "ano": "2030",
+          "orleans": 80,
+          "santaCatarina": "> 80",
+          "brasil": "> 80"
+        }
+      ],
+      "participacao": {
+        "orleans": 84,
+        "santaCatarina": 88,
+        "brasil": 89
+      }
+    },
+    "ideb": {
+      "ano": "2025",
+      "fonte": {
+        "nome": "IBGE, pesquisa 40 (IDEB do INEP)",
+        "url": "https://servicodados.ibge.gov.br/api/docs/pesquisas?versao=1"
+      },
+      "fonteDoInep": {
+        "nome": "INEP, arquivo do IDEB",
+        "url": "https://www.gov.br/inep/pt-br/areas-de-atuacao/pesquisas-estatisticas-e-indicadores/ideb/resultados"
+      },
+      "etapas": [
+        {
+          "etapa": "anos_iniciais",
+          "comparacao": {
+            "indicador": "ideb",
+            "etapa": "anos_iniciais",
+            "ano": "2025",
+            "unidade": "indice",
+            "fonte": {
+              "nome": "IBGE, pesquisa 40 (IDEB do INEP)",
+              "url": "https://servicodados.ibge.gov.br/api/docs/pesquisas?versao=1"
+            },
+            "porRede": {
+              "publica": {
+                "orleans": 6.6,
+                "santaCatarina": 6.7,
+                "brasil": 6
+              },
+              "municipal": {
+                "orleans": 6.4,
+                "santaCatarina": 6.5,
+                "brasil": 5.9
+              },
+              "estadual": {
+                "orleans": 6.7,
+                "santaCatarina": 6.8,
+                "brasil": null
+              }
+            }
+          },
+          "series": {
+            "publica": {
+              "orleans": [
+                {
+                  "ano": 2021,
+                  "valor": 6
+                },
+                {
+                  "ano": 2023,
+                  "valor": 6.2
+                },
+                {
+                  "ano": 2025,
+                  "valor": 6.6
+                }
+              ],
+              "santaCatarina": [
+                {
+                  "ano": 2021,
+                  "valor": 6.1
+                },
+                {
+                  "ano": 2023,
+                  "valor": 6.3
+                },
+                {
+                  "ano": 2025,
+                  "valor": 6.7
+                }
+              ],
+              "brasil": [
+                {
+                  "ano": 2021,
+                  "valor": 5.5
+                },
+                {
+                  "ano": 2023,
+                  "valor": 5.7
+                },
+                {
+                  "ano": 2025,
+                  "valor": 6
+                }
+              ]
+            },
+            "municipal": {
+              "orleans": [
+                {
+                  "ano": 2021,
+                  "valor": 5.9
+                },
+                {
+                  "ano": 2023,
+                  "valor": 6.8
+                },
+                {
+                  "ano": 2025,
+                  "valor": 6.4
+                }
+              ],
+              "santaCatarina": [
+                {
+                  "ano": 2021,
+                  "valor": 6.1
+                },
+                {
+                  "ano": 2023,
+                  "valor": 6.3
+                },
+                {
+                  "ano": 2025,
+                  "valor": 6.5
+                }
+              ],
+              "brasil": [
+                {
+                  "ano": 2021,
+                  "valor": 5.4
+                },
+                {
+                  "ano": 2023,
+                  "valor": 5.6
+                },
+                {
+                  "ano": 2025,
+                  "valor": 5.9
+                }
+              ]
+            },
+            "estadual": {
+              "orleans": [
+                {
+                  "ano": 2021,
+                  "valor": 6
+                },
+                {
+                  "ano": 2023,
+                  "valor": 5.8
+                },
+                {
+                  "ano": 2025,
+                  "valor": 6.7
+                }
+              ],
+              "santaCatarina": [
+                {
+                  "ano": 2021,
+                  "valor": 6.1
+                },
+                {
+                  "ano": 2023,
+                  "valor": 5.9
+                },
+                {
+                  "ano": 2025,
+                  "valor": 6.8
+                }
+              ],
+              "brasil": []
+            }
+          }
+        },
+        {
+          "etapa": "anos_finais",
+          "comparacao": {
+            "indicador": "ideb",
+            "etapa": "anos_finais",
+            "ano": "2025",
+            "unidade": "indice",
+            "fonte": {
+              "nome": "IBGE, pesquisa 40 (IDEB do INEP)",
+              "url": "https://servicodados.ibge.gov.br/api/docs/pesquisas?versao=1"
+            },
+            "porRede": {
+              "publica": {
+                "orleans": 5.3,
+                "santaCatarina": 5.4,
+                "brasil": null
+              },
+              "municipal": {
+                "orleans": 5.1,
+                "santaCatarina": 5.2,
+                "brasil": null
+              },
+              "estadual": {
+                "orleans": 5.3,
+                "santaCatarina": 5.4,
+                "brasil": null
+              },
+              "todas": {
+                "orleans": null,
+                "santaCatarina": null,
+                "brasil": 5.2
+              }
+            }
+          },
+          "series": {
+            "publica": {
+              "orleans": [
+                {
+                  "ano": 2021,
+                  "valor": 4.9
+                },
+                {
+                  "ano": 2023,
+                  "valor": 4.5
+                },
+                {
+                  "ano": 2025,
+                  "valor": 5.3
+                }
+              ],
+              "santaCatarina": [
+                {
+                  "ano": 2021,
+                  "valor": 5
+                },
+                {
+                  "ano": 2023,
+                  "valor": 4.6
+                },
+                {
+                  "ano": 2025,
+                  "valor": 5.4
+                }
+              ],
+              "brasil": []
+            },
+            "municipal": {
+              "orleans": [
+                {
+                  "ano": 2021,
+                  "valor": 4.6
+                },
+                {
+                  "ano": 2023,
+                  "valor": 3.7
+                },
+                {
+                  "ano": 2025,
+                  "valor": 5.1
+                }
+              ],
+              "santaCatarina": [
+                {
+                  "ano": 2021,
+                  "valor": 5
+                },
+                {
+                  "ano": 2023,
+                  "valor": null
+                },
+                {
+                  "ano": 2025,
+                  "valor": 5.2
+                }
+              ],
+              "brasil": []
+            },
+            "estadual": {
+              "orleans": [
+                {
+                  "ano": 2021,
+                  "valor": 4.9
+                },
+                {
+                  "ano": 2023,
+                  "valor": 4.6
+                },
+                {
+                  "ano": 2025,
+                  "valor": 5.3
+                }
+              ],
+              "santaCatarina": [
+                {
+                  "ano": 2021,
+                  "valor": 5
+                },
+                {
+                  "ano": 2023,
+                  "valor": 4.7
+                },
+                {
+                  "ano": 2025,
+                  "valor": 5.4
+                }
+              ],
+              "brasil": []
+            },
+            "todas": {
+              "orleans": [],
+              "santaCatarina": [],
+              "brasil": [
+                {
+                  "ano": 2021,
+                  "valor": 5.1
+                },
+                {
+                  "ano": 2023,
+                  "valor": 5
+                },
+                {
+                  "ano": 2025,
+                  "valor": 5.2
+                }
+              ]
+            }
+          }
+        },
+        {
+          "etapa": "medio",
+          "comparacao": {
+            "indicador": "ideb",
+            "etapa": "medio",
+            "ano": "2025",
+            "unidade": "indice",
+            "fonte": {
+              "nome": "IBGE, pesquisa 40 (IDEB do INEP)",
+              "url": "https://servicodados.ibge.gov.br/api/docs/pesquisas?versao=1"
+            },
+            "porRede": {
+              "publica": {
+                "orleans": 3.9,
+                "santaCatarina": 4,
+                "brasil": null
+              },
+              "estadual": {
+                "orleans": 3.9,
+                "santaCatarina": 4,
+                "brasil": 4.2
+              },
+              "privada": {
+                "orleans": null,
+                "santaCatarina": null,
+                "brasil": 5.9
+              }
+            }
+          },
+          "series": {
+            "publica": {
+              "orleans": [
+                {
+                  "ano": 2021,
+                  "valor": null
+                },
+                {
+                  "ano": 2023,
+                  "valor": null
+                },
+                {
+                  "ano": 2025,
+                  "valor": 3.9
+                }
+              ],
+              "santaCatarina": [
+                {
+                  "ano": 2021,
+                  "valor": null
+                },
+                {
+                  "ano": 2023,
+                  "valor": null
+                },
+                {
+                  "ano": 2025,
+                  "valor": 4
+                }
+              ],
+              "brasil": []
+            },
+            "estadual": {
+              "orleans": [
+                {
+                  "ano": 2021,
+                  "valor": null
+                },
+                {
+                  "ano": 2023,
+                  "valor": null
+                },
+                {
+                  "ano": 2025,
+                  "valor": 3.9
+                }
+              ],
+              "santaCatarina": [
+                {
+                  "ano": 2021,
+                  "valor": null
+                },
+                {
+                  "ano": 2023,
+                  "valor": null
+                },
+                {
+                  "ano": 2025,
+                  "valor": 4
+                }
+              ],
+              "brasil": [
+                {
+                  "ano": 2021,
+                  "valor": 3.9
+                },
+                {
+                  "ano": 2023,
+                  "valor": 4.1
+                },
+                {
+                  "ano": 2025,
+                  "valor": 4.2
+                }
+              ]
+            },
+            "privada": {
+              "orleans": [],
+              "santaCatarina": [],
+              "brasil": [
+                {
+                  "ano": 2021,
+                  "valor": 5.6
+                },
+                {
+                  "ano": 2023,
+                  "valor": 5.8
+                },
+                {
+                  "ano": 2025,
+                  "valor": 5.9
+                }
+              ]
+            }
+          }
+        }
+      ],
+      "parcelas": [
+        {
+          "lugar": "orleans",
+          "rede": "publica",
+          "etapa": "anos_iniciais",
+          "ideb": 6.6,
+          "rendimento": null,
+          "aprovacao": null,
+          "matematica": null,
+          "portugues": null
+        },
+        {
+          "lugar": "santaCatarina",
+          "rede": "publica",
+          "etapa": "anos_iniciais",
+          "ideb": 6.7,
+          "rendimento": null,
+          "aprovacao": null,
+          "matematica": null,
+          "portugues": null
+        },
+        {
+          "lugar": "brasil",
+          "rede": "publica",
+          "etapa": "anos_iniciais",
+          "ideb": 6,
+          "rendimento": 0.98,
+          "aprovacao": 98,
+          "matematica": 220,
+          "portugues": 208
+        },
+        {
+          "lugar": "orleans",
+          "rede": "municipal",
+          "etapa": "anos_iniciais",
+          "ideb": 6.4,
+          "rendimento": 0.96,
+          "aprovacao": 96,
+          "matematica": 240,
+          "portugues": 227
+        },
+        {
+          "lugar": "santaCatarina",
+          "rede": "municipal",
+          "etapa": "anos_iniciais",
+          "ideb": 6.5,
+          "rendimento": 0.98,
+          "aprovacao": 98,
+          "matematica": 235,
+          "portugues": 222
+        },
+        {
+          "lugar": "brasil",
+          "rede": "municipal",
+          "etapa": "anos_iniciais",
+          "ideb": 5.9,
+          "rendimento": null,
+          "aprovacao": null,
+          "matematica": null,
+          "portugues": null
+        },
+        {
+          "lugar": "orleans",
+          "rede": "estadual",
+          "etapa": "anos_iniciais",
+          "ideb": 6.7,
+          "rendimento": null,
+          "aprovacao": null,
+          "matematica": null,
+          "portugues": null
+        },
+        {
+          "lugar": "santaCatarina",
+          "rede": "estadual",
+          "etapa": "anos_iniciais",
+          "ideb": 6.8,
+          "rendimento": null,
+          "aprovacao": null,
+          "matematica": null,
+          "portugues": null
+        },
+        {
+          "lugar": "orleans",
+          "rede": "publica",
+          "etapa": "anos_finais",
+          "ideb": 5.3,
+          "rendimento": null,
+          "aprovacao": null,
+          "matematica": null,
+          "portugues": null
+        },
+        {
+          "lugar": "santaCatarina",
+          "rede": "publica",
+          "etapa": "anos_finais",
+          "ideb": 5.4,
+          "rendimento": null,
+          "aprovacao": null,
+          "matematica": null,
+          "portugues": null
+        },
+        {
+          "lugar": "orleans",
+          "rede": "municipal",
+          "etapa": "anos_finais",
+          "ideb": 5.1,
+          "rendimento": null,
+          "aprovacao": null,
+          "matematica": null,
+          "portugues": null
+        },
+        {
+          "lugar": "santaCatarina",
+          "rede": "municipal",
+          "etapa": "anos_finais",
+          "ideb": 5.2,
+          "rendimento": null,
+          "aprovacao": null,
+          "matematica": null,
+          "portugues": null
+        },
+        {
+          "lugar": "orleans",
+          "rede": "estadual",
+          "etapa": "anos_finais",
+          "ideb": 5.3,
+          "rendimento": null,
+          "aprovacao": null,
+          "matematica": null,
+          "portugues": null
+        },
+        {
+          "lugar": "santaCatarina",
+          "rede": "estadual",
+          "etapa": "anos_finais",
+          "ideb": 5.4,
+          "rendimento": null,
+          "aprovacao": null,
+          "matematica": null,
+          "portugues": null
+        },
+        {
+          "lugar": "brasil",
+          "rede": "todas",
+          "etapa": "anos_finais",
+          "ideb": 5.2,
+          "rendimento": null,
+          "aprovacao": null,
+          "matematica": null,
+          "portugues": null
+        },
+        {
+          "lugar": "orleans",
+          "rede": "publica",
+          "etapa": "medio",
+          "ideb": 3.9,
+          "rendimento": 0.84,
+          "aprovacao": 85,
+          "matematica": 269,
+          "portugues": 281
+        },
+        {
+          "lugar": "santaCatarina",
+          "rede": "publica",
+          "etapa": "medio",
+          "ideb": 4,
+          "rendimento": null,
+          "aprovacao": null,
+          "matematica": null,
+          "portugues": null
+        },
+        {
+          "lugar": "orleans",
+          "rede": "estadual",
+          "etapa": "medio",
+          "ideb": 3.9,
+          "rendimento": 0.84,
+          "aprovacao": 85,
+          "matematica": 269,
+          "portugues": 281
+        },
+        {
+          "lugar": "santaCatarina",
+          "rede": "estadual",
+          "etapa": "medio",
+          "ideb": 4,
+          "rendimento": null,
+          "aprovacao": null,
+          "matematica": null,
+          "portugues": null
+        },
+        {
+          "lugar": "brasil",
+          "rede": "estadual",
+          "etapa": "medio",
+          "ideb": 4.2,
+          "rendimento": null,
+          "aprovacao": null,
+          "matematica": null,
+          "portugues": null
+        },
+        {
+          "lugar": "brasil",
+          "rede": "privada",
+          "etapa": "medio",
+          "ideb": 5.9,
+          "rendimento": null,
+          "aprovacao": null,
+          "matematica": null,
+          "portugues": null
+        }
+      ]
+    },
+    "inse": {
+      "ano": "2023",
+      "fonte": {
+        "nome": "INEP, Indicador de Nível Socioeconômico",
+        "url": "https://www.gov.br/inep/pt-br/acesso-a-informacao/dados-abertos/indicadores-educacionais/nivel-socioeconomico"
+      },
+      "comparacao": {
+        "indicador": "inse",
+        "etapa": "",
+        "ano": "2023",
+        "unidade": "indice",
+        "fonte": {
+          "nome": "INEP, Indicador de Nível Socioeconômico",
+          "url": "https://www.gov.br/inep/pt-br/acesso-a-informacao/dados-abertos/indicadores-educacionais/nivel-socioeconomico"
+        },
+        "porRede": {
+          "publica": {
+            "orleans": 5.5,
+            "santaCatarina": 5.4,
+            "brasil": 5
+          },
+          "privada": {
+            "orleans": null,
+            "santaCatarina": 6.4,
+            "brasil": null
+          },
+          "todas": {
+            "orleans": null,
+            "santaCatarina": null,
+            "brasil": 5.1
+          }
+        }
+      }
+    },
+    "enem": {
+      "ano": "2025",
+      "fonte": {
+        "nome": "INEP, microdados do ENEM",
+        "url": "https://www.gov.br/inep/pt-br/acesso-a-informacao/dados-abertos/microdados/enem"
+      },
+      "fonteDaTerceiraSerie": {
+        "nome": "IBGE, sinopse do Censo Escolar (INEP)",
+        "url": "https://servicodados.ibge.gov.br/api/docs/pesquisas?versao=1"
+      },
+      "anos": [
+        {
+          "ano": "2024",
+          "redes": [
+            {
+              "rede": "publica",
+              "escolas": null,
+              "inscritos": 110,
+              "presentes": 80,
+              "terceiraSerie": 160,
+              "presentesSobreTerceiraSerie": 50
+            },
+            {
+              "rede": "estadual",
+              "escolas": 3,
+              "inscritos": 110,
+              "presentes": 80,
+              "terceiraSerie": 160,
+              "presentesSobreTerceiraSerie": 50
+            }
+          ],
+          "comparacoes": [
+            {
+              "indicador": "enem_media_5_areas",
+              "etapa": "medio",
+              "ano": "2024",
+              "unidade": "nota",
+              "fonte": {
+                "nome": "INEP, microdados do ENEM",
+                "url": "https://www.gov.br/inep/pt-br/acesso-a-informacao/dados-abertos/microdados/enem"
+              },
+              "porRede": {
+                "publica": {
+                  "orleans": 530,
+                  "santaCatarina": 535,
+                  "brasil": 510
+                },
+                "estadual": {
+                  "orleans": 530,
+                  "santaCatarina": 530,
+                  "brasil": 505
+                },
+                "privada": {
+                  "orleans": null,
+                  "santaCatarina": 620,
+                  "brasil": 615
+                },
+                "todas": {
+                  "orleans": null,
+                  "santaCatarina": 560,
+                  "brasil": 530
+                }
+              }
+            },
+            {
+              "indicador": "enem_natureza",
+              "etapa": "medio",
+              "ano": "2024",
+              "unidade": "nota",
+              "fonte": {
+                "nome": "INEP, microdados do ENEM",
+                "url": "https://www.gov.br/inep/pt-br/acesso-a-informacao/dados-abertos/microdados/enem"
+              },
+              "porRede": {
+                "publica": {
+                  "orleans": 530,
+                  "santaCatarina": 535,
+                  "brasil": 510
+                },
+                "estadual": {
+                  "orleans": 530,
+                  "santaCatarina": 530,
+                  "brasil": 505
+                },
+                "privada": {
+                  "orleans": null,
+                  "santaCatarina": 620,
+                  "brasil": 615
+                },
+                "todas": {
+                  "orleans": null,
+                  "santaCatarina": 560,
+                  "brasil": 530
+                }
+              }
+            },
+            {
+              "indicador": "enem_humanas",
+              "etapa": "medio",
+              "ano": "2024",
+              "unidade": "nota",
+              "fonte": {
+                "nome": "INEP, microdados do ENEM",
+                "url": "https://www.gov.br/inep/pt-br/acesso-a-informacao/dados-abertos/microdados/enem"
+              },
+              "porRede": {
+                "publica": {
+                  "orleans": 530,
+                  "santaCatarina": 535,
+                  "brasil": 510
+                },
+                "estadual": {
+                  "orleans": 530,
+                  "santaCatarina": 530,
+                  "brasil": 505
+                },
+                "privada": {
+                  "orleans": null,
+                  "santaCatarina": 620,
+                  "brasil": 615
+                },
+                "todas": {
+                  "orleans": null,
+                  "santaCatarina": 560,
+                  "brasil": 530
+                }
+              }
+            },
+            {
+              "indicador": "enem_linguagens",
+              "etapa": "medio",
+              "ano": "2024",
+              "unidade": "nota",
+              "fonte": {
+                "nome": "INEP, microdados do ENEM",
+                "url": "https://www.gov.br/inep/pt-br/acesso-a-informacao/dados-abertos/microdados/enem"
+              },
+              "porRede": {
+                "publica": {
+                  "orleans": 530,
+                  "santaCatarina": 535,
+                  "brasil": 510
+                },
+                "estadual": {
+                  "orleans": 530,
+                  "santaCatarina": 530,
+                  "brasil": 505
+                },
+                "privada": {
+                  "orleans": null,
+                  "santaCatarina": 620,
+                  "brasil": 615
+                },
+                "todas": {
+                  "orleans": null,
+                  "santaCatarina": 560,
+                  "brasil": 530
+                }
+              }
+            },
+            {
+              "indicador": "enem_matematica",
+              "etapa": "medio",
+              "ano": "2024",
+              "unidade": "nota",
+              "fonte": {
+                "nome": "INEP, microdados do ENEM",
+                "url": "https://www.gov.br/inep/pt-br/acesso-a-informacao/dados-abertos/microdados/enem"
+              },
+              "porRede": {
+                "publica": {
+                  "orleans": 530,
+                  "santaCatarina": 535,
+                  "brasil": 510
+                },
+                "estadual": {
+                  "orleans": 530,
+                  "santaCatarina": 530,
+                  "brasil": 505
+                },
+                "privada": {
+                  "orleans": null,
+                  "santaCatarina": 620,
+                  "brasil": 615
+                },
+                "todas": {
+                  "orleans": null,
+                  "santaCatarina": 560,
+                  "brasil": 530
+                }
+              }
+            },
+            {
+              "indicador": "enem_redacao",
+              "etapa": "medio",
+              "ano": "2024",
+              "unidade": "nota",
+              "fonte": {
+                "nome": "INEP, microdados do ENEM",
+                "url": "https://www.gov.br/inep/pt-br/acesso-a-informacao/dados-abertos/microdados/enem"
+              },
+              "porRede": {
+                "publica": {
+                  "orleans": 530,
+                  "santaCatarina": 535,
+                  "brasil": 510
+                },
+                "estadual": {
+                  "orleans": 530,
+                  "santaCatarina": 530,
+                  "brasil": 505
+                },
+                "privada": {
+                  "orleans": null,
+                  "santaCatarina": 620,
+                  "brasil": 615
+                },
+                "todas": {
+                  "orleans": null,
+                  "santaCatarina": 560,
+                  "brasil": 530
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ano": "2025",
+          "redes": [
+            {
+              "rede": "publica",
+              "escolas": null,
+              "inscritos": 100,
+              "presentes": 75,
+              "terceiraSerie": 160,
+              "presentesSobreTerceiraSerie": 46.9
+            },
+            {
+              "rede": "estadual",
+              "escolas": 2,
+              "inscritos": 100,
+              "presentes": 75,
+              "terceiraSerie": 160,
+              "presentesSobreTerceiraSerie": 46.9
+            },
+            {
+              "rede": "privada",
+              "escolas": 2,
+              "inscritos": 30,
+              "presentes": 25,
+              "terceiraSerie": 20,
+              "presentesSobreTerceiraSerie": 125
+            },
+            {
+              "rede": "todas",
+              "escolas": 4,
+              "inscritos": 130,
+              "presentes": 100,
+              "terceiraSerie": 180,
+              "presentesSobreTerceiraSerie": 55.6
+            }
+          ],
+          "comparacoes": [
+            {
+              "indicador": "enem_media_5_areas",
+              "etapa": "medio",
+              "ano": "2025",
+              "unidade": "nota",
+              "fonte": {
+                "nome": "INEP, microdados do ENEM",
+                "url": "https://www.gov.br/inep/pt-br/acesso-a-informacao/dados-abertos/microdados/enem"
+              },
+              "porRede": {
+                "publica": {
+                  "orleans": 525,
+                  "santaCatarina": 525,
+                  "brasil": 500
+                },
+                "estadual": {
+                  "orleans": 525,
+                  "santaCatarina": 520,
+                  "brasil": 495
+                },
+                "privada": {
+                  "orleans": 610,
+                  "santaCatarina": 615,
+                  "brasil": 610
+                },
+                "todas": {
+                  "orleans": 545,
+                  "santaCatarina": 550,
+                  "brasil": 525
+                }
+              }
+            },
+            {
+              "indicador": "enem_natureza",
+              "etapa": "medio",
+              "ano": "2025",
+              "unidade": "nota",
+              "fonte": {
+                "nome": "INEP, microdados do ENEM",
+                "url": "https://www.gov.br/inep/pt-br/acesso-a-informacao/dados-abertos/microdados/enem"
+              },
+              "porRede": {
+                "publica": {
+                  "orleans": 525,
+                  "santaCatarina": 525,
+                  "brasil": 500
+                },
+                "estadual": {
+                  "orleans": 525,
+                  "santaCatarina": 520,
+                  "brasil": 495
+                },
+                "privada": {
+                  "orleans": 610,
+                  "santaCatarina": 615,
+                  "brasil": 610
+                },
+                "todas": {
+                  "orleans": 545,
+                  "santaCatarina": 550,
+                  "brasil": 525
+                }
+              }
+            },
+            {
+              "indicador": "enem_humanas",
+              "etapa": "medio",
+              "ano": "2025",
+              "unidade": "nota",
+              "fonte": {
+                "nome": "INEP, microdados do ENEM",
+                "url": "https://www.gov.br/inep/pt-br/acesso-a-informacao/dados-abertos/microdados/enem"
+              },
+              "porRede": {
+                "publica": {
+                  "orleans": 525,
+                  "santaCatarina": 525,
+                  "brasil": 500
+                },
+                "estadual": {
+                  "orleans": 525,
+                  "santaCatarina": 520,
+                  "brasil": 495
+                },
+                "privada": {
+                  "orleans": 610,
+                  "santaCatarina": 615,
+                  "brasil": 610
+                },
+                "todas": {
+                  "orleans": 545,
+                  "santaCatarina": 550,
+                  "brasil": 525
+                }
+              }
+            },
+            {
+              "indicador": "enem_linguagens",
+              "etapa": "medio",
+              "ano": "2025",
+              "unidade": "nota",
+              "fonte": {
+                "nome": "INEP, microdados do ENEM",
+                "url": "https://www.gov.br/inep/pt-br/acesso-a-informacao/dados-abertos/microdados/enem"
+              },
+              "porRede": {
+                "publica": {
+                  "orleans": 525,
+                  "santaCatarina": 525,
+                  "brasil": 500
+                },
+                "estadual": {
+                  "orleans": 525,
+                  "santaCatarina": 520,
+                  "brasil": 495
+                },
+                "privada": {
+                  "orleans": 610,
+                  "santaCatarina": 615,
+                  "brasil": 610
+                },
+                "todas": {
+                  "orleans": 545,
+                  "santaCatarina": 550,
+                  "brasil": 525
+                }
+              }
+            },
+            {
+              "indicador": "enem_matematica",
+              "etapa": "medio",
+              "ano": "2025",
+              "unidade": "nota",
+              "fonte": {
+                "nome": "INEP, microdados do ENEM",
+                "url": "https://www.gov.br/inep/pt-br/acesso-a-informacao/dados-abertos/microdados/enem"
+              },
+              "porRede": {
+                "publica": {
+                  "orleans": 525,
+                  "santaCatarina": 525,
+                  "brasil": 500
+                },
+                "estadual": {
+                  "orleans": 525,
+                  "santaCatarina": 520,
+                  "brasil": 495
+                },
+                "privada": {
+                  "orleans": 610,
+                  "santaCatarina": 615,
+                  "brasil": 610
+                },
+                "todas": {
+                  "orleans": 545,
+                  "santaCatarina": 550,
+                  "brasil": 525
+                }
+              }
+            },
+            {
+              "indicador": "enem_redacao",
+              "etapa": "medio",
+              "ano": "2025",
+              "unidade": "nota",
+              "fonte": {
+                "nome": "INEP, microdados do ENEM",
+                "url": "https://www.gov.br/inep/pt-br/acesso-a-informacao/dados-abertos/microdados/enem"
+              },
+              "porRede": {
+                "publica": {
+                  "orleans": 525,
+                  "santaCatarina": 525,
+                  "brasil": 500
+                },
+                "estadual": {
+                  "orleans": 525,
+                  "santaCatarina": 520,
+                  "brasil": 495
+                },
+                "privada": {
+                  "orleans": 610,
+                  "santaCatarina": 615,
+                  "brasil": 610
+                },
+                "todas": {
+                  "orleans": 545,
+                  "santaCatarina": 550,
+                  "brasil": 525
+                }
+              }
+            }
+          ]
+        }
+      ]
+    }
+  }
+}

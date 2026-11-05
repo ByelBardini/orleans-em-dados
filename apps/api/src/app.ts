@@ -4,6 +4,7 @@ import { rotasDeColetas } from './modules/coletas/coletas.routes';
 import { rotasDeConferencias } from './modules/conferencias/conferencias.routes';
 import { rotasDeDespesas } from './modules/despesas/despesas.routes';
 import { rotasDeDiscrepancias } from './modules/discrepancias/discrepancias.routes';
+import { rotasDeEducacao } from './modules/educacao/educacao.routes';
 import { rotasDeEmpenhos } from './modules/empenhos/empenhos.routes';
 import { rotasDeFuncoes } from './modules/funcoes/funcoes.routes';
 import { rotasDeImportacoes } from './modules/importacoes/importacoes.routes';
@@ -28,5 +29,6 @@ export function criarApp(opcoes: FastifyServerOptions = {}): FastifyInstance {
   app.register(rotasDeImportacoes);
   app.register(rotasDoMunicipio);
   app.register(rotasDeFuncoes);
+  app.register(rotasDeEducacao);
   return app;
 }

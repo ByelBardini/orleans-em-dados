@@ -1,0 +1,216 @@
+{
+  "status": 200,
+  "tipo": "application/json; charset=utf-8",
+  "disposicao": null,
+  "corpo": {
+    "disponivel": true,
+    "faltando": [],
+    "valores": "nominais",
+    "minimo": {
+      "fonte": {
+        "nome": "SIOPE, Anexo 8 do RREO",
+        "url": "https://www.fnde.gov.br/siope/relatorioRREOMunicipal2006.do"
+      },
+      "fonteComparada": {
+        "nome": "SICONFI, RREO Anexo 14",
+        "url": "https://apidatalake.tesouro.gov.br/docs/siconfi/"
+      },
+      "anos": [
+        {
+          "ano": 2021,
+          "percentual": 23,
+          "aplicado": 18400000,
+          "minimo": 25,
+          "siconfi": null,
+          "difereDoSiconfi": false
+        },
+        {
+          "ano": 2024,
+          "percentual": 26,
+          "aplicado": 20800000,
+          "minimo": 25,
+          "siconfi": null,
+          "difereDoSiconfi": false
+        },
+        {
+          "ano": 2025,
+          "percentual": 28,
+          "aplicado": 22400000,
+          "minimo": 25,
+          "siconfi": {
+            "percentual": 27.5,
+            "valor": 1500000
+          },
+          "difereDoSiconfi": true
+        }
+      ],
+      "emenda119": null
+    },
+    "fundebRemuneracao": {
+      "fonte": {
+        "nome": "SIOPE, Anexo 8 do RREO",
+        "url": "https://www.fnde.gov.br/siope/relatorioRREOMunicipal2006.do"
+      },
+      "fonteComparada": {
+        "nome": "SICONFI, RREO Anexo 14",
+        "url": "https://apidatalake.tesouro.gov.br/docs/siconfi/"
+      },
+      "anos": [
+        {
+          "ano": 2021,
+          "percentual": 84,
+          "aplicado": 12000000,
+          "minimo": 70,
+          "siconfi": null,
+          "difereDoSiconfi": false
+        },
+        {
+          "ano": 2024,
+          "percentual": 91,
+          "aplicado": 13000000,
+          "minimo": 70,
+          "siconfi": null,
+          "difereDoSiconfi": false
+        },
+        {
+          "ano": 2025,
+          "percentual": 98,
+          "aplicado": 14000000,
+          "minimo": 70,
+          "siconfi": {
+            "percentual": 85,
+            "valor": 900000
+          },
+          "difereDoSiconfi": true
+        }
+      ]
+    },
+    "gasto": {
+      "fonte": {
+        "nome": "SICONFI, DCA Anexo I-E, função 12, valor liquidado",
+        "url": "https://siconfi.tesouro.gov.br/siconfi/pages/public/consulta_finbra/finbra_list.jsf"
+      },
+      "anos": [
+        {
+          "ano": 2025,
+          "liquidado": 53000,
+          "conferencia": "conferido",
+          "igualAoAnexo8": false,
+          "anexo8": 36000000,
+          "divisor": {
+            "ano": 2025,
+            "populacao": 24200,
+            "tipo": "estimativa"
+          },
+          "porMorador": 2.19,
+          "participacao": 44.2,
+          "etapas": [
+            {
+              "chave": "fundamental",
+              "valor": 50000,
+              "percentual": 94.3
+            },
+            {
+              "chave": "outras",
+              "valor": 3000,
+              "percentual": 5.7
+            }
+          ]
+        }
+      ],
+      "acoesNasEtapas": {
+        "ano": 2025,
+        "transporte": null,
+        "merenda": null
+      }
+    },
+    "acoes": {
+      "fonte": {
+        "nome": "Portal da Transparência (Betha), despesa por ação, valor liquidado",
+        "url": "https://transparencia.betha.cloud/#/mJRAZlfGu2RI9KNBWj49aw==/consulta/57170"
+      },
+      "anos": [
+        {
+          "ano": 2025,
+          "total": 53000,
+          "totalConferido": true,
+          "acoes": [
+            {
+              "nome": "Manutenção do Ensino Fundamental",
+              "liquidado": 53000
+            }
+          ],
+          "naturezas": [
+            {
+              "chave": "custeio",
+              "liquidado": 53000,
+              "percentual": 100
+            }
+          ]
+        }
+      ]
+    },
+    "repasses": null,
+    "contaDoFundeb": {
+      "fonte": {
+        "nome": "SIOPE, Anexo 8 do RREO",
+        "url": "https://www.fnde.gov.br/siope/relatorioRREOMunicipal2006.do"
+      },
+      "anos": [
+        {
+          "ano": 2021,
+          "recebido": null,
+          "contribuicao": 15000000,
+          "contribuicaoConferida": false,
+          "conta": null,
+          "resultado": 1500000,
+          "diferenca": null
+        },
+        {
+          "ano": 2024,
+          "recebido": null,
+          "contribuicao": 15000000,
+          "contribuicaoConferida": false,
+          "conta": null,
+          "resultado": 1500000,
+          "diferenca": null
+        },
+        {
+          "ano": 2025,
+          "recebido": null,
+          "contribuicao": 15000000,
+          "contribuicaoConferida": false,
+          "conta": null,
+          "resultado": 1500000,
+          "diferenca": null
+        }
+      ]
+    },
+    "porAluno": {
+      "fonte": {
+        "nome": "SIOPE, Relatório de Indicadores: investimento por aluno",
+        "url": "https://www.fnde.gov.br/siope/indicadoresFinanceirosEEducacionais.do"
+      },
+      "anos": [
+        {
+          "ano": 2023,
+          "infantil": 10000,
+          "fundamental": 15000,
+          "educacaoBasica": null
+        },
+        {
+          "ano": 2024,
+          "infantil": 11000,
+          "fundamental": 16000,
+          "educacaoBasica": 16000
+        },
+        {
+          "ano": 2025,
+          "infantil": 13000,
+          "fundamental": 21000,
+          "educacaoBasica": 19000
+        }
+      ]
+    }
+  }
+}

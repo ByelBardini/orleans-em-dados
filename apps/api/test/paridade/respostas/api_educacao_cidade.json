@@ -1,0 +1,547 @@
+{
+  "status": 200,
+  "tipo": "application/json; charset=utf-8",
+  "disposicao": null,
+  "corpo": {
+    "disponivel": true,
+    "faltando": [],
+    "alfabetizacao": {
+      "ano": "2022",
+      "fonte": {
+        "nome": "IBGE, Censo 2022",
+        "url": "https://servicodados.ibge.gov.br/api/docs/agregados?versao=3"
+      },
+      "total": {
+        "indicador": "alfabetizacao",
+        "etapa": "15 anos ou mais",
+        "ano": "2022",
+        "unidade": "%",
+        "fonte": {
+          "nome": "IBGE, Censo 2022",
+          "url": "https://servicodados.ibge.gov.br/api/docs/agregados?versao=3"
+        },
+        "porRede": {
+          "todas": {
+            "orleans": 97.5,
+            "santaCatarina": 97.3,
+            "brasil": 93
+          }
+        }
+      },
+      "naoAlfabetizados": 500,
+      "porGrupo": [
+        {
+          "grupo": "Homens",
+          "comparacao": {
+            "indicador": "alfabetizacao",
+            "etapa": "Homens",
+            "ano": "2022",
+            "unidade": "%",
+            "fonte": {
+              "nome": "IBGE, Censo 2022",
+              "url": "https://servicodados.ibge.gov.br/api/docs/agregados?versao=3"
+            },
+            "porRede": {
+              "todas": {
+                "orleans": 97.4,
+                "santaCatarina": 97.4,
+                "brasil": 97.4
+              }
+            }
+          }
+        },
+        {
+          "grupo": "Mulheres",
+          "comparacao": {
+            "indicador": "alfabetizacao",
+            "etapa": "Mulheres",
+            "ano": "2022",
+            "unidade": "%",
+            "fonte": {
+              "nome": "IBGE, Censo 2022",
+              "url": "https://servicodados.ibge.gov.br/api/docs/agregados?versao=3"
+            },
+            "porRede": {
+              "todas": {
+                "orleans": 97.6,
+                "santaCatarina": 97.6,
+                "brasil": 97.6
+              }
+            }
+          }
+        },
+        {
+          "grupo": "Urbana",
+          "comparacao": {
+            "indicador": "alfabetizacao",
+            "etapa": "Urbana",
+            "ano": "2022",
+            "unidade": "%",
+            "fonte": {
+              "nome": "IBGE, Censo 2022",
+              "url": "https://servicodados.ibge.gov.br/api/docs/agregados?versao=3"
+            },
+            "porRede": {
+              "todas": {
+                "orleans": 97.7,
+                "santaCatarina": 97.7,
+                "brasil": 97.7
+              }
+            }
+          }
+        },
+        {
+          "grupo": "Rural",
+          "comparacao": {
+            "indicador": "alfabetizacao",
+            "etapa": "Rural",
+            "ano": "2022",
+            "unidade": "%",
+            "fonte": {
+              "nome": "IBGE, Censo 2022",
+              "url": "https://servicodados.ibge.gov.br/api/docs/agregados?versao=3"
+            },
+            "porRede": {
+              "todas": {
+                "orleans": 96.8,
+                "santaCatarina": 96.8,
+                "brasil": 96.8
+              }
+            }
+          }
+        }
+      ],
+      "porIdade": [
+        {
+          "grupo": "15 a 17 anos",
+          "comparacao": {
+            "indicador": "alfabetizacao",
+            "etapa": "15 a 17 anos",
+            "ano": "2022",
+            "unidade": "%",
+            "fonte": {
+              "nome": "IBGE, Censo 2022",
+              "url": "https://servicodados.ibge.gov.br/api/docs/agregados?versao=3"
+            },
+            "porRede": {
+              "todas": {
+                "orleans": 99.2,
+                "santaCatarina": 99.2,
+                "brasil": 99.2
+              }
+            }
+          }
+        },
+        {
+          "grupo": "18 e 19 anos",
+          "comparacao": {
+            "indicador": "alfabetizacao",
+            "etapa": "18 e 19 anos",
+            "ano": "2022",
+            "unidade": "%",
+            "fonte": {
+              "nome": "IBGE, Censo 2022",
+              "url": "https://servicodados.ibge.gov.br/api/docs/agregados?versao=3"
+            },
+            "porRede": {
+              "todas": {
+                "orleans": null,
+                "santaCatarina": null,
+                "brasil": null
+              }
+            }
+          }
+        },
+        {
+          "grupo": "20 a 24 anos",
+          "comparacao": {
+            "indicador": "alfabetizacao",
+            "etapa": "20 a 24 anos",
+            "ano": "2022",
+            "unidade": "%",
+            "fonte": {
+              "nome": "IBGE, Censo 2022",
+              "url": "https://servicodados.ibge.gov.br/api/docs/agregados?versao=3"
+            },
+            "porRede": {
+              "todas": {
+                "orleans": null,
+                "santaCatarina": null,
+                "brasil": null
+              }
+            }
+          }
+        },
+        {
+          "grupo": "25 a 34 anos",
+          "comparacao": {
+            "indicador": "alfabetizacao",
+            "etapa": "25 a 34 anos",
+            "ano": "2022",
+            "unidade": "%",
+            "fonte": {
+              "nome": "IBGE, Censo 2022",
+              "url": "https://servicodados.ibge.gov.br/api/docs/agregados?versao=3"
+            },
+            "porRede": {
+              "todas": {
+                "orleans": null,
+                "santaCatarina": null,
+                "brasil": null
+              }
+            }
+          }
+        },
+        {
+          "grupo": "35 a 44 anos",
+          "comparacao": {
+            "indicador": "alfabetizacao",
+            "etapa": "35 a 44 anos",
+            "ano": "2022",
+            "unidade": "%",
+            "fonte": {
+              "nome": "IBGE, Censo 2022",
+              "url": "https://servicodados.ibge.gov.br/api/docs/agregados?versao=3"
+            },
+            "porRede": {
+              "todas": {
+                "orleans": null,
+                "santaCatarina": null,
+                "brasil": null
+              }
+            }
+          }
+        },
+        {
+          "grupo": "45 a 54 anos",
+          "comparacao": {
+            "indicador": "alfabetizacao",
+            "etapa": "45 a 54 anos",
+            "ano": "2022",
+            "unidade": "%",
+            "fonte": {
+              "nome": "IBGE, Censo 2022",
+              "url": "https://servicodados.ibge.gov.br/api/docs/agregados?versao=3"
+            },
+            "porRede": {
+              "todas": {
+                "orleans": null,
+                "santaCatarina": null,
+                "brasil": null
+              }
+            }
+          }
+        },
+        {
+          "grupo": "55 a 64 anos",
+          "comparacao": {
+            "indicador": "alfabetizacao",
+            "etapa": "55 a 64 anos",
+            "ano": "2022",
+            "unidade": "%",
+            "fonte": {
+              "nome": "IBGE, Censo 2022",
+              "url": "https://servicodados.ibge.gov.br/api/docs/agregados?versao=3"
+            },
+            "porRede": {
+              "todas": {
+                "orleans": null,
+                "santaCatarina": null,
+                "brasil": null
+              }
+            }
+          }
+        },
+        {
+          "grupo": "65 anos ou mais",
+          "comparacao": {
+            "indicador": "alfabetizacao",
+            "etapa": "65 anos ou mais",
+            "ano": "2022",
+            "unidade": "%",
+            "fonte": {
+              "nome": "IBGE, Censo 2022",
+              "url": "https://servicodados.ibge.gov.br/api/docs/agregados?versao=3"
+            },
+            "porRede": {
+              "todas": {
+                "orleans": 92.5,
+                "santaCatarina": 92.5,
+                "brasil": 92.5
+              }
+            }
+          }
+        },
+        {
+          "grupo": "75 anos ou mais",
+          "comparacao": {
+            "indicador": "alfabetizacao",
+            "etapa": "75 anos ou mais",
+            "ano": "2022",
+            "unidade": "%",
+            "fonte": {
+              "nome": "IBGE, Censo 2022",
+              "url": "https://servicodados.ibge.gov.br/api/docs/agregados?versao=3"
+            },
+            "porRede": {
+              "todas": {
+                "orleans": null,
+                "santaCatarina": null,
+                "brasil": null
+              }
+            }
+          }
+        }
+      ]
+    },
+    "escolaridade": {
+      "ano": "2022",
+      "fonte": {
+        "nome": "IBGE, Censo 2022",
+        "url": "https://servicodados.ibge.gov.br/api/docs/agregados?versao=3"
+      },
+      "anosDeEstudo": [
+        {
+          "grupo": "25 anos ou mais",
+          "comparacao": {
+            "indicador": "anos_de_estudo",
+            "etapa": "25 anos ou mais",
+            "ano": "2022",
+            "unidade": "anos",
+            "fonte": {
+              "nome": "IBGE, Censo 2022",
+              "url": "https://servicodados.ibge.gov.br/api/docs/agregados?versao=3"
+            },
+            "porRede": {
+              "todas": {
+                "orleans": 9.6,
+                "santaCatarina": 9.6,
+                "brasil": 9.6
+              }
+            }
+          }
+        },
+        {
+          "grupo": "18 a 24 anos",
+          "comparacao": {
+            "indicador": "anos_de_estudo",
+            "etapa": "18 a 24 anos",
+            "ano": "2022",
+            "unidade": "anos",
+            "fonte": {
+              "nome": "IBGE, Censo 2022",
+              "url": "https://servicodados.ibge.gov.br/api/docs/agregados?versao=3"
+            },
+            "porRede": {
+              "todas": {
+                "orleans": 12,
+                "santaCatarina": 12,
+                "brasil": 12
+              }
+            }
+          }
+        }
+      ],
+      "pessoasDe25AnosOuMais": 16000,
+      "niveis": [
+        {
+          "nivel": "medio_ou_mais",
+          "comparacao": {
+            "indicador": "instrucao_medio_ou_mais",
+            "etapa": "",
+            "ano": "2022",
+            "unidade": "%",
+            "fonte": {
+              "nome": "IBGE, Censo 2022",
+              "url": "https://servicodados.ibge.gov.br/api/docs/agregados?versao=3"
+            },
+            "porRede": {
+              "todas": {
+                "orleans": 47.5,
+                "santaCatarina": 47.5,
+                "brasil": 47.5
+              }
+            }
+          }
+        },
+        {
+          "nivel": "superior",
+          "comparacao": {
+            "indicador": "instrucao_superior",
+            "etapa": "",
+            "ano": "2022",
+            "unidade": "%",
+            "fonte": {
+              "nome": "IBGE, Censo 2022",
+              "url": "https://servicodados.ibge.gov.br/api/docs/agregados?versao=3"
+            },
+            "porRede": {
+              "todas": {
+                "orleans": 20,
+                "santaCatarina": 20,
+                "brasil": 20
+              }
+            }
+          }
+        },
+        {
+          "nivel": "sem_instrucao",
+          "comparacao": {
+            "indicador": "instrucao_sem_instrucao",
+            "etapa": "",
+            "ano": "2022",
+            "unidade": "%",
+            "fonte": {
+              "nome": "IBGE, Censo 2022",
+              "url": "https://servicodados.ibge.gov.br/api/docs/agregados?versao=3"
+            },
+            "porRede": {
+              "todas": {
+                "orleans": 36.3,
+                "santaCatarina": 36.3,
+                "brasil": 36.3
+              }
+            }
+          }
+        }
+      ]
+    },
+    "moradores": {
+      "ano": "2022",
+      "fonte": {
+        "nome": "IBGE, Censo 2022",
+        "url": "https://servicodados.ibge.gov.br/api/docs/agregados?versao=3"
+      },
+      "graduacao": 590,
+      "emOrleans": 401,
+      "emOutroMunicipio": 190,
+      "noExterior": 0,
+      "posGraduacao": 100,
+      "posEmOutroMunicipio": 45,
+      "foraDoMunicipio": {
+        "indicador": "graduacao_em_outro_municipio",
+        "etapa": "",
+        "ano": "2022",
+        "unidade": "%",
+        "fonte": {
+          "nome": "IBGE, Censo 2022",
+          "url": "https://servicodados.ibge.gov.br/api/docs/agregados?versao=3"
+        },
+        "porRede": {
+          "todas": {
+            "orleans": 32.2,
+            "santaCatarina": 32.2,
+            "brasil": 32.2
+          }
+        }
+      }
+    },
+    "oferta": {
+      "ano": "2024",
+      "fonte": {
+        "nome": "INEP, Censo da Educação Superior",
+        "url": "https://www.gov.br/inep/pt-br/acesso-a-informacao/dados-abertos/microdados/censo-da-educacao-superior"
+      },
+      "instituicao": "FICTICIA",
+      "natureza": "Privada sem fins lucrativos",
+      "cursos": 2,
+      "vagas": 150,
+      "inscritos": 200,
+      "ingressantes": 100,
+      "matriculas": 300,
+      "concluintes": 40,
+      "perfil": [
+        {
+          "recorte": "noturno",
+          "pessoas": 250,
+          "percentual": 83.3
+        },
+        {
+          "recorte": "escola_publica",
+          "pessoas": 200,
+          "percentual": 66.7
+        },
+        {
+          "recorte": "de_18_a_24",
+          "pessoas": 220,
+          "percentual": 73.3
+        },
+        {
+          "recorte": "mulheres",
+          "pessoas": 180,
+          "percentual": 60
+        },
+        {
+          "recorte": "prouni",
+          "pessoas": 60,
+          "percentual": 20
+        },
+        {
+          "recorte": "fies",
+          "pessoas": 10,
+          "percentual": 3.3
+        }
+      ],
+      "ead": {
+        "instituicoes": 3,
+        "matriculas": 10,
+        "ingressantes": 8
+      },
+      "docentes": {
+        "total": 50,
+        "doutores": 10,
+        "mestres": 25,
+        "especialistas": 15,
+        "tempoIntegral": 12
+      },
+      "tecnicos": 20
+    },
+    "igc": {
+      "ano": "2023",
+      "fonte": {
+        "nome": "INEP, IGC",
+        "url": "https://www.gov.br/inep/pt-br/acesso-a-informacao/dados-abertos/microdados/censo-da-educacao-superior"
+      },
+      "continuo": 2.5,
+      "faixa": 3,
+      "distribuicaoEmSc": [
+        {
+          "faixa": 3,
+          "instituicoes": 50
+        },
+        {
+          "faixa": 4,
+          "instituicoes": 30
+        }
+      ],
+      "instituicoesEmSc": 80
+    },
+    "cursos": {
+      "ano": "2024",
+      "fonte": {
+        "nome": "INEP, Censo da Educação Superior",
+        "url": "https://www.gov.br/inep/pt-br/acesso-a-informacao/dados-abertos/microdados/censo-da-educacao-superior"
+      },
+      "lista": [
+        {
+          "curso": "Curso Grande (bacharelado)",
+          "vagas": 100,
+          "ingressantes": 90,
+          "matriculas": 292,
+          "concluintes": 38,
+          "mulheres": 170,
+          "noturno": 242
+        },
+        {
+          "curso": "Curso Pequeno (licenciatura)",
+          "vagas": 50,
+          "ingressantes": 10,
+          "matriculas": 8,
+          "concluintes": 6,
+          "mulheres": null,
+          "noturno": null
+        }
+      ]
+    }
+  }
+}
