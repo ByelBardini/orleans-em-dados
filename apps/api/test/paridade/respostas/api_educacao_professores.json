@@ -1,0 +1,933 @@
+{
+  "status": 200,
+  "tipo": "application/json; charset=utf-8",
+  "disposicao": null,
+  "corpo": {
+    "disponivel": true,
+    "faltando": [],
+    "turmas": {
+      "ano": "2025",
+      "fonte": {
+        "nome": "INEP, média de alunos por turma",
+        "url": "https://www.gov.br/inep/pt-br/acesso-a-informacao/dados-abertos/indicadores-educacionais/media-de-alunos-por-turma"
+      },
+      "comparacoes": [
+        {
+          "indicador": "alunos_por_turma",
+          "etapa": "creche",
+          "ano": "2025",
+          "unidade": "alunos",
+          "fonte": {
+            "nome": "INEP, média de alunos por turma",
+            "url": "https://www.gov.br/inep/pt-br/acesso-a-informacao/dados-abertos/indicadores-educacionais/media-de-alunos-por-turma"
+          },
+          "porRede": {
+            "todas": {
+              "orleans": 6.5,
+              "santaCatarina": 10.5,
+              "brasil": 13.5
+            }
+          }
+        },
+        {
+          "indicador": "alunos_por_turma",
+          "etapa": "pre_escola",
+          "ano": "2025",
+          "unidade": "alunos",
+          "fonte": {
+            "nome": "INEP, média de alunos por turma",
+            "url": "https://www.gov.br/inep/pt-br/acesso-a-informacao/dados-abertos/indicadores-educacionais/media-de-alunos-por-turma"
+          },
+          "porRede": {
+            "todas": {
+              "orleans": 8.5,
+              "santaCatarina": 16,
+              "brasil": 17
+            }
+          }
+        },
+        {
+          "indicador": "alunos_por_turma",
+          "etapa": "anos_iniciais",
+          "ano": "2025",
+          "unidade": "alunos",
+          "fonte": {
+            "nome": "INEP, média de alunos por turma",
+            "url": "https://www.gov.br/inep/pt-br/acesso-a-informacao/dados-abertos/indicadores-educacionais/media-de-alunos-por-turma"
+          },
+          "porRede": {
+            "municipal": {
+              "orleans": 15.5,
+              "santaCatarina": 21.5,
+              "brasil": 22
+            },
+            "estadual": {
+              "orleans": null,
+              "santaCatarina": 22.5,
+              "brasil": 22.5
+            }
+          }
+        },
+        {
+          "indicador": "alunos_por_turma",
+          "etapa": "anos_finais",
+          "ano": "2025",
+          "unidade": "alunos",
+          "fonte": {
+            "nome": "INEP, média de alunos por turma",
+            "url": "https://www.gov.br/inep/pt-br/acesso-a-informacao/dados-abertos/indicadores-educacionais/media-de-alunos-por-turma"
+          },
+          "porRede": {}
+        },
+        {
+          "indicador": "alunos_por_turma",
+          "etapa": "medio",
+          "ano": "2025",
+          "unidade": "alunos",
+          "fonte": {
+            "nome": "INEP, média de alunos por turma",
+            "url": "https://www.gov.br/inep/pt-br/acesso-a-informacao/dados-abertos/indicadores-educacionais/media-de-alunos-por-turma"
+          },
+          "porRede": {
+            "todas": {
+              "orleans": 27,
+              "santaCatarina": 29,
+              "brasil": 28.5
+            }
+          }
+        }
+      ]
+    },
+    "horas": {
+      "ano": "2025",
+      "fonte": {
+        "nome": "INEP, média de horas-aula por dia",
+        "url": "https://www.gov.br/inep/pt-br/acesso-a-informacao/dados-abertos/indicadores-educacionais/media-de-horas-aula-diaria"
+      },
+      "comparacoes": [
+        {
+          "indicador": "horas_aula",
+          "etapa": "creche",
+          "ano": "2025",
+          "unidade": "horas",
+          "fonte": {
+            "nome": "INEP, média de horas-aula por dia",
+            "url": "https://www.gov.br/inep/pt-br/acesso-a-informacao/dados-abertos/indicadores-educacionais/media-de-horas-aula-diaria"
+          },
+          "porRede": {
+            "todas": {
+              "orleans": 9,
+              "santaCatarina": 9,
+              "brasil": 7.5
+            }
+          }
+        },
+        {
+          "indicador": "horas_aula",
+          "etapa": "pre_escola",
+          "ano": "2025",
+          "unidade": "horas",
+          "fonte": {
+            "nome": "INEP, média de horas-aula por dia",
+            "url": "https://www.gov.br/inep/pt-br/acesso-a-informacao/dados-abertos/indicadores-educacionais/media-de-horas-aula-diaria"
+          },
+          "porRede": {}
+        },
+        {
+          "indicador": "horas_aula",
+          "etapa": "anos_iniciais",
+          "ano": "2025",
+          "unidade": "horas",
+          "fonte": {
+            "nome": "INEP, média de horas-aula por dia",
+            "url": "https://www.gov.br/inep/pt-br/acesso-a-informacao/dados-abertos/indicadores-educacionais/media-de-horas-aula-diaria"
+          },
+          "porRede": {}
+        },
+        {
+          "indicador": "horas_aula",
+          "etapa": "anos_finais",
+          "ano": "2025",
+          "unidade": "horas",
+          "fonte": {
+            "nome": "INEP, média de horas-aula por dia",
+            "url": "https://www.gov.br/inep/pt-br/acesso-a-informacao/dados-abertos/indicadores-educacionais/media-de-horas-aula-diaria"
+          },
+          "porRede": {}
+        },
+        {
+          "indicador": "horas_aula",
+          "etapa": "medio",
+          "ano": "2025",
+          "unidade": "horas",
+          "fonte": {
+            "nome": "INEP, média de horas-aula por dia",
+            "url": "https://www.gov.br/inep/pt-br/acesso-a-informacao/dados-abertos/indicadores-educacionais/media-de-horas-aula-diaria"
+          },
+          "porRede": {}
+        }
+      ]
+    },
+    "formacao": {
+      "ano": "2025",
+      "fonte": {
+        "nome": "INEP, adequação da formação docente: conta aulas",
+        "url": "https://www.gov.br/inep/pt-br/acesso-a-informacao/dados-abertos/indicadores-educacionais/adequacao-da-formacao-docente"
+      },
+      "etapas": [
+        {
+          "etapa": "educacao_infantil",
+          "grupos": [
+            {
+              "grupo": "grupo_1",
+              "comparacao": {
+                "indicador": "adequacao_grupo_1",
+                "etapa": "educacao_infantil",
+                "ano": "2025",
+                "unidade": "%",
+                "fonte": {
+                  "nome": "INEP, adequação da formação docente: conta aulas",
+                  "url": "https://www.gov.br/inep/pt-br/acesso-a-informacao/dados-abertos/indicadores-educacionais/adequacao-da-formacao-docente"
+                },
+                "porRede": {
+                  "todas": {
+                    "orleans": 36,
+                    "santaCatarina": 61,
+                    "brasil": 64
+                  }
+                }
+              }
+            },
+            {
+              "grupo": "grupo_2",
+              "comparacao": {
+                "indicador": "adequacao_grupo_2",
+                "etapa": "educacao_infantil",
+                "ano": "2025",
+                "unidade": "%",
+                "fonte": {
+                  "nome": "INEP, adequação da formação docente: conta aulas",
+                  "url": "https://www.gov.br/inep/pt-br/acesso-a-informacao/dados-abertos/indicadores-educacionais/adequacao-da-formacao-docente"
+                },
+                "porRede": {
+                  "todas": {
+                    "orleans": 1,
+                    "santaCatarina": 1,
+                    "brasil": 1
+                  }
+                }
+              }
+            },
+            {
+              "grupo": "grupo_3",
+              "comparacao": {
+                "indicador": "adequacao_grupo_3",
+                "etapa": "educacao_infantil",
+                "ano": "2025",
+                "unidade": "%",
+                "fonte": {
+                  "nome": "INEP, adequação da formação docente: conta aulas",
+                  "url": "https://www.gov.br/inep/pt-br/acesso-a-informacao/dados-abertos/indicadores-educacionais/adequacao-da-formacao-docente"
+                },
+                "porRede": {
+                  "todas": {
+                    "orleans": 40,
+                    "santaCatarina": 26,
+                    "brasil": 17
+                  }
+                }
+              }
+            },
+            {
+              "grupo": "grupo_4",
+              "comparacao": {
+                "indicador": "adequacao_grupo_4",
+                "etapa": "educacao_infantil",
+                "ano": "2025",
+                "unidade": "%",
+                "fonte": {
+                  "nome": "INEP, adequação da formação docente: conta aulas",
+                  "url": "https://www.gov.br/inep/pt-br/acesso-a-informacao/dados-abertos/indicadores-educacionais/adequacao-da-formacao-docente"
+                },
+                "porRede": {
+                  "todas": {
+                    "orleans": 0,
+                    "santaCatarina": 3,
+                    "brasil": 3
+                  }
+                }
+              }
+            },
+            {
+              "grupo": "grupo_5",
+              "comparacao": {
+                "indicador": "adequacao_grupo_5",
+                "etapa": "educacao_infantil",
+                "ano": "2025",
+                "unidade": "%",
+                "fonte": {
+                  "nome": "INEP, adequação da formação docente: conta aulas",
+                  "url": "https://www.gov.br/inep/pt-br/acesso-a-informacao/dados-abertos/indicadores-educacionais/adequacao-da-formacao-docente"
+                },
+                "porRede": {
+                  "todas": {
+                    "orleans": 23,
+                    "santaCatarina": 9,
+                    "brasil": 15
+                  }
+                }
+              }
+            }
+          ]
+        },
+        {
+          "etapa": "anos_iniciais",
+          "grupos": [
+            {
+              "grupo": "grupo_1",
+              "comparacao": {
+                "indicador": "adequacao_grupo_1",
+                "etapa": "anos_iniciais",
+                "ano": "2025",
+                "unidade": "%",
+                "fonte": {
+                  "nome": "INEP, adequação da formação docente: conta aulas",
+                  "url": "https://www.gov.br/inep/pt-br/acesso-a-informacao/dados-abertos/indicadores-educacionais/adequacao-da-formacao-docente"
+                },
+                "porRede": {}
+              }
+            },
+            {
+              "grupo": "grupo_2",
+              "comparacao": {
+                "indicador": "adequacao_grupo_2",
+                "etapa": "anos_iniciais",
+                "ano": "2025",
+                "unidade": "%",
+                "fonte": {
+                  "nome": "INEP, adequação da formação docente: conta aulas",
+                  "url": "https://www.gov.br/inep/pt-br/acesso-a-informacao/dados-abertos/indicadores-educacionais/adequacao-da-formacao-docente"
+                },
+                "porRede": {}
+              }
+            },
+            {
+              "grupo": "grupo_3",
+              "comparacao": {
+                "indicador": "adequacao_grupo_3",
+                "etapa": "anos_iniciais",
+                "ano": "2025",
+                "unidade": "%",
+                "fonte": {
+                  "nome": "INEP, adequação da formação docente: conta aulas",
+                  "url": "https://www.gov.br/inep/pt-br/acesso-a-informacao/dados-abertos/indicadores-educacionais/adequacao-da-formacao-docente"
+                },
+                "porRede": {}
+              }
+            },
+            {
+              "grupo": "grupo_4",
+              "comparacao": {
+                "indicador": "adequacao_grupo_4",
+                "etapa": "anos_iniciais",
+                "ano": "2025",
+                "unidade": "%",
+                "fonte": {
+                  "nome": "INEP, adequação da formação docente: conta aulas",
+                  "url": "https://www.gov.br/inep/pt-br/acesso-a-informacao/dados-abertos/indicadores-educacionais/adequacao-da-formacao-docente"
+                },
+                "porRede": {}
+              }
+            },
+            {
+              "grupo": "grupo_5",
+              "comparacao": {
+                "indicador": "adequacao_grupo_5",
+                "etapa": "anos_iniciais",
+                "ano": "2025",
+                "unidade": "%",
+                "fonte": {
+                  "nome": "INEP, adequação da formação docente: conta aulas",
+                  "url": "https://www.gov.br/inep/pt-br/acesso-a-informacao/dados-abertos/indicadores-educacionais/adequacao-da-formacao-docente"
+                },
+                "porRede": {}
+              }
+            }
+          ]
+        },
+        {
+          "etapa": "anos_finais",
+          "grupos": [
+            {
+              "grupo": "grupo_1",
+              "comparacao": {
+                "indicador": "adequacao_grupo_1",
+                "etapa": "anos_finais",
+                "ano": "2025",
+                "unidade": "%",
+                "fonte": {
+                  "nome": "INEP, adequação da formação docente: conta aulas",
+                  "url": "https://www.gov.br/inep/pt-br/acesso-a-informacao/dados-abertos/indicadores-educacionais/adequacao-da-formacao-docente"
+                },
+                "porRede": {}
+              }
+            },
+            {
+              "grupo": "grupo_2",
+              "comparacao": {
+                "indicador": "adequacao_grupo_2",
+                "etapa": "anos_finais",
+                "ano": "2025",
+                "unidade": "%",
+                "fonte": {
+                  "nome": "INEP, adequação da formação docente: conta aulas",
+                  "url": "https://www.gov.br/inep/pt-br/acesso-a-informacao/dados-abertos/indicadores-educacionais/adequacao-da-formacao-docente"
+                },
+                "porRede": {}
+              }
+            },
+            {
+              "grupo": "grupo_3",
+              "comparacao": {
+                "indicador": "adequacao_grupo_3",
+                "etapa": "anos_finais",
+                "ano": "2025",
+                "unidade": "%",
+                "fonte": {
+                  "nome": "INEP, adequação da formação docente: conta aulas",
+                  "url": "https://www.gov.br/inep/pt-br/acesso-a-informacao/dados-abertos/indicadores-educacionais/adequacao-da-formacao-docente"
+                },
+                "porRede": {}
+              }
+            },
+            {
+              "grupo": "grupo_4",
+              "comparacao": {
+                "indicador": "adequacao_grupo_4",
+                "etapa": "anos_finais",
+                "ano": "2025",
+                "unidade": "%",
+                "fonte": {
+                  "nome": "INEP, adequação da formação docente: conta aulas",
+                  "url": "https://www.gov.br/inep/pt-br/acesso-a-informacao/dados-abertos/indicadores-educacionais/adequacao-da-formacao-docente"
+                },
+                "porRede": {}
+              }
+            },
+            {
+              "grupo": "grupo_5",
+              "comparacao": {
+                "indicador": "adequacao_grupo_5",
+                "etapa": "anos_finais",
+                "ano": "2025",
+                "unidade": "%",
+                "fonte": {
+                  "nome": "INEP, adequação da formação docente: conta aulas",
+                  "url": "https://www.gov.br/inep/pt-br/acesso-a-informacao/dados-abertos/indicadores-educacionais/adequacao-da-formacao-docente"
+                },
+                "porRede": {}
+              }
+            }
+          ]
+        },
+        {
+          "etapa": "medio",
+          "grupos": [
+            {
+              "grupo": "grupo_1",
+              "comparacao": {
+                "indicador": "adequacao_grupo_1",
+                "etapa": "medio",
+                "ano": "2025",
+                "unidade": "%",
+                "fonte": {
+                  "nome": "INEP, adequação da formação docente: conta aulas",
+                  "url": "https://www.gov.br/inep/pt-br/acesso-a-informacao/dados-abertos/indicadores-educacionais/adequacao-da-formacao-docente"
+                },
+                "porRede": {
+                  "estadual": {
+                    "orleans": 71,
+                    "santaCatarina": 68,
+                    "brasil": 66
+                  }
+                }
+              }
+            },
+            {
+              "grupo": "grupo_2",
+              "comparacao": {
+                "indicador": "adequacao_grupo_2",
+                "etapa": "medio",
+                "ano": "2025",
+                "unidade": "%",
+                "fonte": {
+                  "nome": "INEP, adequação da formação docente: conta aulas",
+                  "url": "https://www.gov.br/inep/pt-br/acesso-a-informacao/dados-abertos/indicadores-educacionais/adequacao-da-formacao-docente"
+                },
+                "porRede": {
+                  "estadual": {
+                    "orleans": 0,
+                    "santaCatarina": 2,
+                    "brasil": 2
+                  }
+                }
+              }
+            },
+            {
+              "grupo": "grupo_3",
+              "comparacao": {
+                "indicador": "adequacao_grupo_3",
+                "etapa": "medio",
+                "ano": "2025",
+                "unidade": "%",
+                "fonte": {
+                  "nome": "INEP, adequação da formação docente: conta aulas",
+                  "url": "https://www.gov.br/inep/pt-br/acesso-a-informacao/dados-abertos/indicadores-educacionais/adequacao-da-formacao-docente"
+                },
+                "porRede": {
+                  "estadual": {
+                    "orleans": 27,
+                    "santaCatarina": 25,
+                    "brasil": 27
+                  }
+                }
+              }
+            },
+            {
+              "grupo": "grupo_4",
+              "comparacao": {
+                "indicador": "adequacao_grupo_4",
+                "etapa": "medio",
+                "ano": "2025",
+                "unidade": "%",
+                "fonte": {
+                  "nome": "INEP, adequação da formação docente: conta aulas",
+                  "url": "https://www.gov.br/inep/pt-br/acesso-a-informacao/dados-abertos/indicadores-educacionais/adequacao-da-formacao-docente"
+                },
+                "porRede": {
+                  "estadual": {
+                    "orleans": 0,
+                    "santaCatarina": 3,
+                    "brasil": 3
+                  }
+                }
+              }
+            },
+            {
+              "grupo": "grupo_5",
+              "comparacao": {
+                "indicador": "adequacao_grupo_5",
+                "etapa": "medio",
+                "ano": "2025",
+                "unidade": "%",
+                "fonte": {
+                  "nome": "INEP, adequação da formação docente: conta aulas",
+                  "url": "https://www.gov.br/inep/pt-br/acesso-a-informacao/dados-abertos/indicadores-educacionais/adequacao-da-formacao-docente"
+                },
+                "porRede": {
+                  "estadual": {
+                    "orleans": 2,
+                    "santaCatarina": 2,
+                    "brasil": 2
+                  }
+                }
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "docentesSuperior": {
+      "ano": "2025",
+      "fonte": {
+        "nome": "INEP, docentes com curso superior: conta pessoas",
+        "url": "https://www.gov.br/inep/pt-br/acesso-a-informacao/dados-abertos/indicadores-educacionais/percentual-de-docentes-com-curso-superior"
+      },
+      "comparacoes": [
+        {
+          "indicador": "docentes_superior",
+          "etapa": "educacao_infantil",
+          "ano": "2025",
+          "unidade": "%",
+          "fonte": {
+            "nome": "INEP, docentes com curso superior: conta pessoas",
+            "url": "https://www.gov.br/inep/pt-br/acesso-a-informacao/dados-abertos/indicadores-educacionais/percentual-de-docentes-com-curso-superior"
+          },
+          "porRede": {
+            "todas": {
+              "orleans": 82,
+              "santaCatarina": 88,
+              "brasil": 82.5
+            }
+          }
+        },
+        {
+          "indicador": "docentes_superior",
+          "etapa": "anos_iniciais",
+          "ano": "2025",
+          "unidade": "%",
+          "fonte": {
+            "nome": "INEP, docentes com curso superior: conta pessoas",
+            "url": "https://www.gov.br/inep/pt-br/acesso-a-informacao/dados-abertos/indicadores-educacionais/percentual-de-docentes-com-curso-superior"
+          },
+          "porRede": {}
+        },
+        {
+          "indicador": "docentes_superior",
+          "etapa": "anos_finais",
+          "ano": "2025",
+          "unidade": "%",
+          "fonte": {
+            "nome": "INEP, docentes com curso superior: conta pessoas",
+            "url": "https://www.gov.br/inep/pt-br/acesso-a-informacao/dados-abertos/indicadores-educacionais/percentual-de-docentes-com-curso-superior"
+          },
+          "porRede": {}
+        },
+        {
+          "indicador": "docentes_superior",
+          "etapa": "medio",
+          "ano": "2025",
+          "unidade": "%",
+          "fonte": {
+            "nome": "INEP, docentes com curso superior: conta pessoas",
+            "url": "https://www.gov.br/inep/pt-br/acesso-a-informacao/dados-abertos/indicadores-educacionais/percentual-de-docentes-com-curso-superior"
+          },
+          "porRede": {
+            "todas": {
+              "orleans": 92,
+              "santaCatarina": 94,
+              "brasil": 96
+            }
+          }
+        }
+      ]
+    },
+    "regularidade": {
+      "ano": "2025",
+      "fonte": {
+        "nome": "INEP, regularidade do corpo docente: percentual de escolas",
+        "url": "https://www.gov.br/inep/pt-br/acesso-a-informacao/dados-abertos/indicadores-educacionais/regularidade-do-corpo-docente"
+      },
+      "niveis": [
+        {
+          "nivel": "baixa",
+          "comparacao": {
+            "indicador": "regularidade_baixa",
+            "etapa": "",
+            "ano": "2025",
+            "unidade": "%",
+            "fonte": {
+              "nome": "INEP, regularidade do corpo docente: percentual de escolas",
+              "url": "https://www.gov.br/inep/pt-br/acesso-a-informacao/dados-abertos/indicadores-educacionais/regularidade-do-corpo-docente"
+            },
+            "porRede": {
+              "publica": {
+                "orleans": 50,
+                "santaCatarina": 35,
+                "brasil": 11
+              },
+              "municipal": {
+                "orleans": 20,
+                "santaCatarina": 20,
+                "brasil": 12
+              },
+              "estadual": {
+                "orleans": 80,
+                "santaCatarina": 77,
+                "brasil": 30
+              },
+              "privada": {
+                "orleans": 10,
+                "santaCatarina": 20,
+                "brasil": 9
+              },
+              "todas": {
+                "orleans": 40,
+                "santaCatarina": 30,
+                "brasil": 10
+              }
+            }
+          }
+        },
+        {
+          "nivel": "media_baixa",
+          "comparacao": {
+            "indicador": "regularidade_media_baixa",
+            "etapa": "",
+            "ano": "2025",
+            "unidade": "%",
+            "fonte": {
+              "nome": "INEP, regularidade do corpo docente: percentual de escolas",
+              "url": "https://www.gov.br/inep/pt-br/acesso-a-informacao/dados-abertos/indicadores-educacionais/regularidade-do-corpo-docente"
+            },
+            "porRede": {
+              "publica": {
+                "orleans": 45,
+                "santaCatarina": 45,
+                "brasil": 37
+              },
+              "municipal": {
+                "orleans": 60,
+                "santaCatarina": 50,
+                "brasil": 38
+              },
+              "estadual": {
+                "orleans": 20,
+                "santaCatarina": 20,
+                "brasil": 40
+              },
+              "privada": {
+                "orleans": 40,
+                "santaCatarina": 40,
+                "brasil": 30
+              },
+              "todas": {
+                "orleans": 55,
+                "santaCatarina": 46,
+                "brasil": 36
+              }
+            }
+          }
+        },
+        {
+          "nivel": "media_alta",
+          "comparacao": {
+            "indicador": "regularidade_media_alta",
+            "etapa": "",
+            "ano": "2025",
+            "unidade": "%",
+            "fonte": {
+              "nome": "INEP, regularidade do corpo docente: percentual de escolas",
+              "url": "https://www.gov.br/inep/pt-br/acesso-a-informacao/dados-abertos/indicadores-educacionais/regularidade-do-corpo-docente"
+            },
+            "porRede": {
+              "publica": {
+                "orleans": 5,
+                "santaCatarina": 18,
+                "brasil": 43
+              },
+              "municipal": {
+                "orleans": 20,
+                "santaCatarina": 28,
+                "brasil": 42
+              },
+              "estadual": {
+                "orleans": 0,
+                "santaCatarina": 3,
+                "brasil": 25
+              },
+              "privada": {
+                "orleans": 40,
+                "santaCatarina": 30,
+                "brasil": 45
+              },
+              "todas": {
+                "orleans": 5,
+                "santaCatarina": 22,
+                "brasil": 44
+              }
+            }
+          }
+        },
+        {
+          "nivel": "alta",
+          "comparacao": {
+            "indicador": "regularidade_alta",
+            "etapa": "",
+            "ano": "2025",
+            "unidade": "%",
+            "fonte": {
+              "nome": "INEP, regularidade do corpo docente: percentual de escolas",
+              "url": "https://www.gov.br/inep/pt-br/acesso-a-informacao/dados-abertos/indicadores-educacionais/regularidade-do-corpo-docente"
+            },
+            "porRede": {
+              "publica": {
+                "orleans": 0,
+                "santaCatarina": 2,
+                "brasil": 9
+              },
+              "municipal": {
+                "orleans": 0,
+                "santaCatarina": 2,
+                "brasil": 8
+              },
+              "estadual": {
+                "orleans": 0,
+                "santaCatarina": 0,
+                "brasil": 5
+              },
+              "privada": {
+                "orleans": 10,
+                "santaCatarina": 10,
+                "brasil": 16
+              },
+              "todas": {
+                "orleans": 0,
+                "santaCatarina": 2,
+                "brasil": 10
+              }
+            }
+          }
+        }
+      ]
+    },
+    "alunosPorDocente": {
+      "fonte": {
+        "nome": "IBGE, sinopse do Censo Escolar (INEP): matrículas ÷ docentes",
+        "url": "https://servicodados.ibge.gov.br/api/docs/pesquisas?versao=1"
+      },
+      "rede": "municipal",
+      "etapas": [
+        {
+          "etapa": "creche",
+          "anos": [
+            {
+              "ano": "2024",
+              "matriculas": 400,
+              "docentes": 40,
+              "alunosPorDocente": 10
+            },
+            {
+              "ano": "2025",
+              "matriculas": 410,
+              "docentes": 40,
+              "alunosPorDocente": 10.3
+            }
+          ]
+        },
+        {
+          "etapa": "pre_escola",
+          "anos": [
+            {
+              "ano": "2024",
+              "matriculas": 300,
+              "docentes": 50,
+              "alunosPorDocente": 6
+            },
+            {
+              "ano": "2025",
+              "matriculas": 310,
+              "docentes": 50,
+              "alunosPorDocente": 6.2
+            }
+          ]
+        }
+      ]
+    },
+    "temporarios": {
+      "fonte": {
+        "nome": "SIOPE, Remuneração: profissionais declarados pela Prefeitura",
+        "url": "https://www.fnde.gov.br/siope/consultarRemuneracaoMunicipal.do"
+      },
+      "anos": [
+        {
+          "periodo": "2024-05",
+          "magisterio": {
+            "cargaTemporaria": 35,
+            "profissionais": 160
+          },
+          "outros": {
+            "cargaTemporaria": 50,
+            "profissionais": "menos de 5"
+          }
+        },
+        {
+          "periodo": "2025-05",
+          "magisterio": {
+            "cargaTemporaria": 40,
+            "profissionais": 180
+          },
+          "outros": {
+            "cargaTemporaria": 50,
+            "profissionais": 120
+          }
+        },
+        {
+          "periodo": "2026-05",
+          "magisterio": {
+            "cargaTemporaria": 45,
+            "profissionais": 150
+          },
+          "outros": {
+            "cargaTemporaria": 50,
+            "profissionais": 120
+          }
+        }
+      ]
+    },
+    "remuneracao": {
+      "fonte": {
+        "nome": "SIOPE, Remuneração: profissionais declarados pela Prefeitura",
+        "url": "https://www.fnde.gov.br/siope/consultarRemuneracaoMunicipal.do"
+      },
+      "anos": [
+        {
+          "periodo": "2024-05",
+          "magisterio": {
+            "todos": 5500,
+            "efetivo": 6500,
+            "temporario": 5000
+          },
+          "outros": {
+            "todos": null,
+            "efetivo": 2300,
+            "temporario": null
+          }
+        },
+        {
+          "periodo": "2025-05",
+          "magisterio": {
+            "todos": 6000,
+            "efetivo": 7000,
+            "temporario": 5500
+          },
+          "outros": {
+            "todos": null,
+            "efetivo": 2500,
+            "temporario": null
+          }
+        },
+        {
+          "periodo": "2026-05",
+          "magisterio": {
+            "todos": 6200,
+            "efetivo": 7200,
+            "temporario": 5700
+          },
+          "outros": {
+            "todos": null,
+            "efetivo": null,
+            "temporario": null
+          }
+        }
+      ]
+    },
+    "rais": {
+      "ano": "2021",
+      "fonte": {
+        "nome": "INEP, remuneração dos docentes, a partir da RAIS",
+        "url": "https://www.gov.br/inep/pt-br/acesso-a-informacao/dados-abertos/indicadores-educacionais/remuneracao-media-dos-docentes"
+      },
+      "linhas": [
+        {
+          "lugar": "orleans",
+          "rede": "municipal",
+          "mediaPor40h": 3900,
+          "docentes": null
+        },
+        {
+          "lugar": "santaCatarina",
+          "rede": "publica",
+          "mediaPor40h": 5300,
+          "docentes": null
+        },
+        {
+          "lugar": "brasil",
+          "rede": "municipal",
+          "mediaPor40h": 5150,
+          "docentes": null
+        }
+      ]
+    }
+  }
+}

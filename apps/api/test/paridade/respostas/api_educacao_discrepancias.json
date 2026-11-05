@@ -1,0 +1,94 @@
+{
+  "status": 200,
+  "tipo": "application/json; charset=utf-8",
+  "disposicao": null,
+  "corpo": {
+    "disponivel": true,
+    "faltando": [],
+    "grupos": [
+      {
+        "id": "indices",
+        "rotulo": "Índices legais: SIOPE × SICONFI",
+        "explicacao": "O valor aplicado em cada índice legal, no Anexo 8 do SIOPE e no Anexo 14 do RREO, no SICONFI. Entra todo ano em que o valor difere, mesmo com o percentual igual. Os demonstrativos não explicam a diferença: aqui ficam os valores.",
+        "fonteA": {
+          "coluna": "SIOPE",
+          "lado": "no SIOPE",
+          "nome": "SIOPE, Anexo 8",
+          "url": "https://www.fnde.gov.br/siope/relatorioRREOMunicipal2006.do"
+        },
+        "fonteB": {
+          "coluna": "SICONFI",
+          "lado": "no SICONFI",
+          "nome": "SICONFI, RREO Anexo 14",
+          "url": "https://apidatalake.tesouro.gov.br/docs/siconfi/"
+        },
+        "casos": [
+          {
+            "ano": 2025,
+            "item": "Aplicação em educação",
+            "a": {
+              "valor": 22400000,
+              "percentual": 28
+            },
+            "b": {
+              "valor": 1500000,
+              "percentual": 27.5
+            },
+            "diferenca": 20900000,
+            "maior": "a",
+            "nota": null
+          },
+          {
+            "ano": 2025,
+            "item": "Fundeb na remuneração",
+            "a": {
+              "valor": 14000000,
+              "percentual": 98
+            },
+            "b": {
+              "valor": 900000,
+              "percentual": 85
+            },
+            "diferenca": 13100000,
+            "maior": "a",
+            "nota": null
+          }
+        ]
+      },
+      {
+        "id": "gasto_total",
+        "rotulo": "Gasto total com educação: SIOPE × SICONFI",
+        "explicacao": "O total liquidado em educação no Anexo 8 do SIOPE e a função 12 da DCA, no SICONFI.",
+        "fonteA": {
+          "coluna": "SIOPE",
+          "lado": "no SIOPE",
+          "nome": "SIOPE, Anexo 8",
+          "url": "https://www.fnde.gov.br/siope/relatorioRREOMunicipal2006.do"
+        },
+        "fonteB": {
+          "coluna": "SICONFI",
+          "lado": "no SICONFI",
+          "nome": "SICONFI, DCA Anexo I-E",
+          "url": "https://siconfi.tesouro.gov.br/siconfi/pages/public/consulta_finbra/finbra_list.jsf"
+        },
+        "casos": [
+          {
+            "ano": 2025,
+            "item": "Gasto liquidado",
+            "a": {
+              "valor": 36000000,
+              "percentual": null
+            },
+            "b": {
+              "valor": 53000,
+              "percentual": null
+            },
+            "diferenca": 35947000,
+            "maior": "a",
+            "nota": null
+          }
+        ]
+      }
+    ]
+  }
+}

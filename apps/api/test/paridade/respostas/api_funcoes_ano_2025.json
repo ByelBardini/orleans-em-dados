@@ -25,6 +25,8 @@
     },
     "conferencia": "conferido",
     "diferenca": null,
+    "conferenciaEducacao": "conferido",
+    "diferencaEducacao": null,
     "total": {
       "empenhado": 195000,
       "liquidado": 120000,

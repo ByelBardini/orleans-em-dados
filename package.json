@@ -16,6 +16,7 @@
     "db:teste:parar": "docker rm -f orleans-testar",
     "conferir": "pnpm --filter @orleans-em-dados/worker conferir",
     "importar": "pnpm --filter @orleans-em-dados/worker importar",
+    "extrair": "pnpm --filter @orleans-em-dados/importador-educacao extrair",
     "dev": "concurrently -n api,web,worker -c blue,green,yellow \"pnpm --filter @orleans-em-dados/api dev\" \"pnpm --filter @orleans-em-dados/web dev\" \"pnpm --filter @orleans-em-dados/worker dev\"",
     "build": "pnpm --filter @orleans-em-dados/web build",
     "start": "pnpm --filter @orleans-em-dados/api start",

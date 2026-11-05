@@ -1,0 +1,260 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>Orleans em Dados · Educação · Dinheiro</title>
+<script src="./vendor/react.js"></script>
+<script src="./vendor/react-dom.js"></script>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&amp;family=IBM+Plex+Sans+Condensed:wght@400;500;600&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#1c1a17}a:hover{color:#b52d1b}
+.mono{font-family:'IBM Plex Mono',ui-monospace,monospace;font-variant-numeric:tabular-nums}
+.serif{font-family:'Instrument Serif',Georgia,serif;font-weight:400}
+.nav a:hover,.abas a:hover{color:#b52d1b}
+a:focus-visible,button:focus-visible{outline:2px solid #b52d1b;outline-offset:2px}
+</style>
+</helmet>
+<div style="background: #efeadf; color: #1c1a17; font-family: 'IBM Plex Sans Condensed', 'Arial Narrow', sans-serif; font-size: 17px; line-height: 1.45; min-height: 100vh; overflow-x: hidden">
+<div style="max-width: 1296px; margin: 0 auto; padding: 24px clamp(16px, 4vw, 72px) 72px">
+<header style="display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 12px 32px; padding-bottom: 10px; border-bottom: 3px solid #1c1a17">
+<a href="Main.dc.html" class="serif" style="font-size: clamp(34px, 5vw, 44px); line-height: 1; letter-spacing: -0.02em; text-decoration: none">Orleans <span style="font-style: italic">em</span> Dados</a>
+<nav class="nav" aria-label="Principal" style="display: flex; flex-wrap: wrap"><a href="Main.dc.html" style="padding: 12px 16px; text-decoration: none; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; font-size: 14px;">Visão geral</a><a href="Receitas.dc.html" style="padding: 12px 16px; text-decoration: none; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; font-size: 14px; border-left: 1px solid #1c1a17;">Receitas</a><a href="Despesas.dc.html" style="padding: 12px 16px; text-decoration: none; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; font-size: 14px; border-left: 1px solid #1c1a17;">Despesas</a><a href="Edu-Resumo.dc.html" aria-current="page" style="padding: 12px 16px; text-decoration: none; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; font-size: 14px; color: #b52d1b; border-left: 1px solid #1c1a17;">Educação</a></nav>
+</header>
+<div class="mono" style="display: flex; flex-wrap: wrap; justify-content: space-between; gap: 4px 24px; padding: 8px 0; font-size: 12px; letter-spacing: 0.06em; text-transform: uppercase">
+<span>Caderno de Educação</span>
+<span>Mínimo legal · gasto · repasses · fontes</span>
+</div>
+<nav class="abas" aria-label="Abas de Educação" style="display: flex; flex-wrap: wrap; border-top: 1px solid #1c1a17; border-bottom: 1px solid #1c1a17; font-size: 15px"><a href="Edu-Resumo.dc.html" style="min-height: 44px; display: inline-flex; align-items: center; padding: 0 14px; text-decoration: none;">Resumo</a><a href="Edu-Aprendizado.dc.html" style="min-height: 44px; display: inline-flex; align-items: center; padding: 0 14px; text-decoration: none; border-left: 1px solid #c9c1b0;">Aprendizado</a><a href="Edu-Acesso.dc.html" style="min-height: 44px; display: inline-flex; align-items: center; padding: 0 14px; text-decoration: none; border-left: 1px solid #c9c1b0;">Acesso</a><a href="Edu-Permanencia.dc.html" style="min-height: 44px; display: inline-flex; align-items: center; padding: 0 14px; text-decoration: none; border-left: 1px solid #c9c1b0;">Permanência</a><a href="Edu-Professores.dc.html" style="min-height: 44px; display: inline-flex; align-items: center; padding: 0 14px; text-decoration: none; border-left: 1px solid #c9c1b0;">Professores e turmas</a><a href="Edu-Dinheiro.dc.html" aria-current="page" style="min-height: 44px; display: inline-flex; align-items: center; padding: 0 14px; text-decoration: none; font-weight: 600; color: #b52d1b; box-shadow: inset 0 -3px 0 #b52d1b; border-left: 1px solid #c9c1b0;">Dinheiro</a><a href="Edu-Cidade.dc.html" style="min-height: 44px; display: inline-flex; align-items: center; padding: 0 14px; text-decoration: none; border-left: 1px solid #c9c1b0;">Cidade e ensino superior</a></nav>
+<div aria-label="Legenda das comparações" class="mono" style="display: flex; flex-wrap: wrap; align-items: center; gap: 4px 20px; padding: 10px 0; border-bottom: 1px solid #1c1a17; font-size: 12px">
+<span style="text-transform: uppercase; letter-spacing: 0.06em">Comparação</span>
+<span style="display: inline-flex; align-items: center; gap: 6px"><span aria-hidden="true" style="width: 12px; height: 12px; border-radius: 50%; background: #b52d1b"></span>Orleans</span>
+<span style="display: inline-flex; align-items: center; gap: 6px"><span aria-hidden="true" style="width: 12px; height: 12px; border-radius: 50%; border: 2px solid #1c1a17; box-sizing: border-box"></span>Santa Catarina</span>
+<span style="display: inline-flex; align-items: center; gap: 6px"><span aria-hidden="true" style="width: 10px; height: 10px; background: #8a8273"></span>Brasil</span>
+<span style="color: #5a554c">Tudo é fonte única, salvo indicação</span>
+</div>
+<div style="padding: 36px 0 8px; display: flex; flex-direction: column; gap: 14px; max-width: 860px">
+<h1 class="serif" style="margin: 0; font-size: clamp(36px, 4.6vw, 58px); line-height: 1.03; letter-spacing: -0.015em; text-wrap: balance">Quanto custa e de onde vem o dinheiro</h1>
+<p style="margin: 0; font-size: 18px; text-wrap: pretty">Em 2025, a Prefeitura gastou R$ 37,48 milhões com educação e aplicou 28,6% da receita de impostos, acima do mínimo de 25%. Todos os valores são nominais, sem correção pela inflação.</p>
+</div><section style="padding-top: 36px; display: flex; flex-direction: column; gap: 18px">
+<div style="display: flex; flex-direction: column; gap: 6px; border-bottom: 1px solid #1c1a17; padding-bottom: 10px">
+<h2 class="serif" style="margin: 0; font-size: clamp(28px, 3.4vw, 36px); line-height: 1.1">O mínimo de 25%</h2>
+<span class="mono" style="font-size: 12px; text-transform: uppercase; letter-spacing: 0.04em; color: #5a554c">SIOPE · 2012 a 2025 · de 2012 a 2019, painel do SIOPE</span>
+<p style="margin: 0; font-size: 17px; max-width: 720px; text-wrap: pretty">A Constituição exige que o município aplique pelo menos 25% da receita de impostos em educação. Orleans ficou acima em todos os anos, menos em 2021.</p>
+</div><div role="img" aria-label="Percentual aplicado em educação, 2012 a 2025, entre 23,28% em 2021 e 30,86% em 2016" style="display: flex; flex-direction: column; gap: 6px">
+<div style="position: relative; height: 220px; border-bottom: 2px solid #1c1a17">
+<div aria-hidden="true" style="position: absolute; left: 0; right: 0; bottom: 71.43%; border-top: 2px dashed #b52d1b; z-index: 1"><span class="mono" style="position: absolute; right: 0; bottom: 2px; font-size: 11px; color: #b52d1b; background: #efeadf; padding: 0 4px">mínimo: 25%</span></div>
+<div style="position: absolute; inset: 0; display: flex; align-items: flex-end; gap: clamp(3px, 0.8vw, 8px)">
+<sc-for list="{{minimo}}" as="b" hint-placeholder-count="6">
+<div title="{{b.tip}}" style="flex: 1 1 0; min-width: 0; height: 100%; display: flex; flex-direction: column; justify-content: flex-end; align-items: center; gap: 3px">
+<span class="mono" style="font-size: 11px; white-space: nowrap">{{b.rot}}</span>
+<span style="display: block; width: 100%; height: {{b.h}}; background: {{b.cor}}"></span>
+</div>
+</sc-for>
+</div>
+</div>
+<div aria-hidden="true" class="mono" style="display: flex; gap: clamp(3px, 0.8vw, 8px); font-size: 11px">
+<sc-for list="{{minimo}}" as="b" hint-placeholder-count="6"><span style="flex: 1 1 0; min-width: 0; text-align: center; overflow: hidden">{{b.r}}</span></sc-for>
+</div>
+</div><p class="serif" style="margin: 0; font-style: italic; font-size: 19px; line-height: 1.3; border-left: 2px solid #b52d1b; padding-left: 14px; text-wrap: pretty">2021: 23,28%. A Emenda Constitucional 119, de 2022, afastou as penalidades daquele ano, e o SIOPE mostra a diferença complementada em 2022.</p>
+</section><section style="padding-top: 40px; margin-top: 48px; border-top: 3px double #1c1a17; display: flex; flex-direction: column; gap: 18px">
+<div style="display: flex; flex-direction: column; gap: 6px; border-bottom: 1px solid #1c1a17; padding-bottom: 10px">
+<h2 class="serif" style="margin: 0; font-size: clamp(28px, 3.4vw, 36px); line-height: 1.1">Quanto foi gasto com educação</h2>
+<span class="mono" style="font-size: 12px; text-transform: uppercase; letter-spacing: 0.04em; color: #5a554c">SICONFI · valor liquidado, função 12 · 2024 e 2025 conferido com Betha e SIOPE, mesmo valor ao centavo</span>
+
+</div><div style="display: flex; flex-wrap: wrap; gap: 32px 48px"><div style="flex: 1 1 420px; min-width: 0; display: flex; flex-direction: column; gap: 14px"><div style="display: flex; flex-direction: column; gap: 2px"><h3 style="margin: 0; font-size: 19px; font-weight: 600">Gasto por ano, em R$ milhões</h3></div><div role="img" aria-label="Gasto com educação de R$ 19,06 milhões em 2018 a R$ 37,48 milhões em 2025" style="display: flex; flex-direction: column; gap: 6px">
+<div style="position: relative; height: 220px; border-bottom: 2px solid #1c1a17">
+
+<div style="position: absolute; inset: 0; display: flex; align-items: flex-end; gap: clamp(3px, 0.8vw, 8px)">
+<sc-for list="{{gasto}}" as="b" hint-placeholder-count="6">
+<div title="{{b.tip}}" style="flex: 1 1 0; min-width: 0; height: 100%; display: flex; flex-direction: column; justify-content: flex-end; align-items: center; gap: 3px">
+<span class="mono" style="font-size: 11px; white-space: nowrap">{{b.rot}}</span>
+<span style="display: block; width: 100%; height: {{b.h}}; background: {{b.cor}}"></span>
+</div>
+</sc-for>
+</div>
+</div>
+<div aria-hidden="true" class="mono" style="display: flex; gap: clamp(3px, 0.8vw, 8px); font-size: 11px">
+<sc-for list="{{gasto}}" as="b" hint-placeholder-count="6"><span style="flex: 1 1 0; min-width: 0; text-align: center; overflow: hidden">{{b.r}}</span></sc-for>
+</div>
+</div><div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(150px, 100%), 1fr)); gap: 16px 24px"><div style="display: flex; flex-direction: column; gap: 2px; border-top: 1px solid #1c1a17; padding-top: 8px"><span class="serif" style="font-size: 38px; line-height: 1">R$ 1.518,34</span><span style="font-size: 15px">por morador em 2025 (R$ 836,73 em 2018)</span></div><div style="display: flex; flex-direction: column; gap: 2px; border-top: 1px solid #1c1a17; padding-top: 8px"><span class="serif" style="font-size: 38px; line-height: 1">25,6%</span><span style="font-size: 15px">de todo o gasto da Prefeitura em 2025</span></div></div></div><div style="flex: 1 1 420px; min-width: 0; display: flex; flex-direction: column; gap: 14px"><div style="display: flex; flex-direction: column; gap: 2px"><h3 style="margin: 0; font-size: 19px; font-weight: 600">Para qual etapa foi o dinheiro</h3><span class="mono" style="font-size: 11px; text-transform: uppercase; letter-spacing: 0.04em; color: #5a554c">Fundamental e educação infantil, cálculo sobre o SICONFI</span></div><div class="mono" style="display: flex; flex-wrap: wrap; gap: 4px 18px; font-size: 12px"><span style="display: inline-flex; align-items: center; gap: 6px"><span aria-hidden="true" style="width: 12px; height: 12px; background: #1c1a17"></span>Fundamental</span><span style="display: inline-flex; align-items: center; gap: 6px"><span aria-hidden="true" style="width: 12px; height: 12px; background: #b52d1b"></span>Educação infantil</span><span style="display: inline-flex; align-items: center; gap: 6px"><span aria-hidden="true" style="width: 12px; height: 12px; background: #ddd6c6"></span>Outras</span></div><div style="display: flex; flex-direction: column; gap: 16px">
+<sc-for list="{{etapa}}" as="s" hint-placeholder-count="3">
+<div style="display: flex; flex-direction: column; gap: 6px">
+<div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; gap: 2px 16px"><span style="font-size: 16px; font-weight: 500">{{s.rotulo}}</span><span class="mono" style="font-size: 13px">{{s.total}}</span></div>
+<div style="display: flex; gap: 2px; height: 32px; width: {{s.largura}}">
+<sc-for list="{{s.segs}}" as="g" hint-placeholder-count="3"><div title="{{g.tip}}" style="{{g.st}}"><span class="mono" style="{{g.cl}}">{{g.txt}}</span></div></sc-for>
+</div>
+<sc-if value="{{s.temNota}}" hint-placeholder-val="{{ false }}"><span style="font-size: 14px; color: #5a554c">{{s.nota}}</span></sc-if>
+</div>
+</sc-for>
+</div><p class="serif" style="margin: 0; font-style: italic; font-size: 19px; line-height: 1.3; border-left: 2px solid #b52d1b; padding-left: 14px; text-wrap: pretty">A educação infantil passou de um quarto para quase 40% do gasto entre 2018 e 2025.</p></div></div>
+</section><section style="padding-top: 40px; margin-top: 48px; border-top: 3px double #1c1a17; display: flex; flex-direction: column; gap: 18px">
+<div style="display: flex; flex-direction: column; gap: 6px; border-bottom: 1px solid #1c1a17; padding-bottom: 10px">
+<h2 class="serif" style="margin: 0; font-size: clamp(28px, 3.4vw, 36px); line-height: 1.1">Quanto custa cada aluno</h2>
+<span class="mono" style="font-size: 12px; text-transform: uppercase; letter-spacing: 0.04em; color: #5a554c">SIOPE · 2020 a 2025 · reais nominais</span>
+
+</div><div role="img" aria-label="Gasto por aluno: educação infantil de R$ 5.570 em 2020 a R$ 13.181 em 2025; fundamental de R$ 11.891 a R$ 21.028" style="display: flex; flex-direction: column; gap: 6px">
+<div style="height: 200px; display: flex; align-items: flex-end; gap: clamp(4px, 1vw, 10px); border-bottom: 2px solid #1c1a17"><div style="flex: 1 1 0; min-width: 0; height: 100%; display: flex; align-items: flex-end; gap: 2px">
+<span title="2020, Educação infantil: R$ 5.570" style="flex: 1 1 0; height: 25.3%; background: #b52d1b"></span>
+<span title="2020, Fundamental: R$ 11.891" style="flex: 1 1 0; height: 54.0%; background: #1c1a17"></span>
+</div><div style="flex: 1 1 0; min-width: 0; height: 100%; display: flex; align-items: flex-end; gap: 2px">
+<span title="2021, Educação infantil: R$ 6.233" style="flex: 1 1 0; height: 28.3%; background: #b52d1b"></span>
+<span title="2021, Fundamental: R$ 12.373" style="flex: 1 1 0; height: 56.2%; background: #1c1a17"></span>
+</div><div style="flex: 1 1 0; min-width: 0; height: 100%; display: flex; align-items: flex-end; gap: 2px">
+<span title="2022, Educação infantil: R$ 6.636" style="flex: 1 1 0; height: 30.2%; background: #b52d1b"></span>
+<span title="2022, Fundamental: R$ 18.613" style="flex: 1 1 0; height: 84.6%; background: #1c1a17"></span>
+</div><div style="flex: 1 1 0; min-width: 0; height: 100%; display: flex; align-items: flex-end; gap: 2px">
+<span title="2023, Educação infantil: R$ 10.240" style="flex: 1 1 0; height: 46.5%; background: #b52d1b"></span>
+<span title="2023, Fundamental: R$ 15.738" style="flex: 1 1 0; height: 71.5%; background: #1c1a17"></span>
+</div><div style="flex: 1 1 0; min-width: 0; height: 100%; display: flex; align-items: flex-end; gap: 2px">
+<span title="2024, Educação infantil: R$ 11.530" style="flex: 1 1 0; height: 52.4%; background: #b52d1b"></span>
+<span title="2024, Fundamental: R$ 15.954" style="flex: 1 1 0; height: 72.5%; background: #1c1a17"></span>
+</div><div style="flex: 1 1 0; min-width: 0; height: 100%; display: flex; align-items: flex-end; gap: 2px">
+<span title="2025, Educação infantil: R$ 13.181" style="flex: 1 1 0; height: 59.9%; background: #b52d1b"></span>
+<span title="2025, Fundamental: R$ 21.028" style="flex: 1 1 0; height: 95.6%; background: #1c1a17"></span>
+</div></div>
+<div aria-hidden="true" class="mono" style="display: flex; gap: clamp(4px, 1vw, 10px); font-size: 11px"><span style="flex: 1 1 0; min-width: 0; text-align: center">2020</span><span style="flex: 1 1 0; min-width: 0; text-align: center">2021</span><span style="flex: 1 1 0; min-width: 0; text-align: center">2022</span><span style="flex: 1 1 0; min-width: 0; text-align: center">2023</span><span style="flex: 1 1 0; min-width: 0; text-align: center">2024</span><span style="flex: 1 1 0; min-width: 0; text-align: center">2025</span></div>
+</div><div class="mono" style="display: flex; flex-wrap: wrap; gap: 4px 18px; font-size: 12px"><span style="display: inline-flex; align-items: center; gap: 6px"><span aria-hidden="true" style="width: 12px; height: 12px; background: #b52d1b"></span>Educação infantil</span><span style="display: inline-flex; align-items: center; gap: 6px"><span aria-hidden="true" style="width: 12px; height: 12px; background: #1c1a17"></span>Fundamental</span></div><p style="margin: 0; font-size: 16px">Em 2025: <span class="mono">R$ 13.181</span> por aluno da educação infantil e <span class="mono">R$ 21.028</span> por aluno do fundamental.</p>
+</section><section style="padding-top: 40px; margin-top: 48px; border-top: 3px double #1c1a17; display: flex; flex-direction: column; gap: 18px">
+<div style="display: flex; flex-direction: column; gap: 6px; border-bottom: 1px solid #1c1a17; padding-bottom: 10px">
+<h2 class="serif" style="margin: 0; font-size: clamp(28px, 3.4vw, 36px); line-height: 1.1">Em que o dinheiro foi gasto em 2025</h2>
+<span class="mono" style="font-size: 12px; text-transform: uppercase; letter-spacing: 0.04em; color: #5a554c">Portal da Transparência (Betha) · 2025 · pessoal, custeio e investimento: cálculo</span>
+
+</div><div style="display: flex; flex-wrap: wrap; gap: 32px 48px"><div style="flex: 1 1 420px; min-width: 0; display: flex; flex-direction: column; gap: 14px"><div style="display: flex; flex-direction: column; gap: 2px"><h3 style="margin: 0; font-size: 19px; font-weight: 600">Tipo de despesa</h3></div><div class="mono" style="display: flex; flex-wrap: wrap; gap: 4px 18px; font-size: 12px"><span style="display: inline-flex; align-items: center; gap: 6px"><span aria-hidden="true" style="width: 12px; height: 12px; background: #1c1a17"></span>Pessoal</span><span style="display: inline-flex; align-items: center; gap: 6px"><span aria-hidden="true" style="width: 12px; height: 12px; background: #8a8273"></span>Custeio</span><span style="display: inline-flex; align-items: center; gap: 6px"><span aria-hidden="true" style="width: 12px; height: 12px; background: #b52d1b"></span>Investimento</span></div><div style="display: flex; flex-direction: column; gap: 16px">
+<sc-for list="{{tipo}}" as="s" hint-placeholder-count="3">
+<div style="display: flex; flex-direction: column; gap: 6px">
+<div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; gap: 2px 16px"><span style="font-size: 16px; font-weight: 500">{{s.rotulo}}</span><span class="mono" style="font-size: 13px">{{s.total}}</span></div>
+<div style="display: flex; gap: 2px; height: 32px; width: {{s.largura}}">
+<sc-for list="{{s.segs}}" as="g" hint-placeholder-count="3"><div title="{{g.tip}}" style="{{g.st}}"><span class="mono" style="{{g.cl}}">{{g.txt}}</span></div></sc-for>
+</div>
+<sc-if value="{{s.temNota}}" hint-placeholder-val="{{ false }}"><span style="font-size: 14px; color: #5a554c">{{s.nota}}</span></sc-if>
+</div>
+</sc-for>
+</div></div><div style="flex: 1 1 420px; min-width: 0; display: flex; flex-direction: column; gap: 14px"><div style="display: flex; flex-direction: column; gap: 2px"><h3 style="margin: 0; font-size: 19px; font-weight: 600">Alguns gastos</h3></div><div style="display: flex; flex-direction: column"><div title="Transporte escolar: R$ 3,95 mi" style="display: flex; flex-direction: column; gap: 4px; padding: 6px 0">
+<div style="display: flex; justify-content: space-between; gap: 12px; font-size: 16px"><span>Transporte escolar</span><span class="mono" style="font-size: 15px; white-space: nowrap">R$ 3,95 mi</span></div>
+<div aria-hidden="true" style="height: 6px; background: #ddd6c6"><div style="height: 100%; width: 100.00%; background: #1c1a17"></div></div>
+</div><div title="Merenda: R$ 1,65 mi" style="display: flex; flex-direction: column; gap: 4px; padding: 6px 0">
+<div style="display: flex; justify-content: space-between; gap: 12px; font-size: 16px"><span>Merenda</span><span class="mono" style="font-size: 15px; white-space: nowrap">R$ 1,65 mi</span></div>
+<div aria-hidden="true" style="height: 6px; background: #ddd6c6"><div style="height: 100%; width: 41.77%; background: #1c1a17"></div></div>
+</div><div title="Auxílio e transporte universitário: R$ 399.200" style="display: flex; flex-direction: column; gap: 4px; padding: 6px 0">
+<div style="display: flex; justify-content: space-between; gap: 12px; font-size: 16px"><span>Auxílio e transporte universitário</span><span class="mono" style="font-size: 15px; white-space: nowrap">R$ 399.200</span></div>
+<div aria-hidden="true" style="height: 6px; background: #ddd6c6"><div style="height: 100%; width: 10.11%; background: #1c1a17"></div></div>
+</div></div></div></div>
+</section><section style="padding-top: 40px; margin-top: 48px; border-top: 3px double #1c1a17; display: flex; flex-direction: column; gap: 18px">
+<div style="display: flex; flex-direction: column; gap: 6px; border-bottom: 1px solid #1c1a17; padding-bottom: 10px">
+<h2 class="serif" style="margin: 0; font-size: clamp(28px, 3.4vw, 36px); line-height: 1.1">De onde veio o dinheiro em 2025</h2>
+<span class="mono" style="font-size: 12px; text-transform: uppercase; letter-spacing: 0.04em; color: #5a554c">Portal da Transparência (Betha) · 2025 · repasses recebidos</span>
+
+</div><div style="display: flex; flex-wrap: wrap; gap: 32px 48px"><div style="flex: 1 1 420px; min-width: 0; display: flex; flex-direction: column; gap: 14px"><div style="display: flex; flex-direction: column"><div title="Fundeb: R$ 17,45 mi" style="display: flex; flex-direction: column; gap: 4px; padding: 6px 0">
+<div style="display: flex; justify-content: space-between; gap: 12px; font-size: 16px"><span>Fundeb</span><span class="mono" style="font-size: 15px; white-space: nowrap">R$ 17,45 mi</span></div>
+<div aria-hidden="true" style="height: 6px; background: #ddd6c6"><div style="height: 100%; width: 100.00%; background: #1c1a17"></div></div>
+</div><div title="Transporte escolar, repasse do Estado: R$ 1,26 mi" style="display: flex; flex-direction: column; gap: 4px; padding: 6px 0">
+<div style="display: flex; justify-content: space-between; gap: 12px; font-size: 16px"><span>Transporte escolar, repasse do Estado</span><span class="mono" style="font-size: 15px; white-space: nowrap">R$ 1,26 mi</span></div>
+<div aria-hidden="true" style="height: 6px; background: #ddd6c6"><div style="height: 100%; width: 7.22%; background: #1c1a17"></div></div>
+</div><div title="Salário-educação: R$ 1,07 mi" style="display: flex; flex-direction: column; gap: 4px; padding: 6px 0">
+<div style="display: flex; justify-content: space-between; gap: 12px; font-size: 16px"><span>Salário-educação</span><span class="mono" style="font-size: 15px; white-space: nowrap">R$ 1,07 mi</span></div>
+<div aria-hidden="true" style="height: 6px; background: #ddd6c6"><div style="height: 100%; width: 6.13%; background: #1c1a17"></div></div>
+</div><div title="Fundeb, complementação VAAR: R$ 738.244" style="display: flex; flex-direction: column; gap: 4px; padding: 6px 0">
+<div style="display: flex; justify-content: space-between; gap: 12px; font-size: 16px"><span>Fundeb, complementação VAAR</span><span class="mono" style="font-size: 15px; white-space: nowrap">R$ 738.244</span></div>
+<div aria-hidden="true" style="height: 6px; background: #ddd6c6"><div style="height: 100%; width: 4.23%; background: #1c1a17"></div></div>
+</div><div title="PNAE, alimentação escolar: R$ 332.568" style="display: flex; flex-direction: column; gap: 4px; padding: 6px 0">
+<div style="display: flex; justify-content: space-between; gap: 12px; font-size: 16px"><span>PNAE, alimentação escolar</span><span class="mono" style="font-size: 15px; white-space: nowrap">R$ 332.568</span></div>
+<div aria-hidden="true" style="height: 6px; background: #ddd6c6"><div style="height: 100%; width: 1.91%; background: #1c1a17"></div></div>
+</div><div title="PNATE, transporte escolar: R$ 143.213" style="display: flex; flex-direction: column; gap: 4px; padding: 6px 0">
+<div style="display: flex; justify-content: space-between; gap: 12px; font-size: 16px"><span>PNATE, transporte escolar</span><span class="mono" style="font-size: 15px; white-space: nowrap">R$ 143.213</span></div>
+<div aria-hidden="true" style="height: 6px; background: #ddd6c6"><div style="height: 100%; width: 0.82%; background: #1c1a17"></div></div>
+</div><div title="Programa Escola em Tempo Integral: R$ 27.961" style="display: flex; flex-direction: column; gap: 4px; padding: 6px 0">
+<div style="display: flex; justify-content: space-between; gap: 12px; font-size: 16px"><span>Programa Escola em Tempo Integral</span><span class="mono" style="font-size: 15px; white-space: nowrap">R$ 27.961</span></div>
+<div aria-hidden="true" style="height: 6px; background: #ddd6c6"><div style="height: 100%; width: 0.60%; background: #1c1a17"></div></div>
+</div></div></div><div style="flex: 1 1 420px; min-width: 0; display: flex; flex-direction: column; gap: 14px"><div style="display: flex; flex-direction: column; gap: 2px"><h3 style="margin: 0; font-size: 19px; font-weight: 600">Quanto o repasse específico cobre do gasto</h3><span class="mono" style="font-size: 11px; text-transform: uppercase; letter-spacing: 0.04em; color: #5a554c">Cálculo · lado a lado, sem somar</span></div><div style="display: flex; flex-wrap: wrap; gap: 20px 32px"><div style="flex: 1 1 260px; min-width: 0; display: flex; flex-direction: column; gap: 6px; border-top: 1px solid #1c1a17; padding-top: 10px">
+<span style="font-size: 17px; font-weight: 600">Transporte escolar</span>
+<span class="serif" style="font-size: 52px; line-height: 1">35,5%</span>
+<span style="font-size: 15px">do gasto foi coberto por repasse específico em 2025</span>
+<div aria-hidden="true" style="height: 8px; background: #ddd6c6"><div style="height: 100%; width: 35.5%; background: #b52d1b"></div></div>
+<span class="mono" style="font-size: 13px">2024: 36,7%</span>
+<div aria-hidden="true" style="height: 8px; background: #ddd6c6"><div style="height: 100%; width: 36.7%; background: #8a8273"></div></div>
+</div><div style="flex: 1 1 260px; min-width: 0; display: flex; flex-direction: column; gap: 6px; border-top: 1px solid #1c1a17; padding-top: 10px">
+<span style="font-size: 17px; font-weight: 600">Merenda</span>
+<span class="serif" style="font-size: 52px; line-height: 1">20,1%</span>
+<span style="font-size: 15px">do gasto foi coberto por repasse específico em 2025</span>
+<div aria-hidden="true" style="height: 8px; background: #ddd6c6"><div style="height: 100%; width: 20.1%; background: #b52d1b"></div></div>
+<span class="mono" style="font-size: 13px">2024: 28,8%</span>
+<div aria-hidden="true" style="height: 8px; background: #ddd6c6"><div style="height: 100%; width: 28.8%; background: #8a8273"></div></div>
+</div></div></div></div>
+</section><section style="padding-top: 40px; margin-top: 48px; border-top: 3px double #1c1a17; display: flex; flex-direction: column; gap: 18px">
+<div style="display: flex; flex-direction: column; gap: 6px; border-bottom: 1px solid #1c1a17; padding-bottom: 10px">
+<h2 class="serif" style="margin: 0; font-size: clamp(28px, 3.4vw, 36px); line-height: 1.1">Fundeb na remuneração</h2>
+<span class="mono" style="font-size: 12px; text-transform: uppercase; letter-spacing: 0.04em; color: #5a554c">SIOPE · 2020 a 2025</span>
+<p style="margin: 0; font-size: 17px; max-width: 720px; text-wrap: pretty">A lei exige que pelo menos 70% do Fundeb vá para a remuneração dos profissionais da educação (até 2020, eram 60%). Orleans ficou acima em todos os anos.</p>
+</div><div role="img" aria-label="Fundeb na remuneração: entre 78,12% em 2021 e 90,06% em 2023" style="display: flex; flex-direction: column; gap: 6px">
+<div style="position: relative; height: 200px; border-bottom: 2px solid #1c1a17">
+<div aria-hidden="true" style="position: absolute; left: 0; right: 0; bottom: 70%; border-top: 2px dashed #b52d1b; z-index: 1"><span class="mono" style="position: absolute; right: 0; bottom: 2px; font-size: 11px; color: #b52d1b; background: #efeadf; padding: 0 4px">mínimo: 70%</span></div>
+<div style="position: absolute; inset: 0; display: flex; align-items: flex-end; gap: clamp(3px, 0.8vw, 8px)">
+<sc-for list="{{fundeb}}" as="b" hint-placeholder-count="6">
+<div title="{{b.tip}}" style="flex: 1 1 0; min-width: 0; height: 100%; display: flex; flex-direction: column; justify-content: flex-end; align-items: center; gap: 3px">
+<span class="mono" style="font-size: 11px; white-space: nowrap">{{b.rot}}</span>
+<span style="display: block; width: 100%; height: {{b.h}}; background: {{b.cor}}"></span>
+</div>
+</sc-for>
+</div>
+</div>
+<div aria-hidden="true" class="mono" style="display: flex; gap: clamp(3px, 0.8vw, 8px); font-size: 11px">
+<sc-for list="{{fundeb}}" as="b" hint-placeholder-count="6"><span style="flex: 1 1 0; min-width: 0; text-align: center; overflow: hidden">{{b.r}}</span></sc-for>
+</div>
+</div>
+</section><section style="padding-top: 40px; margin-top: 48px; border-top: 3px double #1c1a17; display: flex; flex-direction: column; gap: 18px">
+<div style="display: flex; flex-direction: column; gap: 6px; border-bottom: 1px solid #1c1a17; padding-bottom: 10px">
+<h2 class="serif" style="margin: 0; font-size: clamp(28px, 3.4vw, 36px); line-height: 1.1">Discrepâncias entre fontes</h2>
+<span class="mono" style="font-size: 12px; text-transform: uppercase; letter-spacing: 0.04em; color: #5a554c">SIOPE e SICONFI · 2020 a 2025</span>
+<p style="margin: 0; font-size: 17px; max-width: 720px; text-wrap: pretty">SIOPE e SICONFI são dois sistemas do governo federal que recebem os dados da Prefeitura. Às vezes registram valores um pouco diferentes para o mesmo índice. Mostramos os dois quando não coincidem.</p>
+</div><div style="display: flex; flex-wrap: wrap; gap: 32px 48px"><div style="flex: 1 1 420px; min-width: 0; display: flex; flex-direction: column; gap: 14px"><div style="display: flex; flex-direction: column; gap: 2px"><h3 style="margin: 0; font-size: 19px; font-weight: 600">Aplicação em educação (mínimo de 25%)</h3></div><div style="display: flex; flex-direction: column"><div class="mono" style="display: grid; grid-template-columns: 64px minmax(0, 1fr) minmax(0, 1fr); gap: 12px; padding: 6px 0; border-bottom: 2px solid #1c1a17; font-size: 11px; text-transform: uppercase; letter-spacing: 0.04em"><span>Ano</span><span style="text-align: right">SIOPE</span><span style="text-align: right">SICONFI</span></div><div style="display: grid; grid-template-columns: 64px minmax(0, 1fr) minmax(0, 1fr); gap: 4px 12px; padding: 10px 0; border-bottom: 1px solid #c9c1b0"><span class="mono">2020</span><span class="mono" style="text-align: right">28,08%</span><span class="mono" style="text-align: right">28,54%</span></div><div style="display: grid; grid-template-columns: 64px minmax(0, 1fr) minmax(0, 1fr); gap: 4px 12px; padding: 10px 0; border-bottom: 1px solid #c9c1b0"><span class="mono">2023</span><span class="mono" style="text-align: right">27,72%</span><span class="mono" style="text-align: right">29,06%</span><span style="grid-column: 1 / -1; font-size: 14px; color: #5a554c">Diferença de R$ 1.079.630,91.</span></div><div style="display: grid; grid-template-columns: 64px minmax(0, 1fr) minmax(0, 1fr); gap: 4px 12px; padding: 10px 0; border-bottom: 1px solid #c9c1b0"><span class="mono">2024</span><span class="mono" style="text-align: right">26,64%</span><span class="mono" style="text-align: right">26,59%</span></div><div style="display: grid; grid-template-columns: 64px minmax(0, 1fr) minmax(0, 1fr); gap: 4px 12px; padding: 10px 0; border-bottom: 1px solid #c9c1b0"><span class="mono">2025</span><span class="mono" style="text-align: right">28,63%</span><span class="mono" style="text-align: right">28,31%</span></div></div></div><div style="flex: 1 1 420px; min-width: 0; display: flex; flex-direction: column; gap: 14px"><div style="display: flex; flex-direction: column; gap: 2px"><h3 style="margin: 0; font-size: 19px; font-weight: 600">Fundeb na remuneração (mínimo de 70%)</h3></div><div style="display: flex; flex-direction: column"><div class="mono" style="display: grid; grid-template-columns: 64px minmax(0, 1fr) minmax(0, 1fr); gap: 12px; padding: 6px 0; border-bottom: 2px solid #1c1a17; font-size: 11px; text-transform: uppercase; letter-spacing: 0.04em"><span>Ano</span><span style="text-align: right">SIOPE</span><span style="text-align: right">SICONFI</span></div><div style="display: grid; grid-template-columns: 64px minmax(0, 1fr) minmax(0, 1fr); gap: 4px 12px; padding: 10px 0; border-bottom: 1px solid #c9c1b0"><span class="mono">2020</span><span class="mono" style="text-align: right">80,66%</span><span class="mono" style="text-align: right">87,13%</span><span style="grid-column: 1 / -1; font-size: 14px; color: #5a554c">Em 2020, o mínimo era 60%.</span></div><div style="display: grid; grid-template-columns: 64px minmax(0, 1fr) minmax(0, 1fr); gap: 4px 12px; padding: 10px 0; border-bottom: 1px solid #c9c1b0"><span class="mono">2021</span><span class="mono" style="text-align: right">78,12%</span><span class="mono" style="text-align: right">78,94%</span></div><div style="display: grid; grid-template-columns: 64px minmax(0, 1fr) minmax(0, 1fr); gap: 4px 12px; padding: 10px 0; border-bottom: 1px solid #c9c1b0"><span class="mono">2023</span><span class="mono" style="text-align: right">90,06%</span><span class="mono" style="text-align: right">87,18%</span></div><div style="display: grid; grid-template-columns: 64px minmax(0, 1fr) minmax(0, 1fr); gap: 4px 12px; padding: 10px 0; border-bottom: 1px solid #c9c1b0"><span class="mono">2024</span><span class="mono" style="text-align: right">85,22%</span><span class="mono" style="text-align: right">83,02%</span></div><div style="display: grid; grid-template-columns: 64px minmax(0, 1fr) minmax(0, 1fr); gap: 4px 12px; padding: 10px 0; border-bottom: 1px solid #c9c1b0"><span class="mono">2025</span><span class="mono" style="text-align: right">87,61%</span><span class="mono" style="text-align: right">87,27%</span></div></div></div></div><p style="margin: 0; font-size: 15px; color: #3d3a33">Nos anos que não aparecem aqui (2021 e 2022 na aplicação em educação; 2022 no Fundeb), as duas fontes registram o mesmo valor.</p>
+</section>
+<footer style="margin-top: 56px; border-top: 3px solid #1c1a17; padding-top: 16px; display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px 32px; font-size: 14px">
+<span>Fontes: IBGE, INEP, MEC, SIOPE, SICONFI e Portal da Transparência (Betha). Valores em reais nominais, sem correção pela inflação.</span>
+<span><a href="#">Baixar os dados (CSV)</a> · <a href="Main.dc.html#sobre">Metodologia</a></span>
+</footer>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":3900}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const br = (v, d = 1) => v == null ? '—' : v.toLocaleString('pt-BR', { minimumFractionDigits: d, maximumFractionDigits: d });
+    const pos = (v, mn, mx) => v == null ? '0%' : (Math.max(0, Math.min(1, (v - mn) / (mx - mn))) * 100).toFixed(2) + '%';
+    const cmp = (rotulo, o, s, b, op = {}) => {
+      const mn = op.min ?? 0, mx = op.max ?? 100, d = op.d ?? 1, suf = op.suf ?? '%';
+      const t = (v) => v == null ? '' : br(v, d) + suf;
+      return { rotulo, nota: op.nota || '', temNota: !!op.nota, oL: pos(o, mn, mx), sL: pos(s, mn, mx), bL: pos(b, mn, mx), oT: t(o), sT: t(s), bT: t(b), temS: s != null, temB: b != null, temO: o != null };
+    };
+    const barras = (rotulos, vals, mx, op = {}) => rotulos.map((r, i) => {
+      const txt = op.fmt ? op.fmt(vals[i]) : br(vals[i], op.d ?? 1) + (op.suf ?? '');
+      return { r, h: Math.max(vals[i] / mx * 100, 0.5).toFixed(1) + '%', cor: (op.cor && op.cor(vals[i], i)) || '#1c1a17', rot: (!op.lab || op.lab(i, vals[i])) ? txt : '', tip: r + ': ' + txt };
+    });
+
+    const HATCH = 'repeating-linear-gradient(45deg, #1c1a17 0 1px, transparent 1px 5px)';
+    const seg = (p, bg, txt, tip, escuro) => ({
+      tip, txt: p >= 9 ? txt : '',
+      st: 'width: ' + p.toFixed(2) + '%; min-width: ' + (p > 0 ? '4px' : '0') + '; display: flex; align-items: center; padding: 0 6px; box-sizing: border-box; overflow: hidden; background: ' + bg + (bg.indexOf('repeating') === 0 ? '; box-shadow: inset 0 0 0 1px #1c1a17' : ''),
+      cl: 'font-size: 12px; white-space: nowrap; color: ' + (escuro ? '#efeadf' : '#1c1a17') + (escuro ? '' : '; background: #efeadf; padding: 0 3px')
+    });
+
+    const anosMin = ['12','13','14','15','16','17','18','19','20','21','22','23','24','25'];
+    const vMin = [29.65, 29.68, 30.59, 30.73, 30.86, 27.37, 30.40, 29.07, 28.08, 23.28, 27.62, 27.72, 26.64, 28.63];
+    const minimo = barras(anosMin.map((a) => '’' + a), vMin, 35, { d: 1, suf: '%', cor: (v) => v < 25 ? '#b52d1b' : '#1c1a17', lab: (i) => i === 0 || i === 9 || i === 13 });
+    const gasto = barras(['2018','2019','2020','2021','2022','2023','2024','2025'], [19.06, 20.33, 17.61, 19.66, 27.68, 30.60, 31.51, 37.48], 40, { d: 1, cor: (v, i) => i >= 6 ? '#b52d1b' : '#1c1a17', lab: (i) => i === 0 || i >= 6 });
+    const et = (r, f, i) => ({ rotulo: r, total: '', largura: '100%', temNota: false, nota: '', segs: [seg(f, '#1c1a17', br(f, 1) + '%', 'Fundamental: ' + br(f, 1) + '%', true), seg(i, '#b52d1b', br(i, 1) + '%', 'Educação infantil: ' + br(i, 1) + '%', true), seg(100 - f - i, '#ddd6c6', '', 'Outras: ' + br(100 - f - i, 1) + '%', false)] });
+    const etapa = [et('2018', 69.3, 25.2), et('2021', 63.9, 31.4), et('2023', 60.5, 34.9), et('2025', 54.9, 39.6)];
+    const tp = (r, p, c, iv) => ({ rotulo: r, total: '', largura: '100%', temNota: false, nota: '', segs: [seg(p, '#1c1a17', 'Pessoal ' + br(p, 1) + '%', 'Pessoal: ' + br(p, 1) + '%', true), seg(c, '#8a8273', 'Custeio ' + br(c, 1) + '%', 'Custeio: ' + br(c, 1) + '%', false), seg(iv, '#b52d1b', br(iv, 1) + '%', 'Investimento: ' + br(iv, 1) + '%', true)] });
+    const tipo = [tp('2025', 68.3, 31.2, 0.5), tp('2024', 64.0, 31.2, 4.8)];
+    const fundeb = barras(['2020','2021','2022','2023','2024','2025'], [80.66, 78.12, 86.03, 90.06, 85.22, 87.61], 100, { d: 1, suf: '%' });
+    return { minimo, gasto, etapa, tipo, fundeb };
+  }
+}
+</script>
+</body>
+</html>

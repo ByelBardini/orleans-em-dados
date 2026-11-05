@@ -8,6 +8,7 @@
       {
         "ano": 2025,
         "conferencia": "conferido",
+        "conferenciaEducacao": "conferido",
         "total": {
           "empenhado": 195000,
           "liquidado": 120000,

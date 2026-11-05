@@ -7,7 +7,7 @@ Compara as coletas publicadas das duas fontes num exercício. A regra mora em `p
 - `conferencia.bo.ts` — regra pura e os tipos de cada linha.
 - `conferencias-manuais.ts` — os casos conferidos à mão (`CONFERENCIAS_MANUAIS`), a validação e o cruzamento com as discrepâncias.
 - `conferencia.dao.ts` — as consultas, em SQL com o tipo da linha declarado (CTEs e `FULL JOIN` que reaproveitam `$1`/`$2`; a soma é do Postgres em `NUMERIC`).
-- `conferencia.service.ts` — `conferencia(ano, agora?)` (a comparação), `dadosConferidos(ano)` (só o que as fontes sustentam) e `empenhosConferidos(ano)` (o conjunto casado, para a lista); exportado como `@orleans-em-dados/db/conferencias`, junto com os tipos `Discrepancia`, `EmpenhoConferido` e `TipoDiscrepancia`.
+- `conferencia.service.ts` — `conferencia(ano, agora?)` (a comparação), `dadosConferidos(ano)` (só o que as fontes sustentam), `empenhosConferidos(ano)` (o conjunto casado, para a lista), `conferirFuncoes(ano)` e `conferirGastoEducacao(ano)`; exportado como `@orleans-em-dados/db/conferencias`, junto com `ACOES_DE_EDUCACAO` e os tipos `Discrepancia`, `EmpenhoConferido`, `TipoDiscrepancia`, `ConferenciaDoGastoEducacao` e `EtapaDoGasto`.
 
 ## Funções e utilitários
 
@@ -27,10 +27,13 @@ Compara as coletas publicadas das duas fontes num exercício. A regra mora em `p
 - `separarReceita(cruzamentos, pistas, mesLimite)` — separa cada entidade × natureza de 8 dígitos × mês em conferido + diferença com `TipoDiscrepancia`, e devolve à parte os meses depois de `mesLimite`. `pistas.linhasRepetidas` vem da consulta linha a linha, e `pistas.repetidas` antiga (`>= 1000`, soma igual à diferença) fica só para as notas de `conferencia(ano)`.
 
 - `compararFuncoes(ano, dca, tce)` — compara em centavos o total da DCA sem a Legislativa com as UGs sem a Câmara, e a Legislativa com a Câmara, por etapa. Exposta por `conferirFuncoes(ano)` (`conferencia.service.ts`), que devolve `{ estado: 'sem_dca' | 'sem_tce' }` ou `{ estado: 'conferido' | 'diferenca', total, legislativa }`, cada comparação com o próprio `estado` e `etapas[]` (`dca`, `tce`, `diferenca`, `maior`).
+- `compararGastoEducacao(ano, dca, betha)` — compara em centavos a função 12 da DCA com a soma das ações de `ACOES_DE_EDUCACAO` na Betha 57170, por etapa. Exposta por `conferirGastoEducacao(ano)`, que devolve `{ estado: 'sem_dca' | 'sem_betha' }` ou `{ estado: 'conferido' | 'diferenca', etapas[] }` (`etapa`, `dca`, `betha`, `diferenca`, `maior`).
 
 ## Regras de negócio
 
 - Despesa por função: `conferirFuncoes` alimenta `/api/funcoes` e a área `funcao` de `/api/discrepancias`. Igualdade do total não confere cada função, porque função não é entidade (Saneamento 2024 difere do SAMAE no TCE-SC). Só o total e a Legislativa têm par. Cada outra função é fonte única. A Câmara é a unidade do Legislativo em `unidades_tce` (UG `1864`). Coleta de exemplo do TCE-SC não confere nada.
+
+- Gasto com educação: as três etapas iguais ao centavo são `conferido`; qualquer outra coisa, `diferenca`, com a etapa. O número da ação muda entre exercícios, então a ligação é pelo nome, sempre de `ACOES_DE_EDUCACAO`, comparado por `CHAVE_DE_TEXTO`: número novo com o mesmo nome soma, e outro nome fica fora, mesmo com o número de uma ação da lista. Coleta sem nenhuma ação da lista compara com zero, porque é coleta; só a falta dela é `sem_betha`. Coleta de exemplo, da Betha ou da DCA, não confere (`sem_betha`, `sem_dca`). Só o total da função é conferido: cada ação segue fonte única, e nenhuma outra função tem par na Betha.
 
 - Compara só conceitos iguais, no nível comum às duas fontes: natureza da receita em 8 dígitos (Betha `17135011000000` ↔ TCE `1.7.1.3.50.1.1`).
 - Sem as cinco coletas publicadas (status diferente de `exemplo`), devolve `{ disponivel: false, faltando }`.
@@ -78,10 +81,11 @@ Compara as coletas publicadas das duas fontes num exercício. A regra mora em `p
 
 ## Testes
 
-- Unit em `packages/db/test/conferencia/conferencia.bo.spec.ts`, `conferencias-manuais.spec.ts` e `funcoes.spec.ts`; integração em `packages/db/test/integration/conferencia.spec.ts` e `conferencia-funcoes.spec.ts`, sobre as fixtures de `popularBancoDeTeste()`. `popularCenario({ receitas, despesas, ... })` troca só os lotes que o cenário informa.
+- Unit em `packages/db/test/conferencia/conferencia.bo.spec.ts`, `conferencias-manuais.spec.ts`, `funcoes.spec.ts` e `gasto-educacao.spec.ts`; integração em `packages/db/test/integration/conferencia.spec.ts`, `conferencia-funcoes.spec.ts` e `conferencia-gasto-educacao.spec.ts`, sobre as fixtures de `popularBancoDeTeste()`. `popularCenario({ receitas, despesas, ... })` troca só os lotes que o cenário informa.
 
 ## Armadilhas
 
+- Ação de educação com nome novo na Betha fica fora da soma, e o ano sai como `diferenca`: confira o nome e acrescente-o a `ACOES_DE_EDUCACAO`. A fixture `despesas()` usa um nome da lista, para o gasto das fixtures ficar conferido.
 - `receitaIncoerente` aponta o mês em que o acumulado desencontra, que pode não ser o da linha sobrando (a linha é de maio, o desencontro aparece em junho). Por isso a classificação é por natureza, e `mes` vem do cruzamento com o TCE, nunca da incoerência.
 - Credor diverge muito entre as fontes: no SAMAE 2024, dos 32 empenhos sem par com a mesma data e valor em outro número, 12 têm o credor igual e 32 têm o histórico igual, mesmo com a chave sem acento. Sem o histórico, 20 deles perderiam a pista.
 - O número repete entre os empenhos sem par (nº 336 é repetido e renumerado no SAMAE 2024, com ids diferentes): a chave de um registro manual pode cobrir mais de uma linha.

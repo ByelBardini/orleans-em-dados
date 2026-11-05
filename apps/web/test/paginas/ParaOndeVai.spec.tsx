@@ -9,6 +9,7 @@ import { anoDaSerie, funcoes, funcoesComDiferenca, SERIE_PADRAO, serie } from '.
 const NBSP = ' ';
 const CONFERIDO = 'conferido com o TCE-SC';
 const FONTE_UNICA = 'fonte única, sem conferência';
+const CONFERIDO_COM_BETHA = 'conferido com a Betha';
 
 afterEach(() => vi.unstubAllGlobals());
 
@@ -91,6 +92,45 @@ describe('Para onde vai: manchete', () => {
     await userEvent.click(screen.getByRole('button', { name: 'Pago' }));
 
     expect(manchete()).toHaveTextContent('dos R$ 0,5 milhões pagos em 2025');
+  });
+});
+
+describe('Para onde vai: selo da Educação', () => {
+  const comEducacao = (conferenciaEducacao: 'conferido' | 'diferenca' | 'sem_betha') => ({
+    ano2025: { ...COM_PEQUENAS(), conferenciaEducacao },
+  });
+
+  it('conferida, a linha da função 12 leva "conferido com a Betha", e nenhuma outra leva', async () => {
+    await abrir(comEducacao('conferido'));
+
+    expect(linhaDa(/Educação/)).toHaveTextContent(CONFERIDO_COM_BETHA);
+    expect(linhaDa(/Saúde/)).not.toHaveTextContent(CONFERIDO_COM_BETHA);
+    expect(linhaDa(/Transporte/)).not.toHaveTextContent(CONFERIDO_COM_BETHA);
+    expect(linhaDoTotal()).not.toHaveTextContent(CONFERIDO_COM_BETHA);
+  });
+
+  it('conferida a Educação, a divisão segue fonte única no título da seção', async () => {
+    await abrir(comEducacao('conferido'));
+
+    const cabecalho = screen.getByRole('heading', { name: 'Para onde foi o dinheiro' }).parentElement as HTMLElement;
+
+    expect(within(cabecalho).getByRole('button', { name: FONTE_UNICA })).toBeInTheDocument();
+  });
+
+  it.each(['diferenca', 'sem_betha'] as const)(
+    'com %s, a linha da função 12 fica sem o selo da Betha',
+    async (estado) => {
+      await abrir(comEducacao(estado));
+
+      expect(linhaDa(/Educação/)).not.toHaveTextContent(CONFERIDO_COM_BETHA);
+    },
+  );
+
+  it('total conferido com o TCE-SC não confere a Educação: sem a Betha, a linha fica sem selo', async () => {
+    await abrir({ ano2025: { ...COM_PEQUENAS(), conferencia: 'conferido', conferenciaEducacao: 'sem_betha' } });
+
+    expect(linhaDoTotal()).toHaveTextContent(CONFERIDO);
+    expect(linhaDa(/Educação/)).not.toHaveTextContent(CONFERIDO_COM_BETHA);
   });
 });
 

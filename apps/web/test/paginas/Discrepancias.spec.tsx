@@ -24,6 +24,7 @@ import {
   semConferencia,
   TODOS_OS_GRUPOS,
 } from '../support/discrepancias';
+import { discrepanciasDeEducacao } from '../support/educacao';
 import { FetchFake } from '../support/fetch-fake';
 import { conferenciaGravada } from '../support/respostas';
 
@@ -58,6 +59,7 @@ type Respostas = {
   despesa?: unknown;
   empenho?: unknown;
   conferencia?: unknown;
+  educacao?: unknown;
   entidade?: string;
 };
 
@@ -67,6 +69,7 @@ function instalar({
   despesa = despesas(),
   empenho = empenhos(),
   conferencia = conferenciaGravada(),
+  educacao = { disponivel: false, faltando: ['siope_anexo8'], grupos: [] },
   entidade = '',
 }: Respostas = {}) {
   return new FetchFake()
@@ -75,6 +78,7 @@ function instalar({
     .responder(`/api/despesas/resumo?ano=2025&entidade=${entidade}`, despesa)
     .responder(`/api/despesas/empenhos/resumo?ano=2025&entidade=${entidade}`, empenho)
     .responder('/api/conferencias?ano=2025', conferencia)
+    .responder('/api/educacao/discrepancias', educacao)
     .instalar();
 }
 
@@ -498,7 +502,8 @@ describe('Discrepancias: ano sem conferência', () => {
     expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('Ainda não dá para conferir 2025.');
     expect(container).toHaveTextContent('Falta publicar: receitas do TCE-SC, empenhos do TCE-SC.');
     expect(container.textContent).not.toMatch(/R\$/);
-    expect(fake.pedidos).toEqual(['/api/discrepancias?ano=2025']);
+    expect(fake.pedidos).not.toContain('/api/conferencias?ano=2025');
+    expect(fake.pedidos).not.toContain('/api/receitas?ano=2025&entidade=');
   });
 
   it('continua com o filtro de ano, para sair dali', async () => {
@@ -785,6 +790,144 @@ describe('caso de rubricas que se compensam', () => {
     expect(celula).toHaveTextContent(`R$${NBSP}15.312,12 entre rubricas`);
     expect(celula).toHaveTextContent('sem efeito no total');
     expect(celula).not.toHaveTextContent('meses diferentes');
+  });
+});
+
+describe('Discrepancias: Educação', () => {
+  const blocoDeEducacao = async () => {
+    await screen.findByRole('heading', { level: 2, name: 'Educação' });
+    return screen.getByRole('region', { name: 'Educação' });
+  };
+  const linhaDoCaso = (bloco: HTMLElement, caso: string) => within(bloco).getByText(caso).closest('tr') as HTMLElement;
+
+  it('valor diferente com percentual igual: os dois valores, os dois percentuais e o lado que registra mais', async () => {
+    await abrir({ educacao: discrepanciasDeEducacao() });
+
+    const linha = linhaDoCaso(await blocoDeEducacao(), '2021 · Aplicação em educação');
+    expect(linha.querySelector('td[data-rotulo="SIOPE"]')).toHaveTextContent(`${reais('1.000,00')}23,28%`);
+    expect(linha.querySelector('td[data-rotulo="SICONFI"]')).toHaveTextContent(`${reais('986,45')}23,28%`);
+    expect(linha).toHaveTextContent(`${reais('13,55')} a mais no SIOPE`);
+  });
+
+  it('sem o valor de uma fonte: travessão, os percentuais, a nota, e nenhuma diferença em reais', async () => {
+    await abrir({ educacao: discrepanciasDeEducacao() });
+
+    const linha = linhaDoCaso(await blocoDeEducacao(), '2020 · Fundeb na remuneração');
+    expect(linha.querySelector('td[data-rotulo="SIOPE"]')).toHaveTextContent('—80,66%');
+    expect(linha.querySelector('td[data-rotulo="SICONFI"]')).toHaveTextContent(`${reais('800,00')}87,13%`);
+    const diferenca = linha.querySelector('td[data-rotulo="Diferença"]');
+    expect(diferenca).toHaveTextContent('sem valor para comparar');
+    expect(diferenca).not.toHaveTextContent('R$');
+    expect(linha).toHaveTextContent('só os percentuais ficam lado a lado');
+  });
+
+  it('o gasto não tem percentual, e um centavo também aparece', async () => {
+    await abrir({ educacao: discrepanciasDeEducacao() });
+
+    const linha = linhaDoCaso(await blocoDeEducacao(), '2023 · Gasto liquidado');
+    expect(linha).toHaveTextContent(`${reais('0,01')} a mais no SIOPE`);
+    expect(linha).not.toHaveTextContent('%');
+  });
+
+  it('as colunas e o lado seguem as fontes do grupo: SICONFI × Betha', async () => {
+    await abrir({ educacao: discrepanciasDeEducacao() });
+
+    const grupo = within(await blocoDeEducacao()).getByRole('region', { name: 'Função 12 (exemplo)' });
+    expect(within(grupo).getByRole('columnheader', { name: 'Betha' })).toBeInTheDocument();
+    expect(within(grupo).queryByRole('columnheader', { name: 'SIOPE' })).not.toBeInTheDocument();
+    expect(grupo).toHaveTextContent(`${reais('0,01')} a mais na Betha`);
+  });
+
+  it('cada grupo traz a explicação e o link das duas fontes', async () => {
+    await abrir({ educacao: discrepanciasDeEducacao() });
+
+    const grupo = within(await blocoDeEducacao()).getByRole('region', { name: 'Índices (exemplo)' });
+    expect(grupo).toHaveTextContent('Explicação dos índices (exemplo).');
+    expect(within(grupo).getByRole('link', { name: 'SIOPE, Anexo 8' })).toHaveAttribute(
+      'href',
+      'https://siope.exemplo/anexo8',
+    );
+    expect(within(grupo).getByRole('link', { name: 'SICONFI, RREO Anexo 14' })).toHaveAttribute(
+      'href',
+      'https://siconfi.exemplo/rreo',
+    );
+  });
+
+  it('o bloco diz que não depende do filtro de ano e fica fora da conta do ano', async () => {
+    await abrir({ educacao: discrepanciasDeEducacao() });
+
+    expect(await blocoDeEducacao()).toHaveTextContent(/não depende do filtro de ano/);
+    expect(await blocoDeEducacao()).toHaveTextContent(/fora da conta do ano/);
+  });
+
+  it('a manchete do ano não conta os casos de Educação', async () => {
+    await abrir({ educacao: discrepanciasDeEducacao() });
+    await blocoDeEducacao();
+
+    expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('Em 2025, 8 casos');
+  });
+
+  it('trocar o ano não muda o bloco nem pede de novo', async () => {
+    const fake = instalar({ educacao: discrepanciasDeEducacao() }).responder(
+      '/api/discrepancias?ano=2024',
+      semConferencia(),
+    );
+    const { rerender } = render(<Discrepancias {...PROPS} />);
+    await blocoDeEducacao();
+
+    rerender(<Discrepancias {...PROPS} ano={2024} />);
+    await screen.findByText('Ainda não dá para conferir 2024.');
+
+    expect(linhaDoCaso(await blocoDeEducacao(), '2021 · Aplicação em educação')).toBeInTheDocument();
+    expect(fake.pedidos.filter((p) => p === '/api/educacao/discrepancias')).toHaveLength(1);
+  });
+
+  it('ano sem conferência: o bloco continua, com os anos de sempre', async () => {
+    await abrir({ secao: semConferencia(), educacao: discrepanciasDeEducacao() });
+
+    expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('Ainda não dá para conferir 2025.');
+    expect(linhaDoCaso(await blocoDeEducacao(), '2023 · Gasto liquidado')).toBeInTheDocument();
+  });
+
+  it('o filtro de entidade não recorta o bloco', async () => {
+    await abrir({ educacao: discrepanciasDeEducacao(), entidade: '319' });
+
+    expect(linhaDoCaso(await blocoDeEducacao(), '2021 · Aplicação em educação')).toBeInTheDocument();
+  });
+
+  it('sem coleta de uma das fontes, o bloco some e o resto segue', async () => {
+    await abrir({ educacao: { disponivel: false, faltando: ['siconfi_indices'], grupos: [] } });
+    await screen.findByRole('heading', { name: 'Os totais, para conferir' });
+
+    expect(screen.queryByRole('heading', { level: 2, name: 'Educação' })).not.toBeInTheDocument();
+    expect(document.body.textContent).not.toContain('siconfi_indices');
+  });
+
+  it('sem nenhuma diferença, não deixa título solto', async () => {
+    const { fake } = await abrir({ educacao: discrepanciasDeEducacao({ grupos: [] }) });
+    await screen.findByRole('heading', { name: 'Os totais, para conferir' });
+
+    expect(fake.pedidos).toContain('/api/educacao/discrepancias');
+    expect(screen.queryByRole('heading', { level: 2, name: 'Educação' })).not.toBeInTheDocument();
+  });
+
+  it('se o bloco falhar, os casos do ano seguem e o erro aparece', async () => {
+    await abrir({ educacao: {} });
+
+    expect(
+      await screen.findByText(/Não foi possível carregar: Resposta inesperada de \/api\/educacao/),
+    ).toBeInTheDocument();
+    expect(screen.getByText('Lançamento fora do acumulado')).toBeInTheDocument();
+  });
+
+  it('sem termo proibido, sem rótulo de problema e sem hipótese de causa', async () => {
+    const { container } = await abrir({ educacao: discrepanciasDeEducacao() });
+    const bloco = await blocoDeEducacao();
+
+    const texto = bloco.textContent ?? '';
+    expect(texto).not.toMatch(TEXTO_PROIBIDO);
+    expect(texto).not.toMatch(/problema|causa|motivo|emenda|\b119\b/i);
+    expect((container.textContent ?? '').replace(FRASE_PERMITIDA, '')).not.toMatch(TEXTO_PROIBIDO);
   });
 });
 

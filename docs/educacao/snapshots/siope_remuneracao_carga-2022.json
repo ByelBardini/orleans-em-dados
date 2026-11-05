@@ -1,0 +1,16 @@
+{
+  "meta": {"consultaId":900405,"ano":2022,"filtro":{"arquivo":"Relatório de Remuneração do SIOPE","foto":"maio","extrato":false},"iniciadoEm":"2026-11-05T03:16:05.275Z","coletadoEm":"2026-11-05T03:16:05.275Z","totalHits":11,"capturados":11,"idsUnicos":11,"camposAusentes":{},"conferencia":[{"campo":"total","titulo":"Total (a + b + c)","descricao":"Soma das linhas = linha de total da planilha","fonte":"9933910.51","calculado":"9933910.51","diferenca":"0.00"}],"status":"totalizador_conciliado","erros":[]},
+  "registros": [
+    {"id":"4211702:municipal::magisterio:temporario:carga_temporaria:2022-05","indicador":"carga_temporaria","lugar":"4211702","rede":"municipal","etapa":"","recorte":"magisterio:temporario","periodo":"2022-05","valor":"33.1","texto":null,"unidade":"%"},
+    {"id":"4211702:municipal::magisterio:todos:carga_horas:2022-05","indicador":"carga_horas","lugar":"4211702","rede":"municipal","etapa":"","recorte":"magisterio:todos","periodo":"2022-05","valor":"4990","texto":null,"unidade":"horas"},
+    {"id":"4211702:municipal::magisterio:todos:profissionais:2022-05","indicador":"profissionais","lugar":"4211702","rede":"municipal","etapa":"","recorte":"magisterio:todos","periodo":"2022-05","valor":"143","texto":null,"unidade":"pessoas"},
+    {"id":"4211702:municipal::magisterio:efetivo:profissionais:2022-05","indicador":"profissionais","lugar":"4211702","rede":"municipal","etapa":"","recorte":"magisterio:efetivo","periodo":"2022-05","valor":"91","texto":null,"unidade":"pessoas"},
+    {"id":"4211702:municipal::magisterio:temporario:profissionais:2022-05","indicador":"profissionais","lugar":"4211702","rede":"municipal","etapa":"","recorte":"magisterio:temporario","periodo":"2022-05","valor":"52","texto":null,"unidade":"pessoas"},
+    {"id":"4211702:municipal::licenciatura_plena:formacao_magisterio:2022-05","indicador":"formacao_magisterio","lugar":"4211702","rede":"municipal","etapa":"","recorte":"licenciatura_plena","periodo":"2022-05","valor":"143","texto":null,"unidade":"pessoas"},
+    {"id":"4211702:municipal::outros:temporario:carga_temporaria:2022-05","indicador":"carga_temporaria","lugar":"4211702","rede":"municipal","etapa":"","recorte":"outros:temporario","periodo":"2022-05","valor":"26.1","texto":null,"unidade":"%"},
+    {"id":"4211702:municipal::outros:todos:carga_horas:2022-05","indicador":"carga_horas","lugar":"4211702","rede":"municipal","etapa":"","recorte":"outros:todos","periodo":"2022-05","valor":"2185","texto":null,"unidade":"horas"},
+    {"id":"4211702:municipal::outros:todos:profissionais:2022-05","indicador":"profissionais","lugar":"4211702","rede":"municipal","etapa":"","recorte":"outros:todos","periodo":"2022-05","valor":"69","texto":null,"unidade":"pessoas"},
+    {"id":"4211702:municipal::outros:efetivo:profissionais:2022-05","indicador":"profissionais","lugar":"4211702","rede":"municipal","etapa":"","recorte":"outros:efetivo","periodo":"2022-05","valor":"50","texto":null,"unidade":"pessoas"},
+    {"id":"4211702:municipal::outros:temporario:profissionais:2022-05","indicador":"profissionais","lugar":"4211702","rede":"municipal","etapa":"","recorte":"outros:temporario","periodo":"2022-05","valor":"19","texto":null,"unidade":"pessoas"}
+  ]
+}

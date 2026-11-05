@@ -8,6 +8,13 @@ import Capa from './paginas/Capa';
 import ConhecaOrleans from './paginas/ConhecaOrleans';
 import Despesas from './paginas/Despesas';
 import Discrepancias from './paginas/Discrepancias';
+import Acesso from './paginas/educacao/Acesso';
+import Aprendizado from './paginas/educacao/Aprendizado';
+import Cidade from './paginas/educacao/Cidade';
+import Dinheiro from './paginas/educacao/Dinheiro';
+import Permanencia from './paginas/educacao/Permanencia';
+import Professores from './paginas/educacao/Professores';
+import Resumo from './paginas/educacao/Resumo';
 import Financas from './paginas/Financas';
 import Metodologia from './paginas/Metodologia';
 import ParaOndeVai from './paginas/ParaOndeVai';
@@ -26,6 +33,9 @@ type Aba = {
   /** O nome no segundo nível, quando a própria área é uma das páginas. */
   nomeNaArea?: string;
 };
+
+const CADERNO_DE_EDUCACAO = { caderno: 'Caderno de Educação', semExercicio: true };
+const NA_EDUCACAO = { ...CADERNO_DE_EDUCACAO, dentroDe: 'educacao' };
 
 const ABAS: Aba[] = [
   { id: 'visao-geral', nome: 'Início', Componente: Capa, caderno: null, semExercicio: true },
@@ -47,6 +57,13 @@ const ABAS: Aba[] = [
     semExercicio: true,
     dentroDe: 'financas',
   },
+  { id: 'educacao', nome: 'Educação', nomeNaArea: 'Resumo', Componente: Resumo, ...CADERNO_DE_EDUCACAO },
+  { id: 'educacao-aprendizado', nome: 'Aprendizado', Componente: Aprendizado, ...NA_EDUCACAO },
+  { id: 'educacao-acesso', nome: 'Acesso', Componente: Acesso, ...NA_EDUCACAO },
+  { id: 'educacao-permanencia', nome: 'Permanência', Componente: Permanencia, ...NA_EDUCACAO },
+  { id: 'educacao-professores', nome: 'Professores e turmas', Componente: Professores, ...NA_EDUCACAO },
+  { id: 'educacao-dinheiro', nome: 'Dinheiro', Componente: Dinheiro, ...NA_EDUCACAO },
+  { id: 'educacao-cidade', nome: 'Cidade e ensino superior', Componente: Cidade, ...NA_EDUCACAO },
   { id: 'discrepancias', nome: 'Discrepâncias', Componente: Discrepancias, caderno: 'Discrepâncias entre as fontes' },
   {
     id: 'metodologia',
@@ -143,7 +160,7 @@ export default function App() {
           <div className="faixa-meta">
             <span>Orleans, Santa Catarina</span>
             <span>Dados públicos, cada um com fonte e ano</span>
-            <span>Fontes: IBGE, SICONFI, Portal da Transparência e TCE-SC</span>
+            <span>Fontes: IBGE, INEP, MEC, SIOPE, SICONFI, Portal da Transparência e TCE-SC</span>
           </div>
           <div className="fio-duplo" aria-hidden="true" />
           <div className="titulo-jornal">
@@ -185,9 +202,9 @@ export default function App() {
         <div>
           <p className="rotulo">Sobre os dados</p>
           <p>
-            Portal da Transparência de Orleans (Betha) conferido com o Farol do TCE-SC, despesa por função do SICONFI e
-            indicadores do IBGE. <a href="#discrepancias">Onde as fontes divergem</a> ·{' '}
-            <a href="#metodologia">Como os números são conferidos</a>.
+            Portal da Transparência de Orleans (Betha) conferido com o Farol do TCE-SC, despesa por função do SICONFI,
+            indicadores do IBGE e, na educação, INEP, SIOPE e MEC. <a href="#discrepancias">Onde as fontes divergem</a>{' '}
+            · <a href="#metodologia">Como os números são conferidos</a>.
           </p>
         </div>
         <div>

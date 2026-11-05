@@ -1,0 +1,238 @@
+{
+  "fonte": "SIOPE/FNDE, Relatório de Indicadores de Orleans, CSV baixados pelo usuário",
+  "gerado_em": "2026-11-05",
+  "periodo_lido": {
+    "2020": "2020 - 6º bimestre",
+    "2021": "2021 - 6º bimestre",
+    "2022": "2022 - 6º bimestre",
+    "2023": "2023 - 6º bimestre",
+    "2024": "2024 - 6º bimestre",
+    "2025": "2025 - 6º bimestre",
+    "2026": "2026 - 3º bimestre"
+  },
+  "regras": [
+    "Só os indicadores úteis ao painel; os demais do relatório foram descartados.",
+    "\"0,00%\" e \"R$ 0,00\" viram null, porque o SIOPE os usa quando não calcula. Exceção: indicadores 1.4 e 7.3, em que zero é valor real.",
+    "2026 é parcial (3º bimestre): o limite só vale no fim do ano."
+  ],
+  "observacoes": [
+    "Investimento por aluno da educação básica de 2022 e 2023 (R$ 20.125,10 e R$ 32.002,33) fica acima das etapas e não é recomendado."
+  ],
+  "indicadores": {
+    "indice_educacao_pct": {
+      "rotulo": "Aplicação de impostos em educação (mínimo 25%)",
+      "valores": {
+        "2020": 28.08,
+        "2021": 23.28,
+        "2022": 27.62,
+        "2023": 27.72,
+        "2024": 26.64,
+        "2025": 28.63,
+        "2026": 24.49
+      }
+    },
+    "fundeb_remuneracao_pct": {
+      "rotulo": "Fundeb na remuneração dos profissionais (mínimo 60% até 2020, 70% depois)",
+      "valores": {
+        "2020": 80.66,
+        "2021": 78.12,
+        "2022": 86.03,
+        "2023": 90.06,
+        "2024": 85.22,
+        "2025": 87.61,
+        "2026": 70.72
+      }
+    },
+    "fundeb_outras_despesas_pct": {
+      "rotulo": "Fundeb em outras despesas de educação",
+      "valores": {
+        "2020": 19.34,
+        "2021": 21.77,
+        "2022": 11.14,
+        "2023": 9.94,
+        "2024": 13.54,
+        "2025": 15.31,
+        "2026": 6.14
+      }
+    },
+    "fundeb_nao_aplicado_pct": {
+      "rotulo": "Receita do Fundeb não aplicada no exercício",
+      "valores": {
+        "2020": 0,
+        "2021": 0.11,
+        "2022": 2.83,
+        "2023": 0,
+        "2024": 1.24,
+        "2025": 0.61,
+        "2026": 25.87
+      }
+    },
+    "fundeb_em_infantil_pct": {
+      "rotulo": "Fundeb aplicado na educação infantil",
+      "valores": {
+        "2020": null,
+        "2021": 51.29,
+        "2022": 39.51,
+        "2023": 69.08,
+        "2024": 67.41,
+        "2025": 73.57,
+        "2026": 24.58
+      }
+    },
+    "fundeb_em_fundamental_pct": {
+      "rotulo": "Fundeb aplicado no ensino fundamental",
+      "valores": {
+        "2020": 54.34,
+        "2021": 48.59,
+        "2022": 57.66,
+        "2023": 30.92,
+        "2024": 31.36,
+        "2025": 26.93,
+        "2026": 50.91
+      }
+    },
+    "despesa_infantil_pct": {
+      "rotulo": "Educação infantil na despesa total com educação",
+      "valores": {
+        "2020": 27.82,
+        "2021": 31.02,
+        "2022": 16.07,
+        "2023": 16.93,
+        "2024": 38.75,
+        "2025": 38.52,
+        "2026": 28.49
+      }
+    },
+    "despesa_fundamental_pct": {
+      "rotulo": "Ensino fundamental na despesa total com educação",
+      "valores": {
+        "2020": 61.29,
+        "2021": 51.06,
+        "2022": 43.02,
+        "2023": 23.15,
+        "2024": 45.98,
+        "2025": 47.68,
+        "2026": 56.93
+      }
+    },
+    "educacao_na_despesa_total_pct": {
+      "rotulo": "Educação nas despesas de todas as áreas",
+      "valores": {
+        "2020": 19.24,
+        "2021": 24.22,
+        "2022": 29.26,
+        "2023": null,
+        "2024": 20.74,
+        "2025": 23.06,
+        "2026": 54.62
+      }
+    },
+    "por_aluno_infantil": {
+      "rotulo": "Investimento por aluno da educação infantil",
+      "valores": {
+        "2020": "5570.26",
+        "2021": "6233.38",
+        "2022": "6636.00",
+        "2023": "10239.59",
+        "2024": "11529.53",
+        "2025": "13181.18",
+        "2026": "4515.10"
+      }
+    },
+    "por_aluno_fundamental": {
+      "rotulo": "Investimento por aluno do ensino fundamental",
+      "valores": {
+        "2020": "11891.42",
+        "2021": "12372.91",
+        "2022": "18613.10",
+        "2023": "15737.90",
+        "2024": "15954.33",
+        "2025": "21028.24",
+        "2026": "16686.07"
+      }
+    },
+    "por_aluno_educacao_basica": {
+      "rotulo": "Investimento por aluno da educação básica",
+      "valores": {
+        "2020": "8103.40",
+        "2021": "10103.27",
+        "2022": "20125.10",
+        "2023": "32002.33",
+        "2024": "16017.80",
+        "2025": "19268.91",
+        "2026": "10167.62"
+      }
+    },
+    "professores_por_aluno": {
+      "rotulo": "Despesa com professores por aluno da educação básica",
+      "valores": {
+        "2020": "6484.17",
+        "2021": "4322.06",
+        "2022": "6115.47",
+        "2023": "6608.43",
+        "2024": "7090.03",
+        "2025": "7943.92",
+        "2026": "4263.65"
+      }
+    },
+    "nao_docentes_por_aluno": {
+      "rotulo": "Despesa com profissionais não docentes por aluno",
+      "valores": {
+        "2020": "181.17",
+        "2021": "186.25",
+        "2022": "243.59",
+        "2023": "309.63",
+        "2024": null,
+        "2025": "375.89",
+        "2026": "120.12"
+      }
+    },
+    "saldo_financeiro_fundeb": {
+      "rotulo": "Saldo financeiro do Fundeb no exercício",
+      "valores": {
+        "2020": "589827.82",
+        "2021": "603015.52",
+        "2022": "983820.16",
+        "2023": "983820.16",
+        "2024": "1186295.74",
+        "2025": "1095665.11",
+        "2026": "3556506.39"
+      }
+    },
+    "educacao_valor_exigido": {
+      "rotulo": "Valor exigido em educação (25%)",
+      "valores": {
+        "2020": "12481107.77",
+        "2021": "15683528.06",
+        "2022": "18942233.52",
+        "2023": "20097937.27",
+        "2024": "23174280.04",
+        "2025": "26257252.58",
+        "2026": "14158806.49"
+      }
+    },
+    "educacao_valor_aplicado": {
+      "rotulo": "Valor aplicado em educação",
+      "valores": {
+        "2020": "14017004.23",
+        "2021": "14604645.51",
+        "2022": "20929017.22",
+        "2023": "22283166.87",
+        "2024": "24698020.91",
+        "2025": "30068272.16",
+        "2026": "13868974.76"
+      }
+    },
+    "fundeb_nao_utilizado": {
+      "rotulo": "Recursos do Fundeb do exercício não utilizados",
+      "valores": {
+        "2021": "13187.71",
+        "2022": "380804.64",
+        "2023": "0.00",
+        "2024": "202475.58",
+        "2025": "111844.95",
+        "2026": "2781811.65"
+      }
+    }
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "meta": {"consultaId":900501,"ano":2025,"filtro":{"arquivo":"docs/educacao/curados/retrato-mec.json","lido":"na tela do painel","extrato":false},"iniciadoEm":"2026-11-05T03:16:31.862Z","coletadoEm":"2026-11-05T03:16:31.862Z","totalHits":12,"capturados":12,"idsUnicos":12,"camposAusentes":{},"conferencia":[],"status":"totalizador_conciliado","erros":[]},
+  "registros": [
+    {"id":"4211702:municipal:::retrato_solicitacoes_nao_atendidas_creche:2025","indicador":"retrato_solicitacoes_nao_atendidas_creche","lugar":"4211702","rede":"municipal","etapa":"","recorte":"","periodo":"2025","valor":null,"texto":"Não há demanda","unidade":"texto"},
+    {"id":"4211702:municipal:::retrato_quantidade_na_lista_de_espera:2025","indicador":"retrato_quantidade_na_lista_de_espera","lugar":"4211702","rede":"municipal","etapa":"","recorte":"","periodo":"2025","valor":null,"texto":null,"unidade":"texto"},
+    {"id":"4211702:municipal:::retrato_lista_unificada:2025","indicador":"retrato_lista_unificada","lugar":"4211702","rede":"municipal","etapa":"","recorte":"","periodo":"2025","valor":null,"texto":"Sim, cadastro único do município","unidade":"texto"},
+    {"id":"4211702:municipal:::retrato_listas_divulgadas_ao_publico:2025","indicador":"retrato_listas_divulgadas_ao_publico","lugar":"4211702","rede":"municipal","etapa":"","recorte":"","periodo":"2025","valor":null,"texto":"Sim","unidade":"texto"},
+    {"id":"4211702:municipal:::retrato_criterios_de_prioridade:2025","indicador":"retrato_criterios_de_prioridade","lugar":"4211702","rede":"municipal","etapa":"","recorte":"","periodo":"2025","valor":null,"texto":"Não há critérios; ordem de cadastramento (ordem de chegada)","unidade":"texto"},
+    {"id":"4211702:municipal:::retrato_idade_inicial_creche:2025","indicador":"retrato_idade_inicial_creche","lugar":"4211702","rede":"municipal","etapa":"","recorte":"","periodo":"2025","valor":null,"texto":"De 3 a 6 meses","unidade":"texto"},
+    {"id":"4211702:municipal:::retrato_criancas_fora_da_pre_escola_por_falta_de_vaga:2025","indicador":"retrato_criancas_fora_da_pre_escola_por_falta_de_vaga","lugar":"4211702","rede":"municipal","etapa":"","recorte":"","periodo":"2025","valor":null,"texto":"Não se aplica","unidade":"texto"},
+    {"id":"4211702:municipal:::retrato_nivel_de_gestao_da_demanda:2025","indicador":"retrato_nivel_de_gestao_da_demanda","lugar":"4211702","rede":"municipal","etapa":"","recorte":"","periodo":"2025","valor":null,"texto":"Básico (3º de 4)","unidade":"texto"},
+    {"id":"42:municipal::inicial:retrato_distribuicao:2025","indicador":"retrato_distribuicao","lugar":"42","rede":"municipal","etapa":"","recorte":"inicial","periodo":"2025","valor":"45","texto":null,"unidade":"municipios"},
+    {"id":"42:municipal::elementar:retrato_distribuicao:2025","indicador":"retrato_distribuicao","lugar":"42","rede":"municipal","etapa":"","recorte":"elementar","periodo":"2025","valor":"143","texto":null,"unidade":"municipios"},
+    {"id":"42:municipal::basico:retrato_distribuicao:2025","indicador":"retrato_distribuicao","lugar":"42","rede":"municipal","etapa":"","recorte":"basico","periodo":"2025","valor":"90","texto":null,"unidade":"municipios"},
+    {"id":"42:municipal::avancado:retrato_distribuicao:2025","indicador":"retrato_distribuicao","lugar":"42","rede":"municipal","etapa":"","recorte":"avancado","periodo":"2025","valor":"17","texto":null,"unidade":"municipios"}
+  ]
+}

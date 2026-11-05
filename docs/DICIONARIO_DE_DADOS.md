@@ -1,6 +1,6 @@
 # Dicionário de dados
 
-As consultas Betha vêm primeiro. A despesa por função (SICONFI) e os agregados do IBGE estão no fim.
+As consultas Betha vêm primeiro. A despesa por função (SICONFI), os agregados do IBGE e as tabelas de educação estão no fim.
 
 Levantamento feito sobre a coleta completa de 2025 (31/10/2026). Descrições marcadas com **(Betha)** vêm do
 próprio endpoint de totalizadores; as demais são interpretação a partir do nome e do comportamento dos dados.
@@ -114,7 +114,7 @@ Tabela `siconfi_funcoes`, uma linha por coluna × conta do anexo. Sem credor nem
 
 A linha de total inclui a Câmara. O total do painel é a soma das funções sem a `01`.
 
-## `900101`, `900102`, `900103`, `900104` — agregados do IBGE
+## `900101` a `900107` — agregados e pesquisas do IBGE
 
 Tabela `ibge_valores`, uma linha por tabela × variável × período × categoria. Sem dado pessoal.
 
@@ -127,3 +127,50 @@ Tabela `ibge_valores`, uma linha por tabela × variável × período × categori
 | `valor`      | `NUMERIC(18,3)`: pessoas, km², reais ou mil reais, conforme `unidade`. Nulo quando o SIDRA traz um símbolo |
 | `unidade`    | A unidade que o IBGE informa para a variável                                                               |
 | `simbolo`    | `...`, `..` ou `X`, sem valor; `-` é zero absoluto, com `valor` 0. Nulo quando há número                   |
+
+`900105` e `900106` são o Censo de educação (Orleans; Santa Catarina e Brasil). `900107` são as pesquisas 40 (IDEB) e 13 (matrículas, docentes e escolas), com `tabela` `pesquisa-40` ou `pesquisa-13` e `variavel` o id do indicador. `categoria` é o caminho da árvore, com `>`.
+
+## Educação: tabelas
+
+Sem nome, CPF nem valor individual. `id_externo` é a junção de `lugar:rede:etapa:recorte:indicador:periodo` em `educacao_valores`, e de `lugar:rede:recorte:indicador:periodo` em `educacao_financas`. Views: `educacao_valores_publicados`, `educacao_financas_publicadas`.
+
+| Coluna       | Tabela              | Descrição                                                                                                                                  |
+| ------------ | ------------------- | ------------------------------------------------------------------------------------------------------------------------------------------ |
+| `ano`        | as duas             | Ano de referência do lote: o exercício, no dinheiro; 2022, na transição 2021–2022                                                          |
+| `periodo`    | as duas             | Referência da linha: `2025`, `2021-2022`, `2026-05`                                                                                        |
+| `indicador`  | as duas             | Chave do indicador, na tabela abaixo                                                                                                       |
+| `lugar`      | as duas             | Código do IBGE: `4211702` Orleans, `42` Santa Catarina, `1` Brasil                                                                         |
+| `rede`       | as duas             | `publica`, `municipal`, `estadual`, `federal`, `privada`, `todas`. Outro valor é recusado pelo banco                                       |
+| `etapa`      | `educacao_valores`  | `creche`, `pre_escola`, `anos_iniciais`, `ano_1` a `ano_9`, `medio`, `serie_1` a `serie_4`, `eja` etc. Vazia: não se aplica                |
+| `recorte`    | as duas             | Corte do indicador: `grupo_1`, `prova_em_orleans`, `magisterio:temporario`. Vazio: não se aplica                                           |
+| `valor`      | `educacao_valores`  | `NUMERIC(18,4)`: contagem, taxa ou nota. Sem dado é nulo, nunca zero                                                                       |
+| `texto`      | `educacao_valores`  | Resposta em texto: `menos de 5`, `> 80`, resposta ao Retrato do MEC                                                                        |
+| `unidade`    | `educacao_valores`  | `%`, `alunos`, `horas`, `indice`, `nota`, `pessoas`, `escolas`, `anos`, `turmas`, `texto`, `cursos`, `vagas`, `instituicoes`, `municipios` |
+| `valor`      | `educacao_financas` | `NUMERIC(18,2)`: dinheiro, em reais nominais                                                                                               |
+| `percentual` | `educacao_financas` | `NUMERIC(7,2)`: o índice que acompanha o valor (Anexo 8, Anexo 14), nulo quando não há                                                     |
+
+## Educação: consultas e indicadores
+
+| ID                  | Chave                                                 | Tabela              | Indicadores                                                                                                                                                     |
+| ------------------- | ----------------------------------------------------- | ------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `900202`            | `siconfi_indices`                                     | `educacao_financas` | `indice_educacao`, `fundeb_remuneracao`                                                                                                                         |
+| `900301`            | `inep_rendimento`                                     | `educacao_valores`  | `aprovacao`, `reprovacao`, `abandono`                                                                                                                           |
+| `900302`            | `inep_transicao`                                      | `educacao_valores`  | `promocao`, `repetencia`, `evasao`, `migracao_eja`                                                                                                              |
+| `900303`            | `inep_distorcao`                                      | `educacao_valores`  | `distorcao`                                                                                                                                                     |
+| `900304`, `900305`  | `inep_turmas`, `inep_horas`                           | `educacao_valores`  | `alunos_por_turma`, `horas_aula`                                                                                                                                |
+| `900306`            | `inep_docentes_superior`                              | `educacao_valores`  | `docentes_superior`                                                                                                                                             |
+| `900307` a `900309` | `inep_adequacao`, `inep_regularidade`, `inep_esforco` | `educacao_valores`  | `adequacao`, `regularidade`, `esforco`, com `recorte` por grupo ou nível                                                                                        |
+| `900310`            | `inep_remuneracao`                                    | `educacao_financas` | `remuneracao_rais`, de 2021, com `recorte` `<total\|com_superior\|sem_superior>:<medida>`                                                                       |
+| `900311`            | `inep_inse`                                           | `educacao_valores`  | `inse`                                                                                                                                                          |
+| `900312`            | `inep_alfabetizacao`                                  | `educacao_valores`  | `alfabetizacao_2o_ano`, `alfabetizacao_meta`, `alfabetizacao_participacao`                                                                                      |
+| `900313`            | `inep_ideb`                                           | `educacao_valores`  | `ideb` (só o Brasil; Orleans e SC vêm do IBGE), `ideb_rendimento`, `ideb_matematica`, `ideb_portugues`, `ideb_aprovacao`                                        |
+| `900314`            | `inep_enem`                                           | `educacao_valores`  | `enem_inscritos`, `enem_presentes`, `enem_media_5_areas`, as quatro áreas e a redação, `enem_escolas`                                                           |
+| `900315`            | `inep_superior`                                       | `educacao_valores`  | `superior_*`: oferta presencial, perfil, por curso, EaD em total, docentes, IGC, CPC e Enade                                                                    |
+| `900401`            | `siope_indicadores`                                   | `educacao_valores`  | percentuais `siope_<chave>`                                                                                                                                     |
+| `900404`            | `siope_indicadores_valores`                           | `educacao_financas` | valores `siope_<chave>`, como `siope_por_aluno_fundamental`                                                                                                     |
+| `900402`            | `siope_anexo8`                                        | `educacao_financas` | `indice_educacao`, `fundeb_remuneracao`, `gasto_total`, `fundeb_contribuicao`, `fundeb_resultado`, `receita_impostos`, `pessoal_ativo`, `capital`, `emenda_119` |
+| `900403`            | `siope_remuneracao`                                   | `educacao_financas` | `mediana_40h`, `mediana_vencimento_40h`, `total_declarado`                                                                                                      |
+| `900405`            | `siope_remuneracao_carga`                             | `educacao_valores`  | `carga_temporaria`, `carga_horas`, `profissionais`, `formacao_magisterio`                                                                                       |
+| `900501`            | `mec_retrato`                                         | `educacao_valores`  | `retrato_<chave>`, em `texto`; `retrato_distribuicao`, por nível de gestão entre os municípios de SC                                                            |
+
+O que cada lote traz, etapa por etapa, está em [context/educacao.md](context/educacao.md). A lista de indicadores, com importador, conferência e periodicidade, é `INDICADORES`, em `packages/contracts/src/indicadores/registro.ts`.

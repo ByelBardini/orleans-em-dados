@@ -1,0 +1,18 @@
+{
+  "meta": {"consultaId":900405,"ano":2023,"filtro":{"arquivo":"Relatório de Remuneração do SIOPE","foto":"maio","extrato":false},"iniciadoEm":"2026-11-05T03:16:05.275Z","coletadoEm":"2026-11-05T03:16:05.275Z","totalHits":13,"capturados":13,"idsUnicos":13,"camposAusentes":{},"conferencia":[{"campo":"total","titulo":"Total (a + b + c)","descricao":"Soma das linhas = linha de total da planilha","fonte":"11381000.99","calculado":"11381000.99","diferenca":"0.00"}],"status":"totalizador_conciliado","erros":[]},
+  "registros": [
+    {"id":"4211702:municipal::magisterio:temporario:carga_temporaria:2023-05","indicador":"carga_temporaria","lugar":"4211702","rede":"municipal","etapa":"","recorte":"magisterio:temporario","periodo":"2023-05","valor":"38.7","texto":null,"unidade":"%"},
+    {"id":"4211702:municipal::magisterio:todos:carga_horas:2023-05","indicador":"carga_horas","lugar":"4211702","rede":"municipal","etapa":"","recorte":"magisterio:todos","periodo":"2023-05","valor":"5145","texto":null,"unidade":"horas"},
+    {"id":"4211702:municipal::magisterio:todos:profissionais:2023-05","indicador":"profissionais","lugar":"4211702","rede":"municipal","etapa":"","recorte":"magisterio:todos","periodo":"2023-05","valor":"147","texto":null,"unidade":"pessoas"},
+    {"id":"4211702:municipal::magisterio:efetivo:profissionais:2023-05","indicador":"profissionais","lugar":"4211702","rede":"municipal","etapa":"","recorte":"magisterio:efetivo","periodo":"2023-05","valor":"86","texto":null,"unidade":"pessoas"},
+    {"id":"4211702:municipal::magisterio:temporario:profissionais:2023-05","indicador":"profissionais","lugar":"4211702","rede":"municipal","etapa":"","recorte":"magisterio:temporario","periodo":"2023-05","valor":"61","texto":null,"unidade":"pessoas"},
+    {"id":"4211702:municipal::licenciatura_plena:formacao_magisterio:2023-05","indicador":"formacao_magisterio","lugar":"4211702","rede":"municipal","etapa":"","recorte":"licenciatura_plena","periodo":"2023-05","valor":"127","texto":null,"unidade":"pessoas"},
+    {"id":"4211702:municipal::pedagogia:formacao_magisterio:2023-05","indicador":"formacao_magisterio","lugar":"4211702","rede":"municipal","etapa":"","recorte":"pedagogia","periodo":"2023-05","valor":"15","texto":null,"unidade":"pessoas"},
+    {"id":"4211702:municipal::nao_habilitados_autorizados:formacao_magisterio:2023-05","indicador":"formacao_magisterio","lugar":"4211702","rede":"municipal","etapa":"","recorte":"nao_habilitados_autorizados","periodo":"2023-05","valor":"5","texto":null,"unidade":"pessoas"},
+    {"id":"4211702:municipal::outros:temporario:carga_temporaria:2023-05","indicador":"carga_temporaria","lugar":"4211702","rede":"municipal","etapa":"","recorte":"outros:temporario","periodo":"2023-05","valor":"50.4","texto":null,"unidade":"%"},
+    {"id":"4211702:municipal::outros:todos:carga_horas:2023-05","indicador":"carga_horas","lugar":"4211702","rede":"municipal","etapa":"","recorte":"outros:todos","periodo":"2023-05","valor":"3195","texto":null,"unidade":"horas"},
+    {"id":"4211702:municipal::outros:todos:profissionais:2023-05","indicador":"profissionais","lugar":"4211702","rede":"municipal","etapa":"","recorte":"outros:todos","periodo":"2023-05","valor":"104","texto":null,"unidade":"pessoas"},
+    {"id":"4211702:municipal::outros:efetivo:profissionais:2023-05","indicador":"profissionais","lugar":"4211702","rede":"municipal","etapa":"","recorte":"outros:efetivo","periodo":"2023-05","valor":"49","texto":null,"unidade":"pessoas"},
+    {"id":"4211702:municipal::outros:temporario:profissionais:2023-05","indicador":"profissionais","lugar":"4211702","rede":"municipal","etapa":"","recorte":"outros:temporario","periodo":"2023-05","valor":"55","texto":null,"unidade":"pessoas"}
+  ]
+}

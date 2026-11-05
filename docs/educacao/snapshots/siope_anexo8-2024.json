@@ -1,0 +1,20 @@
+{
+  "meta": {"consultaId":900402,"ano":2024,"filtro":{"arquivo":"docs/educacao/curados/anexo8.json","lido":"RREO_Municipal_421170_6_2024.pdf","extrato":false},"iniciadoEm":"2026-11-05T03:16:05.275Z","coletadoEm":"2026-11-05T03:16:05.275Z","totalHits":15,"capturados":15,"idsUnicos":15,"camposAusentes":{},"conferencia":[{"campo":"indice_educacao","descricao":"aplicado ÷ receita = percentual do PDF, com tolerância de 0,01","fonte":"26.64","calculado":"26.64","diferenca":"0.00"},{"campo":"fundeb_remuneracao","descricao":"aplicado ÷ receita = percentual do PDF, com tolerância de 0,01","fonte":"85.22","calculado":"85.22","diferenca":"-0.00"}],"status":"totalizador_conciliado","erros":[]},
+  "registros": [
+    {"id":"4211702:municipal::indice_educacao:2024","indicador":"indice_educacao","lugar":"4211702","rede":"municipal","recorte":"","periodo":"2024","valor":"24698020.91","percentual":"26.64"},
+    {"id":"4211702:municipal:exigido:indice_educacao:2024","indicador":"indice_educacao","lugar":"4211702","rede":"municipal","recorte":"exigido","periodo":"2024","valor":"23174280.04","percentual":null},
+    {"id":"4211702:municipal::fundeb_remuneracao:2024","indicador":"fundeb_remuneracao","lugar":"4211702","rede":"municipal","recorte":"","periodo":"2024","valor":"13946085.34","percentual":"85.22"},
+    {"id":"4211702:municipal:exigido:fundeb_remuneracao:2024","indicador":"fundeb_remuneracao","lugar":"4211702","rede":"municipal","recorte":"exigido","periodo":"2024","valor":"11455463.60","percentual":null},
+    {"id":"4211702:municipal:dotacao:gasto_total:2024","indicador":"gasto_total","lugar":"4211702","rede":"municipal","recorte":"dotacao","periodo":"2024","valor":"34813626.70","percentual":null},
+    {"id":"4211702:municipal:empenhado:gasto_total:2024","indicador":"gasto_total","lugar":"4211702","rede":"municipal","recorte":"empenhado","periodo":"2024","valor":"31507003.93","percentual":null},
+    {"id":"4211702:municipal:liquidado:gasto_total:2024","indicador":"gasto_total","lugar":"4211702","rede":"municipal","recorte":"liquidado","periodo":"2024","valor":"31507003.93","percentual":null},
+    {"id":"4211702:municipal:pago:gasto_total:2024","indicador":"gasto_total","lugar":"4211702","rede":"municipal","recorte":"pago","periodo":"2024","valor":"31507003.93","percentual":null},
+    {"id":"4211702:municipal:restos_nao_processados:gasto_total:2024","indicador":"gasto_total","lugar":"4211702","rede":"municipal","recorte":"restos_nao_processados","periodo":"2024","valor":"0.00","percentual":null},
+    {"id":"4211702:municipal::fundeb_contribuicao:2024","indicador":"fundeb_contribuicao","lugar":"4211702","rede":"municipal","recorte":"","periodo":"2024","valor":"14184101.03","percentual":null},
+    {"id":"4211702:municipal::fundeb_resultado:2024","indicador":"fundeb_resultado","lugar":"4211702","rede":"municipal","recorte":"","periodo":"2024","valor":"2092989.14","percentual":null},
+    {"id":"4211702:municipal::receita_impostos:2024","indicador":"receita_impostos","lugar":"4211702","rede":"municipal","recorte":"","periodo":"2024","valor":"92697120.14","percentual":null},
+    {"id":"4211702:municipal::pessoal_ativo:2024","indicador":"pessoal_ativo","lugar":"4211702","rede":"municipal","recorte":"","periodo":"2024","valor":"20157021.51","percentual":null},
+    {"id":"4211702:municipal:empenhado:capital:2024","indicador":"capital","lugar":"4211702","rede":"municipal","recorte":"empenhado","periodo":"2024","valor":"1526020.86","percentual":null},
+    {"id":"4211702:municipal:liquidado:capital:2024","indicador":"capital","lugar":"4211702","rede":"municipal","recorte":"liquidado","periodo":"2024","valor":"1526020.86","percentual":null}
+  ]
+}

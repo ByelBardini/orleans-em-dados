@@ -91,4 +91,31 @@ describe('IbgeClienteHttp', () => {
     await expect(cliente.agregado(CONSULTA)).rejects.toThrow('HTTP 500');
     expect(transporte.urls).toHaveLength(4);
   });
+
+  it('árvore da pesquisa é pedida na API v1, sem local', async () => {
+    const { cliente, transporte } = preparar([json([])]);
+
+    await cliente.arvore('13');
+
+    expect(transporte.urls).toEqual(['https://servicodados.ibge.gov.br/api/v1/pesquisas/13/indicadores/0']);
+  });
+
+  it('resultados da pesquisa pedem todos os períodos e o local informado', async () => {
+    const { cliente, transporte } = preparar([json([])]);
+
+    await cliente.resultados('40', '42');
+
+    expect(transporte.urls).toEqual([
+      'https://servicodados.ibge.gov.br/api/v1/pesquisas/40/periodos/all/indicadores/0/resultados/42',
+    ]);
+  });
+
+  it('pesquisa também repete em 500 e cita o caminho ao desistir', async () => {
+    const { cliente, espera } = preparar([new Response('', { status: 500 }), new Response('', { status: 404 })]);
+
+    await expect(cliente.resultados('13', '4211702')).rejects.toThrow(
+      'IBGE: HTTP 404 em /13/periodos/all/indicadores/0/resultados/4211702',
+    );
+    expect(espera.pedidos).toEqual([2000]);
+  });
 });

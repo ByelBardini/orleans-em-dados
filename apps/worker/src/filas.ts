@@ -27,6 +27,8 @@ export async function montarFilas(
 ): Promise<void> {
   const { pollingIntervalSeconds, ...fila } = { ...PADRAO, ...opcoes };
   for (const importador of importadores) {
+    // Sem agenda, a carga é por arquivo (`pnpm importar --arquivo`): não há rodada para enfileirar.
+    if (!importador.agenda) continue;
     const nome = nomeDaFila(importador);
     // Singleton: no máximo uma rodada ativa por importador. As duas chamadas são idempotentes.
     await boss.createQueue(nome, { policy: 'singleton', ...fila });

@@ -1,0 +1,299 @@
+/* A aba Cidade e ensino superior. O Vite junta tudo num CSS só: toda classe leva o prefixo `edu-cidade-`, e só tokens de styles.css. */
+
+.edu-cidade-csv {
+  margin: 16px 0 0;
+}
+
+.edu-cidade-frase {
+  max-width: 760px;
+  margin: 14px 0 12px;
+  font-size: 18px;
+  text-wrap: pretty;
+}
+
+.edu-cidade-apoio {
+  margin: 8px 0 0;
+  font-size: 14px;
+  color: var(--apagado);
+}
+
+.edu-cidade-sub {
+  margin: 20px 0 8px;
+  font-size: 17px;
+}
+
+.edu-cidade-nivel {
+  margin: 8px 0 4px;
+  font-size: var(--edu-texto);
+  font-weight: 600;
+}
+
+/* Duas colunas só quando cada uma tem 420 px. */
+.edu-cidade-duas,
+.edu-cidade-numeros,
+.edu-cidade-lado,
+.edu-cidade-grade {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 420px), 1fr));
+  gap: 16px 56px;
+}
+
+.edu-cidade-tres {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 320px), 1fr));
+  gap: 8px 40px;
+}
+
+.edu-cidade-numeros p {
+  margin: 0;
+  font-size: var(--edu-texto);
+}
+
+/* Número principal em serif, como os da Capa. */
+.edu-cidade-numeros strong,
+.edu-cidade-cartao strong,
+.edu-cidade-totais strong,
+.edu-cidade-lista strong {
+  font-family: var(--serif);
+  font-weight: 400;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.1;
+}
+
+.edu-cidade-numeros strong,
+.edu-cidade-cartao strong {
+  display: block;
+  font-size: 44px;
+}
+
+.edu-cidade-de-orleans-num {
+  color: var(--vermelho);
+}
+
+.edu-cidade-lista,
+.edu-cidade-totais,
+.edu-cidade-faixas,
+.edu-cidade-barras {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.edu-cidade-lista li {
+  padding: 8px 0;
+  border-bottom: 1px solid var(--regua);
+  font-size: var(--edu-texto);
+}
+
+.edu-cidade-lista strong {
+  margin-right: 4px;
+  font-size: 26px;
+}
+
+.edu-cidade-cartao {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 12px 0;
+  border-top: 1px solid var(--tinta);
+  font-size: 14px;
+  color: var(--apagado);
+}
+
+.edu-cidade-cartao strong {
+  color: var(--tinta);
+}
+
+.edu-cidade-rotulo {
+  font-weight: 600;
+  color: var(--tinta);
+}
+
+.edu-cidade-totais {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 40px;
+  margin: 8px 0 12px;
+  font-size: var(--edu-texto);
+}
+
+.edu-cidade-totais strong {
+  display: block;
+  font-size: 36px;
+}
+
+/* Barras horizontais da aba: rótulo, barra e valor na mesma linha. Tom neutro; vermelho só para Orleans. */
+.edu-cidade-barras {
+  display: flex;
+  flex-direction: column;
+  max-width: none;
+}
+
+.edu-cidade-item {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 15rem) minmax(80px, 1fr) auto;
+  align-items: center;
+  gap: 4px 14px;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--regua);
+  font-size: var(--edu-texto);
+  outline: none;
+  cursor: default;
+}
+
+.edu-cidade-item:focus-visible {
+  box-shadow: 0 0 0 2px var(--tinta);
+}
+
+.edu-cidade-nome {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.edu-cidade-rotulo-barra {
+  font-weight: 600;
+}
+
+.edu-cidade-apoio-barra {
+  font-family: var(--mono);
+  font-size: var(--edu-rotulo);
+  color: var(--apagado);
+}
+
+.edu-cidade-faixa {
+  display: block;
+  height: 12px;
+  background: var(--trilho);
+}
+
+.edu-cidade-barra {
+  display: block;
+  height: 100%;
+  min-width: 1px;
+  background: var(--apagado);
+}
+
+.edu-cidade-valor {
+  font-family: var(--mono);
+  font-size: var(--edu-valor);
+  white-space: nowrap;
+  text-align: right;
+}
+
+.edu-cidade-item.orleans .edu-cidade-barra {
+  background: var(--vermelho);
+}
+
+.edu-cidade-item.orleans .edu-cidade-valor,
+.edu-cidade-item.orleans .edu-cidade-rotulo-barra {
+  color: var(--vermelho);
+}
+
+.edu-cidade-item.is-ativa {
+  background: var(--realce);
+}
+
+.edu-cidade-item.is-ativa .edu-cidade-barra {
+  background: var(--tinta);
+}
+
+.edu-cidade-item.orleans.is-ativa .edu-cidade-barra,
+.edu-cidade-item.vermelho-no-hover.is-ativa .edu-cidade-barra {
+  background: var(--vermelho);
+}
+
+.edu-cidade-item.vermelho-no-hover.is-ativa .edu-cidade-valor {
+  color: var(--vermelho);
+  font-weight: 600;
+}
+
+/* A dica usa a aparência da `.bpa-dica`; só a posição muda. */
+.edu-cidade-dica.bpa-dica {
+  top: calc(100% - 2px);
+  right: 0;
+  left: auto;
+  white-space: normal;
+}
+
+.edu-cidade-dica-valor {
+  font-family: var(--mono);
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.edu-cidade-item.vermelho-no-hover .edu-cidade-dica-valor,
+.edu-cidade-item.orleans .edu-cidade-dica-valor {
+  color: var(--vermelho);
+}
+
+/* IGC: as cinco faixas, a de Orleans marcada. */
+.edu-cidade-faixas {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.edu-cidade-faixas li {
+  display: flex;
+  flex: 0 0 56px;
+  justify-content: center;
+  padding: 10px 0;
+  border: 1px solid var(--regua);
+  font-family: var(--serif);
+  font-size: 28px;
+  line-height: 1;
+}
+
+.edu-cidade-de-orleans {
+  border: 2px solid var(--vermelho) !important;
+  color: var(--vermelho);
+}
+
+@media (max-width: 720px) {
+  .edu-cidade-item {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+
+  .edu-cidade-nome {
+    grid-column: 1 / -1;
+  }
+
+  .edu-cidade-faixas li {
+    flex-basis: 44px;
+  }
+}
+
+/* Curso: o nome numa linha, a barra com o total na seguinte e os números do curso separados embaixo. */
+.edu-cidade-item.com-numeros {
+  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-areas:
+    'nome nome'
+    'faixa valor'
+    'numeros numeros';
+  gap: 6px 16px;
+  padding: 14px 0;
+}
+
+.edu-cidade-item.com-numeros .edu-cidade-nome {
+  grid-area: nome;
+}
+
+.edu-cidade-item.com-numeros .edu-cidade-faixa {
+  grid-area: faixa;
+}
+
+.edu-cidade-item.com-numeros .edu-cidade-valor {
+  grid-area: valor;
+}
+
+.edu-cidade-numeros-do-curso {
+  grid-area: numeros;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 32px;
+  font-family: var(--mono);
+  font-size: var(--edu-rotulo);
+  color: var(--apagado);
+}

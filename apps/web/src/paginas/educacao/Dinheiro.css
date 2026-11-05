@@ -1,0 +1,312 @@
+/* A aba Dinheiro. O Vite junta tudo num CSS só: toda classe leva o prefixo `edu-dinheiro-`, e só tokens de styles.css. */
+
+.edu-dinheiro-csv {
+  margin: 16px 0 0;
+}
+
+.edu-dinheiro-frase {
+  max-width: 720px;
+  margin: 0 0 12px;
+  font-size: 17px;
+  text-wrap: pretty;
+}
+
+.edu-dinheiro-valor {
+  font-family: var(--mono);
+  font-size: var(--edu-valor);
+  white-space: nowrap;
+}
+
+.edu-dinheiro-subtitulo {
+  margin: 8px 0 4px;
+  font-size: var(--edu-valor);
+  font-weight: 600;
+}
+
+/* O aviso do SICONFI: uma linha que nomeia os anos; a lista abre no detalhe. */
+.edu-dinheiro-aviso {
+  max-width: 720px;
+  margin-top: 16px;
+  padding: 8px 14px;
+  border-left: 2px solid var(--apagado);
+  font-size: var(--edu-texto);
+}
+
+.edu-dinheiro-aviso summary,
+.edu-dinheiro-como-ler summary {
+  min-height: 28px;
+  cursor: pointer;
+}
+
+.edu-dinheiro-aviso p {
+  margin: 8px 0 6px;
+}
+
+.edu-dinheiro-aviso ul {
+  margin: 0 0 6px;
+  padding-left: 18px;
+  font-family: var(--mono);
+  font-size: var(--edu-rotulo);
+}
+
+.edu-dinheiro-aviso li {
+  padding: 2px 0;
+}
+
+.edu-dinheiro-como-ler {
+  margin-top: 4px;
+}
+
+.edu-dinheiro-como-ler p {
+  margin: 6px 0 0;
+}
+
+.edu-dinheiro-equivalencias {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 420px), 1fr));
+  gap: 8px 32px;
+}
+
+.edu-dinheiro-equivalencias p {
+  margin: 0;
+  font-size: var(--edu-texto);
+}
+
+/* O gasto por ano: um cartão compacto por ano, 4 por linha em tela larga, 2 em média, 1 no celular. */
+.edu-dinheiro-anos {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 16px;
+  margin-top: 20px;
+}
+
+.edu-dinheiro-ano {
+  min-width: 0;
+  padding: 12px 16px 14px;
+  border: 1px solid var(--regua);
+  border-top: 2px solid var(--tinta);
+  transition: border-color 0.15s;
+}
+
+.edu-dinheiro-ano:hover,
+.edu-dinheiro-ano:focus-within {
+  border-color: var(--tinta);
+}
+
+.edu-dinheiro-ano h3 {
+  margin: 0;
+  font-family: var(--serif);
+  font-size: 22px;
+  font-weight: 400;
+}
+
+.edu-dinheiro-ano-gasto {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 8px;
+  margin: 4px 0 10px;
+}
+
+.edu-dinheiro-ano-gasto strong {
+  font-family: var(--serif);
+  font-size: 26px;
+  font-weight: 400;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.edu-dinheiro-ano-razoes {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px 12px;
+  padding-top: 8px;
+  border-top: 1px solid var(--regua);
+}
+
+.edu-dinheiro-ano-razoes p {
+  margin: 0;
+  font-size: var(--edu-rotulo);
+  color: var(--apagado);
+}
+
+.edu-dinheiro-ano-razoes strong {
+  display: block;
+  font-family: var(--mono);
+  font-size: var(--edu-valor);
+  font-weight: 600;
+  color: var(--tinta);
+  white-space: nowrap;
+}
+
+.edu-dinheiro-ano-razoes .detalhes-botao {
+  font-size: var(--edu-rotulo);
+}
+
+@media (max-width: 1100px) {
+  .edu-dinheiro-anos {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 560px) {
+  .edu-dinheiro-anos {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/* A conta do Fundeb: os anos com a conta completa em cartões largos, armada como no papel; termo, valor alinhado à
+   direita e a coluna do selo. */
+.edu-dinheiro-contas {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 440px), 1fr));
+  gap: 16px 32px;
+}
+
+.edu-dinheiro-conta {
+  min-width: 0;
+  padding: 12px 18px 14px;
+  border: 1px solid var(--regua);
+  border-top: 2px solid var(--tinta);
+}
+
+.edu-dinheiro-conta h3 {
+  margin: 0 0 8px;
+  font-family: var(--serif);
+  font-size: 28px;
+  font-weight: 400;
+}
+
+.edu-dinheiro-conta dl,
+.edu-dinheiro-sem-conta dl {
+  display: grid;
+  grid-template-columns: max-content minmax(0, 1fr) 24px;
+  align-items: baseline;
+  gap: 6px 12px;
+  margin: 0;
+  font-size: var(--edu-texto);
+}
+
+.edu-dinheiro-termo,
+.edu-dinheiro-termo dd {
+  display: grid;
+  grid-template-columns: subgrid;
+  align-items: baseline;
+}
+
+.edu-dinheiro-termo {
+  grid-column: 1 / -1;
+}
+
+.edu-dinheiro-termo dt {
+  color: var(--apagado);
+  white-space: nowrap;
+}
+
+.edu-dinheiro-termo dd {
+  grid-column: 2 / 4;
+  margin: 0;
+}
+
+.edu-dinheiro-termo .edu-dinheiro-valor {
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+}
+
+.edu-dinheiro-sinal {
+  display: inline-block;
+  width: 1ch;
+  font-family: var(--mono);
+  color: var(--tinta);
+}
+
+.edu-dinheiro-conta .edu-dinheiro-saldo {
+  padding-top: 6px;
+  border-top: 1px solid var(--tinta);
+}
+
+.edu-dinheiro-conta .edu-dinheiro-saldo dt {
+  color: var(--tinta);
+  font-weight: 600;
+}
+
+.edu-dinheiro-conta .edu-dinheiro-saldo .edu-dinheiro-valor {
+  font-family: var(--serif);
+  font-size: 24px;
+}
+
+.edu-dinheiro-oficial .edu-dinheiro-valor {
+  font-weight: 600;
+}
+
+.edu-dinheiro-diferenca .edu-dinheiro-valor {
+  font-weight: 600;
+  text-decoration: underline;
+  text-decoration-color: var(--apagado);
+  text-underline-offset: 4px;
+}
+
+.edu-dinheiro-fecha .edu-dinheiro-valor {
+  font-family: inherit;
+  color: var(--apagado);
+}
+
+/* Os anos sem a receita conferida: uma faixa só, uma linha por ano, e o aviso dito uma vez. */
+.edu-dinheiro-sem-conta {
+  margin-top: 16px;
+  padding: 10px 18px 12px;
+  border: 1px solid var(--regua);
+}
+
+.edu-dinheiro-sem-conta-aviso {
+  margin: 0 0 8px;
+  font-size: var(--edu-texto);
+  color: var(--apagado);
+}
+
+.edu-dinheiro-sem-conta-ano {
+  display: grid;
+  grid-template-columns: 5ch minmax(0, 1fr);
+  align-items: baseline;
+  gap: 4px 16px;
+  padding: 6px 0;
+  border-top: 1px solid var(--regua);
+}
+
+.edu-dinheiro-sem-conta-rotulo {
+  font-family: var(--serif);
+  font-size: 20px;
+}
+
+.edu-dinheiro-sem-conta dl {
+  grid-template-columns: repeat(2, max-content minmax(0, 1fr) 24px);
+  column-gap: 12px;
+}
+
+.edu-dinheiro-sem-conta .edu-dinheiro-termo {
+  grid-column: span 3;
+}
+
+@media (max-width: 720px) {
+  .edu-dinheiro-sem-conta dl {
+    grid-template-columns: max-content minmax(0, 1fr) 24px;
+  }
+}
+
+@media (max-width: 480px) {
+  .edu-dinheiro-termo dt {
+    white-space: normal;
+  }
+}
+
+.edu-dinheiro-tres {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 340px), 1fr));
+  gap: 24px 32px;
+}
+
+.edu-dinheiro-tres h3 {
+  margin: 0;
+  font-size: var(--edu-valor);
+  font-weight: 600;
+}

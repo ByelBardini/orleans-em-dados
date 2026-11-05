@@ -1311,3 +1311,54 @@ export function compararFuncoes(
   const estado = total.estado === 'conferido' && legislativa.estado === 'conferido' ? 'conferido' : 'diferenca';
   return { ano, estado, total, legislativa };
 }
+
+// Gasto com educação: função 12 da DCA × soma das ações da Betha 57170. O número da ação muda entre
+// exercícios, e a ligação é pelo nome, sempre desta lista.
+export const ACOES_DE_EDUCACAO = [
+  'Manutenção do Ensino Fundamental',
+  'Manutenção do Ensino Infantil',
+  'Manutenção do Transporte Escolar',
+  'Manutenção da Merenda Escolar',
+  'Auxilio Financeiro e Transporte Escolar Universitário',
+  'Aquisição de Terreno, Construção, Ampliação e Reforma da Rede Física - Ensino Fundamental',
+  'Aquisição de Terreno, Construção, Ampliação e Reforma da Rede Física - Educação Infantil',
+  'Aquisição de Veículo - Educação',
+] as const;
+
+export type SomaDoGasto = { etapa: string; valor: number };
+export type EtapaDoGasto = {
+  etapa: (typeof ETAPAS_DA_FUNCAO)[number];
+  dca: number;
+  betha: number;
+  /** DCA − Betha. */
+  diferenca: number;
+  /** Quem registra mais; nulo quando as fontes são iguais. */
+  maior: 'dca' | 'betha' | null;
+};
+export type ConferenciaDoGastoEducacao =
+  | { ano: number; estado: 'sem_dca' | 'sem_betha' }
+  | { ano: number; estado: 'conferido' | 'diferenca'; etapas: EtapaDoGasto[] };
+
+export function compararGastoEducacao(
+  ano: number,
+  dca: readonly SomaDoGasto[],
+  betha: readonly SomaDoGasto[],
+): ConferenciaDoGastoEducacao {
+  if (!dca.length) return { ano, estado: 'sem_dca' };
+  if (!betha.length) return { ano, estado: 'sem_betha' };
+
+  const etapas = ETAPAS_DA_FUNCAO.map((etapa): EtapaDoGasto => {
+    const daDca = dca.find((s) => s.etapa === etapa);
+    const daBetha = betha.find((s) => s.etapa === etapa);
+    if (!daDca || !daBetha) throw new Error(`Conferência do gasto com educação de ${ano}: falta a etapa ${etapa}`);
+    const diferenca = centavos(daDca.valor) - centavos(daBetha.valor);
+    return {
+      etapa,
+      dca: centavos(daDca.valor) / 100,
+      betha: centavos(daBetha.valor) / 100,
+      diferenca: diferenca / 100,
+      maior: diferenca === 0 ? null : diferenca > 0 ? 'dca' : 'betha',
+    };
+  });
+  return { ano, estado: etapas.every((e) => e.maior === null) ? 'conferido' : 'diferenca', etapas };
+}

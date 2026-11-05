@@ -217,7 +217,7 @@ export const despesas = () =>
     despesa(
       '728:3001',
       '33903000000000',
-      { numero: '2001', nome: 'Manutenção do ensino (exemplo)' },
+      { numero: '2001', nome: 'Manutenção do Ensino Fundamental' },
       400000,
       53000,
       53000,
@@ -400,6 +400,343 @@ export const ibgePib = () =>
     { ano: ANO_DA_COLETA_IBGE },
   );
 
+// Censo de educação fictício. Pessoas em Orleans; os outros lugares multiplicam a contagem, para as partes seguirem
+// fechando com o total. Só Orleans carrega o arredondamento da amostra na graduação: 401 + 190 contra 590.
+const POS_GRADUACAO = 'Especialização de nível superior, mestrado ou doutorado';
+type Taxas = {
+  alfabetizacao: Record<string, string>;
+  frequencia: Record<string, string>;
+  anosDeEstudo: Record<string, string>;
+};
+
+const TAXAS_DE_ORLEANS: Taxas = {
+  alfabetizacao: {
+    '': '97.50',
+    Homens: '97.40',
+    Mulheres: '97.60',
+    '15 a 17 anos': '99.20',
+    '65 anos ou mais': '92.50',
+    Urbana: '97.70',
+    Rural: '96.80',
+  },
+  frequencia: {
+    '': '22.00',
+    '0 a 3 anos': '50.00',
+    '4 a 5 anos': '85.00',
+    '6 a 14 anos': '97.00',
+    '15 a 17 anos': '88.00',
+    '18 a 24 anos': '25.00',
+    '25 anos ou mais': '2.00',
+  },
+  anosDeEstudo: { '': '9.6', Homens: '9.5', Mulheres: '9.8', '25 anos ou mais': '9.6', '18 a 24 anos': '12.0' },
+};
+const TAXAS_DE_SC: Taxas = {
+  alfabetizacao: { ...TAXAS_DE_ORLEANS.alfabetizacao, '': '97.30' },
+  frequencia: { ...TAXAS_DE_ORLEANS.frequencia, '': '25.00', '0 a 3 anos': '47.00', '4 a 5 anos': '90.00' },
+  anosDeEstudo: { ...TAXAS_DE_ORLEANS.anosDeEstudo, '': '10.1' },
+};
+const TAXAS_DO_BRASIL: Taxas = {
+  alfabetizacao: { ...TAXAS_DE_ORLEANS.alfabetizacao, '': '93.00' },
+  frequencia: { ...TAXAS_DE_ORLEANS.frequencia, '': '26.00', '0 a 3 anos': '34.00', '4 a 5 anos': '87.00' },
+  anosDeEstudo: { ...TAXAS_DE_ORLEANS.anosDeEstudo, '': '9.4' },
+};
+
+const PESSOAS_DA_EDUCACAO: readonly [
+  tabela: string,
+  variavel: string,
+  periodo: string,
+  pessoas: Record<string, string>,
+][] = [
+  ['10092', '950', '2022', { '': '20000', Alfabetizadas: '19500', 'Não alfabetizadas': '500' }],
+  [
+    '10057',
+    '13282',
+    '2022',
+    {
+      '': '1000',
+      '0 a 3 anos': '550',
+      '4 a 5 anos': '450',
+      Creche: '720',
+      'Pré-escolar': '275',
+      'Regular de ensino fundamental': '5',
+      'Creche|0 a 3 anos': '540',
+      'Creche|4 a 5 anos': '180',
+      'Pré-escolar|0 a 3 anos': '10',
+      'Pré-escolar|4 a 5 anos': '265',
+      'Regular de ensino fundamental|0 a 3 anos': '-',
+      'Regular de ensino fundamental|4 a 5 anos': '5',
+    },
+  ],
+  [
+    '10058',
+    '13283',
+    '2022',
+    {
+      '': '3000',
+      Creche: '20',
+      'Pré-escolar': '170',
+      'Alfabetização de jovens e adultos': '-',
+      'Regular de ensino fundamental': '2300',
+      'Educação de jovens e adultos do ensino fundamental': '10',
+      'Regular do ensino médio': '490',
+      'Educação de jovens e adultos do ensino médio': '-',
+      'Superior de graduação': '10',
+    },
+  ],
+  [
+    '10059',
+    '13284',
+    '2022',
+    {
+      '': '950',
+      'Alfabetização de jovens e adultos': '10',
+      'Regular de ensino fundamental': '20',
+      'Educação de jovens e adultos do ensino fundamental': '25',
+      'Regular do ensino médio': '190',
+      'Educação de jovens e adultos do ensino médio': '30',
+      'Superior de graduação': '575',
+      'Especialização de nível superior': '75',
+      Mestrado: '25',
+      Doutorado: '-',
+    },
+  ],
+  [
+    '10061',
+    '2667',
+    '2022',
+    {
+      '25 anos ou mais': '16000',
+      'Sem instrução e fundamental incompleto|25 anos ou mais': '5800',
+      'Fundamental completo e médio incompleto|25 anos ou mais': '2600',
+      'Médio completo e superior incompleto|25 anos ou mais': '4400',
+      'Superior completo|25 anos ou mais': '3200',
+      'Superior completo|25 anos ou mais|Homens': '1450',
+      'Superior completo|25 anos ou mais|Mulheres': '1750',
+    },
+  ],
+  [
+    '10324',
+    '2021',
+    '2022',
+    {
+      '': '5000',
+      'Município de residência': '4500',
+      'Outro município': '500',
+      'País estrangeiro': '-',
+      'Outro município|Creche': '30',
+      'Outro município|Pré-escolar': '40',
+      'Outro município|Alfabetização de jovens e adultos': '-',
+      'Outro município|Fundamental': '165',
+      'Outro município|Médio': '30',
+      'Outro município|Superior de graduação': '190',
+      [`Outro município|${POS_GRADUACAO}`]: '45',
+      'Superior de graduação': '590',
+      'Município de residência|Superior de graduação': '400',
+      'País estrangeiro|Superior de graduação': '-',
+      [POS_GRADUACAO]: '100',
+      [`Município de residência|${POS_GRADUACAO}`]: '55',
+      [`País estrangeiro|${POS_GRADUACAO}`]: '-',
+    },
+  ],
+  [
+    '1549',
+    '93',
+    '2010',
+    {
+      '': '21000',
+      '0 a 3 anos': '1000',
+      '4 ou 5 anos': '600',
+      '6 anos': '250',
+      '7 a 14 anos': '2650',
+      '15 a 17 anos': '1100',
+      '18 ou 19 anos': '800',
+      '20 a 24 anos': '1900',
+      '25 anos ou mais': '12700',
+    },
+  ],
+  [
+    '1549',
+    '364',
+    '2010',
+    {
+      '': '6000',
+      '0 a 3 anos': '350',
+      '4 ou 5 anos': '470',
+      '6 anos': '250',
+      '7 a 14 anos': '2600',
+      '15 a 17 anos': '870',
+      '18 ou 19 anos': '290',
+      '20 a 24 anos': '490',
+      '25 anos ou mais': '680',
+    },
+  ],
+];
+
+const linhasDaEducacao = (localidade: string, escala: number, taxas: Taxas) => [
+  ...Object.entries(taxas.alfabetizacao).map(([categoria, valor]) =>
+    valorIbge('10091', '2513', '%', '2022', valor, categoria, localidade),
+  ),
+  ...Object.entries(taxas.frequencia).map(([categoria, valor]) =>
+    valorIbge('10056', '3795', '%', '2022', valor, categoria, localidade),
+  ),
+  ...Object.entries(taxas.anosDeEstudo).map(([categoria, valor]) =>
+    valorIbge('10062', '13285', 'Anos', '2022', valor, categoria, localidade),
+  ),
+  ...PESSOAS_DA_EDUCACAO.flatMap(([tabela, variavel, periodo, pessoas]) =>
+    Object.entries(pessoas).map(([categoria, valor]) =>
+      valorIbge(
+        tabela,
+        variavel,
+        'Pessoas',
+        periodo,
+        valor === '-' ? '-' : String(Number(valor) * escala),
+        categoria,
+        localidade,
+      ),
+    ),
+  ),
+];
+
+export const ibgeEducacaoCenso = () =>
+  snapshot(
+    900105,
+    linhasDaEducacao('4211702', 1, TAXAS_DE_ORLEANS).map((linha) =>
+      linha.categoria === 'Município de residência|Superior de graduação' ? { ...linha, valor: '401' } : linha,
+    ),
+    { ano: ANO_DA_COLETA_IBGE },
+  );
+
+export const ibgeEducacaoComparacao = () =>
+  snapshot(900106, [...linhasDaEducacao('42', 300, TAXAS_DE_SC), ...linhasDaEducacao('1', 8000, TAXAS_DO_BRASIL)], {
+    ano: ANO_DA_COLETA_IBGE,
+  });
+
+// IDEB e rede escolar fictícios, com os ids e os caminhos da árvore real das pesquisas 40 e 13.
+const IDEB: readonly [id: string, categoria: string, anos: [string, string, string]][] = [
+  ['78187', 'Ensino fundamental > Anos iniciais > Pública', ['6.0', '6.2', '6.6']],
+  ['78188', 'Ensino fundamental > Anos iniciais > Pública > Municipal', ['5.9', '6.8', '6.4']],
+  ['78189', 'Ensino fundamental > Anos iniciais > Pública > Estadual', ['6.0', '5.8', '6.7']],
+  ['78192', 'Ensino fundamental > Anos finais > Pública', ['4.9', '4.5', '5.3']],
+  ['78193', 'Ensino fundamental > Anos finais > Pública > Municipal', ['4.6', '3.7', '5.1']],
+  ['78194', 'Ensino fundamental > Anos finais > Pública > Estadual', ['4.9', '4.6', '5.3']],
+  ['78197', 'Ensino médio > Pública', ['-', '-', '3.9']],
+  ['78199', 'Ensino médio > Pública > Estadual', ['-', '-', '3.9']],
+];
+
+const idebDoLugar = (localidade: string, ajuste: number) =>
+  IDEB.flatMap(([id, categoria, anos]) =>
+    (['2021', '2023', '2025'] as const).map((periodo, i) => {
+      const valor = anos[i]!;
+      const noLugar = valor === '-' ? '-' : (Number(valor) + ajuste).toFixed(1);
+      return valorIbge('pesquisa-40', id, 'índice', periodo, noLugar, categoria, localidade);
+    }),
+  );
+
+const REDES_DA_SERIE = { Municipal: 0, Estadual: 1, Privado: 3 };
+// Matrículas por série e rede, de 1 a 9 no fundamental e de 1 a 3 no médio.
+const FUNDAMENTAL: Record<keyof typeof REDES_DA_SERIE, number[]> = {
+  Municipal: [80, 82, 84, 86, 88, 0, 0, 0, 0],
+  Estadual: [70, 72, 74, 76, 78, 180, 177, 170, 165],
+  Privado: [30, 30, 28, 28, 26, 24, 24, 22, 22],
+};
+const MEDIO: Record<keyof typeof REDES_DA_SERIE, number[]> = {
+  Municipal: [0, 0, 0],
+  Estadual: [200, 180, 160],
+  Privado: [30, 25, 20],
+};
+const soma = (valores: number[]) => valores.reduce((total, v) => total + v, 0);
+// Zero não existe nesta fonte: rede sem a série vem como `-`.
+const contagem = (valor: number) => (valor === 0 ? '-' : String(valor));
+
+const seriesPorRede = (
+  localidade: string,
+  periodo: string,
+  etapa: string,
+  nomeDaSerie: (i: number) => string,
+  primeiroNo: number,
+  primeiraFolha: number,
+  etapaId: string,
+  matriculas: Record<keyof typeof REDES_DA_SERIE, number[]>,
+) => {
+  const valor = (id: string | number, categoria: string, numero: number) =>
+    valorIbge('pesquisa-13', String(id), 'matrículas', periodo, contagem(numero), categoria, localidade);
+  const redes = Object.keys(REDES_DA_SERIE) as (keyof typeof REDES_DA_SERIE)[];
+  const quantas = matriculas.Estadual.length;
+  return [
+    valor(etapaId, etapa, soma(redes.flatMap((r) => matriculas[r]))),
+    ...Array.from({ length: quantas }, (_, i) => [
+      valor(primeiroNo + i, `${etapa} > ${nomeDaSerie(i)}`, soma(redes.map((r) => matriculas[r][i]!))),
+      ...redes.map((rede) =>
+        valor(
+          primeiraFolha + 4 * i + REDES_DA_SERIE[rede],
+          `${etapa} > ${nomeDaSerie(i)} > ${rede}`,
+          matriculas[rede][i]!,
+        ),
+      ),
+    ]).flat(),
+  ];
+};
+
+const redeDoLugar = (localidade: string, periodo: string, extra: number) => {
+  const valor = (id: string, unidade: string, categoria: string, numero: number) =>
+    valorIbge('pesquisa-13', id, unidade, periodo, String(numero), categoria, localidade);
+  const creche = 400 + extra;
+  const pre = 300 + extra;
+  return [
+    valor('77881', 'matrículas', 'Matrículas > Ensino infantil', creche + 150 + pre + 80),
+    valor('77882', 'matrículas', 'Matrículas > Ensino infantil > Creche', creche + 150),
+    valor('77883', 'matrículas', 'Matrículas > Ensino infantil > Creche > Municipal', creche),
+    valor('77886', 'matrículas', 'Matrículas > Ensino infantil > Creche > Privado', 150),
+    valor('5903', 'matrículas', 'Matrículas > Ensino infantil > Pré-escolar', pre + 80),
+    valor('5904', 'matrículas', 'Matrículas > Ensino infantil > Pré-escolar > Municipal', pre),
+    valor('5907', 'matrículas', 'Matrículas > Ensino infantil > Pré-escolar > Privado', 80),
+    ...seriesPorRede(
+      localidade,
+      periodo,
+      'Matrículas > Ensino fundamental',
+      (i) => `${i + 1}º ano`,
+      77899,
+      77941,
+      '5908',
+      FUNDAMENTAL,
+    ),
+    ...seriesPorRede(
+      localidade,
+      periodo,
+      'Matrículas > Ensino médio',
+      (i) => `${i + 1}º série`,
+      77908,
+      77977,
+      '5913',
+      MEDIO,
+    ),
+    valor('77887', 'docentes', 'Docentes > Ensino infantil', 70),
+    valor('77889', 'docentes', 'Docentes > Ensino infantil > Creche > Municipal', 40),
+    valor('5925', 'docentes', 'Docentes > Ensino infantil > Pré-escolar > Municipal', 50),
+    valor('5929', 'docentes', 'Docentes > Ensino fundamental', 150),
+    valor('77997', 'docentes', 'Docentes > Ensino fundamental > Anos iniciais > Municipal', 40),
+    valor('5934', 'docentes', 'Docentes > Ensino médio', 60),
+    valor('77893', 'escolas', 'Escolas > Ensino infantil', 14),
+    valor('5950', 'escolas', 'Escolas > Ensino fundamental', 12),
+    valor('78053', 'escolas', 'Escolas > Ensino fundamental > Anos iniciais > Municipal', 6),
+    valor('5955', 'escolas', 'Escolas > Ensino médio', 3),
+  ];
+};
+
+export const ibgeRedeEscolar = () =>
+  snapshot(
+    900107,
+    [
+      ...idebDoLugar('4211702', 0),
+      ...idebDoLugar('42', 0.1),
+      ...redeDoLugar('4211702', '2024', 0),
+      ...redeDoLugar('4211702', '2025', 10),
+      ...redeDoLugar('42', '2024', 50),
+      ...redeDoLugar('42', '2025', 60),
+    ],
+    { ano: ANO_DA_COLETA_IBGE },
+  );
+
 // SICONFI: mesmos totais do TCE-SC fictício. Sem a Câmara, empenhado 195.000, liquidado 120.000 e pago 100.000.
 const COLUNAS_DA_DCA: Record<string, string> = {
   empenhado: 'Despesas Empenhadas',
@@ -451,6 +788,49 @@ export const siconfiFuncoes = ({
       ]),
       contaDaDca('rp_nao_processados', 'Despesas Exceto Intraorçamentárias', '75000.00', ano),
       contaDaDca('rp_processados', 'Despesas Exceto Intraorçamentárias', '25000.00', ano),
+    ],
+    { ano },
+  );
+
+const contaDoAnexo14 = (conta: string, [valor, percentual]: ValorDoIndice, minimo: string, ano: number) => ({
+  id: conta,
+  exercicio: ano,
+  periodo: 6,
+  cod_ibge: 4211702,
+  anexo: 'RREO-Anexo 14',
+  rotulo: 'Padrão',
+  cod_conta: 'ContaFicticia',
+  conta,
+  colunas: {
+    'Valor Apurado Até o Bimestre': valor,
+    '% Mínimo a Aplicar no Exercício': minimo,
+    '% Aplicado Até o Bimestre': percentual,
+  },
+});
+
+type ValorDoIndice = [valor: string, percentual: string];
+
+/** O RREO Anexo 14 de um exercício: valor aplicado e percentual dos dois índices legais. */
+export const siconfiIndices = ({
+  ano = ANO,
+  educacao = ['1500000.00', '27.50'],
+  fundeb = ['900000.00', '85.00'],
+}: { ano?: number; educacao?: ValorDoIndice; fundeb?: ValorDoIndice } = {}) =>
+  snapshot(
+    900202,
+    [
+      contaDoAnexo14(
+        'Mínimo Anual de <18% / 25%> das Receitas de Impostos na Manutenção e Desenvolvimento do Ensino',
+        educacao,
+        '25.00',
+        ano,
+      ),
+      contaDoAnexo14(
+        'Mínimo Anual de 70% do FUNDEB na Remuneração dos Profissionais da Educação Básica',
+        fundeb,
+        '70.00',
+        ano,
+      ),
     ],
     { ano },
   );
