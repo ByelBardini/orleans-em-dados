@@ -39,9 +39,14 @@ const AREAS = [
     destino: '#conheca-orleans',
     texto: 'O PIB, o que ele mede e o rendimento das famílias.',
   },
+  {
+    nome: 'Educação',
+    destino: '#educacao',
+    texto: 'Se as crianças aprendem, quem dá aula e quanto a Prefeitura gasta.',
+  },
 ];
 
-const EM_BREVE = ['Educação', 'Saúde', 'Saneamento'];
+const EM_BREVE = ['Saúde', 'Saneamento'];
 
 const rotuloDoPonto = ({ tipo, ano }: PontoDaPopulacao) => (tipo === 'censo' ? `Censo ${ano}` : `estimativa ${ano}`);
 

@@ -1,0 +1,114 @@
+/* A aba Professores e turmas. O Vite junta tudo num CSS só: toda classe leva o prefixo `edu-professores-`, e só tokens de styles.css. */
+
+.edu-professores-csv {
+  margin: 16px 0 0;
+}
+
+.edu-professores-frase {
+  max-width: 760px;
+  margin: 14px 0 12px;
+  font-size: 18px;
+  text-wrap: pretty;
+}
+
+/* Comparações em grade: duas colunas só quando cada uma tem 420 px; senão, uma. */
+.edu-professores-grade {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 420px), 1fr));
+  gap: 4px 56px;
+}
+
+.edu-professores-dupla {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 420px), 1fr));
+  gap: 24px 56px;
+}
+
+/* A barra empilhada de três linhas não precisa da largura toda do bloco. */
+.edu-professores-estreito {
+  max-width: none;
+  margin-top: 8px;
+}
+
+.edu-professores-subtitulo {
+  margin: 20px 0 8px;
+  font-size: 17px;
+}
+
+.edu-professores-ressalva {
+  font-family: var(--mono);
+  font-size: var(--edu-rotulo);
+  font-weight: 400;
+  color: var(--apagado);
+}
+
+.edu-professores-etapa {
+  margin: 12px 0 8px;
+  font-size: var(--edu-texto);
+  font-weight: 600;
+}
+
+/* As definições dos grupos ficam em grade, como uma legenda que se lê ao lado das barras. */
+.edu-professores-grupos {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 340px), 1fr));
+  gap: 0 32px;
+  max-width: var(--edu-largura);
+  margin: 20px 0 0;
+}
+
+.edu-professores-grupos > div {
+  display: grid;
+  grid-template-columns: 72px minmax(0, 1fr);
+  gap: 2px 12px;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--regua);
+}
+
+.edu-professores-grupos dt {
+  font-weight: 600;
+}
+
+.edu-professores-grupos dd {
+  margin: 0;
+  font-size: var(--edu-texto);
+}
+
+/* RAIS: três cartões de número, o de Orleans em vermelho. */
+.edu-professores-rais {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 240px), 1fr));
+  gap: 16px 40px;
+  max-width: none;
+  margin: 12px 0 0;
+}
+
+.edu-professores-rais > div {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 12px 0;
+  border-top: 1px solid var(--tinta);
+}
+
+.edu-professores-rais dt {
+  font-size: var(--edu-texto);
+}
+
+.edu-professores-rais dd {
+  margin: 0;
+  font-family: var(--serif);
+  font-size: 40px;
+  line-height: 1.1;
+  font-variant-numeric: tabular-nums;
+}
+
+.edu-professores-orleans dt,
+.edu-professores-orleans dd {
+  font-weight: 600;
+  color: var(--vermelho);
+}
+
+.edu-professores-orleans dd {
+  font-weight: 400;
+}

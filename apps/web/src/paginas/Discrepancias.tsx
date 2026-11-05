@@ -2,16 +2,18 @@ import {
   conferenciaSchema,
   despesasResumoSchema,
   discrepanciasSchema,
+  educacaoDiscrepanciasSchema,
   empenhosResumoSchema,
   receitasSchema,
   type Conferencia as DadosDaConferencia,
   type Discrepancias as DadosDaSecao,
+  type EducacaoDiscrepancias as DadosDaEducacao,
 } from '@orleans-em-dados/contracts';
 import { useState } from 'react';
 import { useApi } from '../api';
 import { Estado, Filtros } from '../components';
 import { ContaDaDespesa, ContaDaReceita, ContaDosEmpenhos, FRASE_DA_DIFERENCA, SemConferencia } from '../conferido';
-import { data, dataHora, MESES, MESES_LONGOS, moeda, numero } from '../format';
+import { data, dataHora, decimal, MESES, MESES_LONGOS, moeda, numero } from '../format';
 import { Selo } from '../selo';
 import { seloDaSituacao, type SituacaoDoCaso } from '../selos';
 import type { PropsDaPagina } from './props';
@@ -70,6 +72,106 @@ export default function Discrepancias({ ano, entidade, filtros }: PropsDaPagina)
         </>
       )}
       {dados?.disponivel && <Conteudo ano={ano} entidade={entidade} filtros={filtros} dados={dados} />}
+      <BlocoDeEducacao />
+    </>
+  );
+}
+
+// Todos os exercícios, de outra rota: não recebe ano nem entidade, e nada daqui entra na manchete ou na conta do ano.
+function BlocoDeEducacao() {
+  const { dados, erro } = useApi('/api/educacao/discrepancias', educacaoDiscrepanciasSchema);
+  if (erro) return <Estado carregando={false} erro={erro} />;
+  if (!dados?.grupos.length) return null;
+  return (
+    <section className="secao solta area-das-discrepancias" aria-label="Educação">
+      <div className="secao-cab">
+        <h2 className="secao-titulo">Educação</h2>
+        <span className="legenda">
+          <span>Todos os exercícios com as duas fontes: não depende do filtro de ano e fica fora da conta do ano</span>
+        </span>
+      </div>
+      {dados.grupos.map((g) => (
+        <GrupoDeEducacao key={g.id} grupo={g} />
+      ))}
+    </section>
+  );
+}
+
+type GrupoDaEducacao = DadosDaEducacao['grupos'][number];
+type LadoDoCaso = GrupoDaEducacao['casos'][number]['a'];
+
+function GrupoDeEducacao({ grupo }: { grupo: GrupoDaEducacao }) {
+  const { fonteA, fonteB } = grupo;
+  const id = `grupo-educacao-${grupo.id}`;
+  return (
+    <section className="grupo-de-casos" aria-labelledby={id}>
+      <div className="grupo-cab">
+        <h3 id={id}>{grupo.rotulo}</h3>
+      </div>
+      <p className="grupo-explicacao">
+        {grupo.explicacao} Fontes:{' '}
+        <a href={fonteA.url} target="_blank" rel="noreferrer">
+          {fonteA.nome}
+        </a>{' '}
+        e{' '}
+        <a href={fonteB.url} target="_blank" rel="noreferrer">
+          {fonteB.nome}
+        </a>
+        .
+      </p>
+      <table className="tabela-casos">
+        <thead>
+          <tr>
+            <th scope="col">Caso</th>
+            <th scope="col" className="num">
+              {fonteA.coluna}
+            </th>
+            <th scope="col" className="num">
+              {fonteB.coluna}
+            </th>
+            <th scope="col" className="num">
+              Diferença
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          {grupo.casos.map((c) => (
+            <tr key={`${c.ano}|${c.item}`}>
+              <td className="caso-descricao">
+                <strong>
+                  {c.ano} · {c.item}
+                </strong>
+                {c.nota && <p className="caso-nota">{c.nota}</p>}
+              </td>
+              <td className="num" data-rotulo={fonteA.coluna}>
+                <LadoDaEducacao lado={c.a} />
+              </td>
+              <td className="num" data-rotulo={fonteB.coluna}>
+                <LadoDaEducacao lado={c.b} />
+              </td>
+              <td className="num caso-diferenca" data-rotulo="Diferença">
+                {c.diferenca === null ? (
+                  <span className="apagado">sem valor para comparar</span>
+                ) : (
+                  <>
+                    {moeda(c.diferenca)}{' '}
+                    <span className="diferenca-lado">a mais {c.maior === 'a' ? fonteA.lado : fonteB.lado}</span>
+                  </>
+                )}
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </section>
+  );
+}
+
+function LadoDaEducacao({ lado: { valor, percentual } }: { lado: LadoDoCaso }) {
+  return (
+    <>
+      {valor === null ? <span className="apagado">—</span> : moeda(valor)}
+      {percentual !== null && <div className="sub">{decimal(percentual)}%</div>}
     </>
   );
 }

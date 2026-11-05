@@ -52,6 +52,14 @@ describe('posicao', () => {
     expect(posicao(1, 2, { em: 'percentual', maiorEBom: true })?.tom).toBe('ruim');
   });
 
+  it('onde menor é melhor, abaixo é bom', () => {
+    expect(posicao(4, 6, { em: 'pontos', menorEBom: true })?.tom).toBe('bom');
+  });
+
+  it('onde menor é melhor, acima é ruim', () => {
+    expect(posicao(6, 4, { em: 'pontos', menorEBom: true })?.tom).toBe('ruim');
+  });
+
   it.each([
     [2, 1],
     [1, 2],

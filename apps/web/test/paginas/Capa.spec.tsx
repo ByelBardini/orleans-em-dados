@@ -153,7 +153,17 @@ describe('Capa: áreas', () => {
     expect(screen.getByRole('link', { name: new RegExp(`^${nome}`) })).toHaveAttribute('href', destino);
   });
 
-  it.each([['Educação'], ['Saúde'], ['Saneamento']])('%s diz "em breve", sem número e sem link', async (nome) => {
+  it('Educação saiu de "em breve": leva ao caderno, sem número e sem selo', async () => {
+    await abrir();
+
+    const cartao = screen.getByRole('link', { name: /^Educação/ });
+    expect(cartao).toHaveAttribute('href', '#educacao');
+    expect(cartao).not.toHaveTextContent('em breve');
+    expect(cartao).not.toHaveTextContent(/\d/);
+    expect(cartao.querySelector('.selo')).toBeNull();
+  });
+
+  it.each([['Saúde'], ['Saneamento']])('%s diz "em breve", sem número e sem link', async (nome) => {
     await abrir();
 
     const cartao = screen.getByRole('heading', { name: nome }).closest('li') as HTMLElement;

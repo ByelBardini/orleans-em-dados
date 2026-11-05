@@ -15,6 +15,13 @@ vi.mock('../src/paginas/Receitas', () => ({ default: ({ ano }: { ano: number }) 
 vi.mock('../src/paginas/Despesas', () => ({ default: () => <p>Página despesas</p> }));
 vi.mock('../src/paginas/Discrepancias', () => ({ default: () => <p>Página discrepâncias</p> }));
 vi.mock('../src/paginas/Metodologia', () => ({ default: () => <p>Página metodologia</p> }));
+vi.mock('../src/paginas/educacao/Resumo', () => ({ default: () => <p>Página educação resumo</p> }));
+vi.mock('../src/paginas/educacao/Aprendizado', () => ({ default: () => <p>Página educação aprendizado</p> }));
+vi.mock('../src/paginas/educacao/Acesso', () => ({ default: () => <p>Página educação acesso</p> }));
+vi.mock('../src/paginas/educacao/Permanencia', () => ({ default: () => <p>Página educação permanência</p> }));
+vi.mock('../src/paginas/educacao/Professores', () => ({ default: () => <p>Página educação professores</p> }));
+vi.mock('../src/paginas/educacao/Dinheiro', () => ({ default: () => <p>Página educação dinheiro</p> }));
+vi.mock('../src/paginas/educacao/Cidade', () => ({ default: () => <p>Página educação cidade</p> }));
 
 const ANOS = {
   anos: [2026, 2025],
@@ -86,14 +93,18 @@ describe('App', () => {
     expect(screen.queryByText(/Exercício de 2026/)).not.toBeInTheDocument();
   });
 
-  it('a capa cita as quatro fontes, e o rodapé também', async () => {
+  it('a capa cita as fontes, com as de educação, e o rodapé também', async () => {
     new FetchFake().responder('/api/anos', ANOS).instalar();
 
     render(<App />);
     await screen.findByText('Página capa');
 
-    expect(screen.getByText(/Fontes: IBGE, SICONFI, Portal da Transparência e TCE-SC/)).toBeInTheDocument();
-    expect(screen.getByText(/despesa por função do SICONFI e\s+indicadores do IBGE/)).toBeInTheDocument();
+    expect(
+      screen.getByText(/Fontes: IBGE, INEP, MEC, SIOPE, SICONFI, Portal da Transparência e TCE-SC/),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText(/despesa por função do SICONFI,\s+indicadores do IBGE e, na educação, INEP, SIOPE e MEC/),
+    ).toBeInTheDocument();
   });
 
   it('o cabeçalho das páginas financeiras diz o exercício e quando foi atualizado', async () => {
@@ -145,7 +156,82 @@ describe('App', () => {
     expect(screen.getByRole('link', { name: 'Discrepâncias' })).toHaveAttribute('aria-current', 'page');
   });
 
-  it('o primeiro nível da navegação traz as cinco áreas, nesta ordem', async () => {
+  const ABAS_DA_EDUCACAO = [
+    ['Resumo', '#educacao'],
+    ['Aprendizado', '#educacao-aprendizado'],
+    ['Acesso', '#educacao-acesso'],
+    ['Permanência', '#educacao-permanencia'],
+    ['Professores e turmas', '#educacao-professores'],
+    ['Dinheiro', '#educacao-dinheiro'],
+    ['Cidade e ensino superior', '#educacao-cidade'],
+  ];
+
+  it.each([
+    ['#educacao', 'Resumo', 'Página educação resumo', 'Educação · Orleans em Dados'],
+    ['#educacao-aprendizado', 'Aprendizado', 'Página educação aprendizado', 'Aprendizado · Orleans em Dados'],
+    ['#educacao-acesso', 'Acesso', 'Página educação acesso', 'Acesso · Orleans em Dados'],
+    ['#educacao-permanencia', 'Permanência', 'Página educação permanência', 'Permanência · Orleans em Dados'],
+    [
+      '#educacao-professores',
+      'Professores e turmas',
+      'Página educação professores',
+      'Professores e turmas · Orleans em Dados',
+    ],
+    ['#educacao-dinheiro', 'Dinheiro', 'Página educação dinheiro', 'Dinheiro · Orleans em Dados'],
+    [
+      '#educacao-cidade',
+      'Cidade e ensino superior',
+      'Página educação cidade',
+      'Cidade e ensino superior · Orleans em Dados',
+    ],
+  ])('%s abre %s no segundo nível de Educação, e o título da janela usa o nome', async (hash, atual, texto, titulo) => {
+    new FetchFake().responder('/api/anos', ANOS).instalar();
+    window.location.hash = hash;
+
+    render(<App />);
+    await screen.findByText(texto);
+
+    expect(linksDa('Páginas de Educação')).toEqual(ABAS_DA_EDUCACAO);
+    const segundoNivel = within(screen.getByRole('navigation', { name: 'Páginas de Educação' }));
+    expect(segundoNivel.getByRole('link', { name: atual })).toHaveAttribute('aria-current', 'page');
+    expect(segundoNivel.getAllByRole('link').filter((link) => link.hasAttribute('aria-current'))).toHaveLength(1);
+    const primeiroNivel = within(screen.getByRole('navigation', { name: 'Principal' }));
+    expect(primeiroNivel.getByRole('link', { name: 'Educação' })).toHaveAttribute('aria-current', 'true');
+    expect(primeiroNivel.getByRole('link', { name: 'Finanças' })).not.toHaveAttribute('aria-current');
+    expect(document.title).toBe(titulo);
+  });
+
+  it('Educação abre sem exercício publicado, e o cabeçalho diz o caderno', async () => {
+    new FetchFake().responder('/api/anos', { ...ANOS, anos: [], atualizadoEm: {} }).instalar();
+    window.location.hash = '#educacao-acesso';
+
+    render(<App />);
+
+    expect(await screen.findByText('Página educação acesso')).toBeInTheDocument();
+    expect(screen.getByText('Caderno de Educação')).toBeInTheDocument();
+  });
+
+  it('Educação, com exercício publicado, não diz um exercício no cabeçalho', async () => {
+    new FetchFake().responder('/api/anos', ANOS).instalar();
+    window.location.hash = '#educacao';
+
+    render(<App />);
+    await screen.findByText('Página educação resumo');
+
+    expect(screen.queryByText(/Exercício de 2026/)).not.toBeInTheDocument();
+  });
+
+  it.each(['#educacao-inexistente', '#educacao-'])('%s, desconhecido, segue na capa', async (hash) => {
+    new FetchFake().responder('/api/anos', ANOS).instalar();
+    window.location.hash = hash;
+
+    render(<App />);
+
+    expect(await screen.findByText('Página capa')).toBeInTheDocument();
+    expect(screen.queryByRole('navigation', { name: 'Páginas de Educação' })).not.toBeInTheDocument();
+  });
+
+  it('o primeiro nível da navegação traz as seis áreas, nesta ordem', async () => {
     new FetchFake().responder('/api/anos', ANOS).instalar();
 
     render(<App />);
@@ -155,6 +241,7 @@ describe('App', () => {
       ['Início', '#visao-geral'],
       ['Conheça Orleans', '#conheca-orleans'],
       ['Finanças', '#financas'],
+      ['Educação', '#educacao'],
       ['Discrepâncias', '#discrepancias'],
       ['Sobre os dados', '#metodologia'],
     ]);

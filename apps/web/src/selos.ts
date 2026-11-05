@@ -21,6 +21,9 @@ export const seloConferidoComBetha = (dataCorte: string | null): DadosDoSelo => 
   motivo: 'Valores do TCE-SC.',
 });
 
+// Um total que tem par na Betha, sem corte: a função 12 da DCA igual à soma das ações de educação.
+export const SELO_CONFERIDO_COM_A_BETHA: DadosDoSelo = { estado: 'confere', titulo: 'conferido com a Betha' };
+
 export const SELO_FONTE_UNICA: DadosDoSelo = { estado: 'fonte-unica', titulo: 'fonte única, sem conferência' };
 
 export const SELO_EXEMPLO: DadosDoSelo = { estado: 'pendente', titulo: 'dados fictícios, sem conferência' };

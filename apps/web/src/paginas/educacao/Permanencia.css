@@ -1,0 +1,150 @@
+/* A aba Permanência. O Vite junta tudo num CSS só: toda classe leva o prefixo `edu-permanencia-`, e só tokens de styles.css. */
+
+.edu-permanencia-csv {
+  margin: 16px 0 0;
+}
+
+.edu-permanencia-alternador {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 16px;
+}
+
+.edu-permanencia-alternador p {
+  max-width: 720px;
+  margin: 0;
+  font-size: 15px;
+  color: var(--apagado);
+}
+
+.edu-permanencia-frase {
+  max-width: 720px;
+  margin: 0 0 12px;
+  font-size: 17px;
+  text-wrap: pretty;
+}
+
+/* Como termina o ano: barras mais altas e valores no tamanho de dado, numa coluna que não se espalha. */
+.edu-permanencia-rendimento {
+  max-width: none;
+}
+
+.edu-permanencia-rendimento .emp-linhas {
+  gap: 20px;
+}
+
+.edu-permanencia-rendimento .emp-barra {
+  height: 36px;
+}
+
+.edu-permanencia-rendimento .emp-valores {
+  font-size: var(--edu-valor);
+}
+
+.edu-permanencia-rendimento .emp-apoio {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.edu-permanencia-definicoes {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr));
+  gap: 0 32px;
+  margin: 0;
+}
+
+.edu-permanencia-definicoes > div {
+  padding: 10px 0;
+  border-bottom: 1px solid var(--regua);
+}
+
+.edu-permanencia-definicoes dt {
+  font-weight: 600;
+}
+
+.edu-permanencia-definicoes dd {
+  margin: 0;
+  font-size: 15px;
+}
+
+/* Duas colunas só quando cada uma tem ~420 px; senão, uma coluna. */
+.edu-permanencia-dupla {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 420px), 1fr));
+  gap: 0 48px;
+  align-items: start;
+  max-width: var(--edu-largura);
+}
+
+.edu-permanencia-subtitulo {
+  margin: 0 0 4px;
+  font-size: 19px;
+}
+
+.edu-permanencia-linhas {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Cartões grandes: a série em cima, o número de alunos em destaque, a taxa e os outros lugares embaixo.
+   Uma coluna por cartão (até 4, que a página escreve em --edu-permanencia-colunas); 2 em tela média; 1 no celular. */
+.edu-permanencia-cartoes {
+  display: grid;
+  grid-template-columns: repeat(var(--edu-permanencia-colunas, 4), minmax(0, 1fr));
+  gap: 24px 36px;
+  margin: 8px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.edu-permanencia-cartoes > li {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 16px 0 4px;
+  border-top: 2px solid var(--tinta);
+  font-size: var(--edu-texto);
+}
+
+.edu-permanencia-onde {
+  font-family: var(--mono);
+  font-size: var(--edu-rotulo);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.edu-permanencia-quantos {
+  font-family: var(--serif);
+  font-size: clamp(30px, 3.4vw, 42px);
+  line-height: 1.05;
+  text-wrap: balance;
+}
+
+.edu-permanencia-taxa {
+  font-size: 17px;
+}
+
+.edu-permanencia-taxa strong {
+  font-family: var(--mono);
+  font-weight: 600;
+}
+
+.edu-permanencia-outros-lugares {
+  font-family: var(--mono);
+  font-size: var(--edu-rotulo);
+  color: var(--apagado);
+}
+
+@media (max-width: 1100px) {
+  .edu-permanencia-cartoes {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 620px) {
+  .edu-permanencia-cartoes {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
