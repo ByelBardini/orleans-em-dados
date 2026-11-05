@@ -51,6 +51,16 @@ describe('montarFilas', () => {
     expect(await boss.getSchedules(NOME)).toMatchObject([{ name: NOME, cron: '0 3 * * *', timezone: FUSO }]);
   });
 
+  it('importador sem agenda não ganha fila nem agendamento', async () => {
+    const boss = await iniciar();
+    const { agenda: _agenda, ...semAgenda } = importadorFake();
+
+    await montarFilas(boss, [semAgenda], async () => {}, OPCOES_RAPIDAS);
+
+    expect(await boss.getQueue(NOME)).toBeNull();
+    expect(await boss.getSchedules(NOME)).toEqual([]);
+  });
+
   it('reiniciar o worker não duplica o agendamento', async () => {
     const primeiro = await iniciar();
     await montarFilas(primeiro, [importadorFake()], async () => {}, OPCOES_RAPIDAS);
