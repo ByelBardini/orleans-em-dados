@@ -1,0 +1,279 @@
+{
+  "fonte": "Censo da Educação Superior 2024, IGC, CPC e Conceito Enade (INEP), arquivos baixados pelo usuário",
+  "gerado_em": "2026-11-05",
+  "regras": [
+    "Só os cursos oferecidos em Orleans, sem nenhum aluno individual.",
+    "Curso com menos de 10 matrículas não mostra o corte por sexo e turno.",
+    "Ensino a distância só em total, porque cada curso tem de 0 a 2 alunos e o INEP avisa que o dado por município é limitado.",
+    "Não somar com o Censo 2022: aquele conta moradores, este conta a oferta na cidade."
+  ],
+  "instituicao_presencial": {
+    "instituicao": "CENTRO UNIVERSITÁRIO BARRIGA VERDE",
+    "sigla": "UNIBAVE",
+    "docentes": 160,
+    "doutores": 45,
+    "mestres": 73,
+    "especialistas": 42,
+    "tempo_integral": 34,
+    "tecnicos": 76
+  },
+  "igc": {
+    "ano": 2023,
+    "continuo": 2.44,
+    "faixa": 3
+  },
+  "presencial": {
+    "cursos": 17,
+    "vagas": 998,
+    "inscritos": 558,
+    "ingressantes": 551,
+    "matriculas": 1504,
+    "concluintes": 209,
+    "mulheres": 909,
+    "noturno": 1324,
+    "de_18_a_24": 1169,
+    "escola_publica": 1079,
+    "prouni": 340,
+    "fies": 12
+  },
+  "a_distancia": {
+    "instituicoes": 4,
+    "matriculas": 12,
+    "ingressantes": 14
+  },
+  "cursos": [
+    {
+      "curso": "Direito",
+      "grau": "bacharelado",
+      "vagas": 99,
+      "ingressantes": 77,
+      "matriculas": 233,
+      "concluintes": 28,
+      "mulheres": 160,
+      "noturno": 233
+    },
+    {
+      "curso": "Sistemas De Informação",
+      "grau": "bacharelado",
+      "vagas": 91,
+      "ingressantes": 89,
+      "matriculas": 186,
+      "concluintes": 14,
+      "mulheres": 29,
+      "noturno": 186
+    },
+    {
+      "curso": "Medicina Veterinária",
+      "grau": "bacharelado",
+      "vagas": 77,
+      "ingressantes": 45,
+      "matriculas": 180,
+      "concluintes": 34,
+      "mulheres": 140,
+      "noturno": 0
+    },
+    {
+      "curso": "Psicologia",
+      "grau": "bacharelado",
+      "vagas": 50,
+      "ingressantes": 44,
+      "matriculas": 123,
+      "concluintes": 13,
+      "mulheres": 99,
+      "noturno": 123
+    },
+    {
+      "curso": "Enfermagem",
+      "grau": "bacharelado",
+      "vagas": 54,
+      "ingressantes": 34,
+      "matriculas": 112,
+      "concluintes": 14,
+      "mulheres": 103,
+      "noturno": 112
+    },
+    {
+      "curso": "Ciências Contábeis",
+      "grau": "bacharelado",
+      "vagas": 72,
+      "ingressantes": 41,
+      "matriculas": 111,
+      "concluintes": 15,
+      "mulheres": 64,
+      "noturno": 111
+    },
+    {
+      "curso": "Administração",
+      "grau": "bacharelado",
+      "vagas": 73,
+      "ingressantes": 48,
+      "matriculas": 99,
+      "concluintes": 15,
+      "mulheres": 48,
+      "noturno": 99
+    },
+    {
+      "curso": "Pedagogia",
+      "grau": "licenciatura",
+      "vagas": 54,
+      "ingressantes": 34,
+      "matriculas": 80,
+      "concluintes": 4,
+      "mulheres": 80,
+      "noturno": 80
+    },
+    {
+      "curso": "Agronomia",
+      "grau": "bacharelado",
+      "vagas": 48,
+      "ingressantes": 24,
+      "matriculas": 78,
+      "concluintes": 15,
+      "mulheres": 28,
+      "noturno": 78
+    },
+    {
+      "curso": "Farmácia",
+      "grau": "bacharelado",
+      "vagas": 52,
+      "ingressantes": 25,
+      "matriculas": 68,
+      "concluintes": 11,
+      "mulheres": 62,
+      "noturno": 68
+    },
+    {
+      "curso": "Engenharia Civil",
+      "grau": "bacharelado",
+      "vagas": 65,
+      "ingressantes": 16,
+      "matriculas": 49,
+      "concluintes": 4,
+      "mulheres": 20,
+      "noturno": 49
+    },
+    {
+      "curso": "Engenharia Mecânica",
+      "grau": "bacharelado",
+      "vagas": 52,
+      "ingressantes": 19,
+      "matriculas": 49,
+      "concluintes": 6,
+      "mulheres": 3,
+      "noturno": 49
+    },
+    {
+      "curso": "Educação Física",
+      "grau": "bacharelado",
+      "vagas": 50,
+      "ingressantes": 17,
+      "matriculas": 43,
+      "concluintes": 11,
+      "mulheres": 14,
+      "noturno": 43
+    },
+    {
+      "curso": "Educação Física",
+      "grau": "licenciatura",
+      "vagas": 50,
+      "ingressantes": 15,
+      "matriculas": 38,
+      "concluintes": 6,
+      "mulheres": 27,
+      "noturno": 38
+    },
+    {
+      "curso": "Engenharia De Produção",
+      "grau": "bacharelado",
+      "vagas": 63,
+      "ingressantes": 15,
+      "matriculas": 35,
+      "concluintes": 7,
+      "mulheres": 16,
+      "noturno": 35
+    },
+    {
+      "curso": "Design De Interiores",
+      "grau": "tecnologico",
+      "vagas": 45,
+      "ingressantes": 5,
+      "matriculas": 17,
+      "concluintes": 9,
+      "mulheres": 15,
+      "noturno": 17
+    },
+    {
+      "curso": "Engenharia Ambiental E Sanitária",
+      "grau": "bacharelado",
+      "vagas": 3,
+      "ingressantes": 3,
+      "matriculas": 3,
+      "concluintes": 3
+    }
+  ],
+  "notas_por_area_2023": [
+    {
+      "area": "ENFERMAGEM",
+      "participantes": 15,
+      "cpc_continuo": 2.46,
+      "cpc_faixa": "3",
+      "enade_2023": "2"
+    },
+    {
+      "area": "FARMÁCIA",
+      "participantes": 14,
+      "cpc_continuo": 2.84,
+      "cpc_faixa": "3",
+      "enade_2023": "4"
+    },
+    {
+      "area": "ENGENHARIA DE PRODUÇÃO",
+      "participantes": 16,
+      "cpc_continuo": 2.32,
+      "cpc_faixa": "3",
+      "enade_2023": "3"
+    },
+    {
+      "area": "ENGENHARIA AMBIENTAL",
+      "participantes": 1,
+      "cpc_continuo": null,
+      "cpc_faixa": "SC",
+      "enade_2023": "SC"
+    },
+    {
+      "area": "ENGENHARIA CIVIL",
+      "participantes": 14,
+      "cpc_continuo": 2.32,
+      "cpc_faixa": "3",
+      "enade_2023": "3"
+    },
+    {
+      "area": "MEDICINA VETERINÁRIA",
+      "participantes": 43,
+      "cpc_continuo": 3.14,
+      "cpc_faixa": "4",
+      "enade_2023": "4"
+    },
+    {
+      "area": "AGRONOMIA",
+      "participantes": 21,
+      "cpc_continuo": 2.01,
+      "cpc_faixa": "3",
+      "enade_2023": "3"
+    }
+  ],
+  "licenciaturas_2025": [
+    {
+      "area": "PEDAGOGIA",
+      "participantes": 30,
+      "pct_padrao_proficiencia": 60,
+      "enade_2025": "3"
+    },
+    {
+      "area": "EDUCAÇÃO FÍSICA",
+      "participantes": 7,
+      "pct_padrao_proficiencia": 42.9,
+      "enade_2025": "2"
+    }
+  ]
+}

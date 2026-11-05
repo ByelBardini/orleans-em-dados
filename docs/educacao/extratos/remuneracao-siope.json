@@ -1,0 +1,752 @@
+{
+  "fonte": "SIOPE/FNDE, Consultar Remuneração dos Profissionais da Educação, planilhas baixadas pelo usuário",
+  "gerado_em": "2026-11-05",
+  "regras": [
+    "Só agregados: nenhuma linha, nome, CPF, escola ou valor individual é mantido.",
+    "CPF e nome foram usados só em memória, para contar pessoas.",
+    "Contagem abaixo de 5 vira \"menos de 5\"; mediana exige pelo menos 10 pessoas.",
+    "Valores em reais nominais, como texto decimal.",
+    "Foto de maio de cada ano; mediana proporcional a 40 horas."
+  ],
+  "observacoes": [
+    "A lista é parcial: em 2025 soma R$ 14,24 mi, contra R$ 25,58 mi de pessoal ativo no Anexo 8. Na tela, dizer \"entre os profissionais declarados\".",
+    "O corte por segmento de ensino foi descartado porque a classificação muda muito de um ano para outro.",
+    "2026 vai só até junho."
+  ],
+  "anos": [
+    {
+      "ano": 2020,
+      "meses_declarados": 12,
+      "soma_parcela_remuneracao_fundeb": "6138952.73",
+      "soma_outra_parcela_fundeb": "331503.00",
+      "soma_outras_receitas": "0.00",
+      "soma_total": "6470455.73",
+      "confere_com_total_da_planilha": true,
+      "por_mes": [
+        {
+          "mes": "Janeiro",
+          "pessoas": 120,
+          "total": "569312.49"
+        },
+        {
+          "mes": "Fevereiro",
+          "pessoas": 145,
+          "total": "507537.07"
+        },
+        {
+          "mes": "Março",
+          "pessoas": 150,
+          "total": "497426.03"
+        },
+        {
+          "mes": "Abril",
+          "pessoas": 166,
+          "total": "554548.02"
+        },
+        {
+          "mes": "Maio",
+          "pessoas": 166,
+          "total": "563719.23"
+        },
+        {
+          "mes": "Junho",
+          "pessoas": 165,
+          "total": "558325.04"
+        },
+        {
+          "mes": "Julho",
+          "pessoas": 164,
+          "total": "548586.00"
+        },
+        {
+          "mes": "Agosto",
+          "pessoas": 163,
+          "total": "550354.06"
+        },
+        {
+          "mes": "Setembro",
+          "pessoas": 162,
+          "total": "542114.11"
+        },
+        {
+          "mes": "Outubro",
+          "pessoas": 162,
+          "total": "543118.82"
+        },
+        {
+          "mes": "Novembro",
+          "pessoas": 152,
+          "total": "517707.43"
+        },
+        {
+          "mes": "Dezembro",
+          "pessoas": 152,
+          "total": "517707.43"
+        }
+      ],
+      "maio": {
+        "magisterio": {
+          "pessoas": 111,
+          "carga_horas": 4105,
+          "carga_temporaria_pct": 10.6,
+          "so_efetivos": 99,
+          "so_temporarios": 12,
+          "mediana_total_40h": {
+            "geral": "4738.18",
+            "efetivos": "4738.18",
+            "temporarios": "3276.11"
+          },
+          "mediana_vencimento_40h": {
+            "efetivos": "3798.48",
+            "temporarios": "2580.09"
+          }
+        },
+        "outros_profissionais": {
+          "pessoas": 55,
+          "carga_horas": 1825,
+          "carga_temporaria_pct": 18.1,
+          "so_efetivos": 44,
+          "so_temporarios": 11,
+          "mediana_total_40h": {
+            "geral": "2024.24",
+            "efetivos": "2024.24",
+            "temporarios": "1954.93"
+          },
+          "mediana_vencimento_40h": {
+            "efetivos": "1749.25",
+            "temporarios": "1714.93"
+          }
+        },
+        "formacao_magisterio": {
+          "Docente habilitado em curso de licenciatura plena": 110,
+          "Docente habilitado em curso de nível médio": "menos de 5"
+        }
+      }
+    },
+    {
+      "ano": 2021,
+      "meses_declarados": 12,
+      "soma_parcela_remuneracao_fundeb": "6976765.02",
+      "soma_outra_parcela_fundeb": "366720.00",
+      "soma_outras_receitas": "0.00",
+      "soma_total": "7343485.02",
+      "confere_com_total_da_planilha": true,
+      "por_mes": [
+        {
+          "mes": "Janeiro",
+          "pessoas": 139,
+          "total": "649629.84"
+        },
+        {
+          "mes": "Fevereiro",
+          "pessoas": 193,
+          "total": "573174.20"
+        },
+        {
+          "mes": "Março",
+          "pessoas": 198,
+          "total": "623307.40"
+        },
+        {
+          "mes": "Abril",
+          "pessoas": 199,
+          "total": "625073.87"
+        },
+        {
+          "mes": "Maio",
+          "pessoas": 195,
+          "total": "626126.59"
+        },
+        {
+          "mes": "Junho",
+          "pessoas": 192,
+          "total": "597294.74"
+        },
+        {
+          "mes": "Julho",
+          "pessoas": 192,
+          "total": "597294.74"
+        },
+        {
+          "mes": "Agosto",
+          "pessoas": 192,
+          "total": "597294.74"
+        },
+        {
+          "mes": "Setembro",
+          "pessoas": 193,
+          "total": "610755.88"
+        },
+        {
+          "mes": "Outubro",
+          "pessoas": 193,
+          "total": "608591.32"
+        },
+        {
+          "mes": "Novembro",
+          "pessoas": 192,
+          "total": "608488.46"
+        },
+        {
+          "mes": "Dezembro",
+          "pessoas": 111,
+          "total": "626453.24"
+        }
+      ],
+      "maio": {
+        "magisterio": {
+          "pessoas": 139,
+          "carga_horas": 4835,
+          "carga_temporaria_pct": 26.7,
+          "so_efetivos": 96,
+          "so_temporarios": 43,
+          "mediana_total_40h": {
+            "geral": "4538.32",
+            "efetivos": "4738.18",
+            "temporarios": "3416.11"
+          },
+          "mediana_vencimento_40h": {
+            "efetivos": "3798.48",
+            "temporarios": "2580.09"
+          }
+        },
+        "outros_profissionais": {
+          "pessoas": 56,
+          "carga_horas": 1825,
+          "carga_temporaria_pct": 0,
+          "so_efetivos": 56,
+          "so_temporarios": 0,
+          "mediana_total_40h": {
+            "geral": "2024.24",
+            "efetivos": "2024.24",
+            "temporarios": null
+          },
+          "mediana_vencimento_40h": {
+            "efetivos": "1714.93",
+            "temporarios": null
+          }
+        },
+        "formacao_magisterio": {
+          "Docente habilitado em curso de licenciatura plena": 139
+        }
+      }
+    },
+    {
+      "ano": 2022,
+      "meses_declarados": 12,
+      "soma_parcela_remuneracao_fundeb": "9472070.51",
+      "soma_outra_parcela_fundeb": "461840.00",
+      "soma_outras_receitas": "0.00",
+      "soma_total": "9933910.51",
+      "confere_com_total_da_planilha": true,
+      "por_mes": [
+        {
+          "mes": "Janeiro",
+          "pessoas": 156,
+          "total": "726650.82"
+        },
+        {
+          "mes": "Fevereiro",
+          "pessoas": 219,
+          "total": "734404.83"
+        },
+        {
+          "mes": "Março",
+          "pessoas": 219,
+          "total": "734404.83"
+        },
+        {
+          "mes": "Abril",
+          "pessoas": 219,
+          "total": "734404.83"
+        },
+        {
+          "mes": "Maio",
+          "pessoas": 212,
+          "total": "762457.99"
+        },
+        {
+          "mes": "Junho",
+          "pessoas": 219,
+          "total": "734404.83"
+        },
+        {
+          "mes": "Julho",
+          "pessoas": 219,
+          "total": "734404.83"
+        },
+        {
+          "mes": "Agosto",
+          "pessoas": 219,
+          "total": "734404.83"
+        },
+        {
+          "mes": "Setembro",
+          "pessoas": 219,
+          "total": "734404.83"
+        },
+        {
+          "mes": "Outubro",
+          "pessoas": 219,
+          "total": "734404.83"
+        },
+        {
+          "mes": "Novembro",
+          "pessoas": 202,
+          "total": "835323.77"
+        },
+        {
+          "mes": "Dezembro",
+          "pessoas": 204,
+          "total": "1734239.29"
+        }
+      ],
+      "maio": {
+        "magisterio": {
+          "pessoas": 143,
+          "carga_horas": 4990,
+          "carga_temporaria_pct": 33.1,
+          "so_efetivos": 91,
+          "so_temporarios": 52,
+          "mediana_total_40h": {
+            "geral": "5208.88",
+            "efetivos": "5660.59",
+            "temporarios": "3921.89"
+          },
+          "mediana_vencimento_40h": {
+            "efetivos": "4517.16",
+            "temporarios": "3068.24"
+          }
+        },
+        "outros_profissionais": {
+          "pessoas": 69,
+          "carga_horas": 2185,
+          "carga_temporaria_pct": 26.1,
+          "so_efetivos": 50,
+          "so_temporarios": 19,
+          "mediana_total_40h": {
+            "geral": "2373.56",
+            "efetivos": "2484.25",
+            "temporarios": "2359.40"
+          },
+          "mediana_vencimento_40h": {
+            "efetivos": "2039.40",
+            "temporarios": "2039.40"
+          }
+        },
+        "formacao_magisterio": {
+          "Docente habilitado em curso de licenciatura plena": 143
+        }
+      }
+    },
+    {
+      "ano": 2023,
+      "meses_declarados": 12,
+      "soma_parcela_remuneracao_fundeb": "10777849.69",
+      "soma_outra_parcela_fundeb": "603151.30",
+      "soma_outras_receitas": "0.00",
+      "soma_total": "11381000.99",
+      "confere_com_total_da_planilha": true,
+      "por_mes": [
+        {
+          "mes": "Janeiro",
+          "pessoas": 145,
+          "total": "813993.04"
+        },
+        {
+          "mes": "Fevereiro",
+          "pessoas": 227,
+          "total": "751474.10"
+        },
+        {
+          "mes": "Março",
+          "pessoas": 240,
+          "total": "906916.30"
+        },
+        {
+          "mes": "Abril",
+          "pessoas": 246,
+          "total": "1176685.58"
+        },
+        {
+          "mes": "Maio",
+          "pessoas": 251,
+          "total": "960316.81"
+        },
+        {
+          "mes": "Junho",
+          "pessoas": 249,
+          "total": "954594.90"
+        },
+        {
+          "mes": "Julho",
+          "pessoas": 254,
+          "total": "972405.19"
+        },
+        {
+          "mes": "Agosto",
+          "pessoas": 260,
+          "total": "991681.88"
+        },
+        {
+          "mes": "Setembro",
+          "pessoas": 262,
+          "total": "1016387.89"
+        },
+        {
+          "mes": "Outubro",
+          "pessoas": 264,
+          "total": "1011898.31"
+        },
+        {
+          "mes": "Novembro",
+          "pessoas": 261,
+          "total": "994998.50"
+        },
+        {
+          "mes": "Dezembro",
+          "pessoas": 236,
+          "total": "829648.49"
+        }
+      ],
+      "maio": {
+        "magisterio": {
+          "pessoas": 147,
+          "carga_horas": 5145,
+          "carga_temporaria_pct": 38.7,
+          "so_efetivos": 86,
+          "so_temporarios": 61,
+          "mediana_total_40h": {
+            "geral": "6073.51",
+            "efetivos": "6775.16",
+            "temporarios": "4869.16"
+          },
+          "mediana_vencimento_40h": {
+            "efetivos": "5433.97",
+            "temporarios": "3845.63"
+          }
+        },
+        "outros_profissionais": {
+          "pessoas": 104,
+          "carga_horas": 3195,
+          "carga_temporaria_pct": 50.4,
+          "so_efetivos": 49,
+          "so_temporarios": 55,
+          "mediana_total_40h": {
+            "geral": "2582.53",
+            "efetivos": "2747.25",
+            "temporarios": "2582.53"
+          },
+          "mediana_vencimento_40h": {
+            "efetivos": "2243.33",
+            "temporarios": "2243.33"
+          }
+        },
+        "formacao_magisterio": {
+          "Docente habilitado em curso de licenciatura plena": 127,
+          "Docente habilitado em curso de pedagogia": 15,
+          "Profissionais não habilitados, porém autorizados a exercer a docência em caráter precário e provisório na educação infantil e nos anos iniciais do ensino fundamental": 5
+        }
+      }
+    },
+    {
+      "ano": 2024,
+      "meses_declarados": 12,
+      "soma_parcela_remuneracao_fundeb": "12176668.08",
+      "soma_outra_parcela_fundeb": "0.00",
+      "soma_outras_receitas": "0.00",
+      "soma_total": "12176668.08",
+      "confere_com_total_da_planilha": true,
+      "por_mes": [
+        {
+          "mes": "Janeiro",
+          "pessoas": 124,
+          "total": "721341.23"
+        },
+        {
+          "mes": "Fevereiro",
+          "pessoas": 248,
+          "total": "902710.53"
+        },
+        {
+          "mes": "Março",
+          "pessoas": 272,
+          "total": "1059742.38"
+        },
+        {
+          "mes": "Abril",
+          "pessoas": 276,
+          "total": "1062715.94"
+        },
+        {
+          "mes": "Maio",
+          "pessoas": 276,
+          "total": "1062715.94"
+        },
+        {
+          "mes": "Junho",
+          "pessoas": 276,
+          "total": "1062715.94"
+        },
+        {
+          "mes": "Julho",
+          "pessoas": 269,
+          "total": "1056336.27"
+        },
+        {
+          "mes": "Agosto",
+          "pessoas": 273,
+          "total": "1058481.14"
+        },
+        {
+          "mes": "Setembro",
+          "pessoas": 273,
+          "total": "1073122.01"
+        },
+        {
+          "mes": "Outubro",
+          "pessoas": 271,
+          "total": "1038928.90"
+        },
+        {
+          "mes": "Novembro",
+          "pessoas": 271,
+          "total": "1038928.90"
+        },
+        {
+          "mes": "Dezembro",
+          "pessoas": 271,
+          "total": "1038928.90"
+        }
+      ],
+      "maio": {
+        "magisterio": {
+          "pessoas": 162,
+          "carga_horas": 5550,
+          "carga_temporaria_pct": 35.5,
+          "so_efetivos": 99,
+          "so_temporarios": 63,
+          "mediana_total_40h": {
+            "geral": "5791.32",
+            "efetivos": "6715.16",
+            "temporarios": "5496.68"
+          },
+          "mediana_vencimento_40h": {
+            "efetivos": "5651.33",
+            "temporarios": "4580.57"
+          }
+        },
+        "outros_profissionais": {
+          "pessoas": 114,
+          "carga_horas": 3555,
+          "carga_temporaria_pct": 52,
+          "so_efetivos": 54,
+          "so_temporarios": 60,
+          "mediana_total_40h": {
+            "geral": "2333.07",
+            "efetivos": "2525.39",
+            "temporarios": "2333.07"
+          },
+          "mediana_vencimento_40h": {
+            "efetivos": "2333.07",
+            "temporarios": "2333.07"
+          }
+        },
+        "formacao_magisterio": {
+          "Docente habilitado em curso de licenciatura plena": 161,
+          "Profissionais não habilitados, porém autorizados a exercer a docência em caráter precário e provisório na educação infantil e nos anos iniciais do ensino fundamental": "menos de 5"
+        }
+      }
+    },
+    {
+      "ano": 2025,
+      "meses_declarados": 12,
+      "soma_parcela_remuneracao_fundeb": "13499118.82",
+      "soma_outra_parcela_fundeb": "738244.26",
+      "soma_outras_receitas": "0.00",
+      "soma_total": "14237363.08",
+      "confere_com_total_da_planilha": true,
+      "por_mes": [
+        {
+          "mes": "Janeiro",
+          "pessoas": 140,
+          "total": "848894.51"
+        },
+        {
+          "mes": "Fevereiro",
+          "pessoas": 326,
+          "total": "1132230.38"
+        },
+        {
+          "mes": "Março",
+          "pessoas": 325,
+          "total": "1408570.98"
+        },
+        {
+          "mes": "Abril",
+          "pessoas": 328,
+          "total": "1354758.96"
+        },
+        {
+          "mes": "Maio",
+          "pessoas": 331,
+          "total": "1368154.33"
+        },
+        {
+          "mes": "Junho",
+          "pessoas": 205,
+          "total": "975922.78"
+        },
+        {
+          "mes": "Julho",
+          "pessoas": 298,
+          "total": "1153735.77"
+        },
+        {
+          "mes": "Agosto",
+          "pessoas": 300,
+          "total": "1154995.87"
+        },
+        {
+          "mes": "Setembro",
+          "pessoas": 300,
+          "total": "1145895.73"
+        },
+        {
+          "mes": "Outubro",
+          "pessoas": 304,
+          "total": "1138224.66"
+        },
+        {
+          "mes": "Novembro",
+          "pessoas": 305,
+          "total": "1158762.20"
+        },
+        {
+          "mes": "Dezembro",
+          "pessoas": 223,
+          "total": "1397216.91"
+        }
+      ],
+      "maio": {
+        "magisterio": {
+          "pessoas": 188,
+          "carga_horas": 6755,
+          "carga_temporaria_pct": 44.3,
+          "so_efetivos": 103,
+          "so_temporarios": 85,
+          "mediana_total_40h": {
+            "geral": "5841.32",
+            "efetivos": "6956.24",
+            "temporarios": "5841.32"
+          },
+          "mediana_vencimento_40h": {
+            "efetivos": "6005.67",
+            "temporarios": "4867.77"
+          }
+        },
+        "outros_profissionais": {
+          "pessoas": 143,
+          "carga_horas": 4455,
+          "carga_temporaria_pct": 59.7,
+          "so_efetivos": 57,
+          "so_temporarios": 86,
+          "mediana_total_40h": {
+            "geral": "2449.72",
+            "efetivos": "2657.89",
+            "temporarios": "2449.72"
+          },
+          "mediana_vencimento_40h": {
+            "efetivos": "2449.72",
+            "temporarios": "2449.72"
+          }
+        },
+        "formacao_magisterio": {
+          "Docente habilitado em curso de licenciatura plena": 175,
+          "Profissionais não habilitados, porém autorizados a exercer a docência em caráter precário e provisório na educação infantil e nos anos iniciais do ensino fundamental": 11,
+          "Docente habilitado em curso de nível médio": "menos de 5"
+        }
+      }
+    },
+    {
+      "ano": 2026,
+      "meses_declarados": 6,
+      "soma_parcela_remuneracao_fundeb": "4570481.01",
+      "soma_outra_parcela_fundeb": "209125.42",
+      "soma_outras_receitas": "1490176.31",
+      "soma_total": "6269782.74",
+      "confere_com_total_da_planilha": true,
+      "por_mes": [
+        {
+          "mes": "Janeiro",
+          "pessoas": 126,
+          "total": "698807.73"
+        },
+        {
+          "mes": "Fevereiro",
+          "pessoas": 272,
+          "total": "792839.48"
+        },
+        {
+          "mes": "Março",
+          "pessoas": 304,
+          "total": "1181590.73"
+        },
+        {
+          "mes": "Abril",
+          "pessoas": 307,
+          "total": "1190186.95"
+        },
+        {
+          "mes": "Maio",
+          "pessoas": 308,
+          "total": "1189934.26"
+        },
+        {
+          "mes": "Junho",
+          "pessoas": 317,
+          "total": "1216423.59"
+        }
+      ],
+      "maio": {
+        "magisterio": {
+          "pessoas": 149,
+          "carga_horas": 5260,
+          "carga_temporaria_pct": 45.4,
+          "so_efetivos": 79,
+          "so_temporarios": 70,
+          "mediana_total_40h": {
+            "geral": "6156.76",
+            "efetivos": "6606.76",
+            "temporarios": "6156.76"
+          },
+          "mediana_vencimento_40h": {
+            "efetivos": "5130.63",
+            "temporarios": "5130.63"
+          }
+        },
+        "outros_profissionais": {
+          "pessoas": 159,
+          "carga_horas": 4910,
+          "carga_temporaria_pct": 67.2,
+          "so_efetivos": 53,
+          "so_temporarios": 106,
+          "mediana_total_40h": {
+            "geral": "2555.05",
+            "efetivos": "2658.35",
+            "temporarios": "2555.05"
+          },
+          "mediana_vencimento_40h": {
+            "efetivos": "2606.21",
+            "temporarios": "2555.05"
+          }
+        },
+        "formacao_magisterio": {
+          "Docente habilitado em curso de licenciatura plena": 140,
+          "Profissionais não habilitados, porém autorizados a exercer a docência em caráter precário e provisório na educação infantil e nos anos iniciais do ensino fundamental": 7,
+          "Docente habilitado em curso de nível médio": "menos de 5"
+        }
+      }
+    }
+  ]
+}

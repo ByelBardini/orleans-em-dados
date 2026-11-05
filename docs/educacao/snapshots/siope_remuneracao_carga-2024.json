@@ -1,0 +1,17 @@
+{
+  "meta": {"consultaId":900405,"ano":2024,"filtro":{"arquivo":"Relatório de Remuneração do SIOPE","foto":"maio","extrato":false},"iniciadoEm":"2026-11-05T03:16:05.275Z","coletadoEm":"2026-11-05T03:16:05.275Z","totalHits":12,"capturados":12,"idsUnicos":12,"camposAusentes":{},"conferencia":[{"campo":"total","titulo":"Total (a + b + c)","descricao":"Soma das linhas = linha de total da planilha","fonte":"12176668.08","calculado":"12176668.08","diferenca":"0.00"}],"status":"totalizador_conciliado","erros":[]},
+  "registros": [
+    {"id":"4211702:municipal::outros:temporario:carga_temporaria:2024-05","indicador":"carga_temporaria","lugar":"4211702","rede":"municipal","etapa":"","recorte":"outros:temporario","periodo":"2024-05","valor":"52.0","texto":null,"unidade":"%"},
+    {"id":"4211702:municipal::outros:todos:carga_horas:2024-05","indicador":"carga_horas","lugar":"4211702","rede":"municipal","etapa":"","recorte":"outros:todos","periodo":"2024-05","valor":"3555","texto":null,"unidade":"horas"},
+    {"id":"4211702:municipal::outros:todos:profissionais:2024-05","indicador":"profissionais","lugar":"4211702","rede":"municipal","etapa":"","recorte":"outros:todos","periodo":"2024-05","valor":"114","texto":null,"unidade":"pessoas"},
+    {"id":"4211702:municipal::outros:efetivo:profissionais:2024-05","indicador":"profissionais","lugar":"4211702","rede":"municipal","etapa":"","recorte":"outros:efetivo","periodo":"2024-05","valor":"54","texto":null,"unidade":"pessoas"},
+    {"id":"4211702:municipal::outros:temporario:profissionais:2024-05","indicador":"profissionais","lugar":"4211702","rede":"municipal","etapa":"","recorte":"outros:temporario","periodo":"2024-05","valor":"60","texto":null,"unidade":"pessoas"},
+    {"id":"4211702:municipal::magisterio:temporario:carga_temporaria:2024-05","indicador":"carga_temporaria","lugar":"4211702","rede":"municipal","etapa":"","recorte":"magisterio:temporario","periodo":"2024-05","valor":"35.5","texto":null,"unidade":"%"},
+    {"id":"4211702:municipal::magisterio:todos:carga_horas:2024-05","indicador":"carga_horas","lugar":"4211702","rede":"municipal","etapa":"","recorte":"magisterio:todos","periodo":"2024-05","valor":"5550","texto":null,"unidade":"horas"},
+    {"id":"4211702:municipal::magisterio:todos:profissionais:2024-05","indicador":"profissionais","lugar":"4211702","rede":"municipal","etapa":"","recorte":"magisterio:todos","periodo":"2024-05","valor":"162","texto":null,"unidade":"pessoas"},
+    {"id":"4211702:municipal::magisterio:efetivo:profissionais:2024-05","indicador":"profissionais","lugar":"4211702","rede":"municipal","etapa":"","recorte":"magisterio:efetivo","periodo":"2024-05","valor":"99","texto":null,"unidade":"pessoas"},
+    {"id":"4211702:municipal::magisterio:temporario:profissionais:2024-05","indicador":"profissionais","lugar":"4211702","rede":"municipal","etapa":"","recorte":"magisterio:temporario","periodo":"2024-05","valor":"63","texto":null,"unidade":"pessoas"},
+    {"id":"4211702:municipal::licenciatura_plena:formacao_magisterio:2024-05","indicador":"formacao_magisterio","lugar":"4211702","rede":"municipal","etapa":"","recorte":"licenciatura_plena","periodo":"2024-05","valor":"161","texto":null,"unidade":"pessoas"},
+    {"id":"4211702:municipal::nao_habilitados_autorizados:formacao_magisterio:2024-05","indicador":"formacao_magisterio","lugar":"4211702","rede":"municipal","etapa":"","recorte":"nao_habilitados_autorizados","periodo":"2024-05","valor":null,"texto":"menos de 5","unidade":"pessoas"}
+  ]
+}

@@ -1,0 +1,391 @@
+{
+  "fonte": "Anexo 8 do RREO no SIOPE (PDF baixado pelo usuário), RREO Anexo 14 e DCA Anexo I-E no SICONFI (API), Painel SIOPE (lido na tela)",
+  "gerado_em": "2026-11-05",
+  "regras": [
+    "A coluna de Fundeb do Painel SIOPE foi descartada, porque não bate com o relatório oficial.",
+    "Os valores do painel, de 2012 a 2019, foram lidos em gráfico e precisam de conferência antes de publicar.",
+    "Diferença entre fontes não é irregularidade: vai para Discrepâncias, sem rótulo de problema.",
+    "O Anexo 8 de 2020 tem outro formato: só total e resultado do Fundeb foram lidos dele; os índices de 2020 vêm do relatório de Indicadores do SIOPE.",
+    "Gasto total diverge do SICONFI em 2020 (R$ 457.336,71) e 2022 (R$ 443.952,22); em 2023, a diferença é de 1 centavo."
+  ],
+  "por_ano": {
+    "2012": {
+      "painel_siope_educacao_pct": 29.65,
+      "anexo8_educacao_pct": null,
+      "siconfi_educacao_pct": null,
+      "diferenca_educacao_valor": null,
+      "anexo8_fundeb_pct": null,
+      "siconfi_fundeb_pct": null,
+      "diferenca_fundeb_valor": null,
+      "total_educacao_anexo8_liquidado": null,
+      "funcao_12_siconfi_liquidado": null
+    },
+    "2013": {
+      "painel_siope_educacao_pct": 29.68,
+      "anexo8_educacao_pct": null,
+      "siconfi_educacao_pct": null,
+      "diferenca_educacao_valor": null,
+      "anexo8_fundeb_pct": null,
+      "siconfi_fundeb_pct": null,
+      "diferenca_fundeb_valor": null,
+      "total_educacao_anexo8_liquidado": null,
+      "funcao_12_siconfi_liquidado": null
+    },
+    "2014": {
+      "painel_siope_educacao_pct": 30.59,
+      "anexo8_educacao_pct": null,
+      "siconfi_educacao_pct": null,
+      "diferenca_educacao_valor": null,
+      "anexo8_fundeb_pct": null,
+      "siconfi_fundeb_pct": null,
+      "diferenca_fundeb_valor": null,
+      "total_educacao_anexo8_liquidado": null,
+      "funcao_12_siconfi_liquidado": null
+    },
+    "2015": {
+      "painel_siope_educacao_pct": 30.73,
+      "anexo8_educacao_pct": null,
+      "siconfi_educacao_pct": null,
+      "diferenca_educacao_valor": null,
+      "anexo8_fundeb_pct": null,
+      "siconfi_fundeb_pct": null,
+      "diferenca_fundeb_valor": null,
+      "total_educacao_anexo8_liquidado": null,
+      "funcao_12_siconfi_liquidado": null
+    },
+    "2016": {
+      "painel_siope_educacao_pct": 30.86,
+      "anexo8_educacao_pct": null,
+      "siconfi_educacao_pct": null,
+      "diferenca_educacao_valor": null,
+      "anexo8_fundeb_pct": null,
+      "siconfi_fundeb_pct": null,
+      "diferenca_fundeb_valor": null,
+      "total_educacao_anexo8_liquidado": null,
+      "funcao_12_siconfi_liquidado": null
+    },
+    "2017": {
+      "painel_siope_educacao_pct": 27.37,
+      "anexo8_educacao_pct": null,
+      "siconfi_educacao_pct": 30.15,
+      "diferenca_educacao_valor": null,
+      "anexo8_fundeb_pct": null,
+      "siconfi_fundeb_pct": 88.01,
+      "diferenca_fundeb_valor": null,
+      "total_educacao_anexo8_liquidado": null,
+      "funcao_12_siconfi_liquidado": null
+    },
+    "2018": {
+      "painel_siope_educacao_pct": 30.4,
+      "anexo8_educacao_pct": null,
+      "siconfi_educacao_pct": null,
+      "diferenca_educacao_valor": null,
+      "anexo8_fundeb_pct": null,
+      "siconfi_fundeb_pct": null,
+      "diferenca_fundeb_valor": null,
+      "total_educacao_anexo8_liquidado": null,
+      "funcao_12_siconfi_liquidado": 19064826.6
+    },
+    "2019": {
+      "painel_siope_educacao_pct": 29.07,
+      "anexo8_educacao_pct": null,
+      "siconfi_educacao_pct": null,
+      "diferenca_educacao_valor": null,
+      "anexo8_fundeb_pct": null,
+      "siconfi_fundeb_pct": null,
+      "diferenca_fundeb_valor": null,
+      "total_educacao_anexo8_liquidado": null,
+      "funcao_12_siconfi_liquidado": 20330545.04
+    },
+    "2020": {
+      "painel_siope_educacao_pct": null,
+      "anexo8_educacao_pct": 28.08,
+      "siconfi_educacao_pct": 28.54,
+      "diferenca_educacao_valor": "231657.90",
+      "anexo8_fundeb_pct": 80.66,
+      "siconfi_fundeb_pct": 87.13,
+      "diferenca_fundeb_valor": null,
+      "total_educacao_anexo8_liquidado": "17152458.52",
+      "funcao_12_siconfi_liquidado": 17609795.23
+    },
+    "2021": {
+      "painel_siope_educacao_pct": null,
+      "anexo8_educacao_pct": 23.28,
+      "siconfi_educacao_pct": 23.28,
+      "diferenca_educacao_valor": "-13.55",
+      "anexo8_fundeb_pct": 78.12,
+      "siconfi_fundeb_pct": 78.94,
+      "diferenca_fundeb_valor": "95120.41",
+      "total_educacao_anexo8_liquidado": "19656731.12",
+      "funcao_12_siconfi_liquidado": 19656731.12
+    },
+    "2022": {
+      "painel_siope_educacao_pct": null,
+      "anexo8_educacao_pct": 27.62,
+      "siconfi_educacao_pct": 27.62,
+      "diferenca_educacao_valor": "-77.70",
+      "anexo8_fundeb_pct": 86.03,
+      "siconfi_fundeb_pct": 86.03,
+      "diferenca_fundeb_valor": "0.00",
+      "total_educacao_anexo8_liquidado": "28126164.73",
+      "funcao_12_siconfi_liquidado": 27682212.51
+    },
+    "2023": {
+      "painel_siope_educacao_pct": null,
+      "anexo8_educacao_pct": 27.72,
+      "siconfi_educacao_pct": 29.06,
+      "diferenca_educacao_valor": "1079630.91",
+      "anexo8_fundeb_pct": 90.06,
+      "siconfi_fundeb_pct": 87.18,
+      "diferenca_fundeb_valor": "-412012.95",
+      "total_educacao_anexo8_liquidado": "30599230.28",
+      "funcao_12_siconfi_liquidado": 30599230.27
+    },
+    "2024": {
+      "painel_siope_educacao_pct": null,
+      "anexo8_educacao_pct": 26.64,
+      "siconfi_educacao_pct": 26.59,
+      "diferenca_educacao_valor": "-52485.17",
+      "anexo8_fundeb_pct": 85.22,
+      "siconfi_fundeb_pct": 83.02,
+      "diferenca_fundeb_valor": "-359525.00",
+      "total_educacao_anexo8_liquidado": "31507003.93",
+      "funcao_12_siconfi_liquidado": 31507003.93
+    },
+    "2025": {
+      "painel_siope_educacao_pct": null,
+      "anexo8_educacao_pct": 28.63,
+      "siconfi_educacao_pct": 28.31,
+      "diferenca_educacao_valor": "-320297.71",
+      "anexo8_fundeb_pct": 87.61,
+      "siconfi_fundeb_pct": 87.27,
+      "diferenca_fundeb_valor": "-83531.07",
+      "total_educacao_anexo8_liquidado": "37481724.75",
+      "funcao_12_siconfi_liquidado": 37481724.75
+    }
+  },
+  "anexo8": {
+    "2020": {
+      "ano": 2020,
+      "total_educacao": {
+        "dotacao": "23753779.54",
+        "empenhado": "17477460.33",
+        "liquidado": "17152458.52",
+        "restos_nao_processados": "325001.81"
+      },
+      "resultado_liquido_fundeb": "1471934.28",
+      "educacao": {
+        "exigido": "12481107.77",
+        "aplicado": "14017004.23",
+        "pct": 28.08
+      },
+      "fundeb_remuneracao": {
+        "pct": 80.66
+      }
+    },
+    "2021": {
+      "ano": 2021,
+      "receita_impostos": "62734112.26",
+      "destinado_ao_fundeb": "9486792.52",
+      "resultado_liquido_fundeb": "2074559.33",
+      "educacao": {
+        "exigido": "15683528.06",
+        "aplicado": "14604645.51",
+        "pct": 23.28
+      },
+      "fundeb_remuneracao": {
+        "exigido": "8113814.81",
+        "aplicado": "9054678.04",
+        "pct": 78.12
+      },
+      "total_educacao": {
+        "dotacao": "24882165.01",
+        "empenhado": "19893337.27",
+        "liquidado": "19656731.12",
+        "pago": "19656731.12",
+        "restos_nao_processados": "236606.15"
+      },
+      "pessoal_ativo_liquidado": "11877751.44",
+      "capital": {
+        "empenhado": "867592.19",
+        "liquidado": "708981.74"
+      }
+    },
+    "2022": {
+      "ano": 2022,
+      "receita_impostos": "75768934.09",
+      "destinado_ao_fundeb": "11585159.16",
+      "resultado_liquido_fundeb": "1767685.36",
+      "educacao": {
+        "exigido": "18942233.52",
+        "aplicado": "20929017.22",
+        "pct": 27.62
+      },
+      "fundeb_remuneracao": {
+        "exigido": "9433978.56",
+        "aplicado": "11594925.85",
+        "pct": 86.03
+      },
+      "total_educacao": {
+        "dotacao": "42440093.45",
+        "empenhado": "38157191.33",
+        "liquidado": "28126164.73",
+        "pago": "28126164.73",
+        "restos_nao_processados": "10031026.60"
+      },
+      "pessoal_ativo_liquidado": "17185703.99",
+      "capital": {
+        "empenhado": "11442659.38",
+        "liquidado": "1706568.78"
+      }
+    },
+    "2023": {
+      "ano": 2023,
+      "receita_impostos": "80391749.09",
+      "destinado_ao_fundeb": "11607050.09",
+      "resultado_liquido_fundeb": "2615014.29",
+      "educacao": {
+        "exigido": "20097937.27",
+        "aplicado": "22283166.87",
+        "pct": 27.72
+      },
+      "fundeb_remuneracao": {
+        "exigido": "10005802.39",
+        "aplicado": "12873215.62",
+        "pct": 90.06
+      },
+      "total_educacao": {
+        "dotacao": "36140189.87",
+        "empenhado": "31170264.79",
+        "liquidado": "30599230.28",
+        "pago": "30319984.83",
+        "restos_nao_processados": "571034.51"
+      },
+      "pessoal_ativo_liquidado": "20617565.77",
+      "capital": {
+        "empenhado": "2209907.86",
+        "liquidado": "1708186.77"
+      },
+      "emenda_119": {
+        "exigido_2021": "15683528.06",
+        "aplicado_2021": "14604645.51",
+        "diferenca_a_menor_2021": "1078882.55",
+        "complementado_em_2022": "1986783.70"
+      }
+    },
+    "2024": {
+      "ano": 2024,
+      "receita_impostos": "92697120.14",
+      "destinado_ao_fundeb": "14184101.03",
+      "resultado_liquido_fundeb": "2092989.14",
+      "educacao": {
+        "exigido": "23174280.04",
+        "aplicado": "24698020.91",
+        "pct": 26.64
+      },
+      "fundeb_remuneracao": {
+        "exigido": "11455463.60",
+        "aplicado": "13946085.34",
+        "pct": 85.22
+      },
+      "total_educacao": {
+        "dotacao": "34813626.70",
+        "empenhado": "31507003.93",
+        "liquidado": "31507003.93",
+        "pago": "31507003.93",
+        "restos_nao_processados": "0.00"
+      },
+      "pessoal_ativo_liquidado": "20157021.51",
+      "capital": {
+        "empenhado": "1526020.86",
+        "liquidado": "1526020.86"
+      }
+    },
+    "2025": {
+      "ano": 2025,
+      "receita_impostos": "105029010.32",
+      "destinado_ao_fundeb": "15931717.85",
+      "resultado_liquido_fundeb": "1435438.97",
+      "educacao": {
+        "exigido": "26257252.58",
+        "aplicado": "30068272.16",
+        "pct": 28.63
+      },
+      "fundeb_remuneracao": {
+        "exigido": "12304368.56",
+        "aplicado": "15399382.81",
+        "pct": 87.61
+      },
+      "total_educacao": {
+        "dotacao": "45335072.93",
+        "empenhado": "37844143.46",
+        "liquidado": "37481724.75",
+        "pago": "37481724.75",
+        "restos_nao_processados": "362418.71"
+      },
+      "pessoal_ativo_liquidado": "25584521.00",
+      "capital": {
+        "empenhado": "469867.01",
+        "liquidado": "184966.05"
+      }
+    }
+  },
+  "funcao_12_siconfi": {
+    "2018": {
+      "funcao_12_liquidado": 19064826.6,
+      "infantil": 4795725.27,
+      "fundamental": 13205493.12,
+      "superior": 520000,
+      "demais": 543608.21
+    },
+    "2019": {
+      "funcao_12_liquidado": 20330545.04,
+      "infantil": 4866402.02,
+      "fundamental": 14420760.97,
+      "superior": 360800,
+      "demais": 682582.05
+    },
+    "2020": {
+      "funcao_12_liquidado": 17609795.23,
+      "infantil": 5270482.87,
+      "fundamental": 11895394.42,
+      "superior": 200000,
+      "demais": 243917.94
+    },
+    "2021": {
+      "funcao_12_liquidado": 19656731.12,
+      "infantil": 6168238.47,
+      "fundamental": 12565351.72,
+      "superior": 220000,
+      "demais": 703140.93
+    },
+    "2022": {
+      "funcao_12_liquidado": 27682212.51,
+      "infantil": 6527591.61,
+      "fundamental": 20019801.85,
+      "superior": 313900,
+      "demais": 820919.05
+    },
+    "2023": {
+      "funcao_12_liquidado": 30599230.27,
+      "infantil": 10674075.46,
+      "fundamental": 18520217.07,
+      "superior": 300000,
+      "demais": 1104937.74
+    },
+    "2024": {
+      "funcao_12_liquidado": 31507003.93,
+      "infantil": 12209767.72,
+      "fundamental": 17794027.43,
+      "superior": 378632.55,
+      "demais": 1124576.23
+    },
+    "2025": {
+      "funcao_12_liquidado": 37481724.75,
+      "infantil": 14851456.6,
+      "fundamental": 20577542.56,
+      "superior": 399200,
+      "demais": 1653525.59
+    }
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "meta": {"consultaId":900404,"ano":2020,"filtro":{"arquivo":"indicadores_municipal_2020.csv","coluna":"2020 - 6º bimestre","extrato":false},"iniciadoEm":"2026-11-05T03:16:05.275Z","coletadoEm":"2026-11-05T03:16:05.275Z","totalHits":8,"capturados":8,"idsUnicos":8,"camposAusentes":{},"conferencia":[],"status":"totalizador_conciliado","erros":[]},
+  "registros": [
+    {"id":"4211702:municipal::siope_por_aluno_infantil:2020","indicador":"siope_por_aluno_infantil","lugar":"4211702","rede":"municipal","recorte":"","periodo":"2020","valor":"5570.26","percentual":null},
+    {"id":"4211702:municipal::siope_por_aluno_fundamental:2020","indicador":"siope_por_aluno_fundamental","lugar":"4211702","rede":"municipal","recorte":"","periodo":"2020","valor":"11891.42","percentual":null},
+    {"id":"4211702:municipal::siope_por_aluno_educacao_basica:2020","indicador":"siope_por_aluno_educacao_basica","lugar":"4211702","rede":"municipal","recorte":"","periodo":"2020","valor":"8103.40","percentual":null},
+    {"id":"4211702:municipal::siope_professores_por_aluno:2020","indicador":"siope_professores_por_aluno","lugar":"4211702","rede":"municipal","recorte":"","periodo":"2020","valor":"6484.17","percentual":null},
+    {"id":"4211702:municipal::siope_nao_docentes_por_aluno:2020","indicador":"siope_nao_docentes_por_aluno","lugar":"4211702","rede":"municipal","recorte":"","periodo":"2020","valor":"181.17","percentual":null},
+    {"id":"4211702:municipal::siope_saldo_financeiro_fundeb:2020","indicador":"siope_saldo_financeiro_fundeb","lugar":"4211702","rede":"municipal","recorte":"","periodo":"2020","valor":"589827.82","percentual":null},
+    {"id":"4211702:municipal::siope_educacao_valor_exigido:2020","indicador":"siope_educacao_valor_exigido","lugar":"4211702","rede":"municipal","recorte":"","periodo":"2020","valor":"12481107.77","percentual":null},
+    {"id":"4211702:municipal::siope_educacao_valor_aplicado:2020","indicador":"siope_educacao_valor_aplicado","lugar":"4211702","rede":"municipal","recorte":"","periodo":"2020","valor":"14017004.23","percentual":null}
+  ]
+}

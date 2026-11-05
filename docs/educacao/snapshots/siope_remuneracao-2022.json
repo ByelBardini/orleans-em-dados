@@ -1,0 +1,16 @@
+{
+  "meta": {"consultaId":900403,"ano":2022,"filtro":{"arquivo":"Relatório de Remuneração do SIOPE","foto":"maio","extrato":false},"iniciadoEm":"2026-11-05T03:16:05.275Z","coletadoEm":"2026-11-05T03:16:05.275Z","totalHits":11,"capturados":11,"idsUnicos":11,"camposAusentes":{},"conferencia":[{"campo":"total","titulo":"Total (a + b + c)","descricao":"Soma das linhas = linha de total da planilha","fonte":"9933910.51","calculado":"9933910.51","diferenca":"0.00"}],"status":"totalizador_conciliado","erros":[]},
+  "registros": [
+    {"id":"4211702:municipal:magisterio:todos:mediana_40h:2022-05","indicador":"mediana_40h","lugar":"4211702","rede":"municipal","recorte":"magisterio:todos","periodo":"2022-05","valor":"5208.88","percentual":null},
+    {"id":"4211702:municipal:magisterio:efetivo:mediana_40h:2022-05","indicador":"mediana_40h","lugar":"4211702","rede":"municipal","recorte":"magisterio:efetivo","periodo":"2022-05","valor":"5660.59","percentual":null},
+    {"id":"4211702:municipal:magisterio:temporario:mediana_40h:2022-05","indicador":"mediana_40h","lugar":"4211702","rede":"municipal","recorte":"magisterio:temporario","periodo":"2022-05","valor":"3921.89","percentual":null},
+    {"id":"4211702:municipal:magisterio:efetivo:mediana_vencimento_40h:2022-05","indicador":"mediana_vencimento_40h","lugar":"4211702","rede":"municipal","recorte":"magisterio:efetivo","periodo":"2022-05","valor":"4517.16","percentual":null},
+    {"id":"4211702:municipal:magisterio:temporario:mediana_vencimento_40h:2022-05","indicador":"mediana_vencimento_40h","lugar":"4211702","rede":"municipal","recorte":"magisterio:temporario","periodo":"2022-05","valor":"3068.24","percentual":null},
+    {"id":"4211702:municipal:outros:todos:mediana_40h:2022-05","indicador":"mediana_40h","lugar":"4211702","rede":"municipal","recorte":"outros:todos","periodo":"2022-05","valor":"2373.56","percentual":null},
+    {"id":"4211702:municipal:outros:efetivo:mediana_40h:2022-05","indicador":"mediana_40h","lugar":"4211702","rede":"municipal","recorte":"outros:efetivo","periodo":"2022-05","valor":"2484.25","percentual":null},
+    {"id":"4211702:municipal:outros:temporario:mediana_40h:2022-05","indicador":"mediana_40h","lugar":"4211702","rede":"municipal","recorte":"outros:temporario","periodo":"2022-05","valor":"2359.40","percentual":null},
+    {"id":"4211702:municipal:outros:efetivo:mediana_vencimento_40h:2022-05","indicador":"mediana_vencimento_40h","lugar":"4211702","rede":"municipal","recorte":"outros:efetivo","periodo":"2022-05","valor":"2039.40","percentual":null},
+    {"id":"4211702:municipal:outros:temporario:mediana_vencimento_40h:2022-05","indicador":"mediana_vencimento_40h","lugar":"4211702","rede":"municipal","recorte":"outros:temporario","periodo":"2022-05","valor":"2039.40","percentual":null},
+    {"id":"4211702:municipal::total_declarado:2022","indicador":"total_declarado","lugar":"4211702","rede":"municipal","recorte":"","periodo":"2022","valor":"9933910.51","percentual":null}
+  ]
+}

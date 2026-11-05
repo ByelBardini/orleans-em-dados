@@ -1,0 +1,14 @@
+{
+  "meta": {"consultaId":900401,"ano":2021,"filtro":{"arquivo":"indicadores_municipal_2021.csv","coluna":"2021 - 6º bimestre","extrato":false},"iniciadoEm":"2026-11-05T03:16:05.275Z","coletadoEm":"2026-11-05T03:16:05.275Z","totalHits":9,"capturados":9,"idsUnicos":9,"camposAusentes":{},"conferencia":[],"status":"totalizador_conciliado","erros":[]},
+  "registros": [
+    {"id":"4211702:municipal:::siope_indice_educacao:2021","indicador":"siope_indice_educacao","lugar":"4211702","rede":"municipal","etapa":"","recorte":"","periodo":"2021","valor":"23.28","texto":null,"unidade":"%"},
+    {"id":"4211702:municipal:::siope_fundeb_remuneracao:2021","indicador":"siope_fundeb_remuneracao","lugar":"4211702","rede":"municipal","etapa":"","recorte":"","periodo":"2021","valor":"78.12","texto":null,"unidade":"%"},
+    {"id":"4211702:municipal:::siope_fundeb_outras_despesas:2021","indicador":"siope_fundeb_outras_despesas","lugar":"4211702","rede":"municipal","etapa":"","recorte":"","periodo":"2021","valor":"21.77","texto":null,"unidade":"%"},
+    {"id":"4211702:municipal:::siope_fundeb_nao_aplicado:2021","indicador":"siope_fundeb_nao_aplicado","lugar":"4211702","rede":"municipal","etapa":"","recorte":"","periodo":"2021","valor":"0.11","texto":null,"unidade":"%"},
+    {"id":"4211702:municipal:::siope_fundeb_em_infantil:2021","indicador":"siope_fundeb_em_infantil","lugar":"4211702","rede":"municipal","etapa":"","recorte":"","periodo":"2021","valor":"51.29","texto":null,"unidade":"%"},
+    {"id":"4211702:municipal:::siope_fundeb_em_fundamental:2021","indicador":"siope_fundeb_em_fundamental","lugar":"4211702","rede":"municipal","etapa":"","recorte":"","periodo":"2021","valor":"48.59","texto":null,"unidade":"%"},
+    {"id":"4211702:municipal:::siope_despesa_infantil:2021","indicador":"siope_despesa_infantil","lugar":"4211702","rede":"municipal","etapa":"","recorte":"","periodo":"2021","valor":"31.02","texto":null,"unidade":"%"},
+    {"id":"4211702:municipal:::siope_despesa_fundamental:2021","indicador":"siope_despesa_fundamental","lugar":"4211702","rede":"municipal","etapa":"","recorte":"","periodo":"2021","valor":"51.06","texto":null,"unidade":"%"},
+    {"id":"4211702:municipal:::siope_educacao_na_despesa_total:2021","indicador":"siope_educacao_na_despesa_total","lugar":"4211702","rede":"municipal","etapa":"","recorte":"","periodo":"2021","valor":"24.22","texto":null,"unidade":"%"}
+  ]
+}
