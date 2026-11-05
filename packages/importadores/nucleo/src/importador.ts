@@ -51,8 +51,8 @@ export type ConsultaImportada<Linha extends Record<string, unknown> = Record<str
 export type Importador = {
   id: string;
   fonte: string;
-  /** Expressão cron, no fuso de São Paulo. */
-  agenda: string;
+  /** Expressão cron, no fuso de São Paulo. Sem agenda, o importador não entra nas filas: a carga é por arquivo. */
+  agenda?: string;
   /** Exercícios que a rodada agendada atualiza. */
   anosDaRodada(agora: Date): number[];
   // Cada consulta tem a própria Linha; o executor só as repassa da normalizar para a tabela.
