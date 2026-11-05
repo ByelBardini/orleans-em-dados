@@ -1,5 +1,6 @@
-// O importador da despesa por função: DCA Anexo I-E do SICONFI, validada contra a linha de
-// total do próprio anexo. A conferência com o TCE-SC é em packages/db/src/conferencia.
+// O importador do SICONFI: despesa por função (DCA Anexo I-E, validada contra a linha de total do
+// próprio anexo; a conferência com o TCE-SC é em packages/db/src/conferencia) e índices legais de
+// educação (RREO Anexo 14 do último bimestre).
 import { centavos, deCentavos } from '@orleans-em-dados/contracts';
 import { tabelas } from '@orleans-em-dados/db';
 import type {
@@ -10,13 +11,23 @@ import type {
   Validacao,
 } from '@orleans-em-dados/importador-nucleo';
 import { SiconfiClienteHttp, type ClienteSiconfi } from './cliente';
-import { SICONFI } from './config';
-import { normalizarConta, registroDoItem, type LinhaDeFuncao } from './normalizar';
+import { SICONFI, SICONFI_RREO } from './config';
+import {
+  INDICADORES_DO_RREO,
+  normalizarConta,
+  normalizarIndice,
+  registroDoItem,
+  registrosDosIndices,
+  type LinhaDeFuncao,
+  type LinhaDeIndice,
+} from './normalizar';
 
 // Só as três etapas fecham com a soma das funções; a inscrição de restos a pagar fica guardada, sem validação.
 const ETAPAS_VALIDADAS = ['empenhado', 'liquidado', 'pago'];
 
-// A DCA do exercício é entregue até 30 de abril do ano seguinte.
+// A DCA do exercício é entregue até 30 de abril do ano seguinte. O RREO do 6º bimestre vence antes,
+// em 30 de janeiro (LRF, art. 52), e entra na mesma rodada: os índices do exercício chegam junto com
+// a DCA, de maio em diante, sem mudar os anos que ela já atualiza.
 const ULTIMO_MES_SEM_A_DCA = 3; // abril, com janeiro = 0
 
 function validar(_coleta: Coleta, linhas: readonly LinhaDeFuncao[]): Validacao {
@@ -65,6 +76,49 @@ function consultaDeFuncoes(cliente: ClienteSiconfi): ConsultaImportada<LinhaDeFu
   };
 }
 
+// Ano sem a linha (2018 vem vazio, 2019 não a traz) é lote rejeitado, não falha: nada é publicado e a
+// rodada segue. Não há total a conferir: o Anexo 14 é simplificado e só traz o valor e o percentual.
+function validarIndices(_coleta: Coleta, linhas: readonly LinhaDeIndice[]): Validacao {
+  const erros: string[] = [];
+  for (const indicador of INDICADORES_DO_RREO) {
+    const quantas = linhas.filter((l) => l.indicador === indicador).length;
+    if (quantas === 0) erros.push(`${indicador}: o Anexo 14 não traz a linha`);
+    if (quantas > 1) erros.push(`${indicador}: o Anexo 14 traz ${quantas} linhas`);
+  }
+  return { conferencia: [], erros };
+}
+
+function consultaDeIndices(cliente: ClienteSiconfi): ConsultaImportada<LinhaDeIndice> {
+  return {
+    id: 900202,
+    chave: 'siconfi_indices',
+    tabela: tabelas.educacaoFinancas,
+    async coletar({ ano }) {
+      const itens = await cliente.rreo(ano);
+      const { registros, erros } = registrosDosIndices(itens);
+      const fora = new Set(
+        itens
+          .filter((i) => i.exercicio !== ano || i.periodo !== SICONFI_RREO.periodo)
+          .map((i) => `item do exercício ${String(i.exercicio)} e período ${String(i.periodo)} na coleta de ${ano}`),
+      );
+      return {
+        filtro: {
+          an_exercicio: ano,
+          nr_periodo: SICONFI_RREO.periodo,
+          co_tipo_demonstrativo: SICONFI_RREO.demonstrativo,
+          no_anexo: SICONFI_RREO.anexo,
+          id_ente: SICONFI.ente,
+        },
+        totalHits: registros.length,
+        registros,
+        erros: [...fora, ...erros],
+      };
+    },
+    normalizar: normalizarIndice,
+    validar: validarIndices,
+  };
+}
+
 export function criarImportadorSiconfi({
   cliente = new SiconfiClienteHttp(),
 }: { cliente?: ClienteSiconfi } = {}): Importador {
@@ -78,6 +132,6 @@ export function criarImportadorSiconfi({
       const ultimo = agora.getUTCMonth() > ULTIMO_MES_SEM_A_DCA ? ano - 1 : ano - 2;
       return [ultimo, ultimo - 1];
     },
-    consultas: [consultaDeFuncoes(cliente)],
+    consultas: [consultaDeFuncoes(cliente), consultaDeIndices(cliente)],
   };
 }
