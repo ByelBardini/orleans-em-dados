@@ -2,6 +2,7 @@
 // Usada pela API (/api/conferencias) e pelo script `pnpm conferir`.
 import {
   compararFuncoes,
+  compararGastoEducacao,
   discrepanciasDeEmpenhos,
   ehParcial,
   montarConferencia,
@@ -17,6 +18,8 @@ import {
   lerDivergenciasEmOutrosAnos,
   lerEmpenhosConferidos,
   lerEmpenhosParaClassificar,
+  lerGastoEducacaoNaBetha,
+  lerGastoEducacaoNaDca,
   lerLimites,
   lerReceitaConferida,
   lerSomasDaDca,
@@ -29,12 +32,15 @@ export type {
   ComparacaoDaEtapa,
   ComparacaoDeFuncoes,
   ConferenciaDeFuncoes,
+  ConferenciaDoGastoEducacao,
   DespesaConferida,
   Discrepancia,
   EmpenhoConferido,
+  EtapaDoGasto,
   LinhaNaturezaConferida,
   TipoDiscrepancia,
 } from './conferencia.bo';
+export { ACOES_DE_EDUCACAO } from './conferencia.bo';
 export type { DiscrepanciaConferida, SituacaoDaDiscrepancia } from './conferencias-manuais';
 
 export async function conferencia(ano: number, agora = new Date()) {
@@ -56,6 +62,13 @@ export async function conferencia(ano: number, agora = new Date()) {
 export async function conferirFuncoes(ano: number) {
   const [dca, tce] = await Promise.all([lerSomasDaDca(ano), lerSomasDoTceParaFuncoes(ano)]);
   return compararFuncoes(ano, dca, tce);
+}
+
+/** A função 12 da DCA contra a soma das ações de educação da Betha 57170, nas três etapas. Só esta função tem
+ *  par na Betha: não confere as outras, nem cada ação. */
+export async function conferirGastoEducacao(ano: number) {
+  const [dca, betha] = await Promise.all([lerGastoEducacaoNaDca(ano), lerGastoEducacaoNaBetha(ano)]);
+  return compararGastoEducacao(ano, dca, betha);
 }
 
 /** Só o que as duas fontes sustentam, com o que ficou de fora e por quê. A resposta de

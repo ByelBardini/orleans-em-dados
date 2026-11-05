@@ -1,6 +1,7 @@
 // As consultas da conferência. SQL em texto, com o tipo de cada linha declarado: são
 // CTEs e FULL JOINs que reaproveitam os parâmetros, e o Postgres é quem soma em NUMERIC.
 import { pool } from '../index';
+import { ACOES_DE_EDUCACAO } from './conferencia.bo';
 import type {
   CamaraDaConferencia,
   ColetaDaConferencia,
@@ -25,6 +26,7 @@ import type {
   ReceitaRepetidaMeses,
   RubricaDaReceita,
   SomaDaEtapa,
+  SomaDoGasto,
   TotaisDasFontes,
 } from './conferencia.bo';
 
@@ -426,3 +428,28 @@ const SOMAS_DO_TCE_PARA_FUNCOES = `
 
 export const lerSomasDaDca = (ano: number) => consultar<SomaDaEtapa>(SOMAS_DA_DCA, [ano]);
 export const lerSomasDoTceParaFuncoes = (ano: number) => consultar<SomaDaEtapa>(SOMAS_DO_TCE_PARA_FUNCOES, [ano]);
+
+// O gasto com educação nas duas fontes. Coleta de exemplo não confere nada.
+const GASTO_NA_DCA = `
+  SELECT f.etapa, sum(f.valor)::float8 AS valor
+  FROM siconfi_funcoes_publicadas f
+  JOIN coletas c ON c.id = f.coleta_id AND c.status <> 'exemplo'
+  WHERE f.ano = $1 AND f.tipo = 'funcao' AND f.funcao_codigo = '12' AND f.etapa IN ('empenhado', 'liquidado', 'pago')
+  GROUP BY f.etapa`;
+
+// Coleta publicada sem nenhuma ação da lista compara com zero: é coleta, e não falta de coleta.
+const GASTO_NAS_ACOES = `
+  SELECT x.etapa,
+         coalesce(sum(x.valor) FILTER (
+           WHERE ${CHAVE_DE_TEXTO('d.acao')} IN (SELECT ${CHAVE_DE_TEXTO('n')} FROM unnest($2::text[]) AS n)
+         ), 0)::float8 AS valor
+  FROM despesas d
+  JOIN coletas c ON c.id = d.coleta_id AND c.status <> 'exemplo'
+  CROSS JOIN LATERAL (VALUES ('empenhado', d.valor_empenhado), ('liquidado', d.valor_liquidado), ('pago', d.valor_pago))
+    AS x(etapa, valor)
+  WHERE d.coleta_id = ${coleta('despesas')}
+  GROUP BY x.etapa`;
+
+export const lerGastoEducacaoNaDca = (ano: number) => consultar<SomaDoGasto>(GASTO_NA_DCA, [ano]);
+export const lerGastoEducacaoNaBetha = (ano: number) =>
+  consultar<SomaDoGasto>(GASTO_NAS_ACOES, [ano, ACOES_DE_EDUCACAO]);
