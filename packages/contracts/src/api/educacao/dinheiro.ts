@@ -40,6 +40,8 @@ const gastoDoAnoSchema = z.strictObject({
   anexo8: valor,
   divisor: z.strictObject({ ano: z.number(), populacao: z.number(), tipo: z.enum(['censo', 'estimativa']) }).nullable(),
   porMorador: valor,
+  // O liquidado em reais do ano-base de `inflacao`; nulo sem IPCA ou com o ano incompleto.
+  corrigido: valor,
   // Função 12 ÷ (total − função 01, a Câmara).
   participacao: valor,
   // Subfunção ÷ função 12.
@@ -51,6 +53,8 @@ const gastoDoAnoSchema = z.strictObject({
 const gastoSchema = z.strictObject({
   fonte: fonteDoBlocoSchema,
   anos: z.array(gastoDoAnoSchema),
+  // Primeiro × último ano, os dois corrigidos; uma casa, com sinal. Nulo se um dos dois não tem correção.
+  crescimentoReal: z.strictObject({ de: z.number(), ate: z.number(), percentual: z.number() }).nullable(),
   // As ações do último exercício com a Betha, para a nota sobre as etapas.
   acoesNasEtapas: z.strictObject({ ano: z.number(), transporte: valor, merenda: valor }).nullable(),
 });
@@ -110,12 +114,30 @@ const contaDoFundebSchema = z.strictObject({
 
 const porAlunoSchema = z.strictObject({
   fonte: fonteDoBlocoSchema,
-  anos: z.array(z.strictObject({ ano: z.number(), infantil: valor, fundamental: valor, educacaoBasica: valor })),
+  anos: z.array(
+    z.strictObject({
+      ano: z.number(),
+      infantil: valor,
+      fundamental: valor,
+      educacaoBasica: valor,
+      // Os mesmos três em reais do ano-base; nulo sem IPCA.
+      corrigido: z.strictObject({ infantil: valor, fundamental: valor, educacaoBasica: valor }).nullable(),
+    }),
+  ),
+});
+
+// A correção pela inflação: IPCA médio do ano (tabela 1737 do IBGE), em reais do último ano completo.
+const inflacaoSchema = z.strictObject({
+  fonte: fonteDoBlocoSchema,
+  anoBase: z.number(),
+  metodo: z.literal('ipca_medio'),
 });
 
 export const educacaoDinheiroSchema = z.strictObject({
   ...camposDaAba,
   valores: z.literal('nominais'),
+  // Nulo sem a coleta do IPCA: aí nada tem `corrigido`.
+  inflacao: inflacaoSchema.nullable(),
   minimo: minimoSchema.nullable(),
   fundebRemuneracao: fundebRemuneracaoSchema.nullable(),
   gasto: gastoSchema.nullable(),
