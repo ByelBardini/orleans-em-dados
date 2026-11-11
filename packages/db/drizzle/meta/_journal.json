@@ -43,6 +43,13 @@
       "when": 1793846293367,
       "tag": "0005_educacao_consultas",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1793846294367,
+      "tag": "0006_ipca",
+      "breakpoints": true
     }
   ]
 }

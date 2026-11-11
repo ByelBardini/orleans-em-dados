@@ -73,9 +73,9 @@ describe('importador do IBGE sobre o Postgres', () => {
 
     const resultado = await rodar(respostasCompletas());
 
-    expect(resultado.consultas.map((c) => c.status)).toEqual(Array(7).fill('sem_mudanca'));
+    expect(resultado.consultas.map((c) => c.status)).toEqual(Array(8).fill('sem_mudanca'));
     const { rows } = await pool.query(`SELECT count(*)::int AS n FROM coletas`);
-    expect(rows).toEqual([{ n: 7 }]);
+    expect(rows).toEqual([{ n: 8 }]);
   });
 });
 

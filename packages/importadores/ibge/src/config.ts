@@ -102,3 +102,7 @@ export const LUGARES_DAS_PESQUISAS = [
 export type TransporteHttp = (url: string | URL, init?: RequestInit) => Promise<Response>;
 
 export const esperarDeVerdade = (ms: number) => new Promise<void>((r) => setTimeout(r, ms));
+
+// IPCA: tabela 1737, número-índice (dezembro de 1993 = 100), mensal, só do Brasil. Corrige o dinheiro pela inflação.
+export const IPCA: readonly ConsultaDeAgregado[] = [{ tabela: '1737', variaveis: ['2266'], localidades: 'N1[all]' }];
+export const LOCALIDADE_DO_IPCA = '1';

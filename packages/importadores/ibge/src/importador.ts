@@ -25,6 +25,8 @@ import {
   POPULACAO,
   VARIAVEIS_DO_PIB,
   type ConsultaDeAgregado,
+  IPCA,
+  LOCALIDADE_DO_IPCA,
 } from './config';
 import {
   normalizarPesquisa,
@@ -362,6 +364,16 @@ function validarRedeDoLugar(_coleta: Coleta, linhas: readonly LinhaDoIbge[]): Va
   return { conferencia, erros };
 }
 
+const MES = /^\d{4}(0[1-9]|1[0-2])$/;
+
+function validarIpca(_coleta: Coleta, linhas: readonly LinhaDoIbge[]): Validacao {
+  const foraDoMes = linhas
+    .filter((l) => !MES.test(l.periodo))
+    .map((l) => `IPCA: período ${l.periodo} não é mensal (AAAAMM)`);
+  if (foraDoMes.length) return { conferencia: [], erros: foraDoMes };
+  return { conferencia: [], erros: linhas.some((l) => l.valor !== null) ? [] : ['falta o IPCA (tabela 1737)'] };
+}
+
 const validarRedeEscolar = validarPorLugar(LUGARES_DAS_PESQUISAS, [validarRedeDoLugar]);
 
 function consultaDoIbge(
@@ -460,6 +472,11 @@ export function criarImportadorIbge({
         cliente,
       ),
       consultaDaRedeEscolar(pesquisas),
+      consultaDoIbge(
+        { id: 900108, chave: 'ibge_ipca', agregados: IPCA, localidades: [LOCALIDADE_DO_IPCA] },
+        validarIpca,
+        cliente,
+      ),
     ],
   };
 }
