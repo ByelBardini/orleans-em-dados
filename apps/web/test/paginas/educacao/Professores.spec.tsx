@@ -301,7 +301,7 @@ describe('Professores: temporários', () => {
     await abrir();
 
     const tabela = tabelaDa(/^Carga horária temporária no magistério/);
-    expect(within(tabela).getByRole('row', { name: 'mai/26 45,0%' })).toBeInTheDocument();
+    expect(within(tabela).getByRole('row', { name: '2026 45,0%' })).toBeInTheDocument();
     expect(bloco(/temporári/i)).toHaveTextContent(/foto de maio/);
     expect(bloco(/temporári/i)).toHaveTextContent(/não o exercício/);
   });
@@ -310,13 +310,13 @@ describe('Professores: temporários', () => {
     await abrir();
 
     const tabela = tabelaDa(/^Carga horária temporária dos outros profissionais/);
-    expect(within(tabela).getByRole('row', { name: 'mai/25 0,0%' })).toBeInTheDocument();
+    expect(within(tabela).getByRole('row', { name: '2025 0,0%' })).toBeInTheDocument();
   });
 
   it('a dica da barra diz a foto de maio e quantos profissionais foram declarados', async () => {
     await abrir();
 
-    await userEvent.hover(coluna(/^Carga horária temporária no magistério/, 'mai/26'));
+    await userEvent.hover(coluna(/^Carga horária temporária no magistério/, '2026'));
 
     expect(dicaDa(/^Carga horária temporária no magistério/)).toHaveTextContent(
       'Foto de maio de 2026: 150 profissionais declarados',
@@ -326,7 +326,7 @@ describe('Professores: temporários', () => {
   it('a dica traz o texto da fonte quando os profissionais são menos de 5', async () => {
     await abrir();
 
-    await userEvent.hover(coluna(/^Carga horária temporária dos outros/, 'mai/24'));
+    await userEvent.hover(coluna(/^Carga horária temporária dos outros/, '2024'));
 
     expect(dicaDa(/^Carga horária temporária dos outros/)).toHaveTextContent('menos de 5 profissionais declarados');
   });
@@ -354,7 +354,7 @@ describe('Professores: remuneração', () => {
   it('a dica da mediana traz os centavos e a foto de maio', async () => {
     await abrir();
 
-    await userEvent.hover(coluna(/magistério, efetivos/i, 'mai/26'));
+    await userEvent.hover(coluna(/magistério, efetivos/i, '2026'));
 
     expect(dicaDa(/magistério, efetivos/i)?.textContent?.replace(/\s/g, ' ')).toContain(
       'R$ 6.600,50 na foto de maio de 2026',
@@ -375,7 +375,7 @@ describe('Professores: remuneração', () => {
     const figura = screen.getByRole('img', { name: /outros profissionais, temporários/i });
     expect(figura.querySelectorAll('.bpa-barra')).toHaveLength(2);
     const tabela = tabelaDa(/outros profissionais, temporários/i);
-    expect(within(tabela).getByRole('row', { name: 'mai/25 —' })).toBeInTheDocument();
+    expect(within(tabela).getByRole('row', { name: '2025 —' })).toBeInTheDocument();
   });
 
   it('explica a regra das 10 pessoas nos detalhes e diz que são os profissionais declarados', async () => {

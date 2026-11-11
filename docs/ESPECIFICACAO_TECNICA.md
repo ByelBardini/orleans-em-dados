@@ -38,7 +38,7 @@ As páginas de dados só exibem como número principal o que foi conferido entre
 
 ### 2.2 Fora do escopo inicial / próximas etapas
 
-Saúde com indicadores legais, RCL e despesa de pessoal, dívida/restos a pagar, licitações, contratos, transferências, comparação entre municípios, correção pela inflação e despesa por função no ano em curso. Na educação, ficam para depois as séries de abandono, reprovação e formação, os anos de 2012 a 2019 no gráfico do mínimo, a infraestrutura das escolas e o custo por aluno comparado com outros lugares. Projetar a estrutura para acrescentá-los, sem misturar esses conceitos ao MVP.
+Saúde com indicadores legais, RCL e despesa de pessoal, dívida/restos a pagar, licitações, contratos, transferências, comparação entre municípios, correção pela inflação fora da aba Dinheiro da Educação (que já corrige o gasto e o investimento por aluno pelo IPCA médio) e despesa por função no ano em curso. Na educação, ficam para depois as séries de abandono, reprovação e formação, os anos de 2012 a 2019 no gráfico do mínimo, a infraestrutura das escolas e o custo por aluno comparado com outros lugares. Projetar a estrutura para acrescentá-los, sem misturar esses conceitos ao MVP.
 
 ## 3. Inventário de fontes
 
@@ -52,6 +52,7 @@ Saúde com indicadores legais, RCL e despesa de pessoal, dívida/restos a pagar,
 | IBGE — Agregados, SIDRA            | **Integrada:** população, Censo 2022, PIB, Censo de educação, IDEB e rede escolar, em fonte única                              | https://servicodados.ibge.gov.br/api/docs/agregados?versao=3                |
 | INEP — dados abertos               | **Por snapshot:** indicadores educacionais, IDEB, ENEM e ensino superior, em fonte única                                       | https://www.gov.br/inep/pt-br/acesso-a-informacao/dados-abertos             |
 | SIOPE — FNDE                       | **Por snapshot:** índices legais, investimento por aluno e remuneração declarada, de 2020 em diante                            | https://www.gov.br/fnde/pt-br/assuntos/sistemas/siope                       |
+| IBGE — IPCA (SIDRA 1737)           | **API agregados v3:** número-índice mensal do Brasil, para corrigir pela inflação o dinheiro da Educação                       | https://sidra.ibge.gov.br/tabela/1737                                       |
 | MEC — Retrato da Educação Infantil | **Por snapshot:** resposta do município sobre a procura por creche; declaratório                                               | https://www.gov.br/mec/pt-br/pnei/retrato-da-educacao-infantil-no-brasil    |
 
 **Atenção à abrangência:** “dados de Orleans” não implica automaticamente “Prefeitura + fundos + autarquias + Câmara”. A consulta Betha analisada trouxe quatro entidades; o painel de despesas do TCE-SC apresentou cinco unidades gestoras. Documentar o escopo de cada valor.

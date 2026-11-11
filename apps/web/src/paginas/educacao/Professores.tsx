@@ -50,7 +50,8 @@ const emLista = (itens: readonly string[]) =>
 const comMaiuscula = (texto: string) => `${texto.charAt(0).toUpperCase()}${texto.slice(1)}`;
 
 /** `2026-05` em `mai/26`: curto para caber em sete colunas no celular. É a foto de maio, não o ano. */
-const mesCurto = (periodo: string) => `mai/${periodo.slice(2, 4)}`;
+// O subtítulo já diz que é a foto de maio: o rótulo fica só com o ano, que cabe na barra estreita do celular.
+const mesCurto = (periodo: string) => periodo.slice(0, 4);
 const maioDe = (periodo: string) => `maio de ${periodo.slice(0, 4)}`;
 
 const naRede = (rede: Rede) => (rede === 'todas' ? 'Em todas as redes' : `Na ${rotuloDaRede(rede)}`);

@@ -25,6 +25,7 @@ const CONSULTAS = [
   'despesas',
   'ibge_populacao',
   'siope_anexo8',
+  'siope_indicadores_valores',
   'siconfi_indices',
   'inep_superior',
 ];
@@ -105,6 +106,15 @@ function doMinimo({ minimo }: Awaited<ReturnType<typeof dinheiro>>) {
   };
 }
 
+/** O último ano do SIOPE com valor: educação básica (4.8) ou, sem ela, o fundamental (4.2), com a etapa dita. */
+function doPorAluno({ porAluno }: Awaited<ReturnType<typeof dinheiro>>): EducacaoResumo['porAluno'] {
+  const ano = porAluno?.anos.filter((a) => a.educacaoBasica !== null || a.fundamental !== null).at(-1);
+  if (!porAluno || !ano) return null;
+  return ano.educacaoBasica !== null
+    ? { ano: ano.ano, fonte: porAluno.fonte, etapa: 'educacao_basica', valor: ano.educacaoBasica }
+    : { ano: ano.ano, fonte: porAluno.fonte, etapa: 'fundamental', valor: ano.fundamental! };
+}
+
 function dasMatriculas({ matriculas }: Awaited<ReturnType<typeof acesso>>) {
   if (!matriculas || matriculas.total === null) return null;
   return { ano: matriculas.ano, fonte: matriculas.fonte, total: matriculas.total, etapas: matriculas.etapas };
@@ -137,6 +147,7 @@ export async function resumo(): Promise<EducacaoResumo> {
     docentesSuperior: cartao(naEtapa(deProfessores.docentesSuperior?.comparacoes, 'anos_iniciais')),
     turmas: cartao(naEtapa(deProfessores.turmas?.comparacoes, 'anos_iniciais')),
     gasto: doGasto(doDinheiro),
+    porAluno: doPorAluno(doDinheiro),
     minimo: doMinimo(doDinheiro),
     matriculas: dasMatriculas(doAcesso),
     alfabetizacaoDosMoradores: cartao(daCidade.alfabetizacao?.total, 'todas'),
@@ -280,6 +291,19 @@ export function linhasDoResumo(r: EducacaoResumo): LinhaDoCsv[] {
       ? [
           emOrleans('gasto_liquidado', 'municipal', '', gasto.ano, gasto.liquidado, 'reais', gasto.fonte),
           emOrleans('gasto_por_morador', 'municipal', '', gasto.ano, gasto.porMorador, 'reais', gasto.fonte),
+        ]
+      : []),
+    ...(r.porAluno
+      ? [
+          emOrleans(
+            'por_aluno',
+            'municipal',
+            r.porAluno.etapa,
+            r.porAluno.ano,
+            r.porAluno.valor,
+            'reais',
+            r.porAluno.fonte,
+          ),
         ]
       : []),
     ...(minimo

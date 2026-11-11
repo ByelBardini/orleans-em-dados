@@ -678,6 +678,11 @@
     font-size: 12px;
   }
 
+  .bpa-valor {
+    padding: 0 1px;
+    font-size: 12px;
+  }
+
   .bpa-area {
     height: 220px;
   }

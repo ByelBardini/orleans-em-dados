@@ -96,7 +96,7 @@ describe('migrar', () => {
     await migrar(url);
 
     expect(await contagem(url, 'fontes')).toBe(7);
-    expect(await contagem(url, 'consultas')).toBe(35);
+    expect(await contagem(url, 'consultas')).toBe(36);
     expect(await contagem(url, 'entidades')).toBe(4);
     expect(await contagem(url, 'unidades_tce')).toBe(5);
   });

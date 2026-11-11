@@ -71,6 +71,8 @@ type Lotes = {
   ibgeEducacaoCenso: Snapshot | null;
   ibgeEducacaoComparacao: Snapshot | null;
   ibgeRedeEscolar: Snapshot | null;
+  /** Sem lote por padrão: só o cenário que corrige pela inflação pede (`ibgeIpca()`). */
+  ibgeIpca: Snapshot | null;
   siconfiFuncoes: Snapshot[];
   /** Um lote por exercício, como a DCA. */
   siconfiIndices: Snapshot[];
@@ -123,6 +125,8 @@ export async function popularCenario(cenario: Partial<Lotes> = {}): Promise<void
       await gravarSnapshot(alvo, snapshot, 'arquivo', repositorio);
     }
   }
+  // Depois de tudo: os ids das outras coletas não mudam.
+  if (cenario.ibgeIpca) await gravarSnapshot(consulta(ibge, 'ibge_ipca'), cenario.ibgeIpca, 'arquivo', repositorio);
 }
 
 export const popularBancoDeTeste = () => popularCenario();
