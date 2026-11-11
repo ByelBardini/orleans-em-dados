@@ -63,6 +63,30 @@ describe('normalizarReceita (57153)', () => {
   it('mês fora de 1 a 12 no sufixo é recusado citando o id', () => {
     expect(() => normalizarReceita(receita({ id: '211:728:1_13' }))).toThrow('211:728:1_13');
   });
+
+  // Regressão (07/11/2026): em exercícios antigos (2015) a 57153 traz o mês no meio do id, com dois dígitos, e a
+  // rubrica de 15 dígitos no fim. O mês era lido de "orcamentaria" e o lote inteiro era rejeitado.
+  describe('id do formato antigo (receita_orcamentaria_<ano>_<mês>_<entidade>_<rubrica>)', () => {
+    const antigo = (mes: string) => `211:728:receita_orcamentaria_2015_${mes}_728_411120201000000`;
+
+    it.each([
+      ['01', 1],
+      ['12', 12],
+    ])('mês %s do meio do id vira o mês %i', (sufixo, mes) => {
+      expect(normalizarReceita(receita({ id: antigo(sufixo) })).mes).toBe(mes);
+    });
+
+    it('rubrica da Betha é o id sem o mês, igual em todos os meses', () => {
+      const janeiro = normalizarReceita(receita({ id: antigo('01') }));
+      const marco = normalizarReceita(receita({ id: antigo('03') }));
+      expect(janeiro.idRubricaBetha).toBe('211:728:receita_orcamentaria_2015_728_411120201000000');
+      expect(marco.idRubricaBetha).toBe('211:728:receita_orcamentaria_2015_728_411120201000000');
+    });
+
+    it('mês 13 no meio do id é recusado citando o id', () => {
+      expect(() => normalizarReceita(receita({ id: antigo('13') }))).toThrow(antigo('13'));
+    });
+  });
 });
 
 const empenho = (campos: object = {}) => ({
