@@ -91,6 +91,14 @@ const superiorSchema = z.strictObject({
   natureza: z.string().nullable(),
 });
 
+// Investimento por aluno do SIOPE no último ano: educação básica (4.8) ou, sem ela, o fundamental (4.2).
+const porAlunoSchema = z.strictObject({
+  ano: z.number(),
+  fonte: fonteDoBlocoSchema,
+  etapa: z.enum(['educacao_basica', 'fundamental']),
+  valor: z.number(),
+});
+
 export const educacaoResumoSchema = z.strictObject({
   ...camposDaAba,
   alfabetizacao: alfabetizacaoSchema.nullable(),
@@ -101,6 +109,7 @@ export const educacaoResumoSchema = z.strictObject({
   docentesSuperior: cartaoSchema.nullable(),
   turmas: cartaoSchema.nullable(),
   gasto: gastoSchema.nullable(),
+  porAluno: porAlunoSchema.nullable(),
   minimo: minimoSchema.nullable(),
   matriculas: matriculasSchema.nullable(),
   alfabetizacaoDosMoradores: cartaoSchema.nullable(),

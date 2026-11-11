@@ -7,6 +7,7 @@ import { financa, siopeAnexo8, siopeIndicadoresValores } from '../../../../packa
 import {
   despesa,
   despesas,
+  ibgeIpca,
   PREFEITURA_TCE,
   receita,
   receitas,
@@ -639,6 +640,7 @@ describe('GET /api/educacao/dinheiro', () => {
         infantil: 13000,
         fundamental: 21000,
         educacaoBasica: 19000,
+        corrigido: null,
       });
     });
 
@@ -663,6 +665,83 @@ describe('GET /api/educacao/dinheiro', () => {
 
       expect(corpo.porAluno).toBeNull();
       expect(corpo.faltando).toEqual(['siope_indicadores_valores']);
+    });
+  });
+
+  describe('corrigido pela inflação', () => {
+    const comIpca = () =>
+      popularCenario({ ibgeIpca: ibgeIpca(), siconfiFuncoes: [dcaDaEducacao(2024), dcaDaEducacao()] });
+
+    it('diz o método e a data-base: IPCA médio do último ano completo', async () => {
+      await comIpca();
+
+      const { corpo } = await pedir();
+
+      expect(corpo.inflacao).toMatchObject({ anoBase: 2025, metodo: 'ipca_medio' });
+      expect(corpo.inflacao?.fonte.nome).toContain('IPCA');
+    });
+
+    it('o gasto de cada ano vai para reais de 2025, e o do próprio ano-base fica igual', async () => {
+      await comIpca();
+
+      const { corpo } = await pedir();
+
+      expect(corpo.gasto?.anos.map((a) => [a.ano, a.liquidado, a.corrigido])).toEqual([
+        [2024, 650000, 682500],
+        [2025, 650000, 650000],
+      ]);
+    });
+
+    it('crescimento real compara o primeiro e o último ano corrigidos, com uma casa e sinal', async () => {
+      await comIpca();
+
+      const { corpo } = await pedir();
+
+      // 650.000 ÷ 682.500 − 1 = −4,76%
+      expect(corpo.gasto?.crescimentoReal).toEqual({ de: 2024, ate: 2025, percentual: -4.8 });
+    });
+
+    it('investimento por aluno também sai corrigido, etapa por etapa', async () => {
+      await comIpca();
+
+      const { corpo } = await pedir();
+
+      // 2023 → 2025: × 7.350 ÷ 6.800; a educação básica de 2023 não existe.
+      expect(doAno(corpo.porAluno?.anos, 2023)?.corrigido).toEqual({
+        infantil: 10808.82,
+        fundamental: 16213.24,
+        educacaoBasica: null,
+      });
+      expect(doAno(corpo.porAluno?.anos, 2024)?.corrigido).toEqual({
+        infantil: 11550,
+        fundamental: 16800,
+        educacaoBasica: 16800,
+      });
+    });
+
+    it('ano sem os 12 meses do IPCA fica sem correção só nele', async () => {
+      await popularCenario({
+        ibgeIpca: ibgeIpca({ 2024: { indice: '7000', meses: 11 }, 2025: { indice: '7350' } }),
+        siconfiFuncoes: [dcaDaEducacao(2024), dcaDaEducacao()],
+      });
+
+      const { corpo } = await pedir();
+
+      expect(corpo.gasto?.anos.map((a) => a.corrigido)).toEqual([null, 650000]);
+      expect(corpo.gasto?.crescimentoReal).toBeNull();
+    });
+
+    it('sem a coleta do IPCA, nada é corrigido e o nominal continua', async () => {
+      await popularCenario({ siconfiFuncoes: [dcaDaEducacao(2024), dcaDaEducacao()] });
+
+      const { corpo } = await pedir();
+
+      expect(corpo.inflacao).toBeNull();
+      expect(corpo.gasto?.anos.map((a) => [a.liquidado, a.corrigido])).toEqual([
+        [650000, null],
+        [650000, null],
+      ]);
+      expect(corpo.gasto?.crescimentoReal).toBeNull();
     });
   });
 
@@ -740,6 +819,15 @@ describe('GET /api/educacao/dinheiro.csv', () => {
     const { linhas: doCsv } = await baixarCsv();
 
     expect(linhaDe(doCsv, 'fundeb_diferenca;Orleans;municipal;;2025;')).toContain(';-100,1;R$;');
+  });
+
+  it('com o IPCA, o gasto corrigido sai em linha própria, com a data-base no nome', async () => {
+    await popularCenario({ ibgeIpca: ibgeIpca(), siconfiFuncoes: [dcaDaEducacao(2024), dcaDaEducacao()] });
+
+    const { linhas } = await baixarCsv();
+
+    expect(linhaDe(linhas, 'gasto_educacao_reais_de_2025;Orleans;municipal;;2024;')).toContain(';682500;R$;');
+    expect(linhaDe(linhas, 'por_aluno_reais_de_2025;Orleans;municipal;fundamental;2024;')).toContain(';16800;R$;');
   });
 
   it('sem coleta, a linha daquele bloco não aparece', async () => {

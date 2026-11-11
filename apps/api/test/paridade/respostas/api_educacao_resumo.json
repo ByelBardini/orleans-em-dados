@@ -104,6 +104,15 @@
         "tipo": "estimativa"
       }
     },
+    "porAluno": {
+      "ano": 2025,
+      "fonte": {
+        "nome": "SIOPE, Relatório de Indicadores: investimento por aluno",
+        "url": "https://www.fnde.gov.br/siope/indicadoresFinanceirosEEducacionais.do"
+      },
+      "etapa": "educacao_basica",
+      "valor": 19000
+    },
     "minimo": {
       "ano": 2025,
       "fonte": {
