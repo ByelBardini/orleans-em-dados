@@ -74,6 +74,12 @@ Importador do IBGE: população, Censo 2022 e PIB de Orleans, os mesmos dados de
 | Docentes                    | pesquisa-13 | `Docentes > Ensino fundamental > Anos iniciais > Municipal`, `Docentes > Ensino médio`                                              | `unidade` `docentes`. O médio não abre rede. Pode contar em mais de uma etapa: não some                                                                 |
 | Escolas                     | pesquisa-13 | `Escolas > Ensino fundamental > Anos finais > Estadual`, `Escolas > Ensino médio`                                                   | `unidade` `escolas`. O médio não abre rede                                                                                                              |
 
+## IPCA
+
+- `ibge_ipca` (900108, migração `0006_ipca`): tabela 1737, variável 2266, número-índice (dezembro de 1993 = 100), `localidades=N1[all]`, todos os meses desde 1979. Id `1:1737:2266:AAAAMM:`.
+- `periodo` é `AAAAMM`: outro formato rejeita o lote (`IPCA: período X não é mensal (AAAAMM)`), e lote sem nenhum número também (`falta o IPCA (tabela 1737)`). Mês com `...` fica nulo.
+- Fonte única: o Banco Central só republica. Serve para corrigir pela inflação o dinheiro da Educação ([api.md](api.md)).
+
 ## Regras de negócio
 
 - `categoria` junta as categorias da resposta com `|`, sem as chamadas `Total`: `Urbana`, `Homens|0 a 4 anos`. Vazia é o total da tabela.

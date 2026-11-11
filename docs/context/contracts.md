@@ -59,3 +59,5 @@ Um schema Zod estrito por rota da API (`src/api/`), espelhando o JSON de hoje (d
 
 - Dinheiro nunca é somado como `number`: `dinheiro()` recusa `0.1 + 0.2` citando o valor.
 - Construtor recusa citando o valor recebido e a forma esperada; o schema Zod repete a mesma mensagem.
+
+- `educacaoDinheiroSchema`: `inflacao` (`anoBase`, `metodo: 'ipca_medio'`), `gasto.anos[].corrigido`, `gasto.crescimentoReal` e `porAluno.anos[].corrigido`. `educacaoResumoSchema`: `porAluno` (`ano`, `etapa` `educacao_basica` ou `fundamental`, `valor`).

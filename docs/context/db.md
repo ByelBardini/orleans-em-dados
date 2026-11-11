@@ -25,6 +25,7 @@ Esquema PostgreSQL, migrações e conexão. Vive em `packages/db/` (pacote `@orl
 - `coletas.ano` é o exercício, salvo no IBGE, em que é o ano da coleta: o lote traz a série inteira, o `periodo` de cada linha é o ano de referência e a API lê o lote publicado de maior ano.
 - `ibge_valores` — `localidade` é o código do IBGE (`4211702` Orleans, `42` Santa Catarina, `1` Brasil). `valor` `NUMERIC(18,3)` (contagem, área, mil reais), `NULL` quando o SIDRA traz símbolo, guardado em `simbolo`. `categoria` vazia quando a tabela não tem classificação.
 - `educacao_valores`, `educacao_financas` — o caderno de Educação, migrações `0004` e `0005`; modelo e indicadores em [educacao.md](educacao.md).
+- `0006_ipca` só registra a consulta `ibge_ipca` (900108), gravada em `ibge_valores`.
 - `siconfi_funcoes` — `etapa` `empenhado`, `liquidado`, `pago`, `rp_nao_processados`, `rp_processados`; `tipo` `total` (sem `funcao_codigo`), `funcao`, `subfuncao` (`10.301` ou `FU12`).
 
 ## Funções e utilitários
