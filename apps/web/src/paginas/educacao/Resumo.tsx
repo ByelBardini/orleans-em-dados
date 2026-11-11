@@ -403,17 +403,21 @@ function NumeroDoResumo({
   );
 }
 
+const ETAPA_DO_POR_ALUNO = { educacao_basica: 'da educação básica', fundamental: 'do ensino fundamental' } as const;
+
 function EmPoucosNumeros({
   matriculas,
   gasto,
+  porAluno,
   moradores,
 }: {
   matriculas: EducacaoResumo['matriculas'];
   gasto: EducacaoResumo['gasto'];
+  porAluno: EducacaoResumo['porAluno'];
   moradores: EducacaoResumo['alfabetizacaoDosMoradores'];
 }) {
   const porMorador = gasto?.porMorador ?? null;
-  if (!matriculas && porMorador === null && !moradores) return null;
+  if (!matriculas && porMorador === null && !porAluno && !moradores) return null;
   return (
     <BlocoDoCaderno titulo="Em poucos números" selo={null}>
       <ul className="edu-resumo-poucos">
@@ -446,6 +450,19 @@ function EmPoucosNumeros({
                   </p>
                 )}
                 <LinhaDaFonte fonte={gasto.fonte} ano={gasto.ano} />
+              </>
+            }
+          />
+        )}
+        {porAluno && (
+          <NumeroDoResumo
+            valor={`R$ ${numero(Math.round(porAluno.valor))}`}
+            rotulo={`investidos por aluno ${ETAPA_DO_POR_ALUNO[porAluno.etapa]}, em ${porAluno.ano}`}
+            selo={SELO_FONTE_UNICA}
+            detalhes={
+              <>
+                <p>Em reais nominais, como a Prefeitura declarou ao SIOPE.</p>
+                <LinhaDaFonte fonte={porAluno.fonte} ano={porAluno.ano} antes="" />
               </>
             }
           />
@@ -543,7 +560,12 @@ function Conteudo({ dados }: { dados: EducacaoResumo }) {
         <CartaoDeQuemDaAula bloco={dados.docentesSuperior} turmas={dados.turmas} />
         <CartaoDoDinheiro gasto={dados.gasto} minimo={dados.minimo} />
       </div>
-      <EmPoucosNumeros matriculas={dados.matriculas} gasto={dados.gasto} moradores={dados.alfabetizacaoDosMoradores} />
+      <EmPoucosNumeros
+        matriculas={dados.matriculas}
+        gasto={dados.gasto}
+        porAluno={dados.porAluno}
+        moradores={dados.alfabetizacaoDosMoradores}
+      />
       <QuemCuida matriculas={dados.matriculas} superior={dados.superior} />
     </>
   );

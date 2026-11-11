@@ -1,11 +1,12 @@
 // Aba Dinheiro do caderno de Educação: mínimo legal, gasto, repasses e a conta do Fundeb. Só exercício encerrado, em
 // reais nominais. Número principal é o SIOPE ou o conferido; a diferença entre fontes só aponta para Discrepâncias.
 import { educacaoDinheiroSchema, type EducacaoDinheiro } from '@orleans-em-dados/contracts';
-import { useId, type ReactNode } from 'react';
+import { useId, useState, type ReactNode } from 'react';
 import { useApi } from '../../api';
 import { Estado } from '../../components';
 import { formatarValor } from '../../educacao';
 import {
+  Alternador,
   BarrasEmpilhadas,
   BarrasHorizontais,
   BarrasPorAno,
@@ -25,6 +26,32 @@ const emLista = (itens: readonly string[]) =>
   new Intl.ListFormat('pt-BR', { style: 'long', type: 'conjunction' }).format(itens);
 
 type BlocoDoIndice = NonNullable<EducacaoDinheiro['fundebRemuneracao']>;
+
+// Nominal é o padrão: é o número que confere com as fontes. O corrigido é a leitura ao lado, nunca o principal.
+type Valores = 'nominal' | 'corrigido';
+type Inflacao = EducacaoDinheiro['inflacao'];
+type Correcao = { inflacao: Inflacao; valores: Valores; aoMudar: (valores: Valores) => void };
+const OPCOES_DE_VALORES = [
+  { valor: 'nominal', nome: 'Nominal' },
+  { valor: 'corrigido', nome: 'Corrigido pelo IPCA' },
+] as const;
+
+function AlternadorDeValores({ inflacao, valores, aoMudar }: Correcao) {
+  if (!inflacao) return null;
+  return <Alternador rotulo="Valores" opcoes={OPCOES_DE_VALORES} valor={valores} aoMudar={aoMudar} />;
+}
+
+const emReaisDe = (inflacao: Inflacao, valores: Valores) =>
+  inflacao && valores === 'corrigido'
+    ? `em reais de ${inflacao.anoBase}, corrigidos pelo IPCA médio de cada ano`
+    : 'em reais nominais';
+
+function fraseDoCrescimento(crescimento: Gasto['crescimentoReal']) {
+  if (!crescimento) return null;
+  const { de, ate, percentual } = crescimento;
+  const verbo = percentual < 0 ? 'caiu' : 'cresceu';
+  return `Descontada a inflação, o gasto com educação ${verbo} ${umaCasa(Math.abs(percentual))} entre ${de} e ${ate}.`;
+}
 type AnoDoIndice = BlocoDoIndice['anos'][number];
 
 function LinkParaDiscrepancias() {
@@ -180,7 +207,9 @@ function CartaoDoAno({ ano }: { ano: AnoDoGasto }) {
   );
 }
 
-function BlocoDoGasto({ bloco }: { bloco: Gasto }) {
+function BlocoDoGasto({ bloco, correcao }: { bloco: Gasto; correcao: Correcao }) {
+  const { inflacao, valores } = correcao;
+  const crescimento = inflacao && fraseDoCrescimento(bloco.crescimentoReal);
   const outroNoAnexo8 = bloco.anos.filter((a) => a.anexo8 !== null && !a.igualAoAnexo8).map((a) => String(a.ano));
   const igualAoAnexo8 = bloco.anos.filter((a) => a.igualAoAnexo8).map((a) => String(a.ano));
   const porMorador = (barra: { ano: number | string }) => {
@@ -195,7 +224,7 @@ function BlocoDoGasto({ bloco }: { bloco: Gasto }) {
       ano={`${bloco.anos[0]?.ano} a ${bloco.anos.at(-1)?.ano}`}
       nota={
         <>
-          <p>Valor liquidado, em reais nominais.</p>
+          <p>Valor liquidado, {emReaisDe(inflacao, valores)}. Os cartões de cada ano seguem nominais.</p>
           <Detalhes>
             <p>Participação: função 12 ÷ despesa total, sem a função 01, a Câmara.</p>
             {igualAoAnexo8.length > 0 && <p>Em {emLista(igualAoAnexo8)}, o Anexo 8 do SIOPE traz o mesmo valor.</p>}
@@ -208,8 +237,10 @@ function BlocoDoGasto({ bloco }: { bloco: Gasto }) {
         </>
       }
     >
+      {crescimento && <p className="edu-dinheiro-frase">{crescimento}</p>}
+      <AlternadorDeValores {...correcao} />
       <BarrasPorAno
-        barras={bloco.anos.map((a) => ({ ano: a.ano, valor: a.liquidado }))}
+        barras={bloco.anos.map((a) => ({ ano: a.ano, valor: valores === 'corrigido' ? a.corrigido : a.liquidado }))}
         descricao="Gasto com educação, valor liquidado, por ano"
         formatar={emMilhoes}
         detalhar={porMorador}
@@ -553,20 +584,25 @@ const ETAPAS_POR_ALUNO = [
   { chave: 'educacaoBasica', nome: 'Educação básica' },
 ] as const;
 
-function BlocoPorAluno({ bloco }: { bloco: NonNullable<EducacaoDinheiro['porAluno']> }) {
+function BlocoPorAluno({ bloco, correcao }: { bloco: NonNullable<EducacaoDinheiro['porAluno']>; correcao: Correcao }) {
+  const corrigido = correcao.inflacao !== null && correcao.valores === 'corrigido';
   return (
     <BlocoDoCaderno
       titulo="Investimento por aluno"
       fonte={bloco.fonte}
       ano={`${bloco.anos[0]?.ano} a ${bloco.anos.at(-1)?.ano}`}
-      nota="Em reais nominais, sem correção pela inflação. Educação básica de 2022 e 2023 não aparece: o SIOPE não recomenda esses dois valores."
+      nota={`${corrigido ? `Em reais de ${correcao.inflacao?.anoBase}, corrigidos pelo IPCA médio de cada ano` : 'Em reais nominais, como a Prefeitura declarou ao SIOPE'}. Educação básica de 2022 e 2023 não aparece: o SIOPE não recomenda esses dois valores.`}
     >
+      <AlternadorDeValores {...correcao} />
       <div className="edu-dinheiro-tres">
         {ETAPAS_POR_ALUNO.map(({ chave, nome }) => (
           <div key={chave}>
             <h3>{nome}</h3>
             <BarrasPorAno
-              barras={bloco.anos.map((a) => ({ ano: a.ano, valor: a[chave] }))}
+              barras={bloco.anos.map((a) => ({
+                ano: a.ano,
+                valor: corrigido ? (a.corrigido?.[chave] ?? null) : a[chave],
+              }))}
               descricao={`Investimento por aluno, ${nome.toLowerCase()}`}
               formatar={reaisInteiros}
             />
@@ -585,12 +621,16 @@ function Entrada({ dados }: { dados: EducacaoDinheiro }) {
       {gasto && `Em ${gasto.ano}, a Prefeitura gastou ${porExtenso(gasto.liquidado)} com educação`}
       {gasto && indice && ` e aplicou ${emPct(indice.percentual)} da receita de impostos`}
       {gasto && '. '}
-      Todos os valores são nominais, sem correção pela inflação.
+      {dados.inflacao
+        ? 'Os valores são nominais; o gasto e o investimento por aluno também aparecem corrigidos pelo IPCA.'
+        : 'Todos os valores são nominais, sem correção pela inflação.'}
     </>
   );
 }
 
 function Conteudo({ dados }: { dados: EducacaoDinheiro }) {
+  const [valores, setValores] = useState<Valores>('nominal');
+  const correcao: Correcao = { inflacao: dados.inflacao, valores, aoMudar: setValores };
   return (
     <>
       <p className="edu-dinheiro-csv">
@@ -600,12 +640,12 @@ function Conteudo({ dados }: { dados: EducacaoDinheiro }) {
       </p>
       {dados.minimo && <BlocoDoMinimo bloco={dados.minimo} />}
       {dados.fundebRemuneracao && <BlocoDoFundeb bloco={dados.fundebRemuneracao} />}
-      {dados.gasto && <BlocoDoGasto bloco={dados.gasto} />}
+      {dados.gasto && <BlocoDoGasto bloco={dados.gasto} correcao={correcao} />}
       {dados.gasto && <BlocoDaEtapa bloco={dados.gasto} />}
       {dados.acoes && <BlocoDasAcoes bloco={dados.acoes} />}
       {dados.repasses && <BlocoDosRepasses bloco={dados.repasses} />}
       {dados.contaDoFundeb && <BlocoDaConta bloco={dados.contaDoFundeb} />}
-      {dados.porAluno && <BlocoPorAluno bloco={dados.porAluno} />}
+      {dados.porAluno && <BlocoPorAluno bloco={dados.porAluno} correcao={correcao} />}
     </>
   );
 }
