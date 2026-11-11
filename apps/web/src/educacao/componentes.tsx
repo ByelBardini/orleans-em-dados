@@ -173,6 +173,37 @@ export function AlternadorDeRede({
   );
 }
 
+/** Alternador de botões com uma escolha só, como o de rede, para opções fixas (nominal e corrigido, por exemplo). */
+export function Alternador<T extends string>({
+  rotulo,
+  opcoes,
+  valor,
+  aoMudar,
+}: {
+  rotulo: string;
+  opcoes: readonly { valor: T; nome: string }[];
+  valor: T;
+  aoMudar: (valor: T) => void;
+}) {
+  return (
+    <div role="group" aria-label={rotulo} className="alternador">
+      <span className="rotulo" aria-hidden="true">
+        {rotulo}
+      </span>
+      {opcoes.map((opcao) => (
+        <button
+          key={opcao.valor}
+          type="button"
+          aria-pressed={valor === opcao.valor}
+          onClick={() => aoMudar(opcao.valor)}
+        >
+          {opcao.nome}
+        </button>
+      ))}
+    </div>
+  );
+}
+
 const ALTURA_DA_SERIE = 300;
 const LARGURA_DA_SERIE = 1000;
 const CLASSE_DO_LUGAR = Object.fromEntries(LUGARES.map((l) => [l.chave, l])) as Record<Lugar, (typeof LUGARES)[number]>;
