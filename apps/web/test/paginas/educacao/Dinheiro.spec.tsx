@@ -97,7 +97,7 @@ describe('Dinheiro: estados', () => {
     const texto = textoDe(container);
     expect(texto).toContain('Em 2025, a Prefeitura gastou R$ 37,5 milhões com educação');
     expect(texto).toContain('aplicou 28,63% da receita de impostos');
-    expect(texto).toContain('nominais, sem correção pela inflação');
+    expect(texto).toContain('Os valores são nominais; o gasto e o investimento por aluno também aparecem corrigidos');
   });
 });
 
@@ -641,5 +641,80 @@ describe('Dinheiro: por aluno', () => {
 
     const tabela = within(bloco(POR_ALUNO)).getByRole('table', { name: /educação infantil/i });
     expect(linhaDo(tabela, 2025)).toHaveTextContent('R$ 13.181');
+  });
+});
+
+describe('Dinheiro: corrigido pela inflação', () => {
+  const tabelaDoGasto = () => within(bloco(GASTO)).getByRole('table', { name: /gasto com educação/i });
+  const tabelaPorAluno = () => within(bloco(POR_ALUNO)).getByRole('table', { name: /educação infantil/i });
+  const corrigirNo = (nome: RegExp) =>
+    userEvent.click(within(bloco(nome)).getByRole('button', { name: 'Corrigido pelo IPCA' }));
+
+  it('abre em reais nominais, com o nominal marcado', async () => {
+    await abrir();
+
+    expect(within(bloco(GASTO)).getByRole('button', { name: 'Nominal' })).toHaveAttribute('aria-pressed', 'true');
+    expect(linhaDo(tabelaDoGasto(), 2023)).toHaveTextContent('R$ 30,0 mi');
+  });
+
+  it('corrigir troca as barras do gasto e do por aluno, e a nota diz a data-base e o método', async () => {
+    await abrir();
+
+    await corrigirNo(GASTO);
+
+    expect(linhaDo(tabelaDoGasto(), 2023)).toHaveTextContent('R$ 33,0 mi');
+    expect(linhaDo(tabelaPorAluno(), 2022)).toHaveTextContent('R$ 7.590');
+    expect(within(bloco(POR_ALUNO)).getByRole('button', { name: 'Corrigido pelo IPCA' })).toHaveAttribute(
+      'aria-pressed',
+      'true',
+    );
+    expect(textoDe(bloco(GASTO))).toContain('em reais de 2025, corrigidos pelo IPCA médio de cada ano');
+  });
+
+  it('os cartões de cada ano seguem nominais: o valor conferido não muda', async () => {
+    await abrir();
+
+    await corrigirNo(GASTO);
+
+    const quadro = within(bloco(GASTO)).getByRole('group', { name: 'Gasto em 2023' });
+    expect(quadro).toHaveTextContent('R$ 30.000.000,00');
+  });
+
+  it('a frase diz quanto o gasto cresceu acima da inflação', async () => {
+    await abrir();
+
+    expect(textoDe(bloco(GASTO))).toContain(
+      'Descontada a inflação, o gasto com educação cresceu 13,6% entre 2023 e 2025.',
+    );
+  });
+
+  it('com crescimento negativo, a frase diz que caiu', async () => {
+    const { gasto } = dinheiro();
+    await abrir(dinheiro({ gasto: gasto && { ...gasto, crescimentoReal: { de: 2024, ate: 2025, percentual: -4.8 } } }));
+
+    expect(textoDe(bloco(GASTO))).toContain('Descontada a inflação, o gasto com educação caiu 4,8% entre 2024 e 2025.');
+  });
+
+  it('ano sem correção fica com travessão, sem barra', async () => {
+    const { gasto } = dinheiro();
+    await abrir(
+      dinheiro({
+        gasto: gasto && { ...gasto, anos: gasto.anos.map((a) => (a.ano === 2023 ? { ...a, corrigido: null } : a)) },
+      }),
+    );
+
+    await corrigirNo(GASTO);
+
+    expect(linhaDo(tabelaDoGasto(), 2023)).toHaveTextContent('—');
+  });
+
+  it('sem o IPCA, não há alternador nem frase, e a nota segue nominal', async () => {
+    const { gasto } = dinheiro();
+    await abrir(dinheiro({ inflacao: null, gasto: gasto && { ...gasto, crescimentoReal: null } }));
+
+    expect(within(bloco(GASTO)).queryByRole('button', { name: 'Corrigido pelo IPCA' })).toBeNull();
+    expect(textoDe(bloco(GASTO))).not.toContain('Descontada a inflação');
+    expect(textoDe(bloco(GASTO))).toContain('reais nominais');
+    expect(textoDe(document.body)).toContain('Todos os valores são nominais, sem correção pela inflação.');
   });
 });

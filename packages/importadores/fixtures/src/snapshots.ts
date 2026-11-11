@@ -908,3 +908,22 @@ export const ibgeComparacao = (extras: ReturnType<typeof valorIbge>[] = []) =>
     ],
     { ano: ANO_DA_COLETA_IBGE },
   );
+
+/** IPCA fictício (1737, número-índice), só do Brasil: médias de 6.800 em 2023, 7.000 em 2024 e 7.350 em 2025; 2026
+ * tem só três meses, então a base é 2025. 2024 → 2025 multiplica por 1,05. */
+export const ibgeIpca = (anos: Record<number, { indice: string; meses?: number }> = IPCA_PADRAO) =>
+  snapshot(
+    900108,
+    Object.entries(anos).flatMap(([ano, { indice, meses = 12 }]) =>
+      Array.from({ length: meses }, (_, i) =>
+        valorIbge('1737', '2266', 'Número-índice', `${ano}${String(i + 1).padStart(2, '0')}`, indice, '', '1'),
+      ),
+    ),
+    { ano: ANO_DA_COLETA_IBGE },
+  );
+const IPCA_PADRAO = {
+  2023: { indice: '6800' },
+  2024: { indice: '7000' },
+  2025: { indice: '7350' },
+  2026: { indice: '7500', meses: 3 },
+};

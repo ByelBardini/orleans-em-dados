@@ -1,0 +1,1861 @@
+{
+  "id": "e06b151c-3b57-4cdc-beb0-8b716b951bbf",
+  "prevId": "8e2a005c-7b5c-4eda-bb58-478b48f6c83e",
+  "version": "7",
+  "dialect": "postgresql",
+  "tables": {
+    "public.coletas": {
+      "name": "coletas",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "bigserial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "consulta_id": {
+          "name": "consulta_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "ano": {
+          "name": "ano",
+          "type": "smallint",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "filtro": {
+          "name": "filtro",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "iniciado_em": {
+          "name": "iniciado_em",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "finalizado_em": {
+          "name": "finalizado_em",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "origem": {
+          "name": "origem",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "status": {
+          "name": "status",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "total_hits": {
+          "name": "total_hits",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "capturados": {
+          "name": "capturados",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "ids_unicos": {
+          "name": "ids_unicos",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "campos_ausentes": {
+          "name": "campos_ausentes",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'{}'::jsonb"
+        },
+        "erros": {
+          "name": "erros",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'[]'::jsonb"
+        },
+        "hash_payload": {
+          "name": "hash_payload",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {
+        "coletas_consulta_id_ano_finalizado_em_idx": {
+          "name": "coletas_consulta_id_ano_finalizado_em_idx",
+          "columns": [
+            {
+              "expression": "consulta_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "ano",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "finalizado_em",
+              "isExpression": false,
+              "asc": false,
+              "nulls": "first"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "coletas_consulta_id_fkey": {
+          "name": "coletas_consulta_id_fkey",
+          "tableFrom": "coletas",
+          "tableTo": "consultas",
+          "columnsFrom": [
+            "consulta_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {
+        "coletas_origem_check": {
+          "name": "coletas_origem_check",
+          "value": "\"coletas\".\"origem\" IN ('api', 'arquivo', 'exemplo')"
+        },
+        "coletas_status_check": {
+          "name": "coletas_status_check",
+          "value": "\"coletas\".\"status\" IN ('totalizador_conciliado', 'rejeitado', 'exemplo')"
+        }
+      },
+      "isRLSEnabled": false
+    },
+    "public.consultas": {
+      "name": "consultas",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "integer",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "fonte_id": {
+          "name": "fonte_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "chave": {
+          "name": "chave",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "nome": {
+          "name": "nome",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "url_origem": {
+          "name": "url_origem",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "campo_filtro_ano": {
+          "name": "campo_filtro_ano",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "identificador_externo": {
+          "name": "identificador_externo",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "consultas_fonte_id_fkey": {
+          "name": "consultas_fonte_id_fkey",
+          "tableFrom": "consultas",
+          "tableTo": "fontes",
+          "columnsFrom": [
+            "fonte_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "consultas_chave_key": {
+          "name": "consultas_chave_key",
+          "nullsNotDistinct": false,
+          "columns": [
+            "chave"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.despesas": {
+      "name": "despesas",
+      "schema": "",
+      "columns": {
+        "coleta_id": {
+          "name": "coleta_id",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "id_externo": {
+          "name": "id_externo",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "ano": {
+          "name": "ano",
+          "type": "smallint",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "entidade_codigo": {
+          "name": "entidade_codigo",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "natureza": {
+          "name": "natureza",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "acao_numero": {
+          "name": "acao_numero",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "acao": {
+          "name": "acao",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "valor_orcado": {
+          "name": "valor_orcado",
+          "type": "numeric(18, 2)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "valor_orcado_atualizado": {
+          "name": "valor_orcado_atualizado",
+          "type": "numeric(18, 2)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "valor_empenhado": {
+          "name": "valor_empenhado",
+          "type": "numeric(18, 2)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "valor_liquidado": {
+          "name": "valor_liquidado",
+          "type": "numeric(18, 2)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "valor_pago": {
+          "name": "valor_pago",
+          "type": "numeric(18, 2)",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {
+        "despesas_coleta_id_entidade_codigo_idx": {
+          "name": "despesas_coleta_id_entidade_codigo_idx",
+          "columns": [
+            {
+              "expression": "coleta_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "entidade_codigo",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "despesas_coleta_id_fkey": {
+          "name": "despesas_coleta_id_fkey",
+          "tableFrom": "despesas",
+          "tableTo": "coletas",
+          "columnsFrom": [
+            "coleta_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "despesas_pkey": {
+          "name": "despesas_pkey",
+          "columns": [
+            "coleta_id",
+            "id_externo"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.educacao_financas": {
+      "name": "educacao_financas",
+      "schema": "",
+      "columns": {
+        "coleta_id": {
+          "name": "coleta_id",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "id_externo": {
+          "name": "id_externo",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "ano": {
+          "name": "ano",
+          "type": "smallint",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "periodo": {
+          "name": "periodo",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "indicador": {
+          "name": "indicador",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "lugar": {
+          "name": "lugar",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "rede": {
+          "name": "rede",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "recorte": {
+          "name": "recorte",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "valor": {
+          "name": "valor",
+          "type": "numeric(18, 2)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "percentual": {
+          "name": "percentual",
+          "type": "numeric(7, 2)",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "educacao_financas_coleta_id_fkey": {
+          "name": "educacao_financas_coleta_id_fkey",
+          "tableFrom": "educacao_financas",
+          "tableTo": "coletas",
+          "columnsFrom": [
+            "coleta_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "educacao_financas_pkey": {
+          "name": "educacao_financas_pkey",
+          "columns": [
+            "coleta_id",
+            "id_externo"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {
+        "educacao_financas_rede_check": {
+          "name": "educacao_financas_rede_check",
+          "value": "\"educacao_financas\".\"rede\" IN ('publica', 'municipal', 'estadual', 'federal', 'privada', 'todas')"
+        }
+      },
+      "isRLSEnabled": false
+    },
+    "public.educacao_valores": {
+      "name": "educacao_valores",
+      "schema": "",
+      "columns": {
+        "coleta_id": {
+          "name": "coleta_id",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "id_externo": {
+          "name": "id_externo",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "ano": {
+          "name": "ano",
+          "type": "smallint",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "periodo": {
+          "name": "periodo",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "indicador": {
+          "name": "indicador",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "lugar": {
+          "name": "lugar",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "rede": {
+          "name": "rede",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "etapa": {
+          "name": "etapa",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "recorte": {
+          "name": "recorte",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "valor": {
+          "name": "valor",
+          "type": "numeric(18, 4)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "texto": {
+          "name": "texto",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "unidade": {
+          "name": "unidade",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "educacao_valores_coleta_id_fkey": {
+          "name": "educacao_valores_coleta_id_fkey",
+          "tableFrom": "educacao_valores",
+          "tableTo": "coletas",
+          "columnsFrom": [
+            "coleta_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "educacao_valores_pkey": {
+          "name": "educacao_valores_pkey",
+          "columns": [
+            "coleta_id",
+            "id_externo"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {
+        "educacao_valores_rede_check": {
+          "name": "educacao_valores_rede_check",
+          "value": "\"educacao_valores\".\"rede\" IN ('publica', 'municipal', 'estadual', 'federal', 'privada', 'todas')"
+        }
+      },
+      "isRLSEnabled": false
+    },
+    "public.empenhos": {
+      "name": "empenhos",
+      "schema": "",
+      "columns": {
+        "coleta_id": {
+          "name": "coleta_id",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "id_externo": {
+          "name": "id_externo",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "ano": {
+          "name": "ano",
+          "type": "smallint",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "entidade_codigo": {
+          "name": "entidade_codigo",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "numero": {
+          "name": "numero",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "data_empenho": {
+          "name": "data_empenho",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "orgao": {
+          "name": "orgao",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "credor": {
+          "name": "credor",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "historico": {
+          "name": "historico",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "valor_empenho": {
+          "name": "valor_empenho",
+          "type": "numeric(18, 2)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "valor_liquidado": {
+          "name": "valor_liquidado",
+          "type": "numeric(18, 2)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "valor_pago": {
+          "name": "valor_pago",
+          "type": "numeric(18, 2)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "saldo_a_pagar": {
+          "name": "saldo_a_pagar",
+          "type": "numeric(18, 2)",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {
+        "empenhos_coleta_id_entidade_codigo_idx": {
+          "name": "empenhos_coleta_id_entidade_codigo_idx",
+          "columns": [
+            {
+              "expression": "coleta_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "entidade_codigo",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "empenhos_coleta_id_data_empenho_numero_idx": {
+          "name": "empenhos_coleta_id_data_empenho_numero_idx",
+          "columns": [
+            {
+              "expression": "coleta_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "data_empenho",
+              "isExpression": false,
+              "asc": false,
+              "nulls": "first"
+            },
+            {
+              "expression": "numero",
+              "isExpression": false,
+              "asc": false,
+              "nulls": "first"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "empenhos_coleta_id_fkey": {
+          "name": "empenhos_coleta_id_fkey",
+          "tableFrom": "empenhos",
+          "tableTo": "coletas",
+          "columnsFrom": [
+            "coleta_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "empenhos_pkey": {
+          "name": "empenhos_pkey",
+          "columns": [
+            "coleta_id",
+            "id_externo"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.entidades": {
+      "name": "entidades",
+      "schema": "",
+      "columns": {
+        "codigo_betha": {
+          "name": "codigo_betha",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "nome": {
+          "name": "nome",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "sigla": {
+          "name": "sigla",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "codigo_tce": {
+          "name": "codigo_tce",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "poder": {
+          "name": "poder",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'executivo'"
+        },
+        "status_mapeamento": {
+          "name": "status_mapeamento",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "nota": {
+          "name": "nota",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {
+        "entidades_status_mapeamento_check": {
+          "name": "entidades_status_mapeamento_check",
+          "value": "\"entidades\".\"status_mapeamento\" IN ('inferido', 'confirmado')"
+        }
+      },
+      "isRLSEnabled": false
+    },
+    "public.execucoes": {
+      "name": "execucoes",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "bigserial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "importador": {
+          "name": "importador",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "ano": {
+          "name": "ano",
+          "type": "smallint",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "iniciado_em": {
+          "name": "iniciado_em",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "finalizado_em": {
+          "name": "finalizado_em",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "status": {
+          "name": "status",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'em_andamento'"
+        },
+        "linhas_lidas": {
+          "name": "linhas_lidas",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
+        },
+        "linhas_gravadas": {
+          "name": "linhas_gravadas",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
+        },
+        "erro": {
+          "name": "erro",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "detalhes": {
+          "name": "detalhes",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'[]'::jsonb"
+        }
+      },
+      "indexes": {
+        "execucoes_importador_ano_iniciado_em_idx": {
+          "name": "execucoes_importador_ano_iniciado_em_idx",
+          "columns": [
+            {
+              "expression": "importador",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "ano",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "iniciado_em",
+              "isExpression": false,
+              "asc": false,
+              "nulls": "first"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {
+        "execucoes_status_check": {
+          "name": "execucoes_status_check",
+          "value": "\"execucoes\".\"status\" IN ('em_andamento', 'sucesso', 'rejeitada', 'falhou')"
+        }
+      },
+      "isRLSEnabled": false
+    },
+    "public.fontes": {
+      "name": "fontes",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "nome": {
+          "name": "nome",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "url": {
+          "name": "url",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.ibge_valores": {
+      "name": "ibge_valores",
+      "schema": "",
+      "columns": {
+        "coleta_id": {
+          "name": "coleta_id",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "id_externo": {
+          "name": "id_externo",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "ano": {
+          "name": "ano",
+          "type": "smallint",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "localidade": {
+          "name": "localidade",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "tabela": {
+          "name": "tabela",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "variavel": {
+          "name": "variavel",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "periodo": {
+          "name": "periodo",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "categoria": {
+          "name": "categoria",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "valor": {
+          "name": "valor",
+          "type": "numeric(18, 3)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "unidade": {
+          "name": "unidade",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "simbolo": {
+          "name": "simbolo",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "ibge_valores_coleta_id_fkey": {
+          "name": "ibge_valores_coleta_id_fkey",
+          "tableFrom": "ibge_valores",
+          "tableTo": "coletas",
+          "columnsFrom": [
+            "coleta_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "ibge_valores_pkey": {
+          "name": "ibge_valores_pkey",
+          "columns": [
+            "coleta_id",
+            "id_externo"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.publicacoes": {
+      "name": "publicacoes",
+      "schema": "",
+      "columns": {
+        "consulta_id": {
+          "name": "consulta_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "ano": {
+          "name": "ano",
+          "type": "smallint",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "coleta_id": {
+          "name": "coleta_id",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "publicado_em": {
+          "name": "publicado_em",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "publicacoes_consulta_id_fkey": {
+          "name": "publicacoes_consulta_id_fkey",
+          "tableFrom": "publicacoes",
+          "tableTo": "consultas",
+          "columnsFrom": [
+            "consulta_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "publicacoes_coleta_id_fkey": {
+          "name": "publicacoes_coleta_id_fkey",
+          "tableFrom": "publicacoes",
+          "tableTo": "coletas",
+          "columnsFrom": [
+            "coleta_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "publicacoes_pkey": {
+          "name": "publicacoes_pkey",
+          "columns": [
+            "consulta_id",
+            "ano"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.receitas": {
+      "name": "receitas",
+      "schema": "",
+      "columns": {
+        "coleta_id": {
+          "name": "coleta_id",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "id_externo": {
+          "name": "id_externo",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "ano": {
+          "name": "ano",
+          "type": "smallint",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "entidade_codigo": {
+          "name": "entidade_codigo",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "id_rubrica_betha": {
+          "name": "id_rubrica_betha",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "mes": {
+          "name": "mes",
+          "type": "smallint",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "rubrica": {
+          "name": "rubrica",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "descricao": {
+          "name": "descricao",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "valor_orcado": {
+          "name": "valor_orcado",
+          "type": "numeric(18, 2)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "valor_orcado_deducoes": {
+          "name": "valor_orcado_deducoes",
+          "type": "numeric(18, 2)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "valor_orcado_atualizado": {
+          "name": "valor_orcado_atualizado",
+          "type": "numeric(18, 2)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "valor_lancado_mes": {
+          "name": "valor_lancado_mes",
+          "type": "numeric(18, 2)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "valor_arrecadado_mes": {
+          "name": "valor_arrecadado_mes",
+          "type": "numeric(18, 2)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "valor_arrecadado_ate_mes": {
+          "name": "valor_arrecadado_ate_mes",
+          "type": "numeric(18, 2)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "percentual_realizado": {
+          "name": "percentual_realizado",
+          "type": "numeric(10, 2)",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {
+        "receitas_coleta_id_entidade_codigo_idx": {
+          "name": "receitas_coleta_id_entidade_codigo_idx",
+          "columns": [
+            {
+              "expression": "coleta_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "entidade_codigo",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "receitas_coleta_id_rubrica_idx": {
+          "name": "receitas_coleta_id_rubrica_idx",
+          "columns": [
+            {
+              "expression": "coleta_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "rubrica",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "receitas_coleta_id_fkey": {
+          "name": "receitas_coleta_id_fkey",
+          "tableFrom": "receitas",
+          "tableTo": "coletas",
+          "columnsFrom": [
+            "coleta_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "receitas_pkey": {
+          "name": "receitas_pkey",
+          "columns": [
+            "coleta_id",
+            "id_externo"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.registros_brutos": {
+      "name": "registros_brutos",
+      "schema": "",
+      "columns": {
+        "coleta_id": {
+          "name": "coleta_id",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "id_externo": {
+          "name": "id_externo",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "payload": {
+          "name": "payload",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "registros_brutos_coleta_id_fkey": {
+          "name": "registros_brutos_coleta_id_fkey",
+          "tableFrom": "registros_brutos",
+          "tableTo": "coletas",
+          "columnsFrom": [
+            "coleta_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "registros_brutos_pkey": {
+          "name": "registros_brutos_pkey",
+          "columns": [
+            "coleta_id",
+            "id_externo"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.siconfi_funcoes": {
+      "name": "siconfi_funcoes",
+      "schema": "",
+      "columns": {
+        "coleta_id": {
+          "name": "coleta_id",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "id_externo": {
+          "name": "id_externo",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "ano": {
+          "name": "ano",
+          "type": "smallint",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "etapa": {
+          "name": "etapa",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "tipo": {
+          "name": "tipo",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "funcao_codigo": {
+          "name": "funcao_codigo",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "subfuncao_codigo": {
+          "name": "subfuncao_codigo",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "conta": {
+          "name": "conta",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "valor": {
+          "name": "valor",
+          "type": "numeric(18, 2)",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "siconfi_funcoes_coleta_id_fkey": {
+          "name": "siconfi_funcoes_coleta_id_fkey",
+          "tableFrom": "siconfi_funcoes",
+          "tableTo": "coletas",
+          "columnsFrom": [
+            "coleta_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "siconfi_funcoes_pkey": {
+          "name": "siconfi_funcoes_pkey",
+          "columns": [
+            "coleta_id",
+            "id_externo"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {
+        "siconfi_funcoes_etapa_check": {
+          "name": "siconfi_funcoes_etapa_check",
+          "value": "\"siconfi_funcoes\".\"etapa\" IN ('empenhado', 'liquidado', 'pago', 'rp_nao_processados', 'rp_processados')"
+        },
+        "siconfi_funcoes_tipo_check": {
+          "name": "siconfi_funcoes_tipo_check",
+          "value": "\"siconfi_funcoes\".\"tipo\" IN ('total', 'funcao', 'subfuncao')"
+        }
+      },
+      "isRLSEnabled": false
+    },
+    "public.tcesc_empenhos": {
+      "name": "tcesc_empenhos",
+      "schema": "",
+      "columns": {
+        "coleta_id": {
+          "name": "coleta_id",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "id_externo": {
+          "name": "id_externo",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "ano": {
+          "name": "ano",
+          "type": "smallint",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "codigo_ug": {
+          "name": "codigo_ug",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "numero": {
+          "name": "numero",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "data_empenho": {
+          "name": "data_empenho",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "credor": {
+          "name": "credor",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "historico": {
+          "name": "historico",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "valor_original": {
+          "name": "valor_original",
+          "type": "numeric(18, 2)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "valor_reforco": {
+          "name": "valor_reforco",
+          "type": "numeric(18, 2)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "valor_estorno": {
+          "name": "valor_estorno",
+          "type": "numeric(18, 2)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "valor_empenhado": {
+          "name": "valor_empenhado",
+          "type": "numeric(18, 2)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "valor_liquidado": {
+          "name": "valor_liquidado",
+          "type": "numeric(18, 2)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "valor_pago": {
+          "name": "valor_pago",
+          "type": "numeric(18, 2)",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {
+        "tcesc_empenhos_coleta_id_codigo_ug_numero_idx": {
+          "name": "tcesc_empenhos_coleta_id_codigo_ug_numero_idx",
+          "columns": [
+            {
+              "expression": "coleta_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "codigo_ug",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "numero",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "tcesc_empenhos_coleta_id_fkey": {
+          "name": "tcesc_empenhos_coleta_id_fkey",
+          "tableFrom": "tcesc_empenhos",
+          "tableTo": "coletas",
+          "columnsFrom": [
+            "coleta_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "tcesc_empenhos_pkey": {
+          "name": "tcesc_empenhos_pkey",
+          "columns": [
+            "coleta_id",
+            "id_externo"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.tcesc_receitas": {
+      "name": "tcesc_receitas",
+      "schema": "",
+      "columns": {
+        "coleta_id": {
+          "name": "coleta_id",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "id_externo": {
+          "name": "id_externo",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "ano": {
+          "name": "ano",
+          "type": "smallint",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "unidade": {
+          "name": "unidade",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "codigo": {
+          "name": "codigo",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "natureza": {
+          "name": "natureza",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "tipo_deducao": {
+          "name": "tipo_deducao",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "mes": {
+          "name": "mes",
+          "type": "smallint",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "valor_arrecadado": {
+          "name": "valor_arrecadado",
+          "type": "numeric(18, 2)",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {
+        "tcesc_receitas_coleta_id_unidade_idx": {
+          "name": "tcesc_receitas_coleta_id_unidade_idx",
+          "columns": [
+            {
+              "expression": "coleta_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "unidade",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "tcesc_receitas_coleta_id_fkey": {
+          "name": "tcesc_receitas_coleta_id_fkey",
+          "tableFrom": "tcesc_receitas",
+          "tableTo": "coletas",
+          "columnsFrom": [
+            "coleta_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "tcesc_receitas_pkey": {
+          "name": "tcesc_receitas_pkey",
+          "columns": [
+            "coleta_id",
+            "id_externo"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.totais_fonte": {
+      "name": "totais_fonte",
+      "schema": "",
+      "columns": {
+        "coleta_id": {
+          "name": "coleta_id",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "campo": {
+          "name": "campo",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "titulo": {
+          "name": "titulo",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "descricao": {
+          "name": "descricao",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "valor_fonte": {
+          "name": "valor_fonte",
+          "type": "numeric(18, 2)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "valor_calculado": {
+          "name": "valor_calculado",
+          "type": "numeric(18, 2)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "diferenca": {
+          "name": "diferenca",
+          "type": "numeric(18, 2)",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "totais_fonte_coleta_id_fkey": {
+          "name": "totais_fonte_coleta_id_fkey",
+          "tableFrom": "totais_fonte",
+          "tableTo": "coletas",
+          "columnsFrom": [
+            "coleta_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "totais_fonte_pkey": {
+          "name": "totais_fonte_pkey",
+          "columns": [
+            "coleta_id",
+            "campo"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.unidades_tce": {
+      "name": "unidades_tce",
+      "schema": "",
+      "columns": {
+        "codigo_ug": {
+          "name": "codigo_ug",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "nome": {
+          "name": "nome",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "sigla": {
+          "name": "sigla",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "poder": {
+          "name": "poder",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "entidade_betha": {
+          "name": "entidade_betha",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "status_mapeamento": {
+          "name": "status_mapeamento",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "nota": {
+          "name": "nota",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "unidades_tce_entidade_betha_fkey": {
+          "name": "unidades_tce_entidade_betha_fkey",
+          "tableFrom": "unidades_tce",
+          "tableTo": "entidades",
+          "columnsFrom": [
+            "entidade_betha"
+          ],
+          "columnsTo": [
+            "codigo_betha"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "unidades_tce_nome_key": {
+          "name": "unidades_tce_nome_key",
+          "nullsNotDistinct": false,
+          "columns": [
+            "nome"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {
+        "unidades_tce_status_mapeamento_check": {
+          "name": "unidades_tce_status_mapeamento_check",
+          "value": "\"unidades_tce\".\"status_mapeamento\" IN ('inferido', 'confirmado')"
+        }
+      },
+      "isRLSEnabled": false
+    }
+  },
+  "enums": {},
+  "schemas": {},
+  "sequences": {},
+  "roles": {},
+  "policies": {},
+  "views": {},
+  "_meta": {
+    "columns": {},
+    "schemas": {},
+    "tables": {}
+  }
+}

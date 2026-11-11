@@ -10,7 +10,7 @@ Portal da Transparência Betha de Orleans. Vive em `packages/importadores/betha/
 | `empenhos` | `57140`  | `anoExercicio` | `valorEmpenho`, `valorLiquidadoEmpenho`, `valorPagoEmpenho`                   | `empenhos` |
 | `despesas` | `57170`  | `ano`          | `valorEmpenhadoAtualizado`, `valorLiquidadoAtualizado`, `valorPagoAtualizado` | `despesas` |
 
-O id do registro é `<exercício>:<entidade>:<registro>`, com sufixo `_<mês>` na 57153.
+O id do registro é `<exercício>:<entidade>:<registro>`, com sufixo `_<mês>` na 57153. Em exercícios antigos (visto em 2015), a 57153 traz o mês no meio, com dois dígitos: `211:728:receita_orcamentaria_2015_01_728_411120201000000`; a rubrica da Betha (`idRubricaBetha`) é esse id sem o mês.
 
 ## Funções e utilitários
 
@@ -35,6 +35,8 @@ O id do registro é `<exercício>:<entidade>:<registro>`, com sufixo `_<mês>` n
 ## Armadilhas
 
 - Paginação sem ordenação é instável (em 2026 a 57153 devolveu 1.294 registros com 1.017 ids únicos): o cliente ordena por `id`, e mesmo assim o índice muda entre requisições no exercício corrente.
+- Até 2017 a receita usa o plano de contas antigo: rubrica de 15 dígitos começando em `4` (corrente) ou `2`, com deduções em `9`, e não os 14 dígitos do plano de 2018 em diante. O painel agrupa pelo prefixo do plano novo, então o detalhamento desses anos não tem classificação própria. Os valores vêm líquidos da dedução do FUNDEB: em 2015, R$ 60,83 mi, contra R$ 60,94 mi líquidos no SICONFI.
+- A despesa de 2015 na 57170 soma R$ 44,6 mi empenhados, contra R$ 60,8 mi no SICONFI: faltam órgãos no portal naquele ano.
 - Na 57170, `anoExercicio` é ignorado e voltam todos os exercícios: o filtro dela é `ano`.
 - Cópias antigas de empenho na 57140 vêm sem os campos de liquidação e com id menor (ver [conferencia.md](conferencia.md)).
 - O totalizador vem como float e pode trazer resíduo (`170915184.25000012`): é arredondado ao centavo antes de comparar.

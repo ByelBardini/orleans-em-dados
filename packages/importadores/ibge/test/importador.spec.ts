@@ -8,6 +8,7 @@ import {
   respostasDaComparacao,
   respostasDaPopulacao,
   respostasDoCenso,
+  respostasDoIpca,
   respostasDoPib,
   variavel,
 } from './support/agregados';
@@ -46,6 +47,7 @@ describe('declaração do importador', () => {
       [900105, 'ibge_educacao_censo'],
       [900106, 'ibge_educacao_comparacao'],
       [900107, 'ibge_rede_escolar'],
+      [900108, 'ibge_ipca'],
     ]);
   });
 
@@ -559,5 +561,44 @@ describe('fixtures de educação', () => {
     const validacao = consulta.validar({ filtro: {}, totalHits: linhas.length, registros }, linhas);
 
     expect(item(validacao, 'local_graduacao')).toMatchObject({ fonte: '590.00', calculado: '591.00' });
+  });
+});
+
+describe('ibge_ipca', () => {
+  it('pede o número-índice da 1737 só para o Brasil', async () => {
+    const cliente = new ClienteIbgeFake(respostasDoIpca(), respostasDoIpca());
+    const consulta = criarImportadorIbge({ cliente }).consultas.find((c) => c.chave === 'ibge_ipca')!;
+
+    const coleta = await consulta.coletar({ ano: 2026 });
+
+    expect(cliente.pedidos).toEqual([{ tabela: '1737', variaveis: ['2266'], localidades: 'N1[all]' }]);
+    expect(coleta.registros.map((r) => consulta.normalizar(r))).toEqual([
+      expect.objectContaining({ idExterno: '1:1737:2266:202412:', periodo: '202412', valor: '7100.5000000000000' }),
+      expect.objectContaining({ idExterno: '1:1737:2266:202501:', periodo: '202501', valor: '7111.8600000000000' }),
+    ]);
+  });
+
+  it('série mensal com número passa', async () => {
+    const validacao = await validar('ibge_ipca', respostasDoIpca());
+
+    expect(validacao.erros).toEqual([]);
+  });
+
+  it('mês ainda não publicado (`...`) fica nulo e não rejeita', async () => {
+    const validacao = await validar('ibge_ipca', respostasDoIpca({ '202412': '7100.5', '202601': '...' }));
+
+    expect(validacao.erros).toEqual([]);
+  });
+
+  it('período fora do formato AAAAMM rejeita citando o período', async () => {
+    const validacao = await validar('ibge_ipca', respostasDoIpca({ '202412': '7100.5', '2025': '7200' }));
+
+    expect(validacao.erros).toEqual(['IPCA: período 2025 não é mensal (AAAAMM)']);
+  });
+
+  it('sem nenhum índice com número, o lote é rejeitado', async () => {
+    const validacao = await validar('ibge_ipca', respostasDoIpca({ '202601': '...' }));
+
+    expect(validacao.erros).toEqual(['falta o IPCA (tabela 1737)']);
   });
 });

@@ -17,9 +17,11 @@ import {
   fonteDoLote,
   lotesDeTodosOsAnos,
   NOME_DE_ORLEANS,
+  valoresDoIbge,
   type LinhaDoCsv,
   type LoteDeEducacao,
 } from './educacao.comum';
+import { anoBase, corrigir, type MesDoIpca } from './inflacao';
 
 const ANEXO_8 = 'siope_anexo8';
 const INDICADORES = 'siope_indicadores_valores';
@@ -29,6 +31,9 @@ const ACOES_BETHA = 'despesas';
 const RECEITAS = 'receitas';
 const RECEITAS_TCE = 'tcesc_receitas';
 const POPULACAO = 'ibge_populacao';
+// O IPCA corrige, mas não é número da aba: sem ele, nada falta, só não há `corrigido`.
+const IPCA = 'ibge_ipca';
+const TABELA_DO_IPCA = '1737';
 const CONSULTAS = [ANEXO_8, INDICADORES, RREO, DCA, ACOES_BETHA, RECEITAS, RECEITAS_TCE, POPULACAO];
 
 const MINIMO_DA_EDUCACAO = 25;
@@ -98,6 +103,7 @@ async function gasto(
   anexo8: Financas,
   acoes: readonly LinhaDaAcao[],
   niveis: Map<number, NivelDoGasto>,
+  ipca: readonly MesDoIpca[],
 ): Promise<EducacaoDinheiro['gasto']> {
   const [linhas, totais] = await Promise.all([linhasDasFuncoes(null), totaisDasFuncoes(null)]);
   const anos = totais
@@ -116,6 +122,7 @@ async function gasto(
         anexo8: noAnexo8,
         divisor,
         porMorador: liquidado !== null && divisor ? porPessoa(liquidado, divisor.populacao) : null,
+        corrigido: corrigir(liquidado, ano, ipca),
         participacao: emPercentual(liquidado, total.liquidado, UMA_CASA),
         etapas: ETAPAS_DA_DCA.flatMap(({ subfuncao, chave }) => {
           const linha = linhas.find(
@@ -131,6 +138,7 @@ async function gasto(
   return {
     fonte: fonteDoLote(lote, 'SICONFI, DCA Anexo I-E, função 12, valor liquidado'),
     anos,
+    crescimentoReal: crescimentoReal(anos),
     acoesNasEtapas:
       comBetha === undefined
         ? null
@@ -257,22 +265,39 @@ function contaDoFundeb(
   };
 }
 
+/** Primeiro × último ano, os dois corrigidos: o quanto o gasto mudou acima (ou abaixo) da inflação. */
+function crescimentoReal(anos: readonly { ano: number; corrigido: number | null }[]) {
+  const [primeiro, ultimo] = [anos[0], anos.at(-1)];
+  if (!primeiro || !ultimo || primeiro === ultimo || !primeiro.corrigido || ultimo.corrigido === null) return null;
+  const percentual = emPercentual(ultimo.corrigido - primeiro.corrigido, primeiro.corrigido, UMA_CASA);
+  return percentual === null ? null : { de: primeiro.ano, ate: ultimo.ano, percentual };
+}
+
 // O SIOPE não recomenda o indicador 4.8 nesses dois anos: fica acima das etapas.
 const ANOS_SEM_EDUCACAO_BASICA = [2022, 2023];
 
-function porAluno(lote: LoteDeEducacao, valores: Financas): EducacaoDinheiro['porAluno'] {
+function porAluno(lote: LoteDeEducacao, valores: Financas, ipca: readonly MesDoIpca[]): EducacaoDinheiro['porAluno'] {
   const anos = [
     ...new Set(valores.filter((l) => l.indicador.startsWith('siope_por_aluno_')).map((l) => Number(l.periodo))),
   ].sort((a, b) => a - b);
   const ler = (chave: string, ano: number) => daLinha(valores, `siope_por_aluno_${chave}`, ano)?.valor ?? null;
   return {
     fonte: fonteDoLote(lote, 'SIOPE, Relatório de Indicadores: investimento por aluno'),
-    anos: anos.map((ano) => ({
-      ano,
-      infantil: ler('infantil', ano),
-      fundamental: ler('fundamental', ano),
-      educacaoBasica: ANOS_SEM_EDUCACAO_BASICA.includes(ano) ? null : ler('educacao_basica', ano),
-    })),
+    anos: anos.map((ano) => {
+      const nominais = {
+        infantil: ler('infantil', ano),
+        fundamental: ler('fundamental', ano),
+        educacaoBasica: ANOS_SEM_EDUCACAO_BASICA.includes(ano) ? null : ler('educacao_basica', ano),
+      };
+      const corrigido = ipca.length
+        ? {
+            infantil: corrigir(nominais.infantil, ano, ipca),
+            fundamental: corrigir(nominais.fundamental, ano, ipca),
+            educacaoBasica: corrigir(nominais.educacaoBasica, ano, ipca),
+          }
+        : null;
+      return { ano, ...nominais, corrigido };
+    }),
   };
 }
 
@@ -299,6 +324,11 @@ export async function dinheiro(): Promise<EducacaoDinheiro> {
   const loteDosIndicadores = nosIndicadores.at(-1);
 
   const acoes = loteDasAcoes ? await liquidadoDasAcoes(ACOES_DE_EDUCACAO) : [];
+  const loteDoIpca = (await lotesDeTodosOsAnos([IPCA])).at(-1);
+  const ipca: MesDoIpca[] = loteDoIpca
+    ? (await valoresDoIbge([loteDoIpca], [TABELA_DO_IPCA])).map(({ periodo, valor }) => ({ periodo, valor }))
+    : [];
+  const base = anoBase(ipca);
   const anosDaDca = fechados(DCA).map((l) => l.ano);
   const niveis = new Map(
     await Promise.all(
@@ -346,7 +376,9 @@ export async function dinheiro(): Promise<EducacaoDinheiro> {
           anos: anosDoIndice('fundeb_remuneracao', minimoDoFundeb, anexo8, rreo),
         }
       : null,
-    gasto: loteDaDca ? await gasto(loteDaDca, encerrado, await populacaoPublicada(), anexo8, acoes, niveis) : null,
+    gasto: loteDaDca
+      ? await gasto(loteDaDca, encerrado, await populacaoPublicada(), anexo8, acoes, niveis, ipca)
+      : null,
     acoes: loteDasAcoes ? blocoDasAcoes(loteDasAcoes, encerrado, acoes, niveis) : null,
     repasses:
       loteDaReceita && emRepasses.length
@@ -358,12 +390,21 @@ export async function dinheiro(): Promise<EducacaoDinheiro> {
     contaDoFundeb: loteDoAnexo8
       ? contaDoFundeb(loteDoAnexo8, anexo8, conferidos, conferidos.length ? await contribuicaoNoTce() : [])
       : null,
-    porAluno: loteDosIndicadores ? porAluno(loteDosIndicadores, dosLotes(nosIndicadores)) : null,
+    porAluno: loteDosIndicadores ? porAluno(loteDosIndicadores, dosLotes(nosIndicadores), ipca) : null,
   };
+  const inflacao =
+    loteDoIpca && base !== null
+      ? {
+          fonte: fonteDoLote(loteDoIpca, 'IBGE, IPCA (tabela 1737), média do ano'),
+          anoBase: base,
+          metodo: 'ipca_medio' as const,
+        }
+      : null;
   return {
     disponivel: Object.values(corpo).some((bloco) => bloco !== null),
     faltando: faltandoDe(CONSULTAS, lotes),
     valores: 'nominais',
+    inflacao,
     ...corpo,
   };
 }
@@ -403,9 +444,16 @@ function linhasDoIndice(
   ]);
 }
 
-function linhasDoGasto({ fonte, anos }: NonNullable<EducacaoDinheiro['gasto']>): LinhaDoCsv[] {
-  return anos.flatMap(({ ano, liquidado, porMorador, participacao, etapas }) => [
+const emReaisDe = (indicador: string, inflacao: NonNullable<EducacaoDinheiro['inflacao']>) =>
+  `${indicador}_reais_de_${inflacao.anoBase}`;
+
+function linhasDoGasto(
+  { fonte, anos }: NonNullable<EducacaoDinheiro['gasto']>,
+  inflacao: EducacaoDinheiro['inflacao'],
+): LinhaDoCsv[] {
+  return anos.flatMap(({ ano, liquidado, corrigido, porMorador, participacao, etapas }) => [
     emOrleans('gasto_educacao', ano, liquidado, 'R$', fonte.nome),
+    ...(inflacao ? [emOrleans(emReaisDe('gasto_educacao', inflacao), ano, corrigido, 'R$', fonte.nome)] : []),
     emOrleans('gasto_por_morador', ano, porMorador, 'R$', fonte.nome),
     emOrleans('gasto_participacao', ano, participacao, '%', fonte.nome),
     ...etapas.flatMap(({ chave, valor, percentual }) => [
@@ -444,23 +492,35 @@ function linhasDaConta({ fonte, anos }: NonNullable<EducacaoDinheiro['contaDoFun
   ]);
 }
 
-function linhasDoPorAluno({ fonte, anos }: NonNullable<EducacaoDinheiro['porAluno']>): LinhaDoCsv[] {
-  return anos.flatMap(({ ano, infantil, fundamental, educacaoBasica }) => [
-    emOrleans('por_aluno', ano, infantil, 'R$', fonte.nome, 'educacao_infantil'),
-    emOrleans('por_aluno', ano, fundamental, 'R$', fonte.nome, 'fundamental'),
-    emOrleans('por_aluno', ano, educacaoBasica, 'R$', fonte.nome, 'educacao_basica'),
-  ]);
+const ETAPAS_DO_POR_ALUNO = [
+  ['infantil', 'educacao_infantil'],
+  ['fundamental', 'fundamental'],
+  ['educacaoBasica', 'educacao_basica'],
+] as const;
+
+function linhasDoPorAluno(
+  { fonte, anos }: NonNullable<EducacaoDinheiro['porAluno']>,
+  inflacao: EducacaoDinheiro['inflacao'],
+): LinhaDoCsv[] {
+  return anos.flatMap((a) =>
+    ETAPAS_DO_POR_ALUNO.flatMap(([campo, etapa]) => [
+      emOrleans('por_aluno', a.ano, a[campo], 'R$', fonte.nome, etapa),
+      ...(inflacao && a.corrigido
+        ? [emOrleans(emReaisDe('por_aluno', inflacao), a.ano, a.corrigido[campo], 'R$', fonte.nome, etapa)]
+        : []),
+    ]),
+  );
 }
 
-/** O CSV da aba, em formato longo e em reais nominais. */
+/** O CSV da aba, em formato longo: reais nominais e, com o IPCA, linhas `_reais_de_<ano-base>`. */
 export function linhasDoDinheiro(d: EducacaoDinheiro): LinhaDoCsv[] {
   return [
     ...(d.minimo ? linhasDoIndice('indice_educacao', d.minimo) : []),
     ...(d.fundebRemuneracao ? linhasDoIndice('fundeb_remuneracao', d.fundebRemuneracao) : []),
-    ...(d.gasto ? linhasDoGasto(d.gasto) : []),
+    ...(d.gasto ? linhasDoGasto(d.gasto, d.inflacao) : []),
     ...(d.acoes ? linhasDasAcoes(d.acoes) : []),
     ...(d.repasses ? linhasDosRepasses(d.repasses) : []),
     ...(d.contaDoFundeb ? linhasDaConta(d.contaDoFundeb) : []),
-    ...(d.porAluno ? linhasDoPorAluno(d.porAluno) : []),
+    ...(d.porAluno ? linhasDoPorAluno(d.porAluno, d.inflacao) : []),
   ];
 }

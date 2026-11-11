@@ -129,10 +129,18 @@ const naLocalidade = (variaveis: ReturnType<typeof variavel>[] = [], id: string)
 export const respostasDaComparacao = ({
   brasil = respostasCompletas(),
   santaCatarina = respostasCompletas(),
-}: { brasil?: Respostas; santaCatarina?: Respostas } = {}) =>
-  Object.fromEntries(
+}: { brasil?: Respostas; santaCatarina?: Respostas } = {}) => ({
+  ...Object.fromEntries(
     [...new Set([...Object.keys(brasil), ...Object.keys(santaCatarina)])].map((tabela) => [
       tabela,
       [...naLocalidade(brasil[tabela], '1'), ...naLocalidade(santaCatarina[tabela], '42')],
     ]),
-  );
+  ),
+  // O IPCA também pede `localidades` (só o Brasil): a rodada inteira o encontra aqui.
+  ...respostasDoIpca(),
+});
+
+/** O IPCA (1737, número-índice 2266), só do Brasil; `serie` é `AAAAMM` → índice. */
+export const respostasDoIpca = (serie: Serie = { '202412': '7100.5000000000000', '202501': '7111.8600000000000' }) => ({
+  '1737': naLocalidade([variavel('2266', 'Número-índice', [{ serie }])], '1'),
+});

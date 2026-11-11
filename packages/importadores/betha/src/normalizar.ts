@@ -18,21 +18,28 @@ function textoObrigatorio(registro: RegistroBruto, campo: string): string {
   return texto;
 }
 
-function mesDoId(id: string): number | null {
-  const sufixo = id.split('_')[1];
-  if (!sufixo) return null;
+// Exercícios antigos (2015) trazem o mês no meio do id, com dois dígitos:
+// `211:728:receita_orcamentaria_2015_01_728_411120201000000`.
+const ID_ANTIGO = /^(.+:receita_orcamentaria_\d{4})_(\d{2})_(.+)$/;
+
+/** Rubrica da Betha (o id sem o mês) e o mês, nos dois formatos de id da 57153. */
+function partesDoId(id: string): { idRubrica: string; mes: number | null } {
+  const antigo = ID_ANTIGO.exec(id);
+  const [idRubrica, sufixo] = antigo ? [`${antigo[1]}_${antigo[3]}`, antigo[2]] : id.split('_');
+  if (!sufixo) return { idRubrica: idRubrica as string, mes: null };
   const mes = Number(sufixo);
   if (!Number.isInteger(mes) || mes < 1 || mes > 12)
     throw new Error(`Mês inválido no id ${id}; esperado sufixo _1 a _12`);
-  return mes;
+  return { idRubrica: idRubrica as string, mes };
 }
 
 export function normalizarReceita(r: RegistroBruto) {
+  const { idRubrica, mes } = partesDoId(r.id);
   return {
     idExterno: r.id,
     entidadeCodigo: entidadeDoId(r.id),
-    idRubricaBetha: r.id.split('_')[0] as string,
-    mes: mesDoId(r.id),
+    idRubricaBetha: idRubrica,
+    mes,
     rubrica: codigoRubrica(r.rubricaNatureza),
     descricao: textoObrigatorio(r, 'descricaoNatureza'),
     valorOrcado: valor(r.valorOrcado),

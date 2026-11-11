@@ -401,6 +401,29 @@ describe('Resumo: em poucos números', () => {
     expect(li).toHaveTextContent(texto);
   });
 
+  it('investimento por aluno é o da educação básica do SIOPE, com o ano à vista e o selo de fonte única', async () => {
+    await abrir();
+
+    const li = item('R$ 19.269');
+    expect(li).toHaveTextContent('investidos por aluno da educação básica, em 2025');
+    expect(within(li).getByLabelText(FONTE_UNICA)).toBeInTheDocument();
+    await comDetalhes(li);
+    expect(li).toHaveTextContent('SIOPE, Relatório de Indicadores · 2025');
+  });
+
+  it('sem a educação básica, o número é do ensino fundamental e diz isso', async () => {
+    await abrir(resumo({ porAluno: { ...resumo().porAluno!, ano: 2023, etapa: 'fundamental', valor: 15000 } }));
+
+    expect(item('R$ 15.000')).toHaveTextContent('investidos por aluno do ensino fundamental, em 2023');
+  });
+
+  it('sem o SIOPE, o por aluno sai, e o resto segue', async () => {
+    await abrir(resumo({ porAluno: null }));
+
+    expect(bloco()).not.toHaveTextContent('por aluno');
+    expect(item('3.150')).toBeInTheDocument();
+  });
+
   it('sem população, o por morador sai, sem travessão', async () => {
     const { gasto } = resumo();
     await abrir(resumo({ gasto: gasto && { ...gasto, porMorador: null, divisor: null } }));
@@ -420,7 +443,7 @@ describe('Resumo: em poucos números', () => {
   });
 
   it('sem nenhum dos números, o bloco some', async () => {
-    await abrir(resumo({ matriculas: null, gasto: null, alfabetizacaoDosMoradores: null }));
+    await abrir(resumo({ matriculas: null, gasto: null, porAluno: null, alfabetizacaoDosMoradores: null }));
 
     expect(screen.queryByRole('region', { name: /Em poucos números/ })).not.toBeInTheDocument();
   });

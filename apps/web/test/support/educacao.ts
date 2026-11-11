@@ -922,11 +922,14 @@ const etapasDoGasto = (fundamental: number, infantil: number) => [
   { chave: 'outras' as const, valor: 1650000, percentual: 4.4 },
 ];
 
+const FONTE_DO_IPCA = { nome: 'IBGE, IPCA (tabela 1737), média do ano', url: 'https://ibge.exemplo/ipca' };
+
 export const dinheiro = (trocas: Partial<EducacaoDinheiro> = {}): EducacaoDinheiro =>
   educacaoDinheiroSchema.parse({
     disponivel: true,
     faltando: [],
     valores: 'nominais',
+    inflacao: { fonte: FONTE_DO_IPCA, anoBase: 2025, metodo: 'ipca_medio' },
     minimo: {
       fonte: FONTE_DO_ANEXO_8,
       fonteComparada: FONTE_DO_RREO,
@@ -959,6 +962,7 @@ export const dinheiro = (trocas: Partial<EducacaoDinheiro> = {}): EducacaoDinhei
           anexo8: 30000000.01,
           divisor: { ano: 2022, populacao: 23000, tipo: 'censo' },
           porMorador: 1304.35,
+          corrigido: 33000000,
           participacao: 25.5,
           etapas: etapasDoGasto(60.5, 34.9),
         },
@@ -970,6 +974,7 @@ export const dinheiro = (trocas: Partial<EducacaoDinheiro> = {}): EducacaoDinhei
           anexo8: 31500000,
           divisor: { ano: 2024, populacao: 23800, tipo: 'estimativa' },
           porMorador: 1323.53,
+          corrigido: 33075000,
           participacao: 22.4,
           etapas: etapasDoGasto(56.5, 38.8),
         },
@@ -981,10 +986,12 @@ export const dinheiro = (trocas: Partial<EducacaoDinheiro> = {}): EducacaoDinhei
           anexo8: 37500000,
           divisor: { ano: 2025, populacao: 24000, tipo: 'estimativa' },
           porMorador: 1562.5,
+          corrigido: 37500000,
           participacao: 25.6,
           etapas: etapasDoGasto(54.9, 39.6),
         },
       ],
+      crescimentoReal: { de: 2023, ate: 2025, percentual: 13.6 },
       acoesNasEtapas: { ano: 2025, transporte: 3950000, merenda: 1650000 },
     },
     acoes: {
@@ -1078,8 +1085,20 @@ export const dinheiro = (trocas: Partial<EducacaoDinheiro> = {}): EducacaoDinhei
     porAluno: {
       fonte: { nome: 'SIOPE, Relatório de Indicadores', url: 'https://siope.exemplo/indicadores' },
       anos: [
-        { ano: 2022, infantil: 6600, fundamental: 18600, educacaoBasica: null },
-        { ano: 2025, infantil: 13181, fundamental: 21028, educacaoBasica: 19269 },
+        {
+          ano: 2022,
+          infantil: 6600,
+          fundamental: 18600,
+          educacaoBasica: null,
+          corrigido: { infantil: 7590, fundamental: 21390, educacaoBasica: null },
+        },
+        {
+          ano: 2025,
+          infantil: 13181,
+          fundamental: 21028,
+          educacaoBasica: 19269,
+          corrigido: { infantil: 13181, fundamental: 21028, educacaoBasica: 19269 },
+        },
       ],
     },
     ...trocas,
@@ -1089,6 +1108,7 @@ export const dinheiroIndisponivel = (): EducacaoDinheiro =>
   dinheiro({
     disponivel: false,
     faltando: ['siope_anexo8'],
+    inflacao: null,
     minimo: null,
     fundebRemuneracao: null,
     gasto: null,
@@ -1140,6 +1160,12 @@ export const resumo = (trocas: Partial<EducacaoResumo> = {}): EducacaoResumo =>
       igualAoAnexo8: true,
       porMorador: 1650.5,
       divisor: { ano: 2025, populacao: 24992, tipo: 'estimativa' },
+    },
+    porAluno: {
+      ano: 2025,
+      fonte: { nome: 'SIOPE, Relatório de Indicadores', url: 'https://siope.exemplo/indicadores' },
+      etapa: 'educacao_basica',
+      valor: 19269,
     },
     minimo: {
       ano: 2025,

@@ -3,7 +3,7 @@ import { educacaoDinheiroSchema, educacaoResumoSchema } from '@orleans-em-dados/
 import { pool } from '@orleans-em-dados/db';
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 import { popularCenario } from '../../../../packages/importadores/fixtures/src/banco-de-teste';
-import { BRASIL, ORLEANS, SC, valor } from '../../../../packages/importadores/fixtures/src/educacao';
+import { BRASIL, financa, ORLEANS, SC, valor } from '../../../../packages/importadores/fixtures/src/educacao';
 import { snapshot } from '../../../../packages/importadores/fixtures/src/snapshots';
 import { criarApp } from '../../src/app';
 
@@ -182,6 +182,50 @@ describe('GET /api/educacao/resumo', () => {
     expect(outros).toEqual([]);
   });
 
+  it('investimento por aluno é o da educação básica do último ano do SIOPE', async () => {
+    const { corpo } = await pedir();
+
+    expect(corpo.porAluno).toMatchObject({ ano: 2025, etapa: 'educacao_basica', valor: 19000 });
+    expect(corpo.porAluno?.fonte.nome).toContain('SIOPE');
+  });
+
+  it('sem a educação básica no último ano, o cartão usa o fundamental e diz a etapa', async () => {
+    await popularCenario({
+      educacao: {
+        ...comProfessores,
+        siope_indicadores_valores: [
+          snapshot(900404, [financa('siope_por_aluno_fundamental', '2023', '15000.00')], { ano: 2023 }),
+        ],
+      },
+    });
+
+    const { corpo } = await pedir();
+
+    expect(corpo.porAluno).toMatchObject({ ano: 2023, etapa: 'fundamental', valor: 15000 });
+  });
+
+  it('educação básica de 2023 não vale, mesmo com registro: o cartão cai para o fundamental', async () => {
+    await popularCenario({
+      educacao: {
+        ...comProfessores,
+        siope_indicadores_valores: [
+          snapshot(
+            900404,
+            [
+              financa('siope_por_aluno_fundamental', '2023', '15000.00'),
+              financa('siope_por_aluno_educacao_basica', '2023', '32000.00'),
+            ],
+            { ano: 2023 },
+          ),
+        ],
+      },
+    });
+
+    const { corpo } = await pedir();
+
+    expect(corpo.porAluno).toMatchObject({ ano: 2023, etapa: 'fundamental', valor: 15000 });
+  });
+
   it('sem coleta nenhuma, responde 200 e diz o que falta, sem número', async () => {
     await popularCenario({
       siconfiFuncoes: [],
@@ -197,6 +241,7 @@ describe('GET /api/educacao/resumo', () => {
         inep_turmas: null,
         inep_docentes_superior: null,
         siope_anexo8: null,
+        siope_indicadores_valores: null,
         inep_superior: null,
       },
     });
@@ -209,6 +254,7 @@ describe('GET /api/educacao/resumo', () => {
     expect(corpo.faltando).toContain('inep_rendimento');
     expect(corpo.matriculas).toBeNull();
     expect(corpo.gasto).toBeNull();
+    expect(corpo.porAluno).toBeNull();
   });
 });
 
