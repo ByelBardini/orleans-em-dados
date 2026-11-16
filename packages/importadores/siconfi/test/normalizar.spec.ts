@@ -73,8 +73,20 @@ describe('normalizarConta', () => {
     ['Inscrição de Restos a Pagar Processados', 'rp_processados'],
     ['Despesas Liquidadas', 'liquidado'],
     ['Despesas Pagas', 'pago'],
+    // Regressão: a DCA de 2015 e 2016 abrevia "Restos a Pagar" e o lote inteiro falhava (16/11/2026)
+    ['Inscrição de RP Não Processados', 'rp_nao_processados'],
+    ['Inscrição de RP Processados', 'rp_processados'],
   ])('coluna %s vira a etapa %s', (coluna, etapa) => {
     expect(normalizar('10 - Saúde', coluna).etapa).toBe(etapa);
+  });
+
+  // Regressão: até 2016 o total vem entre parênteses e caía em "conta em formato desconhecido" (16/11/2026)
+  it('`Despesas (Exceto Intraorçamentárias)`, de 2015 e 2016, também é a linha de total', () => {
+    expect(normalizar('Despesas (Exceto Intraorçamentárias)')).toMatchObject({
+      tipo: 'total',
+      funcaoCodigo: null,
+      subfuncaoCodigo: null,
+    });
   });
 
   it.each([['Despesas Intraorçamentárias'], ['100 - Outra'], ['10.30 - Curta']])(
