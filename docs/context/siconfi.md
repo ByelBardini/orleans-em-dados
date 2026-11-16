@@ -12,7 +12,7 @@ Importador da API do SICONFI para Orleans: despesa por função (DCA Anexo I-E, 
 ## Contrato
 
 - `https://apidatalake.tesouro.gov.br/ords/siconfi/tt/dca?an_exercicio=<ano>&no_anexo=DCA-Anexo I-E&id_ente=4211702`. Sem autenticação.
-- Formato de `conta`: `Despesas Exceto Intraorçamentárias` (`total`), `10 - Saúde` (`funcao`), `10.301 - Atenção Básica` (`subfuncao`), `FU12 - Demais Subfunções` (`subfuncao` da função 12, código `FU12`). Coluna e conta fora disso recusam o registro: o quadro já mudou, e formato novo não é adivinhado.
+- Formato de `conta`: `Despesas Exceto Intraorçamentárias` (`total`), `10 - Saúde` (`funcao`), `10.301 - Atenção Básica` (`subfuncao`), `FU12 - Demais Subfunções` (`subfuncao` da função 12, código `FU12`). Até 2016 o total vem como `Despesas (Exceto Intraorçamentárias)` e as colunas de restos a pagar como `Inscrição de RP Não Processados`/`Inscrição de RP Processados`; as duas grafias são aceitas. Coluna e conta fora disso recusam o registro: o quadro já mudou, e formato novo não é adivinhado.
 - `coluna` → `etapa`: `empenhado`, `liquidado`, `pago`, `rp_nao_processados`, `rp_processados`.
 
 ### RREO Anexo 14
