@@ -23,9 +23,13 @@ const ETAPAS: Record<string, string> = {
   'Despesas Pagas': 'pago',
   'Inscrição de Restos a Pagar Não Processados': 'rp_nao_processados',
   'Inscrição de Restos a Pagar Processados': 'rp_processados',
+  // Até 2016 a DCA abrevia "Restos a Pagar".
+  'Inscrição de RP Não Processados': 'rp_nao_processados',
+  'Inscrição de RP Processados': 'rp_processados',
 };
 
-const CONTA_DE_TOTAL = 'Despesas Exceto Intraorçamentárias';
+// Até 2016 o total vem entre parênteses.
+const CONTAS_DE_TOTAL = new Set(['Despesas Exceto Intraorçamentárias', 'Despesas (Exceto Intraorçamentárias)']);
 const FUNCAO = /^(\d{2}) - (.+)$/;
 const SUBFUNCAO = /^((\d{2})\.\d{3}) - (.+)$/;
 const DEMAIS_SUBFUNCOES = /^(FU(\d{2})) - (.+)$/;
@@ -37,7 +41,7 @@ export function registroDoItem(item: ItemDaDca): RegistroBruto {
 }
 
 function classificar(conta: string): Pick<LinhaDeFuncao, 'tipo' | 'funcaoCodigo' | 'subfuncaoCodigo' | 'conta'> {
-  if (conta === CONTA_DE_TOTAL) return { tipo: 'total', funcaoCodigo: null, subfuncaoCodigo: null, conta };
+  if (CONTAS_DE_TOTAL.has(conta)) return { tipo: 'total', funcaoCodigo: null, subfuncaoCodigo: null, conta };
   const funcao = FUNCAO.exec(conta);
   if (funcao) return { tipo: 'funcao', funcaoCodigo: funcao[1]!, subfuncaoCodigo: null, conta: funcao[2]! };
   const subfuncao = SUBFUNCAO.exec(conta) ?? DEMAIS_SUBFUNCOES.exec(conta);
