@@ -88,9 +88,12 @@ export async function conferenciaPorArea(ano: number) {
   const faltaReceita = faltandoEm(CONSULTAS_DA_RECEITA, coletas);
   const faltaDespesa = faltandoEm(CONSULTAS_DA_DESPESA, coletas);
   const indisponivel = (faltando: string[]): AreaIndisponivel => ({ disponivel: false, faltando });
+  // Só importa a quem não tem conferência: a coleta de exemplo mantém os números fictícios.
+  const exemplo = faltaReceita.length || faltaDespesa.length ? await temColetaDeExemplo(ano) : false;
   if (faltaReceita.length && faltaDespesa.length) {
     return {
       ano,
+      exemplo,
       parcial: null,
       limites: null,
       receita: indisponivel(faltaReceita),
@@ -128,6 +131,7 @@ export async function conferenciaPorArea(ano: number) {
   const daArea = (...areas: string[]) => discrepancias.filter((d) => areas.includes(d.area));
   return {
     ano,
+    exemplo,
     parcial,
     limites,
     receita: daReceita

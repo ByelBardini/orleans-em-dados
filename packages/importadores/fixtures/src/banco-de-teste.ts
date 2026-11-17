@@ -130,3 +130,13 @@ export async function popularCenario(cenario: Partial<Lotes> = {}): Promise<void
 }
 
 export const popularBancoDeTeste = () => popularCenario();
+
+/** Grava um lote a mais da Betha ou do TCE-SC: o cenário de outro exercício, depois do `popularCenario`. */
+export async function gravarLote(fonte: 'betha' | 'tcesc', chave: string, lote: Snapshot): Promise<void> {
+  await gravarSnapshot(
+    consulta(fonte === 'betha' ? betha : tcesc, chave),
+    lote,
+    'arquivo',
+    new RepositorioDeLotesPostgres(),
+  );
+}
