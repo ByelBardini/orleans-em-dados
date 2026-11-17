@@ -133,6 +133,27 @@ describe('normalizarEmpenho (57140)', () => {
   it.each([[null], ['abc'], [1.5]])('número %s é recusado, porque a coluna é obrigatória', (numeroEmpenho) => {
     expect(() => normalizarEmpenho(empenho({ numeroEmpenho }))).toThrow(String(numeroEmpenho));
   });
+
+  // Regressão: a 57140 de 2016 a 2022 traz parte dos números em texto ("4718", "58"), e o lote
+  // inteiro era rejeitado. Sondado em 16/11/2026; de 2025 em diante, só inteiros.
+  describe('número em texto, dos exercícios até 2022', () => {
+    it.each([
+      ['4718', 4718],
+      ['58', 58],
+      ['0058', 58],
+    ])('"%s" vira o inteiro %i', (numeroEmpenho, numero) => {
+      expect(normalizarEmpenho(empenho({ numeroEmpenho })).numero).toBe(numero);
+    });
+
+    it.each([['4718a'], ['40.5'], [''], [' 12'], ['-3']])(
+      'texto "%s" é recusado citando o id, porque não é só dígitos',
+      (numeroEmpenho) => {
+        expect(() => normalizarEmpenho(empenho({ numeroEmpenho }))).toThrow(
+          `Número de empenho inválido em 211:319:2001: ${numeroEmpenho}`,
+        );
+      },
+    );
+  });
 });
 
 const despesa = (campos: object = {}) => ({

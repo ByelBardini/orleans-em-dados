@@ -34,6 +34,8 @@ O id do registro é `<exercício>:<entidade>:<registro>`, com sufixo `_<mês>` n
 
 ## Armadilhas
 
+- Até 2022, a 57140 traz parte dos `numeroEmpenho` em texto (`"4718"`); de 2025 em diante, só inteiros. `normalizarEmpenho` aceita texto só de dígitos e recusa o resto (`" 12"`, `"-3"`, `"40.5"`).
+- Volumes fora do padrão, com o totalizador conciliado: a 57140 de 2017 traz 948 empenhos (os vizinhos, de 5 a 6 mil), e a 57153 de 2020, 221 registros (os vizinhos, de 1.300 a 2.200). Lacuna no portal ou mudança de forma de lançar; a conferência com o TCE-SC é que mostra.
 - Paginação sem ordenação é instável (em 2026 a 57153 devolveu 1.294 registros com 1.017 ids únicos): o cliente ordena por `id`, e mesmo assim o índice muda entre requisições no exercício corrente.
 - Até 2017 a receita usa o plano de contas antigo: rubrica de 15 dígitos começando em `4` (corrente) ou `2`, com deduções em `9`, e não os 14 dígitos do plano de 2018 em diante. O painel agrupa pelo prefixo do plano novo, então o detalhamento desses anos não tem classificação própria. Os valores vêm líquidos da dedução do FUNDEB: em 2015, R$ 60,83 mi, contra R$ 60,94 mi líquidos no SICONFI.
 - A despesa de 2015 na 57170 soma R$ 44,6 mi empenhados, contra R$ 60,8 mi no SICONFI: faltam órgãos no portal naquele ano.
