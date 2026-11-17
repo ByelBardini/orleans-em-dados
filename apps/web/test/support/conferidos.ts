@@ -6,6 +6,7 @@ import {
   empenhosResumoSchema,
   receitasSchema,
   type DespesasResumo,
+  type EmpenhosBusca,
   type EmpenhosResumo,
   type Municipio,
   type Receitas,
@@ -226,7 +227,10 @@ export const despesasDeExemplo = () =>
 
 const somas = { quantidade: 2, empenhado: 1000, empenhadoLiquido: 950, liquidado: 850.1, pago: 750.05 };
 
-export const resumoDeEmpenhos = (totais: Partial<EmpenhosResumo['totais']> = {}): EmpenhosResumo =>
+export const resumoDeEmpenhos = (
+  totais: Partial<EmpenhosResumo['totais']> = {},
+  maiores: EmpenhosResumo['maiores'] = [],
+): EmpenhosResumo =>
   empenhosResumoSchema.parse({
     meta: META,
     conferencia: { disponivel: true, parcial: false, dataCorte: null },
@@ -246,10 +250,12 @@ export const resumoDeEmpenhos = (totais: Partial<EmpenhosResumo['totais']> = {})
     porEntidade: [],
     porOrgao: [{ chave: 'ORGAO', nome: 'ORGAO (EXEMPLO)', ...somas }],
     porCredor: [],
-    maiores: [],
+    maiores,
   });
 
-export const buscaDeEmpenhos = () =>
+type ItemDaBusca = EmpenhosBusca['itens'][number];
+
+export const buscaDeEmpenhos = (item: Partial<ItemDaBusca> = {}) =>
   empenhosBuscaSchema.parse({
     total: 1,
     offset: 0,
@@ -268,6 +274,7 @@ export const buscaDeEmpenhos = () =>
         liquidado: 850.1,
         pago: 750.05,
         saldoAPagar: 100.05,
+        ...item,
       },
     ],
   });
@@ -293,14 +300,21 @@ export function api({
   despesa = despesas(),
   empenhos = resumoDeEmpenhos(),
   municipio = municipioPadrao(),
-}: { receita?: Receitas; despesa?: DespesasResumo; empenhos?: EmpenhosResumo; municipio?: Municipio | null } = {}) {
+  busca = buscaDeEmpenhos(),
+}: {
+  receita?: Receitas;
+  despesa?: DespesasResumo;
+  empenhos?: EmpenhosResumo;
+  municipio?: Municipio | null;
+  busca?: EmpenhosBusca;
+} = {}) {
   const fake = new FetchFake();
   if (municipio) fake.responder('/api/municipio', municipio);
   return fake
     .responder(`/api/receitas?${consulta}`, receita)
     .responder(`/api/despesas/resumo?${consulta}`, despesa)
     .responder(`/api/despesas/empenhos/resumo?${consulta}`, empenhos)
-    .responder(`/api/despesas/empenhos?ano=${ANO}&q=&entidade=&orgao=&situacao=&offset=0&limit=25`, buscaDeEmpenhos())
+    .responder(`/api/despesas/empenhos?ano=${ANO}&q=&entidade=&orgao=&situacao=&offset=0&limit=25`, busca)
     .instalar();
 }
 

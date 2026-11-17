@@ -1248,6 +1248,10 @@ td strong {
   overflow: hidden;
 }
 
+.omitido {
+  font-style: italic;
+}
+
 tr.aberta .historico {
   -webkit-line-clamp: unset;
   display: block;
