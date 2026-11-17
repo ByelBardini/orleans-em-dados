@@ -8,7 +8,7 @@ Valores do domínio e formas que atravessam o sistema, compartilhados por API, i
 - `exercicio(valor)`, `exercicioSchema` (`exercicio.ts`) — ano inteiro de quatro dígitos; aceita texto (`'2025'`).
 - `codigoRubrica(valor)`, `rubricaSchema` (`rubrica.ts`) — texto com dígitos e pontos, mantendo zeros à esquerda; `number` é recusado.
 - `populacaoDoAno(serie, ano)` (`populacao.ts`) — o número do próprio ano, senão o anterior mais próximo; nulo antes da série. A regra do divisor de API e tela.
-- `PRIMEIRO_EXERCICIO` (`fontes.ts`) — o primeiro exercício que a fonte publica, pela chave do catálogo: `tcesc_receitas` 2018, `tcesc_empenhos` 2023 (o Farol não tem anos anteriores). A carga não pede antes dele, e a tela diz que a fonte não publica.
+- `PRIMEIRO_EXERCICIO` (`fontes.ts`) — o primeiro exercício que a fonte publica, pela chave do catálogo: `tcesc_receitas` 2018, `tcesc_empenhos` 2023 (o Farol não tem anos anteriores). A carga não pede antes dele. `foraDaFonte(faltando, ano)` separa, do `faltando`, o que a fonte não publica naquele exercício do que só não foi coletado ainda.
 - `pareceOrganizacao(nome)`, `historicoOmitido({ credor, historico })`, `PADRAO_DE_ORGANIZACAO` (`credor.ts`) — o credor tem marca de empresa, órgão ou entidade (LTDA, S.A., S/A, ME, EPP, CNPJ no nome, prefeitura, associação…), sem acento e em maiúsculas; o resto pode ser pessoa física, e o histórico dele não sai da API. O regex não usa `\b`: o Postgres (`~`) lê igual, e `pareceOrganizacaoSql` da API usa o mesmo texto. Fica fora o que também é sobrenome ("SA" sem pontos, "CÂMARA"); na dúvida, é pessoa.
 
 ## Contrato

@@ -7,7 +7,7 @@ Compara as coletas publicadas das duas fontes num exercício. A regra mora em `p
 - `conferencia.bo.ts` — regra pura e os tipos de cada linha.
 - `conferencias-manuais.ts` — os casos conferidos à mão (`CONFERENCIAS_MANUAIS`), a validação e o cruzamento com as discrepâncias.
 - `conferencia.dao.ts` — as consultas, em SQL com o tipo da linha declarado (CTEs e `FULL JOIN` que reaproveitam `$1`/`$2`; a soma é do Postgres em `NUMERIC`).
-- `conferencia.service.ts` — `conferencia(ano, agora?)` (a comparação), `dadosConferidos(ano)` (só o que as fontes sustentam), `empenhosConferidos(ano)` (o conjunto casado, para a lista), `conferirFuncoes(ano)` e `conferirGastoEducacao(ano)`; exportado como `@orleans-em-dados/db/conferencias`, junto com `ACOES_DE_EDUCACAO` e os tipos `Discrepancia`, `EmpenhoConferido`, `TipoDiscrepancia`, `ConferenciaDoGastoEducacao` e `EtapaDoGasto`.
+- `conferencia.service.ts` — `conferencia(ano, agora?)` (a comparação), `conferenciaPorArea(ano)` (receita e despesa, cada uma com as próprias coletas), `dadosConferidos(ano)` (as duas juntas, exigindo as cinco coletas), `empenhosConferidos(ano)` (o conjunto casado, para a lista), `conferirFuncoes(ano)` e `conferirGastoEducacao(ano)`; exportado como `@orleans-em-dados/db/conferencias`, junto com `ACOES_DE_EDUCACAO` e os tipos `Discrepancia`, `EmpenhoConferido`, `TipoDiscrepancia`, `ConferenciaDoGastoEducacao` e `EtapaDoGasto`.
 
 ## Funções e utilitários
 
@@ -48,6 +48,7 @@ Compara as coletas publicadas das duas fontes num exercício. A regra mora em `p
 - Conta da receita, sempre: `conferido + diferencaBetha + aguardandoTce = totalBetha` e `conferido + diferencaTce = totalTce`. Os totais vêm de uma soma à parte no banco, não da separação.
 - Tabela mista: natureza com todos os meses iguais sai nas rubricas de 14 dígitos da Betha até o corte (`nivel: 14`, `tce: null`, porque o TCE só desce a 8); com um mês divergente, uma linha de 8 dígitos, sem rateio. Rubrica com soma zero não aparece.
 - Discrepância de receita: uma por natureza, com `meses` (onde as fontes diferem) e `mes` quando é um só. O mês em que o acumulado desencontra fica só na nota, que não o afirma como o da linha sobrando. Em `mes_diferente`, `diferenca` é zero: a conta usa `diferencaBetha` e `diferencaTce`.
+- Por área (`conferenciaPorArea`): a receita exige `CONSULTAS_DA_RECEITA` (`receitas`, `tcesc_receitas`); a despesa e os empenhos, `CONSULTAS_DA_DESPESA` (`empenhos`, `despesas`, `tcesc_receitas`, `tcesc_empenhos`), porque o exercício parcial e o corte vêm do último mês de receita do TCE-SC. Área sem as coletas dela é `{ disponivel: false, faltando }`, e a outra segue com os mesmos números de quando há as cinco. `discrepancias` é a lista das áreas disponíveis, ordenada e cruzada com as conferências manuais; cada área traz a sua parte (`receita`; `despesa` e `empenho`). `empenhosConferidos` usa a lista da despesa. O Farol tem receitas desde 2018 e empenhos desde 2023: de 2018 a 2022, só a receita é conferida.
 - Sem as cinco coletas reais, `dadosConferidos` devolve `{ ano, disponivel: false, faltando, exemplo }`, sem número; `exemplo` diz se há publicação fictícia no ano.
 - A Câmara não entra na separação da receita: não tem par na Betha.
 - Mês depois do último que o TCE-SC recebeu é pendência (`aguardando_tce`), fora da separação; linha sem mês na Betha é sempre comparada.
