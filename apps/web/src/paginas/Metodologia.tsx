@@ -1,4 +1,5 @@
 import { FRASE_DA_DIFERENCA } from '../conferido';
+import { CONTATO_DE_PRIVACIDADE } from '../privacidade';
 
 const REPO = 'https://github.com/ByelBardini/orleans-em-dados/blob/main/docs';
 const LEI_DO_PNE = 'https://www.planalto.gov.br/ccivil_03/_ato2023-2026/2026/lei/L15388.htm';
@@ -294,6 +295,37 @@ export default function Metodologia() {
             <li>
               A comparação com o TCE-SC está em <a href="#discrepancias">Discrepâncias</a>. O TCE recebe os dados com
               cerca de um mês de atraso: no ano em curso, o painel vai até o último mês recebido.
+            </li>
+          </ul>
+
+          <h2>Privacidade</h2>
+          <p>
+            O Orleans em Dados é um projeto independente, sem vínculo com a Prefeitura, a Betha ou o TCE-SC. Tudo o que
+            ele mostra já é público nas fontes citadas acima.
+          </p>
+          <ul>
+            <li>
+              A lista de empenhos traz o nome de quem recebe, porque a Lei Complementar 131/2009 manda o município
+              divulgar o beneficiário de cada pagamento. O site republica esses nomes para a mesma finalidade, o
+              acompanhamento do gasto público (LGPD, art. 7º, §§ 3º e 7º).
+            </li>
+            <li>
+              Como o portal não informa CPF nem CNPJ, o nome sem marca de empresa ou de órgão (LTDA, S.A., ME,
+              prefeitura, associação…) é tratado como de possível pessoa física: o site não mostra a descrição desses
+              empenhos, que pode trazer informação de saúde ou de assistência, e a busca não procura nela. A descrição
+              continua no portal oficial.
+            </li>
+            <li>A lista de empenhos e os arquivos para baixar ficam fora dos buscadores.</li>
+            <li>
+              De quem visita, o site não usa cookies nem rastreadores e não pede cadastro. A escolha do tema claro ou
+              escuro fica guardada só no seu navegador. As fontes do texto vêm do Google Fonts, então o navegador se
+              conecta aos servidores do Google ao abrir a página. A hospedagem registra dados técnicos de acesso, como o
+              endereço IP, como em qualquer site.
+            </li>
+            <li>
+              Pedidos de correção ou remoção de dado pessoal:{' '}
+              <a href={`mailto:${CONTATO_DE_PRIVACIDADE}`}>{CONTATO_DE_PRIVACIDADE}</a>. Valor ou nome que esteja
+              diferente na fonte só muda lá, com o município.
             </li>
           </ul>
         </article>

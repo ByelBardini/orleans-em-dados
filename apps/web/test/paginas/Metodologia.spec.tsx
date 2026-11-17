@@ -1,12 +1,23 @@
 import { render, screen, within } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import Metodologia from '../../src/paginas/Metodologia';
+import { CONTATO_DE_PRIVACIDADE } from '../../src/privacidade';
 import { TEXTO_PROIBIDO } from '../support/conferidos';
 
 const FRASE_PERMITIDA =
   'Diferença entre fontes pode decorrer de critério, abrangência ou atualização, e não indica, por si só, erro nem irregularidade.';
 
 afterEach(() => vi.unstubAllGlobals());
+
+// A página é plana: o trecho de uma seção vai do título até o próximo título do mesmo nível.
+const secaoDe = (nome: string) => {
+  const titulo = screen.getByRole('heading', { name: nome, level: 2 });
+  let texto = '';
+  for (let el = titulo.nextElementSibling; el && el.tagName !== 'H2'; el = el.nextElementSibling) {
+    texto += ` ${el.textContent}`;
+  }
+  return texto.replace(/\s+/g, ' ');
+};
 
 const termo = (nome: string) => screen.getByText(nome).closest('li') as HTMLElement;
 
@@ -177,16 +188,6 @@ describe('Metodologia: os símbolos dos selos', () => {
 });
 
 describe('Metodologia: educação', () => {
-  // A página é plana: o trecho de uma seção vai do título até o próximo título do mesmo nível.
-  const secaoDe = (nome: string) => {
-    const titulo = screen.getByRole('heading', { name: nome, level: 2 });
-    let texto = '';
-    for (let el = titulo.nextElementSibling; el && el.tagName !== 'H2'; el = el.nextElementSibling) {
-      texto += ` ${el.textContent}`;
-    }
-    return texto.replace(/\s+/g, ' ');
-  };
-
   it('rede diz quem mantém a escola, o que a pública soma e por que se compara rede com rede', () => {
     render(<Metodologia />);
 
@@ -312,5 +313,53 @@ describe('Metodologia: educação', () => {
     const { container } = render(<Metodologia />);
 
     expect(container.textContent).not.toMatch(/e-SIC|protocolo/i);
+  });
+});
+
+// O aviso de privacidade: quem mantém, por que o nome do credor aparece, o que não aparece,
+// o que o site guarda de quem visita e para onde vão os pedidos (LGPD, arts. 9º e 18).
+describe('Metodologia: privacidade', () => {
+  it('diz que o projeto é independente da Prefeitura, da Betha e do TCE-SC', () => {
+    render(<Metodologia />);
+
+    const secao = secaoDe('Privacidade');
+    expect(secao).toContain('projeto independente');
+    expect(secao).toContain('sem vínculo com a Prefeitura, a Betha ou o TCE-SC');
+  });
+
+  it('o nome do credor aparece porque a LC 131 manda divulgar quem recebe, para a mesma finalidade', () => {
+    render(<Metodologia />);
+
+    const secao = secaoDe('Privacidade');
+    expect(secao).toContain('Lei Complementar 131/2009');
+    expect(secao).toContain('LGPD, art. 7º, §§ 3º e 7º');
+  });
+
+  it('a descrição de possível pessoa física não aparece, e a lista fica fora dos buscadores', () => {
+    render(<Metodologia />);
+
+    const secao = secaoDe('Privacidade');
+    expect(secao).toContain('possível pessoa física');
+    expect(secao).toContain('não mostra a descrição');
+    expect(secao).toContain('fora dos buscadores');
+  });
+
+  it('de quem visita: sem cookies, o tema fica no navegador e as fontes vêm do Google', () => {
+    render(<Metodologia />);
+
+    const secao = secaoDe('Privacidade');
+    expect(secao).toContain('não usa cookies nem rastreadores');
+    expect(secao).toContain('fica guardada só no seu navegador');
+    expect(secao).toContain('Google Fonts');
+  });
+
+  it('pedido de correção ou remoção vai para o e-mail do projeto', () => {
+    render(<Metodologia />);
+
+    expect(screen.getByRole('link', { name: CONTATO_DE_PRIVACIDADE })).toHaveAttribute(
+      'href',
+      `mailto:${CONTATO_DE_PRIVACIDADE}`,
+    );
+    expect(secaoDe('Privacidade')).toContain('correção ou remoção');
   });
 });
