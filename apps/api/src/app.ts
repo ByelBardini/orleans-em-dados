@@ -14,6 +14,12 @@ import { rotasDeReceitas } from './modules/receitas/receitas.routes';
 export function criarApp(opcoes: FastifyServerOptions = {}): FastifyInstance {
   const app = Fastify({ exposeHeadRoutes: false, ...opcoes });
 
+  // A busca de empenhos traz nome de credor que pode ser pessoa física: buscador nenhum indexa a API.
+  // O painel continua indexável; o `robots.txt` do web também fecha `/api/`.
+  app.addHook('onSend', async (_request, reply) => {
+    reply.header('X-Robots-Tag', 'noindex, nofollow');
+  });
+
   app.setNotFoundHandler((_request, reply) => reply.code(404).send({ erro: 'Rota não encontrada' }));
   app.setErrorHandler((erro, request, reply) => {
     request.log.error(erro);
