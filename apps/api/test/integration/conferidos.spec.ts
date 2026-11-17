@@ -620,7 +620,8 @@ describe('ano sem a coleta do TCE-SC', () => {
       aguardandoTce: null,
       totalBetha: null,
       totalTce: null,
-      faltando: ['tcesc_receitas', 'tcesc_empenhos'],
+      // A receita só depende das receitas das duas fontes: os empenhos do TCE-SC não entram no que falta.
+      faltando: ['tcesc_receitas'],
     });
     expect(corpo.totais.arrecadadoNoMes).toBeNull();
     expect(corpo.totais.orcadoAtualizado).toBe(9400000);

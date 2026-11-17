@@ -18,6 +18,9 @@ export const despesasResumoSchema = z.strictObject({
     entidadesFora: z.number().nullable(),
     // Só quando não há conferência: as consultas que faltam publicar.
     faltando: z.array(z.string()).optional(),
+    // Das que faltam, as que a fonte não publica naquele exercício (o Farol: receitas desde 2018,
+    // empenhos desde 2023). Ausente quando não há nenhuma.
+    foraDaFonte: z.array(z.string()).optional(),
   }),
   totais: z.strictObject({
     orcadoAtualizado: valorSchema,

@@ -326,7 +326,7 @@ export function montarSecao({ ano, parcial, limites, discrepancias, funcoes }: P
   };
 }
 
-export function secaoIndisponivel(ano: number, faltando: string[]): Discrepancias {
+export function secaoIndisponivel(ano: number, faltando: string[], foraDaFonte: string[] = []): Discrepancias {
   const vazia = montarSecao({ ano, parcial: null, limites: null, discrepancias: [] });
-  return { ...vazia, disponivel: false, faltando };
+  return { ...vazia, disponivel: false, faltando, ...(foraDaFonte.length ? { foraDaFonte } : {}) };
 }
