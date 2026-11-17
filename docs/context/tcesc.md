@@ -29,6 +29,7 @@ Painéis municipais do Farol TCE-SC, publicados em Qlik Sense, lidos pela Qlik E
 
 ## Armadilhas
 
+- O Farol só tem receitas de 2018 em diante e empenhos de 2023 em diante: ano anterior falha com `Qlik: valor "<ano>" não existe no campo ano_competencia` (ou `Ano_Empenho`). `PRIMEIRO_EXERCICIO` guarda esses limites.
 - O Qlik devolve `double` (`170915184.25000012`): o valor é convertido para centavos, e o que não cai sobre um centavo inteiro é recusado. Nulo no Qlik é `qIsNull` ou `qText '-'` com `qNum 'NaN'`.
 - Selecionar por texto não restringe o recorte neste servidor: a seleção é pelo `qElemNumber` lido na sessão.
 - O TCE-SC recebe os dados do município com atraso: no exercício corrente, tem menos meses que a Betha (ver [conferencia.md](conferencia.md)).

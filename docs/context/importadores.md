@@ -4,11 +4,12 @@ Coleta das fontes externas, gravação e publicação. Um pacote por fonte em `p
 
 ## O contrato (`packages/importadores/nucleo`)
 
-Todo importador novo segue `Importador` e `ConsultaImportada` (`nucleo/src/importador.ts`): `id`, `fonte`, `agenda` opcional (cron, no fuso de São Paulo; sem ela, o importador não entra nas filas), `anosDaRodada(agora)` e `consultas`, cada uma com `id`, `chave`, `tabela`, `coletar` (só I/O), `normalizar` (pura, lança se o registro não servir) e `validar`. Gravar e publicar são do executor. Fonte nova entra em `apps/worker/src/registro.ts`.
+Todo importador novo segue `Importador` e `ConsultaImportada` (`nucleo/src/importador.ts`): `id`, `fonte`, `agenda` opcional (cron, no fuso de São Paulo; sem ela, o importador não entra nas filas), `anosDaRodada(agora)`, `anosDaCarga(agora, janela)` opcional (o histórico por consulta: `{ chave, anos }[]`; sem ele, nada a completar) e `consultas`, cada uma com `id`, `chave`, `tabela`, `coletar` (só I/O), `normalizar` (pura, lança se o registro não servir) e `validar`. Gravar e publicar são do executor. Fonte nova entra em `apps/worker/src/registro.ts`.
 
 - `executar(importador, ano, { repositorio, relogio, aoMontarLote? }, chaves?)` (`executor.service.ts`) — coletar → normalizar → validar → gravar → publicar, consulta por consulta; falha numa não impede a seguinte. Devolve `ResultadoDaExecucao`, sem relançar.
 - `RepositorioDeLotesPostgres` (`lotes.dao.ts`) — implementa a porta `RepositorioDeLotes`: `gravar` (uma transação, linhas em blocos de 1.000), `publicar` (troca o ponteiro), `reconfirmar`, `abrirExecucao`, `fecharExecucao`.
 - `gravarSnapshot(consulta, snapshot, origem, repositorio)` (`snapshot.ts`) — grava um `{ meta, registros }` já coletado, sem passar pela fonte: os exemplos e os arquivos salvos com `--json`.
+- `janelaDeAnos(agora, janela, { primeiro?, ultimo? })` (`janela.ts`) — do corrente − `janela` até `ultimo` (padrão, o corrente), crescente, sem começar antes de `primeiro`. `anosDeHistorico(valor)` lê `ANOS_DE_HISTORICO` (inteiro ≥ 0; vazio ou inválido vira 10).
 - `ocultarSegredos(texto)` — tira `Bearer` e `access_token` da mensagem de erro antes de gravar.
 
 O núcleo já confere contagem e ids únicos; `validar` cuida do que é da fonte (totalizador, total do motor).
@@ -23,6 +24,7 @@ Status da execução, em `execucoes`: `em_andamento`, `sucesso`, `rejeitada`, `f
 
 - `pnpm worker` — sobe o agendador. Cada importador é uma fila do pg-boss (`importador-<id>`), política `singleton` (uma rodada ativa por importador), com `schedule` no fuso `America/Sao_Paulo` e até 3 repetições com espera crescente a partir de 10 minutos.
 - `pnpm importar <betha|tcesc|ibge|siconfi> --ano 2025 [--consulta <chave>] [--json]` — roda à mão, sem fila. Com `--json`, salva o snapshot em `data/<fonte>/<consulta>-<ano>.json` (`.rejeitado.json` quando reprovado).
+- Agendas: Betha 3h, TCE-SC 4h, IBGE 5h e SICONFI 6h, todo dia. Histórico (`anosDaCarga`): Betha, as três consultas na janela inteira; TCE-SC a partir de `PRIMEIRO_EXERCICIO` ([contracts.md](contracts.md)), receitas 2018 e empenhos 2023; SICONFI até o último exercício com DCA (a mesma regra de `anosDaRodada`); IBGE sem histórico, porque o lote traz a série.
 - INEP, SIOPE e MEC não têm agenda: `coletar` recusa, `pnpm extrair educacao` gera os snapshots e `pnpm importar --arquivo` os carrega ([educacao.md](educacao.md)).
 - `pnpm importar --arquivo <snapshot.json>`, `pnpm db:exemplos` — grava snapshots já existentes; exemplos fictícios só são publicados se não houver dado real para o ano.
 - `pnpm conferir --ano 2025 [--json]` — relatório da conferência no console.

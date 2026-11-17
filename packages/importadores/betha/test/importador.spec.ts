@@ -24,6 +24,17 @@ const consulta = (chave: string, cliente: ClienteFake) => {
 };
 
 describe('criarImportadorBetha', () => {
+  it('o histórico pede as três consultas na janela inteira, até o exercício corrente', () => {
+    const { anosDaCarga } = criarImportadorBetha({ cliente: new ClienteFake([]) });
+    const anos = [2023, 2024, 2025, 2026];
+
+    expect(anosDaCarga?.(new Date('2026-11-16T12:00:00.000Z'), 3)).toEqual([
+      { chave: 'receitas', anos },
+      { chave: 'empenhos', anos },
+      { chave: 'despesas', anos },
+    ]);
+  });
+
   it('declara as três consultas da Betha', () => {
     const { id, fonte, consultas } = criarImportadorBetha({ cliente: new ClienteFake([]) });
 

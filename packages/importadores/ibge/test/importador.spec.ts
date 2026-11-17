@@ -35,6 +35,13 @@ describe('declaração do importador', () => {
     expect(importador.anosDaRodada(new Date('2026-11-02T12:00:00.000Z'))).toEqual([2026]);
   });
 
+  it('a rodada é diária, às 5h, e não há histórico a completar: o lote já traz a série', () => {
+    const importador = criarImportadorIbge({ cliente: new ClienteIbgeFake({}) });
+
+    expect(importador.agenda).toBe('0 5 * * *');
+    expect(importador.anosDaCarga).toBeUndefined();
+  });
+
   it('as consultas usam os ids e as chaves do catálogo', () => {
     const importador = criarImportadorIbge({ cliente: new ClienteIbgeFake({}) });
 
