@@ -55,8 +55,7 @@ export function normalizarReceita(r: RegistroBruto) {
 }
 
 // Até 2022, a 57140 traz parte dos números em texto ("4718"): só dígitos vira inteiro, o resto é recusado.
-const numeroDoEmpenho = (bruto: unknown) =>
-  typeof bruto === 'string' && /^\d+$/.test(bruto) ? Number(bruto) : bruto;
+const numeroDoEmpenho = (bruto: unknown) => (typeof bruto === 'string' && /^\d+$/.test(bruto) ? Number(bruto) : bruto);
 
 export function normalizarEmpenho(r: RegistroBruto) {
   const numero = numeroDoEmpenho(r.numeroEmpenho);
