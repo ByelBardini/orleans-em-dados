@@ -44,6 +44,20 @@ describe('declaração do importador', () => {
     expect(importadorCom().anosDaRodada(new Date(agora))).toEqual(anos);
   });
 
+  it.each([
+    ['2026-11-16T12:00:00.000Z', [2023, 2024, 2025]],
+    ['2026-03-10T12:00:00.000Z', [2023, 2024]],
+  ])('histórico em %s vai até o último exercício com DCA: %j', (agora, anos) => {
+    expect(importadorCom().anosDaCarga?.(new Date(agora), 3)).toEqual([
+      { chave: 'siconfi_funcoes', anos },
+      { chave: 'siconfi_indices', anos },
+    ]);
+  });
+
+  it('a rodada é diária, às 6h', () => {
+    expect(importadorCom().agenda).toBe('0 6 * * *');
+  });
+
   it('a consulta da DCA não pede o RREO', async () => {
     const cliente = new ClienteSiconfiFake(anexoCoerente());
 

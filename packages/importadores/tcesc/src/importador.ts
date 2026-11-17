@@ -1,15 +1,16 @@
 // O importador dos painéis municipais do Farol TCE-SC (Qlik Engine API): receitas e
 // empenhos, conferidos contra o total calculado pelo próprio motor. A coleta confere
 // também que só os dois filtros pedidos estão ativos e que o app não recarregou no meio.
-import { centavos, deCentavos, dinheiro } from '@orleans-em-dados/contracts';
+import { centavos, deCentavos, dinheiro, PRIMEIRO_EXERCICIO } from '@orleans-em-dados/contracts';
 import { tabelas } from '@orleans-em-dados/db';
-import type {
-  Coleta,
-  ConsultaImportada,
-  Importador,
-  ItemDeConferencia,
-  RegistroBruto,
-  Validacao,
+import {
+  janelaDeAnos,
+  type Coleta,
+  type ConsultaImportada,
+  type Importador,
+  type ItemDeConferencia,
+  type RegistroBruto,
+  type Validacao,
 } from '@orleans-em-dados/importador-nucleo';
 import { centavosDoMotor, textoDaCelula, type CelulaQlik } from './celulas';
 import { CUBO_EMPENHOS, CUBO_RECEITAS, TCESC, type ConsultaDoCubo } from './config';
@@ -141,6 +142,12 @@ export function criarImportadorTcesc({
     agenda: '0 4 * * *',
     // O exercício anterior ainda aceita retificação.
     anosDaRodada: (agora) => [agora.getUTCFullYear(), agora.getUTCFullYear() - 1],
+    // O catálogo chama as consultas de `tcesc_<chave>`; antes do primeiro exercício, o Farol não tem o ano.
+    anosDaCarga: (agora, janela) =>
+      ['receitas', 'empenhos'].map((chave) => ({
+        chave,
+        anos: janelaDeAnos(agora, janela, { primeiro: PRIMEIRO_EXERCICIO[`tcesc_${chave}`] }),
+      })),
     consultas: [
       consultaDoCubo(
         CUBO_RECEITAS,

@@ -55,6 +55,11 @@ export type Importador = {
   agenda?: string;
   /** Exercícios que a rodada agendada atualiza. */
   anosDaRodada(agora: Date): number[];
+  /**
+   * O histórico que a carga completa, por consulta: `janela` exercícios encerrados mais o corrente, cortados
+   * pelo que a fonte publica (`janelaDeAnos`). Sem ele, não há histórico a completar (o IBGE traz a série).
+   */
+  anosDaCarga?(agora: Date, janela: number): { chave: string; anos: number[] }[];
   // Cada consulta tem a própria Linha; o executor só as repassa da normalizar para a tabela.
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   consultas: ConsultaImportada<any>[];
