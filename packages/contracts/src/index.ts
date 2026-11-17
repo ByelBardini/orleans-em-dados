@@ -5,3 +5,4 @@ export * from './populacao';
 export * from './api';
 export * from './indicadores/atraso';
 export * from './indicadores/registro';
+export * from './credor';
