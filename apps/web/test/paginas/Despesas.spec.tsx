@@ -3,6 +3,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import Despesas from '../../src/paginas/Despesas';
 import {
   api,
+  buscaDeEmpenhos,
   contaNaTela,
   despesas,
   despesasDeExemplo,
@@ -214,6 +215,34 @@ describe('Despesas com o conferido', () => {
       const tabela = await listaDeEmpenhos();
 
       expect(within(tabela).getByText('Agua Exemplo LTDA')).toBeInTheDocument();
+    });
+  });
+
+  // A API não manda o histórico de quem pode ser pessoa física (LGPD, art. 7º, §§ 3º e 7º).
+  describe('credor que pode ser pessoa física', () => {
+    const OMITIDO = 'Descrição não exibida: o credor pode ser pessoa física';
+    const pessoa = { credor: 'JOAO DA SILVA', historico: null };
+
+    it('a lista diz que a descrição não é exibida', async () => {
+      await abrir({ busca: buscaDeEmpenhos(pessoa) });
+
+      const linha = (await screen.findByText('Joao da Silva', { selector: 'strong' })).closest('tr') as HTMLElement;
+      expect(linha).toHaveTextContent(OMITIDO);
+    });
+
+    it('os maiores do ano dizem o mesmo', async () => {
+      const { liquidado: _l, saldoAPagar: _s, ...maior } = buscaDeEmpenhos(pessoa).itens[0]!;
+      await abrir({ empenhos: resumoDeEmpenhos({}, [maior]) });
+
+      const destaque = screen.getByRole('heading', { name: 'Os maiores empenhos do ano' }).closest('section');
+      expect(destaque).toHaveTextContent(OMITIDO);
+    });
+
+    it('organização sem histórico na fonte não ganha o aviso', async () => {
+      await abrir({ busca: buscaDeEmpenhos({ historico: null }) });
+
+      await screen.findByText('Agua Exemplo LTDA', { selector: 'strong' });
+      expect(document.body).not.toHaveTextContent(OMITIDO);
     });
   });
 

@@ -2,6 +2,7 @@ import {
   despesasResumoSchema,
   empenhosBuscaSchema,
   empenhosResumoSchema,
+  historicoOmitido,
   type DespesasResumo,
   type EmpenhosBusca,
   type EmpenhosResumo,
@@ -40,6 +41,17 @@ const situacaoDe = (e: EmpenhosBusca['itens'][number]) => {
   if (N(e.saldoAPagar) > 0) return SITUACAO.apagar;
   return e.liquidado > 0 && e.saldoAPagar === 0 ? SITUACAO.pago : null;
 };
+
+const textoDoHistorico = (historico: string | null) =>
+  historico?.toLocaleLowerCase('pt-BR').replace(/^./, (c) => c.toUpperCase());
+
+// A API não manda o histórico de quem pode ser pessoa física (LGPD): a tela diz isso, em vez de vazio.
+const HISTORICO_OMITIDO = 'Descrição não exibida: o credor pode ser pessoa física';
+
+function Historico({ e, className }: { e: { credor: string | null; historico: string | null }; className?: string }) {
+  if (historicoOmitido(e)) return <span className={`${className ?? ''} omitido`.trim()}>{HISTORICO_OMITIDO}</span>;
+  return <span className={className}>{textoDoHistorico(e.historico)}</span>;
+}
 
 export default function Despesas({ ano, entidade, filtros }: PropsDaPagina) {
   const resumo = useApi(
@@ -397,7 +409,7 @@ function Conteudo({ ano, entidade, filtros, d, o }: PropsDaPagina & { d: Empenho
                   {nomeProprio(e.orgao)}
                 </span>
                 <p title={e.historico ?? undefined}>
-                  {e.historico?.toLocaleLowerCase('pt-BR').replace(/^./, (c) => c.toUpperCase())}
+                  <Historico e={e} />
                 </p>
               </article>
             ))}
@@ -508,9 +520,7 @@ function Conteudo({ ano, entidade, filtros, d, o }: PropsDaPagina & { d: Empenho
                         <td style={{ maxWidth: 440 }}>
                           <strong>{nomeProprio(e.credor)}</strong>
                           <br />
-                          <span className="historico">
-                            {e.historico?.toLocaleLowerCase('pt-BR').replace(/^./, (c) => c.toUpperCase())}
-                          </span>
+                          <Historico e={e} className="historico" />
                           {aberta === e.id && e.liquidado !== null && (
                             <span className="sub" style={{ display: 'block', marginTop: 6 }}>
                               Saldo a pagar {moeda(e.saldoAPagar)}
