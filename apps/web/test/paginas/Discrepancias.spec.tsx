@@ -6,7 +6,9 @@ import Discrepancias from '../../src/paginas/Discrepancias';
 import {
   contaNaTela,
   despesas,
+  despesasForaDaFonte,
   despesasParciais,
+  empenhosForaDaFonte,
   PROPS,
   receitas,
   receitasParciais,
@@ -970,5 +972,56 @@ describe('Discrepancias: despesa por função', () => {
     await abrir({ secao: discrepancias({ grupos: [FUNCAO] }) });
 
     expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('em que as fontes não coincidem');
+  });
+});
+
+describe('Discrepâncias com só a receita conferida', () => {
+  const secao = () =>
+    discrepancias({
+      grupos: [FORA_DO_ACUMULADO],
+      semConferencia: [{ area: 'despesa', faltando: ['tcesc_empenhos'], foraDaFonte: ['tcesc_empenhos'] }],
+    });
+
+  it('diz que a despesa não entra, porque o TCE-SC não publica os empenhos do ano', async () => {
+    await abrir({ secao: secao(), despesa: despesasForaDaFonte(), empenho: empenhosForaDaFonte() });
+
+    expect(document.body).toHaveTextContent(
+      'A despesa de 2025 não entra nesta seção: o TCE-SC não publica os empenhos de 2025.',
+    );
+  });
+
+  it('os casos da receita continuam', async () => {
+    await abrir({ secao: secao(), despesa: despesasForaDaFonte(), empenho: empenhosForaDaFonte() });
+
+    expect(grupoNaTela(FORA_DO_ACUMULADO.rotulo)).toBeInTheDocument();
+  });
+
+  // Visto no navegador em 16/11/2026: a seção pedia /api/conferencias, que exige as cinco coletas, e mostrava erro.
+  it('"Os totais, para conferir" não aparece, porque a comparação direta pede as duas áreas', async () => {
+    await abrir({ secao: secao(), despesa: despesasForaDaFonte(), empenho: empenhosForaDaFonte() });
+
+    expect(screen.queryByRole('heading', { name: 'Os totais, para conferir' })).not.toBeInTheDocument();
+  });
+
+  it('no exercício parcial, o aviso de atraso fala só das receitas, sem "empenhos até —"', async () => {
+    const parcial = discrepancias({
+      parcial: true,
+      limites: { mesReceita: 9, dataEmpenho: null },
+      semConferencia: [{ area: 'despesa', faltando: ['tcesc_empenhos'], foraDaFonte: [] }],
+    });
+    await abrir({ secao: parcial, despesa: despesasForaDaFonte(), empenho: empenhosForaDaFonte() });
+
+    expect(document.body).toHaveTextContent('por enquanto, tem receitas até setembro.');
+    expect(document.body).not.toHaveTextContent('empenhos até');
+  });
+
+  it('a conta do ano diz o motivo na despesa e nos empenhos, sem conta zerada nem o texto do ano em curso', async () => {
+    await abrir({ secao: secao(), despesa: despesasForaDaFonte(), empenho: empenhosForaDaFonte() });
+
+    const contas = await screen.findByRole('region', { name: 'A conta do ano' });
+    await within(contas).findByText('Receita arrecadada');
+    expect(within(contas).getAllByText('O TCE-SC não publica os empenhos de 2025.')).toHaveLength(2);
+    expect(contas).not.toHaveTextContent('No ano em curso');
+    expect(within(contas).queryByRole('group', { name: 'A conta dos empenhos' })).not.toBeInTheDocument();
   });
 });

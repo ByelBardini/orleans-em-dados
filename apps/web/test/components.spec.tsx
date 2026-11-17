@@ -517,3 +517,23 @@ describe('Piramide', () => {
     expect(faixas).toEqual(['80 ou mais', '0 a 4']);
   });
 });
+
+// Sem a segunda série (os empenhos de um ano que o TCE-SC não publica), nulo é falta de dado: nada de "R$ 0 mi".
+describe('BarrasMensais com a segunda série nula', () => {
+  const meses = [{ rotulo: 'jan', nome: 'janeiro', a: 2_000_000, b: null }];
+
+  it('não desenha a barra da segunda série', () => {
+    const { container } = render(<BarrasMensais meses={meses} series={['Arrecadado', 'Empenhado']} descricao="x" />);
+
+    expect(container.querySelectorAll('.barras-mes-grupo .vermelho')).toHaveLength(0);
+  });
+
+  it('a dica do mês não traz a linha da segunda série', async () => {
+    const { container } = render(<BarrasMensais meses={meses} series={['Arrecadado', 'Empenhado']} descricao="x" />);
+
+    await userEvent.hover(container.querySelector('.barras-mes-grupo') as HTMLElement);
+
+    expect(container.querySelector('.dica')).toHaveTextContent('Arrecadado: R$ 2,0 mi');
+    expect(container.querySelector('.dica')).not.toHaveTextContent('Empenhado');
+  });
+});

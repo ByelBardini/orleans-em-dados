@@ -9,6 +9,7 @@ import {
   PROPS,
   receitas,
   receitasDeExemplo,
+  receitasForaDaFonte,
   receitasParciais,
   receitasSemConferencia,
   TEXTO_PROIBIDO,
@@ -309,5 +310,14 @@ describe('Receitas com o conferido', () => {
     await screen.findByRole('heading', { level: 1 });
 
     expect(container.textContent).not.toMatch(TEXTO_PROIBIDO);
+  });
+});
+
+describe('Receitas de um exercício que o TCE-SC não publica', () => {
+  it('diz que a fonte não publica, sem número nenhum', async () => {
+    const container = await abrir(receitasForaDaFonte());
+
+    expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('O TCE-SC não publica as receitas de 2025.');
+    expect(container.querySelector('.numero-valor')).toBeNull();
   });
 });

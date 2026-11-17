@@ -105,9 +105,9 @@ export const receitas = (campos: Partial<Receitas> = {}): Receitas =>
   });
 
 export const receitasParciais = () => receitas({ conferencia: CONTA_PARCIAL });
-export const receitasSemConferencia = () =>
+export const receitasSemConferencia = (conferencia: Partial<Receitas['conferencia']> = SEM_CONFERENCIA) =>
   receitas({
-    conferencia: SEM_CONFERENCIA,
+    conferencia: { ...SEM_CONFERENCIA, ...conferencia },
     totais: {
       quantidade: 0,
       orcadoAtualizado: 2000000,
@@ -120,6 +120,9 @@ export const receitasSemConferencia = () =>
     porOrigem: [],
     naturezas: [],
   });
+// O Farol não publica receitas antes de 2018.
+export const receitasForaDaFonte = () =>
+  receitasSemConferencia({ faltando: ['tcesc_receitas'], foraDaFonte: ['tcesc_receitas'] });
 export const receitasDeExemplo = () =>
   receitas({ meta: META_DE_EXEMPLO, conferencia: { ...SEM_CONFERENCIA, faltando: ['tcesc_receitas'] } });
 
@@ -210,13 +213,17 @@ const CONFERENCIA_VAZIA = {
   faltando: ['tcesc_receitas', 'tcesc_empenhos'],
 };
 
-export const despesasSemConferencia = () =>
+export const despesasSemConferencia = (conferencia: Partial<DespesasResumo['conferencia']> = CONFERENCIA_VAZIA) =>
   despesas({
-    conferencia: CONFERENCIA_VAZIA,
+    conferencia: { ...CONFERENCIA_VAZIA, ...conferencia },
     totais: { orcadoAtualizado: 14000000, empenhado: null, liquidado: null, pago: null },
     porEntidade: [],
     camara: null,
   });
+
+// O Farol não publica empenhos antes de 2023: a receita do ano é conferida, a despesa não.
+export const despesasForaDaFonte = () =>
+  despesasSemConferencia({ faltando: ['tcesc_empenhos'], foraDaFonte: ['tcesc_empenhos'] });
 
 export const despesasDeExemplo = () =>
   despesas({
@@ -254,6 +261,22 @@ export const resumoDeEmpenhos = (
   });
 
 type ItemDaBusca = EmpenhosBusca['itens'][number];
+
+export const empenhosForaDaFonte = (): EmpenhosResumo => {
+  const vazio = { quantidade: 0, empenhado: 0, empenhadoLiquido: 0, liquidado: 0, pago: 0 };
+  return empenhosResumoSchema.parse({
+    ...resumoDeEmpenhos({ ...vazio, credores: 0, saldoAPagar: 0, comSaldoAPagar: 0 }),
+    conferencia: {
+      disponivel: false,
+      parcial: null,
+      dataCorte: null,
+      faltando: ['tcesc_empenhos'],
+      foraDaFonte: ['tcesc_empenhos'],
+    },
+    porMes: [],
+    porOrgao: [],
+  });
+};
 
 export const buscaDeEmpenhos = (item: Partial<ItemDaBusca> = {}) =>
   empenhosBuscaSchema.parse({

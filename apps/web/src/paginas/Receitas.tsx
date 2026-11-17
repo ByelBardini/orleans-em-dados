@@ -39,7 +39,7 @@ export default function Receitas({ ano, entidade, filtros }: PropsDaPagina) {
       {semConferencia && (
         <>
           <Filtros {...filtros} />
-          <SemConferencia ano={ano} faltando={dados.conferencia.faltando} />
+          <SemConferencia ano={ano} faltando={dados.conferencia.faltando} foraDaFonte={dados.conferencia.foraDaFonte} />
         </>
       )}
       {dados && !semConferencia && <Conteudo ano={ano} entidade={entidade} filtros={filtros} dados={dados} />}
