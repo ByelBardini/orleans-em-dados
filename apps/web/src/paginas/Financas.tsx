@@ -29,6 +29,7 @@ import {
   LINK_DISCREPANCIAS,
   SemConferencia,
 } from '../conferido';
+import { motivoSemConferencia } from '../semConferencia';
 import { AvisoDeAtraso, Selo } from '../selo';
 import { SELO_EXEMPLO, SELO_FONTE_UNICA, seloConferidoComTce, seloDaDespesa } from '../selos';
 import { GLOSSARIO, ORIGEM_CIDADAO, ORIGENS_DE_FORA, sujeito } from '../referencias';
@@ -55,7 +56,7 @@ export default function Financas({ ano, entidade, filtros }: PropsDaPagina) {
         erro={rec.erro || emp.erro || desp.erro}
       />
       {r && d && o && !r.meta.exemplo && !r.conferencia.disponivel && (
-        <SemConferencia ano={ano} faltando={r.conferencia.faltando} />
+        <SemConferencia ano={ano} faltando={r.conferencia.faltando} foraDaFonte={r.conferencia.foraDaFonte} />
       )}
       {r && d && o && (r.meta.exemplo || r.conferencia.disponivel) && (
         <Conteudo ano={ano} entidade={entidade} r={r} d={d} o={o} pop={pop} entidades={filtros.entidades} />
@@ -94,6 +95,9 @@ function Conteudo({
   const original = N(d.totais.empenhado);
   const camara = o.camara;
   const exemplo = r.meta.exemplo;
+  // De 2018 a 2022 o TCE-SC tem as receitas e não os empenhos: a receita é conferida, a despesa não tem número.
+  const semDespesa =
+    !exemplo && !o.conferencia.disponivel ? motivoSemConferencia(ano, o.conferencia.foraDaFonte) : null;
   const { parcial, limites } = r.conferencia;
   const mesReceita = limites?.mesReceita;
   const dataCorte = o.conferencia.limites?.dataEmpenho;
@@ -117,12 +121,12 @@ function Conteudo({
     rotulo,
     nome: MESES_LONGOS[i] as string,
     a: N(r.porMes.find((m) => m.chave === i + 1)?.arrecadadoNoMes ?? 0),
-    b: N(d.porMes.find((m) => m.chave === i + 1)?.empenhado ?? 0),
+    b: semDespesa ? null : N(d.porMes.find((m) => m.chave === i + 1)?.empenhado ?? 0),
   }));
-  const pico = meses.reduce((m, x, i) => (x.b > (meses[m]?.b ?? 0) ? i : m), 0);
+  const pico = meses.reduce((m, x, i) => ((x.b ?? 0) > (meses[m]?.b ?? 0) ? i : m), 0);
   const noPico = meses[pico] as (typeof meses)[number];
-  const anotacao = noPico.b > 0 && {
-    texto: `${nomeProprio(noPico.nome)}: R$ ${milhoes(noPico.b)} mi empenhados, o maior valor do ano.${
+  const anotacao = (noPico.b ?? 0) > 0 && {
+    texto: `${nomeProprio(noPico.nome)}: R$ ${milhoes(noPico.b ?? 0)} mi empenhados, o maior valor do ano.${
       pico === 0 ? ' Contratos do ano inteiro costumam ser empenhados logo no início.' : ''
     }`,
     posicao: pico < 6 ? { left: `${((pico + 1) / 12) * 100}%`, top: 4 } : { left: '4%', top: 4 },
@@ -150,6 +154,8 @@ function Conteudo({
               {parcial ? ` e, até ${diaEMes(dataCorte)}, empenhou ` : ' e empenhou '}
               <em>{porExtenso(empenhado)}</em> em despesas.
             </>
+          ) : semDespesa ? (
+            `. ${semDespesa}`
           ) : (
             '. A despesa deste recorte está fora da soma conferida.'
           )}
@@ -246,9 +252,11 @@ function Conteudo({
           <Numero
             rotulo="Empenhado"
             detalhe={
-              <>
-                Fora da soma: as fontes não fecham neste recorte. <a href={LINK_DISCREPANCIAS}>Ver discrepâncias</a>
-              </>
+              semDespesa ?? (
+                <>
+                  Fora da soma: as fontes não fecham neste recorte. <a href={LINK_DISCREPANCIAS}>Ver discrepâncias</a>
+                </>
+              )
             }
           >
             —
@@ -287,17 +295,19 @@ function Conteudo({
                 <span className="amostra" aria-hidden="true" />
                 Arrecadado
               </span>
-              <span>
-                <span className="amostra vermelho" aria-hidden="true" />
-                Empenhado
-              </span>
-              <span>R$ milhões · empenhos pelo valor original</span>
+              {!semDespesa && (
+                <span>
+                  <span className="amostra vermelho" aria-hidden="true" />
+                  Empenhado
+                </span>
+              )}
+              <span>R$ milhões{semDespesa ? '' : ' · empenhos pelo valor original'}</span>
             </span>
           </div>
           <BarrasMensais
             meses={meses}
             series={['Arrecadado', 'Empenhado']}
-            descricao={`Barras mensais de arrecadado e empenhado em ${ano}`}
+            descricao={`Barras mensais de arrecadado${semDespesa ? '' : ' e empenhado'} em ${ano}`}
             anotacao={anotacao || null}
           />
         </section>
@@ -324,42 +334,45 @@ function Conteudo({
         </section>
       </div>
 
-      <section className="secao dupla">
-        <div className="secao-cab">
-          <h2 className="secao-titulo">Para onde vai cada R$ 100</h2>
-          <span className="legenda-secao">
-            Valor original dos empenhos por órgão{pop ? ' · e quanto isso dá por morador no ano' : ''}
-          </span>
-        </div>
-        <ul className="cada-100">
-          {cada100.map((o) => (
-            <li key={o.nome}>
-              <span className={`serif${o.outro ? ' apagado' : ''}`}>
-                <span style={{ fontSize: '0.55em' }}>R$ </span>
-                {decimal((o.valor / original) * 100)}
-              </span>
-              <span>{o.nome}</span>
-              <div className="trilho" aria-hidden="true">
-                <span
-                  className={o.outro ? '' : 'vermelho'}
-                  style={{
-                    width: `${(o.valor / maiorCada100) * 100}%`,
-                    background: o.outro ? 'var(--pontilhado)' : undefined,
-                  }}
-                />
-              </div>
-              <span className="lp-extra">
-                {emMilhoes(o.valor)}
-                {pop && ` · R$ ${numero(Math.round(o.valor / pop.pessoas))} por morador`}
-              </span>
-            </li>
-          ))}
-        </ul>
-      </section>
+      {!semDespesa && (
+        <section className="secao dupla">
+          <div className="secao-cab">
+            <h2 className="secao-titulo">Para onde vai cada R$ 100</h2>
+            <span className="legenda-secao">
+              Valor original dos empenhos por órgão{pop ? ' · e quanto isso dá por morador no ano' : ''}
+            </span>
+          </div>
+          <ul className="cada-100">
+            {cada100.map((o) => (
+              <li key={o.nome}>
+                <span className={`serif${o.outro ? ' apagado' : ''}`}>
+                  <span style={{ fontSize: '0.55em' }}>R$ </span>
+                  {decimal((o.valor / original) * 100)}
+                </span>
+                <span>{o.nome}</span>
+                <div className="trilho" aria-hidden="true">
+                  <span
+                    className={o.outro ? '' : 'vermelho'}
+                    style={{
+                      width: `${(o.valor / maiorCada100) * 100}%`,
+                      background: o.outro ? 'var(--pontilhado)' : undefined,
+                    }}
+                  />
+                </div>
+                <span className="lp-extra">
+                  {emMilhoes(o.valor)}
+                  {pop && ` · R$ ${numero(Math.round(o.valor / pop.pessoas))} por morador`}
+                </span>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
 
       <div className="colunas dupla">
         <section className="secao estreita">
           <h2 className="secao-titulo">Quem gasta</h2>
+          {semDespesa && <p className="nota-serif">{semDespesa}</p>}
           <ListaPontos
             vermelho
             comUnidade

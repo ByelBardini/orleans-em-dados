@@ -72,7 +72,11 @@ export default function Despesas({ ano, entidade, filtros }: PropsDaPagina) {
       {semConferencia && (
         <>
           <Filtros {...filtros} />
-          <SemConferencia ano={ano} faltando={desp.dados?.conferencia.faltando} />
+          <SemConferencia
+            ano={ano}
+            faltando={desp.dados?.conferencia.faltando}
+            foraDaFonte={desp.dados?.conferencia.foraDaFonte}
+          />
         </>
       )}
       {resumo.dados && desp.dados && !semConferencia && (

@@ -7,6 +7,8 @@ import {
   contaNaTela,
   despesas,
   despesasDeExemplo,
+  despesasForaDaFonte,
+  empenhosForaDaFonte,
   despesasParciais,
   despesasSemConferencia,
   ENTIDADE_FORA,
@@ -276,5 +278,14 @@ describe('Despesas com o conferido', () => {
     await screen.findByRole('heading', { level: 1 });
 
     expect(container.textContent).not.toMatch(TEXTO_PROIBIDO);
+  });
+});
+
+describe('Despesas de um exercício sem os empenhos do TCE-SC', () => {
+  it('diz que a fonte não publica os empenhos, sem número nenhum', async () => {
+    const container = await abrir({ despesa: despesasForaDaFonte(), empenhos: empenhosForaDaFonte() });
+
+    expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('O TCE-SC não publica os empenhos de 2025.');
+    expect(container.querySelector('.numero-valor')).toBeNull();
   });
 });

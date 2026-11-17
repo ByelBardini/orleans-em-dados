@@ -173,16 +173,18 @@ export function BarrasMensais({
               onClick={() => setAtivo(ativo === i ? null : i)}
             >
               <span style={{ height: altura(m.a) }} />
-              <span className="vermelho" style={{ height: altura(m.b) }} />
+              {m.b !== null && <span className="vermelho" style={{ height: altura(m.b) }} />}
               {ativo === i && (
                 <div className="dica" style={dicaNasBordas(i, meses.length)}>
                   <strong>{m.nome}</strong>
                   <div className="mono">
                     {series[0]}: R$ {milhoes(m.a ?? 0)} mi
                   </div>
-                  <div className="mono vermelho">
-                    {series[1]}: R$ {milhoes(m.b ?? 0)} mi
-                  </div>
+                  {m.b !== null && (
+                    <div className="mono vermelho">
+                      {series[1]}: R$ {milhoes(m.b)} mi
+                    </div>
+                  )}
                 </div>
               )}
             </div>

@@ -6,6 +6,8 @@ import {
   contaNaTela,
   despesas,
   despesasDeExemplo,
+  despesasForaDaFonte,
+  empenhosForaDaFonte,
   despesasParciais,
   despesasSemConferencia,
   ENTIDADE_FORA,
@@ -217,5 +219,45 @@ describe('Finanças com o conferido', () => {
       expect(container.textContent).not.toMatch(TEXTO_PROIBIDO);
       unmount();
     }
+  });
+});
+
+// De 2018 a 2022 o Farol tem as receitas e não os empenhos: a receita é conferida, a despesa não tem número.
+describe('Finanças com a receita conferida e a despesa fora da fonte', () => {
+  const abrirSemDespesa = () => abrir({ despesa: despesasForaDaFonte(), empenhos: empenhosForaDaFonte() });
+
+  it('a receita aparece conferida, com o número e o selo', async () => {
+    await abrirSemDespesa();
+
+    expect(celula('Arrecadado').querySelector('.numero-valor')).not.toBeNull();
+    expect(within(totais()).getAllByText(/^conferido com o TCE-SC/).length).toBeGreaterThan(0);
+  });
+
+  it('o empenhado diz que o TCE-SC não publica os empenhos, e não "fora da soma"', async () => {
+    await abrirSemDespesa();
+
+    expect(celula('Empenhado')).toHaveTextContent('O TCE-SC não publica os empenhos de 2025');
+    expect(document.body).not.toHaveTextContent('Fora da soma');
+  });
+
+  it('a manchete fala da receita e diz o motivo da despesa', async () => {
+    await abrirSemDespesa();
+
+    expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('O TCE-SC não publica os empenhos de 2025');
+  });
+
+  it('sem empenhos, não há "cada R$ 100" nem a série de empenhado no mês a mês', async () => {
+    await abrirSemDespesa();
+
+    expect(screen.queryByRole('heading', { name: 'Para onde vai cada R$ 100' })).not.toBeInTheDocument();
+    const mes = screen.getByRole('heading', { name: 'Mês a mês' }).closest('section') as HTMLElement;
+    expect(within(mes).queryByText('Empenhado')).not.toBeInTheDocument();
+    expect(mes.querySelectorAll('.barras-mes-grupo .vermelho')).toHaveLength(0);
+  });
+
+  it('nada de texto proibido', async () => {
+    const container = await abrirSemDespesa();
+
+    expect(container.textContent).not.toMatch(TEXTO_PROIBIDO);
   });
 });

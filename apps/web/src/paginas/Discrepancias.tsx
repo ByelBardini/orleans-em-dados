@@ -13,6 +13,7 @@ import { useState } from 'react';
 import { useApi } from '../api';
 import { Estado, Filtros } from '../components';
 import { ContaDaDespesa, ContaDaReceita, ContaDosEmpenhos, FRASE_DA_DIFERENCA, SemConferencia } from '../conferido';
+import { motivoSemConferencia, naoPublica } from '../semConferencia';
 import { data, dataHora, decimal, MESES, MESES_LONGOS, moeda, numero } from '../format';
 import { Selo } from '../selo';
 import { seloDaSituacao, type SituacaoDoCaso } from '../selos';
@@ -68,7 +69,7 @@ export default function Discrepancias({ ano, entidade, filtros }: PropsDaPagina)
       {dados && !dados.disponivel && (
         <>
           <Filtros {...filtros} />
-          <SemConferencia ano={ano} faltando={dados.faltando} />
+          <SemConferencia ano={ano} faltando={dados.faltando} foraDaFonte={dados.foraDaFonte} />
         </>
       )}
       {dados?.disponivel && <Conteudo ano={ano} entidade={entidade} filtros={filtros} dados={dados} />}
@@ -223,11 +224,26 @@ function Conteudo({ ano, entidade, filtros, dados }: PropsDeConteudo & { dados: 
 
       {parcial && (
         <p className="aviso-neutro">
-          O TCE-SC recebe os dados com atraso: por enquanto, tem receitas até <strong>{mesLimite}</strong> e empenhos
-          até <strong>{data(limites?.dataEmpenho)}</strong>. As comparações se limitam a esse período. O que veio depois
-          ainda não foi conferido e não conta como diferença.
+          O TCE-SC recebe os dados com atraso: por enquanto, tem receitas até <strong>{mesLimite}</strong>
+          {limites?.dataEmpenho && (
+            <>
+              {' '}
+              e empenhos até <strong>{data(limites.dataEmpenho)}</strong>
+            </>
+          )}
+          . As comparações se limitam a esse período. O que veio depois ainda não foi conferido e não conta como
+          diferença.
         </p>
       )}
+
+      {dados.semConferencia?.map((a) => {
+        const motivo = a.foraDaFonte.length ? naoPublica(a.foraDaFonte, ano) : 'ainda faltam as coletas dela';
+        return (
+          <p key={a.area} className="aviso-neutro">
+            A {a.area} de {ano} não entra nesta seção: {motivo.charAt(0).toLocaleLowerCase('pt-BR') + motivo.slice(1)}.
+          </p>
+        );
+      })}
 
       <ContasDoAno ano={ano} entidade={entidade} dados={dados} grupos={grupos} />
 
@@ -239,7 +255,8 @@ function Conteudo({ ano, entidade, filtros, dados }: PropsDeConteudo & { dados: 
 
       <Aguardando aguardando={dados.aguardando} entidade={entidade} />
 
-      <OsTotais ano={ano} entidade={entidade} filtros={filtros} />
+      {/* A comparação direta (/api/conferencias) pede as cinco coletas: com uma área só, não há o que mostrar. */}
+      {!dados.semConferencia?.length && <OsTotais ano={ano} entidade={entidade} filtros={filtros} />}
     </>
   );
 }
@@ -277,6 +294,12 @@ function ContasDoAno({
   const totalizador = empenhos.dados?.meta.conferencia.find((c) => c.campo === 'valorEmpenho')?.fonte;
   const soma = somaEmCentavos([conferido ?? 0, emDiscrepancia, aguardando], (v) => v);
   const totalDaFonte = entidade ? soma : (totalizador ?? soma);
+  // De 2018 a 2022, o TCE-SC não tem os empenhos: a despesa e os empenhos ficam sem conta, com o motivo.
+  const conferenciaDaDespesa = despesa.dados?.conferencia;
+  const semDespesa =
+    conferenciaDaDespesa && !conferenciaDaDespesa.disponivel && !despesa.dados?.meta.exemplo
+      ? motivoSemConferencia(ano, conferenciaDaDespesa.foraDaFonte)
+      : null;
 
   return (
     <section className="secao solta" aria-label="A conta do ano">
@@ -296,7 +319,9 @@ function ContasDoAno({
             </div>
             <div>
               <h3 className="rotulo">Despesa empenhada</h3>
-              {despesa.dados.conferencia.totalBetha === null ? (
+              {semDespesa ? (
+                <p className="conta-nota">{semDespesa}</p>
+              ) : despesa.dados.conferencia.totalBetha === null ? (
                 <p className="conta-nota">
                   No ano em curso, a despesa não tem esta conta: o conferido é o valor líquido do TCE-SC, e o que
                   aguarda é o valor original da Betha.
@@ -312,14 +337,18 @@ function ContasDoAno({
             </div>
             <div>
               <h3 className="rotulo">Empenhos, em valor original</h3>
-              <ContaDosEmpenhos
-                conferido={conferido}
-                emDiscrepancia={emDiscrepancia}
-                aguardando={aguardando}
-                total={totalDaFonte}
-                soNoTce={daFonte('tce')}
-                titulo="A conta dos empenhos"
-              />
+              {semDespesa ? (
+                <p className="conta-nota">{semDespesa}</p>
+              ) : (
+                <ContaDosEmpenhos
+                  conferido={conferido}
+                  emDiscrepancia={emDiscrepancia}
+                  aguardando={aguardando}
+                  total={totalDaFonte}
+                  soNoTce={daFonte('tce')}
+                  titulo="A conta dos empenhos"
+                />
+              )}
             </div>
           </div>
           <p className="nota-serif">
