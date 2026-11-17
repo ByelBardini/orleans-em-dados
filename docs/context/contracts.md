@@ -35,6 +35,7 @@ Um schema Zod estrito por rota da API (`src/api/`), espelhando o JSON de hoje (d
 | `GET /api/educacao/professores`     | `educacaoProfessoresSchema`   |
 | `GET /api/educacao/cidade`          | `educacaoCidadeSchema`        |
 | `GET /api/educacao/resumo`          | `educacaoResumoSchema`        |
+| `GET /api/saude`                    | `saudeSchema`                 |
 | qualquer `4xx`/`5xx`                | `erroSchema`                  |
 
 - Bloco `conferencia` de receitas, despesas e empenhos, e a seção de discrepâncias: `foraDaFonte` opcional, junto do `faltando`. `discrepanciasSchema.semConferencia` opcional: a área que ficou de fora.
