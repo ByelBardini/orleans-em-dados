@@ -29,6 +29,8 @@ Status da execução, em `execucoes`: `em_andamento`, `sucesso`, `rejeitada`, `f
 - `pnpm importar --arquivo <snapshot.json>`, `pnpm db:exemplos` — grava snapshots já existentes; exemplos fictícios só são publicados se não houver dado real para o ano.
 - `pnpm conferir --ano 2025 [--json]` — relatório da conferência no console.
 
+- Na subida, o worker carrega `docs/educacao/snapshots/*.json` (`importarPasta`; hash igual vira `sem mudança`) e manda um job `subida` para a fila `historico`.
+- Fila `historico` (`montarHistorico`, `src/filas.ts`): `singleton`, sem repetição, prazo de 6 h, todo dia às 2h no modo `diario`. `completarHistorico` (`src/historico.ts`) pede a `executar` só as consultas que faltam de cada exercício da janela (`anosDaCarga`), do mais recente ao mais antigo, com `HISTORICO_PAUSA_MS` (padrão 5.000) entre um e outro, sem relançar. `subida` tenta o que não está publicado, inclusive o rejeitado (deploy traz código novo); `diario`, só o que nunca foi gravado. `lerEstadoDoHistorico` ignora coleta de exemplo. A janela vem de `ANOS_DE_HISTORICO`.
 - `rodarImportador(importador, dependencias)` (`src/rodada.ts`) — todos os exercícios da rodada; relança `RodadaComFalha` depois de tentar todos, para a fila repetir. Lote rejeitado não relança: repetir na hora traria o mesmo dado, e a próxima rodada tenta de novo.
 - `montarFilas(boss, importadores, rodar, opcoes?)` (`src/filas.ts`), `importarDaFonte`, `importarArquivos`, `salvarSnapshot` (`src/comandos.ts`).
 

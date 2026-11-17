@@ -39,3 +39,27 @@ export async function montarFilas(
     });
   }
 }
+
+export const FILA_DO_HISTORICO = 'historico';
+
+// A carga dos 10 anos leva horas na primeira subida: sem repetição (a rodada diária já é a nova tentativa)
+// e com prazo longo, para não ser dada como perdida no meio.
+const HISTORICO = { retryLimit: 0, expireInSeconds: 6 * 3600 };
+
+/** A fila que completa o histórico: todo dia às 2h no modo diário; a subida do worker manda um job `subida`. */
+export async function montarHistorico(
+  boss: PgBoss,
+  completar: (modo: 'subida' | 'diario') => Promise<unknown>,
+  opcoes: OpcoesDasFilas = {},
+): Promise<void> {
+  const { pollingIntervalSeconds, ...fila } = { ...HISTORICO, ...opcoes, retryLimit: 0 };
+  await boss.createQueue(FILA_DO_HISTORICO, { policy: 'singleton', ...fila });
+  await boss.schedule(FILA_DO_HISTORICO, '0 2 * * *', { modo: 'diario' }, { tz: FUSO });
+  await boss.work<{ modo?: string }>(
+    FILA_DO_HISTORICO,
+    pollingIntervalSeconds ? { pollingIntervalSeconds } : {},
+    async ([job]) => {
+      await completar(job?.data?.modo === 'subida' ? 'subida' : 'diario');
+    },
+  );
+}
