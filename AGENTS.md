@@ -21,6 +21,7 @@ Dashboard público, rastreável, com dados de receitas e despesas do município 
 - `apps/api/src/` — API REST que lê só as coletas publicadas.
 - `apps/web/src/` — dashboard.
 - `docs/` — especificação, metodologia, fontes, dicionário de dados; `docs/context/` (contexto para agentes), `docs/plans/` (planos), `docs/screens/` (mockups HTML), `docs/educacao/` (fontes e indicadores do caderno de Educação, sem dados pessoais: `snapshots/`, o que o sistema carrega; `curados/`, o transcrito à mão; `extratos/`, a referência da primeira carga).
+- `Dockerfile`, `docker-compose.prod.yml` — a imagem e os serviços de produção no Coolify (migração, site com API e build do web, worker); o Postgres é recurso à parte. Passo a passo em `docs/DEPLOY.md`.
 - `examples/` — snapshots fictícios no formato dos reais. `data/` — snapshots reais opcionais, fora do git.
 
 ## Contexto por área (`docs/context/`)
@@ -48,11 +49,11 @@ Leia o hub da área antes de abrir fonte. O driver do `/testar` indica qual (`le
 - `pnpm test` roda os unit de todos os workspaces, sem banco; `pnpm exec vitest run <spec>` isola um spec; `--project @orleans-em-dados/<workspace>` filtra pelo `name` do pacote.
 - `pnpm test:integracao` roda `*/test/integration/` no projeto `integracao`, contra o Postgres descartável (`pnpm db:teste` sobe na porta 5434, `pnpm db:teste:parar` derruba). O esquema é recriado a cada rodada; a porta 5433 (`pnpm db:subir`, coletas reais) é recusada.
 - Antes de fechar: `pnpm test && pnpm lint`. Todo teste nasce pelo `/testar`.
-- CI (`.github/workflows/testes.yml`, em PR e push na `main`): fragmentos em paralelo, cada um só quando o que cobre mudou. `estatico` (lint, formato, tipos; sempre), `unit-servidor` (`pnpm test:servidor`), `unit-web` (`pnpm test:web`) e `integracao` (`pnpm test:integracao apps/` e `packages/`, um Postgres por fragmento). Dependência nova entre áreas pede ajuste nos filtros do job `mudancas`.
+- CI (`.github/workflows/testes.yml`, em PR e push na `main`): fragmentos em paralelo, cada um só quando o que cobre mudou. `estatico` (lint, formato, tipos; sempre), `unit-servidor` (`pnpm test:servidor`), `unit-web` (`pnpm test:web`), `integracao` (`pnpm test:integracao apps/` e `packages/`, um Postgres por fragmento) e `imagem` (constrói o `Dockerfile`, migra um Postgres vazio e confere `/api/saude` e a página). Dependência nova entre áreas pede ajuste nos filtros do job `mudancas`.
 
 ## Comandos
 
-- `pnpm db:subir`, `pnpm db:migrar`, `pnpm db:exemplos`, `pnpm dev` (API em 3000, web em 5173).
+- `pnpm db:subir`, `pnpm db:migrar`, `pnpm db:exemplos`, `pnpm dev` (API em 3000, web em 5173). Em produção, `WEB_DIST` faz a API servir o build do web, e o worker lê `ANOS_DE_HISTORICO` e `HISTORICO_PAUSA_MS`.
 - `pnpm importar <betha|tcesc|ibge|siconfi> --ano 2025 [--consulta <chave>] [--json]`, `pnpm importar --arquivo <snapshot.json>`, `pnpm conferir --ano 2025`, `pnpm worker`.
 - `pnpm extrair educacao <inep|siope|enem|superior> --origem <pasta> [--de-extratos] [--destino <pasta>]`, `pnpm extrair educacao mec`, `pnpm extrair educacao varrer --origem <pasta>`: geram os snapshots em `docs/educacao/snapshots/`, sem banco; `varrer` procura dados pessoais neles e tem de dizer 0 achados. A carga é `pnpm importar --arquivo`.
 - Argumento vai direto depois do script: `pnpm importar betha --ano 2025`. O pnpm repassa `--` literalmente e o `parseArgs` da CLI trataria o resto como posicional.
