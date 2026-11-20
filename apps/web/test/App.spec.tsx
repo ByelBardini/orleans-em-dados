@@ -21,6 +21,9 @@ vi.mock('../src/paginas/educacao/Acesso', () => ({ default: () => <p>Página edu
 vi.mock('../src/paginas/educacao/Permanencia', () => ({ default: () => <p>Página educação permanência</p> }));
 vi.mock('../src/paginas/educacao/Professores', () => ({ default: () => <p>Página educação professores</p> }));
 vi.mock('../src/paginas/educacao/Dinheiro', () => ({ default: () => <p>Página educação dinheiro</p> }));
+vi.mock('../src/paginas/Apoiar', () => ({
+  default: ({ apoio }: { apoio: { chave: string } }) => <p>Página apoiar {apoio.chave}</p>,
+}));
 vi.mock('../src/paginas/educacao/Cidade', () => ({ default: () => <p>Página educação cidade</p> }));
 
 const ANOS = {
@@ -29,6 +32,8 @@ const ANOS = {
   atualizadoEm: { 2026: '2026-03-10T06:00:00.000Z', 2025: '2025-03-01T12:00:00.000Z' },
   entidades: [{ codigo: '728', nome: 'Prefeitura Municipal', sigla: 'Prefeitura' }],
 };
+
+const APOIO = { chave: 'contato@exemplo.test', nome: 'Fulano de Tal', cidade: 'ORLEANS', copiaECola: '0002016304ABCD' };
 
 const linksDa = (navegacao: string) =>
   within(screen.getByRole('navigation', { name: navegacao }))
@@ -508,5 +513,65 @@ describe('App', () => {
       'href',
       '/sobre-os-dados',
     );
+  });
+
+  describe('o apoio', () => {
+    it('com o Pix configurado, o botão Apoiar fica ao lado do tema e o rodapé convida a apoiar', async () => {
+      new FetchFake().responder('/api/anos', ANOS).responder('/api/apoio', APOIO).instalar();
+
+      render(<App />);
+
+      expect(await screen.findByRole('link', { name: 'Apoiar' })).toHaveAttribute('href', '/apoiar');
+      expect(screen.getByRole('link', { name: 'Apoiar' }).closest('.barra-tema')).not.toBeNull();
+      expect(screen.getByRole('link', { name: 'Apoie o projeto' })).toHaveAttribute('href', '/apoiar');
+    });
+
+    it('sem o Pix (404), nem o botão nem o link aparecem, e nenhuma mensagem de falha', async () => {
+      new FetchFake()
+        .responder('/api/anos', ANOS)
+        .responder('/api/apoio', { erro: 'Apoio não configurado' }, 404)
+        .instalar();
+
+      render(<App />);
+      await screen.findByText('Página capa');
+
+      expect(screen.queryByRole('link', { name: 'Apoiar' })).not.toBeInTheDocument();
+      expect(screen.queryByRole('link', { name: 'Apoie o projeto' })).not.toBeInTheDocument();
+      expect(screen.queryByText(/Não foi possível carregar/)).not.toBeInTheDocument();
+    });
+
+    it('/apoiar com o Pix abre a página Apoiar, com o título do catálogo', async () => {
+      new FetchFake().responder('/api/anos', ANOS).responder('/api/apoio', APOIO).instalar();
+      abrir('/apoiar');
+
+      render(<App />);
+
+      expect(await screen.findByText('Página apoiar contato@exemplo.test')).toBeInTheDocument();
+      expect(document.title).toBe('Apoie o projeto · Orleans em Dados');
+      expect(screen.queryByRole('navigation', { name: /Páginas de/ })).not.toBeInTheDocument();
+    });
+
+    it('/apoiar sem o Pix é página não encontrada', async () => {
+      new FetchFake()
+        .responder('/api/anos', ANOS)
+        .responder('/api/apoio', { erro: 'Apoio não configurado' }, 404)
+        .instalar();
+      abrir('/apoiar');
+
+      render(<App />);
+
+      expect(await screen.findByRole('heading', { name: 'Página não encontrada' })).toBeInTheDocument();
+      expect(screen.queryByText(/Página apoiar/)).not.toBeInTheDocument();
+    });
+
+    it('o botão Apoiar leva à página sem recarregar', async () => {
+      new FetchFake().responder('/api/anos', ANOS).responder('/api/apoio', APOIO).instalar();
+      render(<App />);
+
+      await userEvent.click(await screen.findByRole('link', { name: 'Apoiar' }));
+
+      expect(await screen.findByText('Página apoiar contato@exemplo.test')).toBeInTheDocument();
+      expect(location.pathname).toBe('/apoiar');
+    });
   });
 });
