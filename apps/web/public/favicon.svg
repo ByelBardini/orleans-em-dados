@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <!-- O "O" do título em serif, desenhado em elipses (contraste de traço com eixo inclinado), sem depender de fonte. -->
+  <style>
+    .papel { fill: #efeadf; }
+    .tinta { fill: #1c1a17; }
+    .vermelho { fill: #b52d1b; }
+    @media (prefers-color-scheme: dark) {
+      .papel { fill: #1a1815; }
+      .tinta { fill: #ece5d6; }
+      .vermelho { fill: #ec7a64; }
+    }
+  </style>
+  <rect class="papel" width="64" height="64" rx="12" />
+  <ellipse class="tinta" cx="32" cy="30" rx="19" ry="23" />
+  <ellipse class="papel" cx="32" cy="30" rx="11" ry="19.5" transform="rotate(-14 32 30)" />
+  <rect class="vermelho" x="13" y="56" width="38" height="3" />
+</svg>
