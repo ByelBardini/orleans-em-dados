@@ -22,7 +22,7 @@ function posicaoDoTexto(simbolo: DOMRect): CSSProperties {
 
 function LinkDaSecao() {
   return (
-    <a href="#discrepancias" className="selo-link">
+    <a href="/discrepancias" className="selo-link">
       Ver discrepâncias →
     </a>
   );

@@ -719,31 +719,31 @@ describe('Discrepancias: no App', () => {
   };
 
   beforeEach(() => {
-    window.location.hash = '';
+    history.replaceState(null, '', '/');
     vi.stubGlobal('scrollTo', () => {});
     vi.stubGlobal('matchMedia', () => ({ matches: false }));
   });
 
-  it.each(['#discrepancias', '#conferencia'])('%s abre a seção', async (hash) => {
+  it.each(['/discrepancias', '/#conferencia'])('%s abre a seção', async (endereco) => {
     instalar().responder('/api/anos', ANOS);
-    window.location.hash = hash;
+    history.replaceState(null, '', endereco);
 
     render(<App />);
 
     expect(await screen.findByRole('heading', { level: 1 })).toHaveTextContent('8 casos');
     expect(screen.getByRole('link', { name: 'Discrepâncias' })).toHaveAttribute('aria-current', 'page');
-    expect(document.title).toBe('Discrepâncias · Orleans em Dados');
+    expect(document.title).toBe('Discrepâncias entre as fontes · Orleans em Dados');
   });
 
   it('a aba não se chama mais "Conferência"', async () => {
     instalar().responder('/api/anos', ANOS);
-    window.location.hash = '#discrepancias';
+    history.replaceState(null, '', '/discrepancias');
 
     render(<App />);
     await screen.findByRole('heading', { level: 1 });
 
     expect(screen.queryByRole('link', { name: 'Conferência' })).not.toBeInTheDocument();
-    expect(screen.getByRole('link', { name: 'Onde as fontes divergem' })).toHaveAttribute('href', '#discrepancias');
+    expect(screen.getByRole('link', { name: 'Onde as fontes divergem' })).toHaveAttribute('href', '/discrepancias');
   });
 });
 

@@ -66,7 +66,7 @@ describe('Metodologia: o que o painel exibe', () => {
     render(<Metodologia />);
 
     const secao = screen.getByRole('heading', { name: 'O que aparece no painel' }).parentElement as HTMLElement;
-    expect(within(secao).getAllByRole('link', { name: 'Discrepâncias' })[0]).toHaveAttribute('href', '#discrepancias');
+    expect(within(secao).getAllByRole('link', { name: 'Discrepâncias' })[0]).toHaveAttribute('href', '/discrepancias');
   });
 
   it('nenhum link aponta para o endereço antigo da seção', () => {
