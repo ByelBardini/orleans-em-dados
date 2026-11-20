@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" width="1200" height="630">
+  <!-- A imagem de compartilhamento (og:image), 1200 × 630. Exportada para apps/web/public/og.png pelo Chrome
+       headless; as fontes vêm de apps/web/public/fonts. Como exportar: docs/context/web.md. -->
+  <style>
+    @font-face { font-family: 'Instrument Serif'; font-style: normal; src: url('../../apps/web/public/fonts/instrument-serif-400-latin.woff2'); }
+    @font-face { font-family: 'Instrument Serif'; font-style: italic; src: url('../../apps/web/public/fonts/instrument-serif-400-italico-latin.woff2'); }
+    @font-face { font-family: 'IBM Plex Sans'; font-weight: 400 600; src: url('../../apps/web/public/fonts/ibm-plex-sans-variavel-latin.woff2'); }
+    @font-face { font-family: 'IBM Plex Mono'; src: url('../../apps/web/public/fonts/ibm-plex-mono-500-latin.woff2'); }
+    .meta { font-family: 'IBM Plex Mono', monospace; font-size: 22px; letter-spacing: 3px; fill: #47433c; }
+    .titulo { font-family: 'Instrument Serif', Georgia, serif; font-size: 156px; fill: #1c1a17; }
+    .italico { font-style: italic; fill: #b52d1b; }
+    .linha { font-family: 'IBM Plex Sans', sans-serif; font-size: 38px; fill: #1c1a17; }
+    .pe { font-family: 'IBM Plex Sans', sans-serif; font-weight: 500; font-size: 24px; fill: #47433c; }
+  </style>
+  <rect width="1200" height="630" fill="#efeadf" />
+  <text class="meta" x="80" y="96">ORLEANS, SANTA CATARINA</text>
+  <text class="meta" x="1120" y="96" text-anchor="end">DADOS PÚBLICOS</text>
+  <rect x="80" y="122" width="1040" height="3" fill="#1c1a17" />
+  <rect x="80" y="131" width="1040" height="1" fill="#1c1a17" />
+  <text class="titulo" x="80" y="320">Orleans <tspan class="italico">em</tspan> Dados</text>
+  <text class="linha" x="80" y="412">Receitas, despesas e educação de Orleans/SC,</text>
+  <text class="linha" x="80" y="462">com fonte e conferência.</text>
+  <rect x="80" y="520" width="1040" height="1" fill="#b9b09e" />
+  <text class="pe" x="80" y="566">Projeto independente · IBGE, INEP, SICONFI, Portal da Transparência e TCE-SC</text>
+</svg>
