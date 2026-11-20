@@ -1,0 +1,21 @@
+name: Sugestão
+description: Uma página, um indicador ou uma fonte nova, ou uma melhoria no que existe.
+title: '[sugestão] '
+labels: ['sugestão']
+body:
+  - type: textarea
+    id: ideia
+    attributes:
+      label: O que você sugere
+    validations:
+      required: true
+  - type: textarea
+    id: porque
+    attributes:
+      label: Para quê
+      description: Que pergunta sobre Orleans isso ajuda a responder?
+  - type: input
+    id: fonte
+    attributes:
+      label: Fonte dos dados
+      description: Se for dado novo, de onde ele vem (link da fonte pública).

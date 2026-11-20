@@ -57,7 +57,7 @@ describe('Despesas com o conferido', () => {
 
     const conta = within(celula('Empenhado')).getByRole('group', { name: 'A conta do conferido' });
     expect(contaNaTela(conta)).toEqual({ parcelas: [1079165253, 12388732], total: 1091553985 });
-    expect(within(conta).getByRole('link', { name: 'Ver discrepâncias →' })).toHaveAttribute('href', '#discrepancias');
+    expect(within(conta).getByRole('link', { name: 'Ver discrepâncias →' })).toHaveAttribute('href', '/discrepancias');
     expect(celula('Empenhado').querySelector('.numero-valor')).toHaveTextContent('10,8 mi');
     expect(container.textContent?.match(/10\.915\.539,85/g)).toHaveLength(1);
   });
@@ -77,10 +77,10 @@ describe('Despesas com o conferido', () => {
       const fora = linhaDa('Fundo de Saúde (exemplo)');
       expect(fora).toHaveTextContent('Fora da soma.');
       expect(fora).toHaveTextContent('—');
-      expect(within(fora).getByRole('link')).toHaveAttribute('href', '#discrepancias');
+      expect(within(fora).getByRole('link')).toHaveAttribute('href', '/discrepancias');
       const aviso = screen.getByText('Fora da soma:').closest('p') as HTMLElement;
       expect(aviso).toHaveTextContent('Fundo de Saúde (exemplo)');
-      expect(within(aviso).getByRole('link')).toHaveAttribute('href', '#discrepancias');
+      expect(within(aviso).getByRole('link')).toHaveAttribute('href', '/discrepancias');
     });
 
     it('o aviso é neutro, sem a cor de problema', async () => {
@@ -162,7 +162,7 @@ describe('Despesas com o conferido', () => {
 
       const nota = screen.getByText(/956 empenhos aguardam o TCE-SC/);
       expect(nota).toHaveTextContent('7 estão em discrepância');
-      expect(within(nota).getByRole('link', { name: 'ver discrepâncias' })).toHaveAttribute('href', '#discrepancias');
+      expect(within(nota).getByRole('link', { name: 'ver discrepâncias' })).toHaveAttribute('href', '/discrepancias');
     });
   });
 

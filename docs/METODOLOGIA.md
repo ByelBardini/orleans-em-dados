@@ -65,7 +65,7 @@ O caderno de Educação tem sete abas e compara Orleans com Santa Catarina e o B
 
 ### Seção Discrepâncias
 
-Cada valor retirado aparece em `#discrepancias` (`#conferencia` continua abrindo), por área e tipo, com o valor de cada fonte, a diferença e o lado que registra mais. Receita, despesa e empenhos não se somam. Cada caso tem uma situação:
+Cada valor retirado aparece em `/discrepancias` (`/#conferencia` continua abrindo), por área e tipo, com o valor de cada fonte, a diferença e o lado que registra mais. Receita, despesa e empenhos não se somam. Cada caso tem uma situação:
 
 - **Confirmado no portal em DD/MM/AAAA:** conferido à mão; o registro fica em `packages/db/src/conferencia/conferencias-manuais.ts`.
 - **Confirmado em parte:** só um exemplo foi conferido à mão, e a evidência diz qual.

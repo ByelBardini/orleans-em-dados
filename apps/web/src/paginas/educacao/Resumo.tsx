@@ -145,7 +145,7 @@ function CartaoDaLeitura({ bloco }: { bloco: EducacaoResumo['alfabetizacao'] }) 
   return (
     <Cartao
       pergunta="As crianças aprendem a ler na idade certa?"
-      aba="#educacao-aprendizado"
+      aba="/educacao/aprendizado"
       nomeDaAba="aprendizado"
       temDado={bloco !== null}
       numeroPrincipal={bloco && inteiro(bloco.valores.orleans as number)}
@@ -182,7 +182,7 @@ function CartaoDaCreche({
   return (
     <Cartao
       pergunta="Os pequenos têm vaga na creche?"
-      aba="#educacao-acesso"
+      aba="/educacao/acesso"
       nomeDaAba="acesso"
       temDado={bloco !== null}
       numeroPrincipal={bloco && emPct(bloco.valores.orleans as number)}
@@ -230,7 +230,7 @@ function CartaoDaPermanencia({ bloco }: { bloco: EducacaoResumo['abandono'] }) {
   return (
     <Cartao
       pergunta="Os alunos ficam na escola até o fim do ano?"
-      aba="#educacao-permanencia"
+      aba="/educacao/permanencia"
       nomeDaAba="permanência"
       temDado={bloco !== null}
       numeroPrincipal={bloco && emPct(bloco.valores.orleans as number)}
@@ -256,7 +256,7 @@ function CartaoDasNotas({ bloco }: { bloco: EducacaoResumo['ideb'] }) {
   return (
     <Cartao
       pergunta="Como estão as notas?"
-      aba="#educacao-aprendizado"
+      aba="/educacao/aprendizado"
       nomeDaAba="aprendizado"
       temDado={bloco !== null}
       numeroPrincipal={bloco && noIndice(bloco.valores.orleans as number)}
@@ -289,7 +289,7 @@ function CartaoDeQuemDaAula({
   return (
     <Cartao
       pergunta="Quem dá aula?"
-      aba="#educacao-professores"
+      aba="/educacao/professores-e-turmas"
       nomeDaAba="professores e turmas"
       temDado={bloco !== null}
       numeroPrincipal={bloco && emPct(bloco.valores.orleans as number)}
@@ -328,7 +328,7 @@ function AvisoDoSiconfi({ minimo }: { minimo: NonNullable<EducacaoResumo['minimo
       : `O SICONFI registra ${emPct(siconfi.percentual)}.`;
   return (
     <p>
-      {texto} <a href="#discrepancias">Ver a diferença em Discrepâncias</a>
+      {texto} <a href="/discrepancias">Ver a diferença em Discrepâncias</a>
     </p>
   );
 }
@@ -340,7 +340,7 @@ function CartaoDoDinheiro({ gasto, minimo }: { gasto: EducacaoResumo['gasto']; m
   return (
     <Cartao
       pergunta="Quanto a Prefeitura gasta com educação?"
-      aba="#educacao-dinheiro"
+      aba="/educacao/dinheiro"
       nomeDaAba="dinheiro"
       temDado={gasto !== null || minimo !== null}
       selo={gasto && seloDoGasto(gasto)}

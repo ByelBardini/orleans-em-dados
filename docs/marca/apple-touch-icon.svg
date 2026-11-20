@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 180 180" width="180" height="180">
+  <!-- O mesmo "O" do favicon, em quadrado cheio: o iOS arredonda os cantos. Exportado para apple-touch-icon.png. -->
+  <rect fill="#efeadf" width="180" height="180" />
+  <ellipse fill="#1c1a17" cx="90" cy="84" rx="47" ry="57" />
+  <ellipse fill="#efeadf" cx="90" cy="84" rx="27" ry="48" transform="rotate(-14 90 84)" />
+  <rect fill="#b52d1b" x="43" y="150" width="94" height="7" />
+</svg>

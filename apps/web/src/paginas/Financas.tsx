@@ -193,7 +193,7 @@ function Conteudo({
               </>
             )}
           </p>
-          <a href="#metodologia" className="botao-link">
+          <a href="/sobre-os-dados" className="botao-link">
             Como estes dados são feitos →
           </a>
         </div>
@@ -328,7 +328,7 @@ function Conteudo({
               {pct(deFora, arrecadado)} do que entrou veio de fora: repasses da União e do Estado.
             </p>
           )}
-          <a href="#receitas" className="botao-link">
+          <a href="/financas/receitas" className="botao-link">
             Todas as receitas →
           </a>
         </section>
@@ -417,7 +417,7 @@ function Conteudo({
                 : []),
             ]}
           />
-          <a href="#despesas" className="botao-link">
+          <a href="/financas/despesas" className="botao-link">
             Todas as despesas →
           </a>
         </section>

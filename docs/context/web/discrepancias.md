@@ -1,10 +1,10 @@
 # Dashboard — Discrepâncias
 
-A página `apps/web/src/paginas/Discrepancias.tsx` (`#discrepancias`). As regras da seção pública estão em [conferencia.md](../conferencia.md); a rota, em [api.md](../api.md).
+A página `apps/web/src/paginas/Discrepancias.tsx` (`/discrepancias`). As regras da seção pública estão em [conferencia.md](../conferencia.md); a rota, em [api.md](../api.md).
 
 ## Regras de negócio
 
-- A aba é "Discrepâncias", em `#discrepancias`; `#conferencia` continua abrindo (`ALIASES`).
+- A aba é "Discrepâncias", em `/discrepancias`; `/#conferencia` e `/#discrepancias` continuam abrindo (`hashesAntigos` do catálogo).
 - Discrepâncias lê `/api/discrepancias`: grupos em blocos por área (receita, despesa, empenhos, despesa por função, que não se somam), cada um com rótulo, explicação, o `total` da resposta e os casos. Na área `funcao`, a coluna Betha vira SICONFI, e a manchete diz "as fontes". Grupo ou área sem caso não aparece. Até 10 casos abertos; o resto em "Ver todos os N". Em até 720 px, cada caso vira bloco, sem rolagem lateral.
 - Bloco "Educação" (`BlocoDeEducacao`, no fim da página, abaixo de "Os totais"): lê `/api/educacao/discrepancias`, sem ano nem entidade. Aparece também no ano sem conferência, não pede de novo ao trocar o filtro e fica fora da manchete e da conta do ano. Cabeçalhos e o "a mais ..." vêm das fontes do grupo. Valor nulo é travessão, com o percentual embaixo e "sem valor para comparar" na diferença. Sem coluna Situação, e sem coleta ou sem caso, some, sem título solto. Reaproveita `.grupo-de-casos` e `.tabela-casos`, sem CSS novo. Fábrica de teste: `discrepanciasDeEducacao`, em `test/support/educacao.ts`.
 - Com `semConferencia` (uma área só conferida, de 2018 a 2022): aviso "A despesa de <ano> não entra nesta seção: o TCE-SC não publica os empenhos de <ano>."; na conta do ano, despesa e empenhos trazem `motivoSemConferencia` no lugar da conta; "Os totais, para conferir" não aparece, porque `/api/conferencias` exige as cinco coletas. O aviso de atraso só cita os empenhos quando há `limites.dataEmpenho`.

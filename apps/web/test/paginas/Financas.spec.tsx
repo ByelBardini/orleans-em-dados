@@ -69,7 +69,7 @@ describe('Finanças com o conferido', () => {
     expect(contaNaTela(daDespesa)).toEqual({ parcelas: [1079165253, 12388732], total: 1091553985 });
     expect(within(daDespesa).getByRole('link', { name: 'Ver discrepâncias →' })).toHaveAttribute(
       'href',
-      '#discrepancias',
+      '/discrepancias',
     );
   });
 
@@ -136,7 +136,7 @@ describe('Finanças com o conferido', () => {
     const linha = screen.getByText('Fundo de Saúde (exemplo)').closest('li') as HTMLElement;
     expect(linha.querySelector('.lp-valor')).toHaveTextContent('—');
     expect(linha).toHaveTextContent('fora da soma');
-    expect(within(linha).getByRole('link')).toHaveAttribute('href', '#discrepancias');
+    expect(within(linha).getByRole('link')).toHaveAttribute('href', '/discrepancias');
   });
 
   it('recorte de entidade fora da soma não vira zero', async () => {
