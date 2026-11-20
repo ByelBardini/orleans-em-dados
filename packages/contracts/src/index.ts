@@ -7,3 +7,4 @@ export * from './indicadores/atraso';
 export * from './indicadores/registro';
 export * from './credor';
 export * from './fontes';
+export * from './paginas';
