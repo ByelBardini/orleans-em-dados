@@ -1,5 +1,5 @@
 import type { Meta } from '@orleans-em-dados/contracts';
-import { useState, type CSSProperties, type ReactNode } from 'react';
+import { Component, useState, type CSSProperties, type ReactNode } from 'react';
 import { dataHora, milhoes, moeda, numero } from './format';
 
 export type Anotacao = { texto: ReactNode; posicao?: CSSProperties };
@@ -605,4 +605,29 @@ export function Fonte({ meta }: { meta: Meta | null | undefined }) {
       </dl>
     </details>
   );
+}
+
+type PropsDaFronteira = { children: ReactNode; recarregar?: () => void };
+
+// O código de cada página chega à parte (`React.lazy`): se a rede falha no meio, a tela diz e oferece
+// recarregar, em vez de ficar em branco. Também segura um erro de renderização da página.
+export class FronteiraDaPagina extends Component<PropsDaFronteira, { falhou: boolean }> {
+  override state = { falhou: false };
+
+  static getDerivedStateFromError() {
+    return { falhou: true };
+  }
+
+  override render() {
+    if (!this.state.falhou) return this.props.children;
+    const recarregar = this.props.recarregar ?? (() => window.location.reload());
+    return (
+      <div className="aviso" role="alert">
+        <p>Não foi possível carregar esta página. A conexão pode ter caído, ou o site foi atualizado agora.</p>
+        <button type="button" className="botao-link" onClick={recarregar}>
+          Recarregar
+        </button>
+      </div>
+    );
+  }
 }

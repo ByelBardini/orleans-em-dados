@@ -466,6 +466,34 @@ describe('App', () => {
     expect(await screen.findByText('Não foi possível carregar: fora do ar')).toBeInTheDocument();
   });
 
+  it('a página abre com o aviso de carregamento enquanto o código dela chega', async () => {
+    new FetchFake().responder('/api/anos', ANOS).instalar();
+    abrir('/educacao/acesso');
+    // Um App recém-importado: nos testes anteriores, o código da página já chegou.
+    vi.resetModules();
+    const { default: AppNovo } = await import('../src/App');
+
+    render(<AppNovo />);
+
+    expect(screen.getByText('Carregando a página…')).toBeInTheDocument();
+    expect(await screen.findByText('Página educação acesso')).toBeInTheDocument();
+    expect(screen.queryByText('Carregando a página…')).not.toBeInTheDocument();
+  });
+
+  it('voltar a uma página já aberta não mostra o carregamento de novo', async () => {
+    new FetchFake().responder('/api/anos', ANOS).instalar();
+    abrir('/educacao/acesso');
+    render(<App />);
+    await screen.findByText('Página educação acesso');
+    await userEvent.click(screen.getByRole('link', { name: 'Aprendizado' }));
+    await screen.findByText('Página educação aprendizado');
+
+    await userEvent.click(screen.getByRole('link', { name: 'Acesso' }));
+
+    expect(screen.getByText('Página educação acesso')).toBeInTheDocument();
+    expect(screen.queryByText('Carregando a página…')).not.toBeInTheDocument();
+  });
+
   it('o rodapé oferece os CSV do exercício atual e aponta as páginas por caminho', async () => {
     new FetchFake().responder('/api/anos', ANOS).instalar();
 

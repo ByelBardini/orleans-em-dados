@@ -318,9 +318,9 @@ export default function Metodologia() {
             <li>A lista de empenhos e os arquivos para baixar ficam fora dos buscadores.</li>
             <li>
               De quem visita, o site não usa cookies nem rastreadores e não pede cadastro. A escolha do tema claro ou
-              escuro fica guardada só no seu navegador. As fontes do texto vêm do Google Fonts, então o navegador se
-              conecta aos servidores do Google ao abrir a página. A hospedagem registra dados técnicos de acesso, como o
-              endereço IP, como em qualquer site.
+              escuro fica guardada só no seu navegador. As fontes do texto saem do próprio site, sem conexão a outro
+              servidor ao abrir a página. A hospedagem registra dados técnicos de acesso, como o endereço IP, como em
+              qualquer site.
             </li>
             <li>
               Pedidos de correção ou remoção de dado pessoal:{' '}

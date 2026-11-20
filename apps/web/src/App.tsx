@@ -1,27 +1,29 @@
 import { anosSchema, PAGINAS, paginaDoCaminho, type IdDaPagina, type Pagina } from '@orleans-em-dados/contracts';
-import { useEffect, useState } from 'react';
+import { lazy, Suspense, useEffect, useState } from 'react';
 import { useApi } from './api';
 import type { ComponentType } from 'react';
-import { Estado, SeletorTema } from './components';
+import { Estado, FronteiraDaPagina, SeletorTema } from './components';
 import { dataCurta } from './format';
-import Capa from './paginas/Capa';
-import ConhecaOrleans from './paginas/ConhecaOrleans';
-import Despesas from './paginas/Despesas';
-import Discrepancias from './paginas/Discrepancias';
-import Acesso from './paginas/educacao/Acesso';
-import Aprendizado from './paginas/educacao/Aprendizado';
-import Cidade from './paginas/educacao/Cidade';
-import Dinheiro from './paginas/educacao/Dinheiro';
-import Permanencia from './paginas/educacao/Permanencia';
-import Professores from './paginas/educacao/Professores';
-import Resumo from './paginas/educacao/Resumo';
-import Financas from './paginas/Financas';
-import Metodologia from './paginas/Metodologia';
 import NaoEncontrada from './paginas/NaoEncontrada';
-import ParaOndeVai from './paginas/ParaOndeVai';
 import type { PropsDaPagina } from './paginas/props';
-import Receitas from './paginas/Receitas';
 import { substituir, useCaminho, useRotas } from './rotas';
+
+// Cada página vem num pedaço próprio do build, buscado quando é aberta: a capa não carrega o caderno de Educação.
+const Capa = lazy(() => import('./paginas/Capa'));
+const ConhecaOrleans = lazy(() => import('./paginas/ConhecaOrleans'));
+const Despesas = lazy(() => import('./paginas/Despesas'));
+const Discrepancias = lazy(() => import('./paginas/Discrepancias'));
+const Acesso = lazy(() => import('./paginas/educacao/Acesso'));
+const Aprendizado = lazy(() => import('./paginas/educacao/Aprendizado'));
+const Cidade = lazy(() => import('./paginas/educacao/Cidade'));
+const Dinheiro = lazy(() => import('./paginas/educacao/Dinheiro'));
+const Permanencia = lazy(() => import('./paginas/educacao/Permanencia'));
+const Professores = lazy(() => import('./paginas/educacao/Professores'));
+const Resumo = lazy(() => import('./paginas/educacao/Resumo'));
+const Financas = lazy(() => import('./paginas/Financas'));
+const Metodologia = lazy(() => import('./paginas/Metodologia'));
+const ParaOndeVai = lazy(() => import('./paginas/ParaOndeVai'));
+const Receitas = lazy(() => import('./paginas/Receitas'));
 
 // O catálogo (`packages/contracts/src/paginas.ts`) diz caminho, nome, título e área; aqui, o que só a tela usa.
 type Tela = {
@@ -195,7 +197,13 @@ export default function App() {
           <>
             <Estado carregando={anos.carregando} erro={anos.erro} />
             {anos.dados && !anos.dados.anos.length && <p className="aviso">Nenhum snapshot disponível.</p>}
-            {(ano || tela.semExercicio) && <Componente ano={ano as number} entidade={entidade} filtros={filtros} />}
+            {(ano || tela.semExercicio) && (
+              <FronteiraDaPagina key={pagina.id}>
+                <Suspense fallback={<p className="carregando">Carregando a página…</p>}>
+                  <Componente ano={ano as number} entidade={entidade} filtros={filtros} />
+                </Suspense>
+              </FronteiraDaPagina>
+            )}
           </>
         ) : (
           <NaoEncontrada />

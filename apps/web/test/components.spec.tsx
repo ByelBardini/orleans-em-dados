@@ -10,6 +10,7 @@ import {
   Estado,
   Filtros,
   Fonte,
+  FronteiraDaPagina,
   larguraDaFaixa,
   LinhaAcumulada,
   ListaPontos,
@@ -53,6 +54,38 @@ describe('Estado', () => {
   it('sem carregar nem erro, não mostra nada', () => {
     const { container } = render(<Estado carregando={false} erro={null} />);
     expect(container).toBeEmptyDOMElement();
+  });
+});
+
+describe('FronteiraDaPagina', () => {
+  function Quebrada(): never {
+    throw new Error('Failed to fetch dynamically imported module');
+  }
+
+  it('sem falha, mostra a página', () => {
+    render(
+      <FronteiraDaPagina recarregar={() => {}}>
+        <p>conteúdo</p>
+      </FronteiraDaPagina>,
+    );
+
+    expect(screen.getByText('conteúdo')).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Recarregar' })).not.toBeInTheDocument();
+  });
+
+  it('com falha, o botão Recarregar recarrega a página uma vez', async () => {
+    vi.spyOn(console, 'error').mockImplementation(() => {});
+    const recargas: string[] = [];
+    render(
+      <FronteiraDaPagina recarregar={() => recargas.push('recarregou')}>
+        <Quebrada />
+      </FronteiraDaPagina>,
+    );
+
+    await userEvent.click(screen.getByRole('button', { name: 'Recarregar' }));
+
+    expect(recargas).toEqual(['recarregou']);
+    vi.restoreAllMocks();
   });
 });
 
