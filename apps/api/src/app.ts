@@ -13,7 +13,8 @@ import { rotasDeImportacoes } from './modules/importacoes/importacoes.routes';
 import { rotasDoMunicipio } from './modules/municipio/municipio.routes';
 import { rotasDeReceitas } from './modules/receitas/receitas.routes';
 import { rotasDeSaude } from './modules/saude/saude.routes';
-import { ehDaApi, registrarSite } from './site/site';
+import { anosDisponiveis } from './modules/coletas/coletas.dao';
+import { ehDaApi, registrarSite, type Exercicios } from './site/site';
 
 export type OpcoesDoApp = {
   /** A pasta do build do web (`apps/web/dist`). Sem ela, ou se não existir, só a API responde (o Vite serve o web). */
@@ -24,13 +25,24 @@ export type OpcoesDoApp = {
   verificacaoGoogle?: string | undefined;
   /** O Pix do apoio está configurado: a página Apoiar existe. */
   apoioAtivo?: boolean;
+  /** Para o teste: os exercícios publicados que o site lê (padrão: `anosDisponiveis`), e o relógio do cache. */
+  lerExercicios?: () => Promise<Exercicios>;
+  relogio?: () => number;
   /** Para o teste: a checagem do banco da `/api/saude`. */
   checarBanco?: () => Promise<void>;
 };
 
 export function criarApp(
   opcoes: FastifyServerOptions = {},
-  { site, siteUrl, verificacaoGoogle, apoioAtivo, checarBanco }: OpcoesDoApp = {},
+  {
+    site,
+    siteUrl,
+    verificacaoGoogle,
+    apoioAtivo,
+    checarBanco,
+    lerExercicios = anosDisponiveis,
+    relogio,
+  }: OpcoesDoApp = {},
 ): FastifyInstance {
   const app = Fastify({ exposeHeadRoutes: false, ...opcoes });
 
@@ -41,7 +53,7 @@ export function criarApp(
   });
 
   if (site && existsSync(path.join(site, 'index.html'))) {
-    registrarSite(app, { pasta: site, siteUrl, verificacaoGoogle, apoioAtivo });
+    registrarSite(app, { pasta: site, siteUrl, verificacaoGoogle, apoioAtivo, lerExercicios, relogio });
   } else {
     app.setNotFoundHandler((_request, reply) => reply.code(404).send({ erro: 'Rota não encontrada' }));
   }
