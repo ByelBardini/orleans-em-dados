@@ -19,3 +19,4 @@ export * from './funcoes';
 export * from './receitas';
 export * from './importacoes';
 export * from './municipio';
+export * from './saude';

@@ -1,6 +1,6 @@
 # Educação
 
-Dados do caderno de Educação: o modelo no banco, o vocabulário comum e as fontes em snapshot. Os importadores por arquivo vivem em `packages/importadores/educacao/`; IBGE e SICONFI seguem nos próprios pacotes ([ibge.md](ibge.md), [siconfi.md](siconfi.md)). A tela está em [web.md](web.md), e as rotas, em [api.md](api.md).
+Dados do caderno de Educação: o modelo no banco, o vocabulário comum e as fontes em snapshot. Os importadores por arquivo vivem em `packages/importadores/educacao/`; IBGE e SICONFI seguem nos próprios pacotes ([ibge.md](ibge.md), [siconfi.md](siconfi.md)). A tela está em [web/educacao.md](web/educacao.md), e as rotas, em [api/educacao.md](api/educacao.md).
 
 ## Modelo
 

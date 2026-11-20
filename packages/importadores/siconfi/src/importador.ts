@@ -3,12 +3,13 @@
 // educação (RREO Anexo 14 do último bimestre).
 import { centavos, deCentavos } from '@orleans-em-dados/contracts';
 import { tabelas } from '@orleans-em-dados/db';
-import type {
-  Coleta,
-  ConsultaImportada,
-  Importador,
-  ItemDeConferencia,
-  Validacao,
+import {
+  janelaDeAnos,
+  type Coleta,
+  type ConsultaImportada,
+  type Importador,
+  type ItemDeConferencia,
+  type Validacao,
 } from '@orleans-em-dados/importador-nucleo';
 import { SiconfiClienteHttp, type ClienteSiconfi } from './cliente';
 import { SICONFI, SICONFI_RREO } from './config';
@@ -119,19 +120,28 @@ function consultaDeIndices(cliente: ClienteSiconfi): ConsultaImportada<LinhaDeIn
   };
 }
 
+const ultimoExercicioComDca = (agora: Date) =>
+  agora.getUTCMonth() > ULTIMO_MES_SEM_A_DCA ? agora.getUTCFullYear() - 1 : agora.getUTCFullYear() - 2;
+
 export function criarImportadorSiconfi({
   cliente = new SiconfiClienteHttp(),
 }: { cliente?: ClienteSiconfi } = {}): Importador {
+  const consultas = [consultaDeFuncoes(cliente), consultaDeIndices(cliente)];
   return {
     id: 'siconfi',
     fonte: 'siconfi',
-    agenda: '0 6 5 * *',
+    // Diária: leve, e a DCA ou uma retificação que chegue no meio do mês entra no dia seguinte.
+    agenda: '0 6 * * *',
     // Retificação do exercício anterior ainda pode chegar.
     anosDaRodada: (agora) => {
-      const ano = agora.getUTCFullYear();
-      const ultimo = agora.getUTCMonth() > ULTIMO_MES_SEM_A_DCA ? ano - 1 : ano - 2;
+      const ultimo = ultimoExercicioComDca(agora);
       return [ultimo, ultimo - 1];
     },
-    consultas: [consultaDeFuncoes(cliente), consultaDeIndices(cliente)],
+    anosDaCarga: (agora, janela) =>
+      consultas.map(({ chave }) => ({
+        chave,
+        anos: janelaDeAnos(agora, janela, { ultimo: ultimoExercicioComDca(agora) }),
+      })),
+    consultas,
   };
 }

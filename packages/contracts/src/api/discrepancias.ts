@@ -84,6 +84,17 @@ export const discrepanciasSchema = z.strictObject({
   limites: limitesDaConferenciaSchema.nullable(),
   // Só quando não há conferência: as consultas que faltam publicar.
   faltando: z.array(z.string()).optional(),
+  foraDaFonte: z.array(z.string()).optional(),
+  // A área que ficou de fora quando a outra tem conferência (de 2018 a 2022, só a receita).
+  semConferencia: z
+    .array(
+      z.strictObject({
+        area: z.enum(['receita', 'despesa']),
+        faltando: z.array(z.string()),
+        foraDaFonte: z.array(z.string()),
+      }),
+    )
+    .optional(),
   grupos: z.array(grupoSchema),
   // Pendência, não discrepância: o que o TCE-SC ainda não recebeu.
   aguardando: z.strictObject({

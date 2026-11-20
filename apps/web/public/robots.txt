@@ -1,0 +1,3 @@
+# A API traz nomes de credores que podem ser pessoas físicas: fica fora dos buscadores.
+User-agent: *
+Disallow: /api/

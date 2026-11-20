@@ -3,9 +3,12 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import Despesas from '../../src/paginas/Despesas';
 import {
   api,
+  buscaDeEmpenhos,
   contaNaTela,
   despesas,
   despesasDeExemplo,
+  despesasForaDaFonte,
+  empenhosForaDaFonte,
   despesasParciais,
   despesasSemConferencia,
   ENTIDADE_FORA,
@@ -217,6 +220,34 @@ describe('Despesas com o conferido', () => {
     });
   });
 
+  // A API não manda o histórico de quem pode ser pessoa física (LGPD, art. 7º, §§ 3º e 7º).
+  describe('credor que pode ser pessoa física', () => {
+    const OMITIDO = 'Descrição não exibida: o credor pode ser pessoa física';
+    const pessoa = { credor: 'JOAO DA SILVA', historico: null };
+
+    it('a lista diz que a descrição não é exibida', async () => {
+      await abrir({ busca: buscaDeEmpenhos(pessoa) });
+
+      const linha = (await screen.findByText('Joao da Silva', { selector: 'strong' })).closest('tr') as HTMLElement;
+      expect(linha).toHaveTextContent(OMITIDO);
+    });
+
+    it('os maiores do ano dizem o mesmo', async () => {
+      const { liquidado: _l, saldoAPagar: _s, ...maior } = buscaDeEmpenhos(pessoa).itens[0]!;
+      await abrir({ empenhos: resumoDeEmpenhos({}, [maior]) });
+
+      const destaque = screen.getByRole('heading', { name: 'Os maiores empenhos do ano' }).closest('section');
+      expect(destaque).toHaveTextContent(OMITIDO);
+    });
+
+    it('organização sem histórico na fonte não ganha o aviso', async () => {
+      await abrir({ busca: buscaDeEmpenhos({ historico: null }) });
+
+      await screen.findByText('Agua Exemplo LTDA', { selector: 'strong' });
+      expect(document.body).not.toHaveTextContent(OMITIDO);
+    });
+  });
+
   it('sem conferência, explica a falta e não mostra número', async () => {
     const container = await abrir({ despesa: despesasSemConferencia() });
 
@@ -247,5 +278,14 @@ describe('Despesas com o conferido', () => {
     await screen.findByRole('heading', { level: 1 });
 
     expect(container.textContent).not.toMatch(TEXTO_PROIBIDO);
+  });
+});
+
+describe('Despesas de um exercício sem os empenhos do TCE-SC', () => {
+  it('diz que a fonte não publica os empenhos, sem número nenhum', async () => {
+    const container = await abrir({ despesa: despesasForaDaFonte(), empenhos: empenhosForaDaFonte() });
+
+    expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('O TCE-SC não publica os empenhos de 2025.');
+    expect(container.querySelector('.numero-valor')).toBeNull();
   });
 });

@@ -3,6 +3,7 @@
 import type { DespesasResumo, Receitas } from '@orleans-em-dados/contracts';
 import type { ReactNode } from 'react';
 import { MESES_LONGOS, moeda } from './format';
+import { DESDE_QUANDO_O_TCE_PUBLICA, naoPublica } from './semConferencia';
 
 /** "até setembro de 2026" no ano em curso; vazio no encerrado, em que o ano inteiro está conferido. */
 export const ateOMes = (parcial: boolean | null | undefined, mes: number | null | undefined, ano: number) =>
@@ -178,7 +179,26 @@ const NOMES_DAS_COLETAS: Record<string, string> = {
 };
 
 // Sem as duas fontes não há o que conferir, e a página não mostra número nenhum.
-export function SemConferencia({ ano, faltando }: { ano: number; faltando?: readonly string[] | undefined }) {
+export function SemConferencia({
+  ano,
+  faltando,
+  foraDaFonte,
+}: {
+  ano: number;
+  faltando?: readonly string[] | undefined;
+  foraDaFonte?: readonly string[] | undefined;
+}) {
+  if (foraDaFonte?.length) {
+    return (
+      <section className="secao solta sem-conferencia">
+        <h1 className="secao-titulo">{naoPublica(foraDaFonte, ano)}.</h1>
+        <p className="nota-serif">
+          Este painel só mostra o que foi conferido entre as fontes. {DESDE_QUANDO_O_TCE_PUBLICA} Por isso, nenhum valor
+          de {ano} aparece aqui.
+        </p>
+      </section>
+    );
+  }
   const coletas = (faltando ?? []).map((f) => NOMES_DAS_COLETAS[f] ?? f);
   return (
     <section className="secao solta sem-conferencia">

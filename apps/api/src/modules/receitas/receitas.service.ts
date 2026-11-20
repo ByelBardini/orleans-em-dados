@@ -1,18 +1,23 @@
 // A receita das páginas: os valores vêm de `dadosConferidos`, e a Betha só completa o orçado e a
 // quantidade de linhas. Coleta de exemplo mantém os números fictícios; ano real sem as coletas do
 // TCE-SC não tem número de arrecadação.
-import { dadosConferidos } from '@orleans-em-dados/db/conferencias';
+import { foraDaFonte } from '@orleans-em-dados/contracts';
+import { conferenciaPorArea } from '@orleans-em-dados/db/conferencias';
 import type { ColetaPublicada } from '../coletas/coletas.dao';
 import { complementosDaReceita, descricaoDaOrigem, resumoReceitas, type DoRecorte } from './receitas.dao';
 
 const FONTE_UNICA = ['orcadoAtualizado', 'orcadoDeducoes'] as const;
 const VAZIO: DoRecorte = { quantidade: 0, orcadoAtualizado: null };
 
-type Dados = Awaited<ReturnType<typeof dadosConferidos>>;
-type Disponiveis = Extract<Dados, { disponivel: true }>;
-type Indisponiveis = Extract<Dados, { disponivel: false }>;
+type PorArea = Awaited<ReturnType<typeof conferenciaPorArea>>;
+type Disponiveis = {
+  receita: Extract<PorArea['receita'], { disponivel: true }>['receita'];
+  parcial: boolean;
+  limites: NonNullable<PorArea['limites']>;
+};
+type Indisponiveis = { faltando: string[]; foraDaFonte: string[] };
 
-const semConferencia = ({ faltando }: Indisponiveis) => ({
+const semConferencia = ({ faltando, foraDaFonte }: Indisponiveis) => ({
   disponivel: false,
   parcial: null,
   limites: null,
@@ -23,6 +28,7 @@ const semConferencia = ({ faltando }: Indisponiveis) => ({
   totalBetha: null,
   totalTce: null,
   faltando,
+  ...(foraDaFonte.length ? { foraDaFonte } : {}),
 });
 
 // O que só existe depois do corte não é conferido nem diferença: a linha não sai no agregado.
@@ -123,15 +129,20 @@ async function receitasSemConferencia(coleta: ColetaPublicada, dados: Indisponiv
   };
 }
 
+// Só a receita importa aqui: ela é conferida mesmo sem as coletas da despesa (de 2018 a 2022).
 export async function receitasDoAno(coleta: ColetaPublicada, ano: number, entidade: string) {
-  const dados = await dadosConferidos(ano);
-  if (dados.disponivel) return receitasConferidas(coleta, dados, entidade);
-  if (dados.exemplo && coleta.meta.exemplo) {
+  const { receita, parcial, limites, exemplo } = await conferenciaPorArea(ano);
+  if (receita.disponivel && parcial !== null && limites) {
+    return receitasConferidas(coleta, { receita: receita.receita, parcial, limites }, entidade);
+  }
+  const faltando = receita.disponivel ? [] : receita.faltando;
+  const indisponiveis = { faltando, foraDaFonte: foraDaFonte(faltando, ano) };
+  if (exemplo && coleta.meta.exemplo) {
     return {
       ...(await resumoReceitas(coleta, { entidade })),
       fonteUnica: FONTE_UNICA,
-      conferencia: semConferencia(dados),
+      conferencia: semConferencia(indisponiveis),
     };
   }
-  return receitasSemConferencia(coleta, dados, entidade);
+  return receitasSemConferencia(coleta, indisponiveis, entidade);
 }
