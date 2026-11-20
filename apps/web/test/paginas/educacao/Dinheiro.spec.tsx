@@ -177,7 +177,7 @@ describe('Dinheiro: o mínimo de 25%', () => {
     expect(textoDe(noBloco)).toContain('2025: SIOPE 28,63% (R$ 30.000.000,00); SICONFI 28,31% (R$ 29.700.000,00)');
     expect(within(noBloco).getByRole('link', { name: /ver em discrepâncias/i })).toHaveAttribute(
       'href',
-      '#discrepancias',
+      '/discrepancias',
     );
   });
 
@@ -330,7 +330,7 @@ describe('Dinheiro: gasto', () => {
     expect(textoDe(noBloco)).toContain('Em 2023, o Anexo 8 do SIOPE traz outro valor');
     expect(within(noBloco).getByRole('link', { name: /ver em discrepâncias/i })).toHaveAttribute(
       'href',
-      '#discrepancias',
+      '/discrepancias',
     );
   });
 

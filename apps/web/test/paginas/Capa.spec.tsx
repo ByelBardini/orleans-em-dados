@@ -143,10 +143,10 @@ describe('Capa: números', () => {
 
 describe('Capa: áreas', () => {
   it.each([
-    ['Finanças', '#financas'],
-    ['Para onde vai o dinheiro', '#para-onde-vai'],
-    ['Demografia', '#conheca-orleans'],
-    ['Economia', '#conheca-orleans'],
+    ['Finanças', '/financas'],
+    ['Para onde vai o dinheiro', '/financas/para-onde-vai'],
+    ['Demografia', '/conheca-orleans'],
+    ['Economia', '/conheca-orleans'],
   ])('o cartão de %s leva para %s', async (nome, destino) => {
     await abrir();
 
@@ -157,7 +157,7 @@ describe('Capa: áreas', () => {
     await abrir();
 
     const cartao = screen.getByRole('link', { name: /^Educação/ });
-    expect(cartao).toHaveAttribute('href', '#educacao');
+    expect(cartao).toHaveAttribute('href', '/educacao');
     expect(cartao).not.toHaveTextContent('em breve');
     expect(cartao).not.toHaveTextContent(/\d/);
     expect(cartao.querySelector('.selo')).toBeNull();

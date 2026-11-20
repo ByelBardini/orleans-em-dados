@@ -116,7 +116,7 @@ describe('Receitas com o conferido', () => {
 
     expect(within(conta()).getByRole('link', { name: 'Ver discrepâncias →' })).toHaveAttribute(
       'href',
-      '#discrepancias',
+      '/discrepancias',
     );
   });
 
@@ -207,7 +207,7 @@ describe('Receitas com o conferido', () => {
       const de14 = tabela.getByText('IPTU (exemplo)').closest('tr') as HTMLElement;
       expect(de8).toHaveTextContent('17115101');
       expect(de8).toHaveTextContent('Agrupada em 8 dígitos: há mês em discrepância.');
-      expect(within(de8).getByRole('link', { name: 'Ver discrepâncias' })).toHaveAttribute('href', '#discrepancias');
+      expect(within(de8).getByRole('link', { name: 'Ver discrepâncias' })).toHaveAttribute('href', '/discrepancias');
       expect(de14).toHaveTextContent('11125001000000');
       expect(de14).not.toHaveTextContent('Agrupada');
     });
