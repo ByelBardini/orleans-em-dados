@@ -8,7 +8,7 @@ import {
   importadorFake,
   RepositorioDeLotesFake,
 } from '../../../packages/importadores/nucleo/test/support/fakes';
-import { importarArquivos, importarDaFonte, salvarSnapshot } from '../src/comandos';
+import { importarArquivos, importarDaFonte, importarPasta, salvarSnapshot } from '../src/comandos';
 
 const pastaTemporaria = () => mkdtempSync(path.join(tmpdir(), 'orleans-worker-'));
 
@@ -93,6 +93,28 @@ describe('importarArquivos', () => {
 
     expect(resultados[0]).toEqual({ arquivo: ruim, erro: 'Nenhum importador conhece a consulta 999' });
     expect(resultados[1]).toMatchObject({ arquivo: bom, publicada: true });
+  });
+
+  it('importarPasta carrega só os .json da pasta, em ordem de nome', async () => {
+    const repositorio = new RepositorioDeLotesFake();
+    const pasta = pastaTemporaria();
+    arquivo(pasta, 'b.json', snapshotDe('totalizador_conciliado'));
+    arquivo(pasta, 'a.json', snapshotDe('totalizador_conciliado'));
+    arquivo(pasta, 'leia-me.md', '# não é snapshot');
+
+    const resultados = await importarPasta(pasta, [importadorFake()], repositorio);
+
+    expect(resultados.map((r) => path.basename(r.arquivo))).toEqual(['a.json', 'b.json']);
+  });
+
+  it('importarPasta sem a pasta não carrega nada e não lança', async () => {
+    const resultados = await importarPasta(
+      path.join(pastaTemporaria(), 'nao-existe'),
+      [importadorFake()],
+      deps().repositorio,
+    );
+
+    expect(resultados).toEqual([]);
   });
 
   it('JSON inválido vira erro no arquivo, sem derrubar a rodada', async () => {

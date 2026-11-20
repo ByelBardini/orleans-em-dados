@@ -22,6 +22,7 @@ jobs:
     outputs:
       servidor: ${{ steps.filtro.outputs.servidor }}
       web: ${{ steps.filtro.outputs.web }}
+      imagem: ${{ steps.filtro.outputs.imagem }}
     steps:
       - uses: actions/checkout@v7
       - uses: dorny/paths-filter@v4
@@ -45,6 +46,14 @@ jobs:
               - *comum
               - apps/web/**
               - packages/contracts/**
+            imagem:
+              - *comum
+              - Dockerfile
+              - .dockerignore
+              - docker-compose.prod.yml
+              - apps/**
+              - packages/**
+              - docs/educacao/snapshots/**
 
   estatico:
     runs-on: ubuntu-latest
@@ -104,3 +113,41 @@ jobs:
       - uses: actions/checkout@v7
       - uses: ./.github/actions/preparar
       - run: pnpm test:integracao ${{ matrix.pasta }}/
+
+  # A imagem de produção constrói, migra um Postgres vazio e serve o painel e a saúde.
+  imagem:
+    needs: mudancas
+    if: needs.mudancas.outputs.imagem == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      DATABASE_URL: postgres://orleans:orleans@localhost:5434/orleans_teste
+    services:
+      postgres:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_USER: orleans
+          POSTGRES_PASSWORD: orleans
+          POSTGRES_DB: orleans_teste
+        ports:
+          - 5434:5432
+        options: >-
+          --health-cmd "pg_isready -U orleans -d orleans_teste"
+          --health-interval 2s
+          --health-timeout 3s
+          --health-retries 20
+    steps:
+      - uses: actions/checkout@v7
+      - run: docker build -t orleans-em-dados:ci .
+      - run: docker compose -f docker-compose.prod.yml config --quiet
+      - run: docker run --rm --network host -e DATABASE_URL orleans-em-dados:ci pnpm db:migrar
+      - run: docker run -d --name site --network host -e DATABASE_URL orleans-em-dados:ci
+      - name: saúde e página
+        run: |
+          for i in $(seq 1 30); do curl -fsS http://localhost:3000/api/saude && break; sleep 2; done
+          curl -fsS http://localhost:3000/api/saude | grep -q '"ok":true'
+          curl -fsS http://localhost:3000/ | grep -q '<div id="root">'
+          # GET: a API não expõe rotas HEAD.
+          curl -fsS -D - -o /dev/null http://localhost:3000/api/saude | grep -qi 'x-robots-tag: noindex'
+      - if: failure()
+        run: docker logs site

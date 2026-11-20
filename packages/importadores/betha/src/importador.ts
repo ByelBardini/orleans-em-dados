@@ -1,7 +1,12 @@
 // O importador do Portal da Transparência Betha: receitas (57153), empenhos (57140)
 // e despesa orçamentária (57170). Cada consulta usa um esquema de filtro próprio.
 import { tabelas } from '@orleans-em-dados/db';
-import type { ConsultaImportada, Importador, RegistroBruto } from '@orleans-em-dados/importador-nucleo';
+import {
+  janelaDeAnos,
+  type ConsultaImportada,
+  type Importador,
+  type RegistroBruto,
+} from '@orleans-em-dados/importador-nucleo';
 import { BethaAuthClient } from './auth';
 import { BethaQueryClient } from './cliente';
 import { esperarDeVerdade } from './config';
@@ -89,6 +94,7 @@ export function criarImportadorBetha(opcoes: Opcoes = {}): Importador {
     agenda: '0 3 * * *',
     // O exercício anterior ainda aceita retificação.
     anosDaRodada: (agora) => [agora.getUTCFullYear(), agora.getUTCFullYear() - 1],
+    anosDaCarga: (agora, janela) => consultas.map(({ chave }) => ({ chave, anos: janelaDeAnos(agora, janela) })),
     consultas,
   };
 }

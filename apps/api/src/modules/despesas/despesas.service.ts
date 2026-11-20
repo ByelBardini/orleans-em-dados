@@ -1,15 +1,22 @@
 // A despesa das páginas: valores de `dadosConferidos().despesa`. Entidade não conferida sai sem
 // número e fora da soma; a Câmara fica à parte. Coleta de exemplo mantém os números fictícios.
-import { dadosConferidos } from '@orleans-em-dados/db/conferencias';
+import { foraDaFonte } from '@orleans-em-dados/contracts';
+import { conferenciaPorArea } from '@orleans-em-dados/db/conferencias';
 import type { ColetaPublicada } from '../coletas/coletas.dao';
 import { camaraDoAno, catalogoDeEntidades, orcadoDaDespesa, resumoDespesas } from './despesas.dao';
 
 const FONTE_UNICA = ['orcadoAtualizado'] as const;
 
-type Dados = Awaited<ReturnType<typeof dadosConferidos>>;
-type Disponiveis = Extract<Dados, { disponivel: true }>;
+type PorArea = Awaited<ReturnType<typeof conferenciaPorArea>>;
+type DaDespesa = Extract<PorArea['despesa'], { disponivel: true }>;
+type Disponiveis = {
+  despesa: DaDespesa['despesa'];
+  discrepancias: DaDespesa['discrepancias'];
+  parcial: boolean;
+  limites: NonNullable<PorArea['limites']>;
+};
 
-const semConferencia = (faltando: readonly string[]) => ({
+const semConferencia = (faltando: string[], fora: string[]) => ({
   disponivel: false,
   parcial: null,
   limites: null,
@@ -19,6 +26,7 @@ const semConferencia = (faltando: readonly string[]) => ({
   entidadesConferidas: null,
   entidadesFora: null,
   faltando,
+  ...(fora.length ? { foraDaFonte: fora } : {}),
 });
 
 const emCentavos = (v: number | null | undefined) => Math.round((v ?? 0) * 100);
@@ -85,19 +93,24 @@ async function despesasConferidas(coleta: ColetaPublicada, dados: Disponiveis, a
 }
 
 export async function despesasDoAno(coleta: ColetaPublicada, ano: number, entidade: string) {
-  const dados = await dadosConferidos(ano);
-  if (dados.disponivel) return despesasConferidas(coleta, dados, ano, entidade);
-  if (dados.exemplo && coleta.meta.exemplo) {
+  const { despesa, parcial, limites, exemplo } = await conferenciaPorArea(ano);
+  if (despesa.disponivel && parcial !== null && limites) {
+    const { despesa: valores, discrepancias } = despesa;
+    return despesasConferidas(coleta, { despesa: valores, discrepancias, parcial, limites }, ano, entidade);
+  }
+  const faltando = despesa.disponivel ? [] : despesa.faltando;
+  const fora = foraDaFonte(faltando, ano);
+  if (exemplo && coleta.meta.exemplo) {
     return {
       ...(await resumoDespesas(coleta, { entidade, ano })),
       fonteUnica: FONTE_UNICA,
-      conferencia: semConferencia(dados.faltando),
+      conferencia: semConferencia(faltando, fora),
     };
   }
   return {
     meta: coleta.meta,
     fonteUnica: FONTE_UNICA,
-    conferencia: semConferencia(dados.faltando),
+    conferencia: semConferencia(faltando, fora),
     totais: {
       orcadoAtualizado: await orcadoDaDespesa(coleta.coletaId, entidade),
       empenhado: null,

@@ -440,7 +440,7 @@ export function criarImportadorIbge({
   return {
     id: 'ibge',
     fonte: 'ibge',
-    agenda: '0 5 3 * *',
+    agenda: '0 5 * * *',
     anosDaRodada: (agora) => [agora.getUTCFullYear()],
     consultas: [
       consultaDoIbge({ id: 900101, chave: 'ibge_populacao', agregados: POPULACAO }, validarPopulacao, cliente),

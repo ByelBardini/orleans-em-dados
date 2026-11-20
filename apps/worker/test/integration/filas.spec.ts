@@ -3,7 +3,7 @@ import { afterAll, afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { pool } from '@orleans-em-dados/db';
 import { RepositorioDeLotesPostgres } from '@orleans-em-dados/importador-nucleo';
 import { consultaFake, importadorFake } from '../../../../packages/importadores/nucleo/test/support/fakes';
-import { FUSO, montarFilas, nomeDaFila } from '../../src/filas';
+import { FILA_DO_HISTORICO, FUSO, montarFilas, montarHistorico, nomeDaFila } from '../../src/filas';
 import { rodarImportador } from '../../src/rodada';
 
 const OPCOES_RAPIDAS = { retryLimit: 1, retryDelay: 1, retryBackoff: false, pollingIntervalSeconds: 0.5 };
@@ -143,5 +143,40 @@ describe('montarFilas', () => {
     liberar();
     await esperarAte(() => concluidas === 2);
     expect(maximo).toBe(1);
+  });
+});
+
+describe('montarHistorico', () => {
+  it('a fila do histórico é singleton e roda todo dia às 2h, no fuso de São Paulo, no modo diário', async () => {
+    const boss = await iniciar();
+
+    await montarHistorico(boss, async () => {}, OPCOES_RAPIDAS);
+
+    expect(await boss.getQueue(FILA_DO_HISTORICO)).toMatchObject({ policy: 'singleton' });
+    expect(await boss.getSchedules(FILA_DO_HISTORICO)).toMatchObject([
+      { cron: '0 2 * * *', timezone: FUSO, data: { modo: 'diario' } },
+    ]);
+  });
+
+  it('o job entrega o modo pedido a quem completa o histórico', async () => {
+    const boss = await iniciar();
+    const modos: string[] = [];
+    await montarHistorico(boss, async (modo) => void modos.push(modo), OPCOES_RAPIDAS);
+
+    const id = (await boss.send(FILA_DO_HISTORICO, { modo: 'subida' })) as string;
+
+    await esperarAte(async () => (await boss.findJobs(FILA_DO_HISTORICO, { id }))[0]?.state === 'completed');
+    expect(modos).toEqual(['subida']);
+  });
+
+  it('modo desconhecido no job vira o diário, o mais conservador', async () => {
+    const boss = await iniciar();
+    const modos: string[] = [];
+    await montarHistorico(boss, async (modo) => void modos.push(modo), OPCOES_RAPIDAS);
+
+    const id = (await boss.send(FILA_DO_HISTORICO, { modo: 'qualquer' })) as string;
+
+    await esperarAte(async () => (await boss.findJobs(FILA_DO_HISTORICO, { id }))[0]?.state === 'completed');
+    expect(modos).toEqual(['diario']);
   });
 });

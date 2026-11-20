@@ -83,6 +83,17 @@ describe('criarImportadorTcesc', () => {
     ]);
     expect(importador.anosDaRodada(new Date('2026-03-10T06:00:00.000Z'))).toEqual([2026, 2025]);
   });
+
+  // O Farol não tem receitas antes de 2018 nem empenhos antes de 2023 (sondado em 16/11/2026):
+  // a carga não pede o que a fonte não publica.
+  it('o histórico começa no primeiro exercício que o Farol publica, em cada consulta', () => {
+    const { importador } = preparar(new SessaoQlikFake(cuboDeReceita([], 0)));
+
+    expect(importador.anosDaCarga?.(new Date('2026-11-16T12:00:00.000Z'), 10)).toEqual([
+      { chave: 'receitas', anos: [2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025, 2026] },
+      { chave: 'empenhos', anos: [2023, 2024, 2025, 2026] },
+    ]);
+  });
 });
 
 describe('coletar', () => {

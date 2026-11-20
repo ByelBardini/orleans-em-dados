@@ -9,6 +9,7 @@
     "typecheck": "tsc"
   },
   "dependencies": {
+    "@fastify/static": "^10.1.11",
     "@orleans-em-dados/contracts": "workspace:*",
     "@orleans-em-dados/db": "workspace:*",
     "fastify": "^5.12.7",

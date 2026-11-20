@@ -1,5 +1,6 @@
 // A lista de empenhos: identificação e órgão da Betha (57140), execução do TCE-SC. `empenhado` é o
 // valor original da Betha, que não é a despesa líquida de anulações. As somas são do Postgres, em NUMERIC.
+import { PADRAO_DE_ORGANIZACAO } from '@orleans-em-dados/contracts';
 import { chaveTexto, consultar, ENTIDADE } from '../../lib/consultas';
 import type { ColetaPublicada } from '../coletas/coletas.dao';
 import { filtroBusca, type OpcoesDaBusca } from './empenhos.filtro';
@@ -7,7 +8,14 @@ import { filtroBusca, type OpcoesDaBusca } from './empenhos.filtro';
 /** A relação `e` de todas as consultas, com as mesmas colunas, e os parâmetros que ela usa. */
 export type ConjuntoDeEmpenhos = { relacao: string; params: unknown[] };
 
-const COLUNAS_DA_BETHA = `b.id_externo, b.entidade_codigo, b.numero, b.data_empenho, b.orgao, b.credor, b.historico,
+/** `pareceOrganizacao` de `@orleans-em-dados/contracts`, em SQL: o mesmo regex, sobre o nome sem acento. */
+export const pareceOrganizacaoSql = (coluna: string) =>
+  `(upper(unaccent(coalesce(${coluna}, ''))) ~ '${PADRAO_DE_ORGANIZACAO.replaceAll("'", "''")}')`;
+
+// O histórico de credor que pode ser pessoa física sai nulo já aqui, na relação: lista, maiores, CSV
+// e busca leem esta coluna, e nenhum deles vê ou procura no texto (LGPD, art. 7º, §§ 3º e 7º).
+const COLUNAS_DA_BETHA = `b.id_externo, b.entidade_codigo, b.numero, b.data_empenho, b.orgao, b.credor,
+  CASE WHEN ${pareceOrganizacaoSql('b.credor')} THEN b.historico END AS historico,
   b.valor_empenho AS empenhado`;
 
 /** Só os pares casados com o TCE-SC, com os valores do próprio TCE-SC. Lista vazia: conjunto vazio. */

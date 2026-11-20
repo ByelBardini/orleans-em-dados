@@ -1,0 +1,56 @@
+# Produção (Coolify): migração → site → worker. O Postgres é um recurso à parte no Coolify, e o
+# DATABASE_URL vem do painel. Passo a passo em docs/DEPLOY.md.
+x-app: &app
+  build: .
+  image: orleans-em-dados:latest
+  environment:
+    DATABASE_URL: ${DATABASE_URL:?defina o DATABASE_URL do Postgres do Coolify}
+
+services:
+  # Roda as migrações e termina; site e worker só sobem depois que ela sai com sucesso.
+  migrar:
+    <<: *app
+    command: ['pnpm', 'db:migrar']
+    restart: 'no'
+
+  # A API e o build do web, no mesmo processo, na porta 3000.
+  site:
+    <<: *app
+    command: ['pnpm', 'start']
+    environment:
+      DATABASE_URL: ${DATABASE_URL:?defina o DATABASE_URL do Postgres do Coolify}
+      PORT: '3000'
+      WEB_DIST: /app/apps/web/dist
+    expose:
+      - '3000'
+    depends_on:
+      migrar:
+        condition: service_completed_successfully
+    healthcheck:
+      test:
+        [
+          'CMD',
+          'node',
+          '-e',
+          "fetch('http://127.0.0.1:3000/api/saude').then((r) => process.exit(r.ok ? 0 : 1)).catch(() => process.exit(1))",
+        ]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
+    restart: unless-stopped
+
+  # A agenda diária e o histórico dos últimos exercícios; na subida, carrega os snapshots de Educação.
+  worker:
+    <<: *app
+    command: ['pnpm', 'worker']
+    environment:
+      DATABASE_URL: ${DATABASE_URL:?defina o DATABASE_URL do Postgres do Coolify}
+      ANOS_DE_HISTORICO: ${ANOS_DE_HISTORICO:-10}
+      HISTORICO_PAUSA_MS: ${HISTORICO_PAUSA_MS:-5000}
+      BETHA_PAGE_SIZE: ${BETHA_PAGE_SIZE:-10000}
+      BETHA_PAUSA_MS: ${BETHA_PAUSA_MS:-300}
+    depends_on:
+      migrar:
+        condition: service_completed_successfully
+    restart: unless-stopped

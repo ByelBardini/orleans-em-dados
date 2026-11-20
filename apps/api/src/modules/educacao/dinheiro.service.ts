@@ -1,7 +1,7 @@
 // A aba Dinheiro: mínimo legal, gasto, ações, repasses, conta do Fundeb e valor por aluno. Só exercício encerrado, em
 // reais nominais. Número principal é o SIOPE ou o conferido; o SICONFI só entra para o aviso de diferença.
 import { populacaoDoAno, type EducacaoDinheiro, type PontoDaPopulacao } from '@orleans-em-dados/contracts';
-import { ACOES_DE_EDUCACAO, conferirGastoEducacao, dadosConferidos } from '@orleans-em-dados/db/conferencias';
+import { ACOES_DE_EDUCACAO, conferenciaPorArea, conferirGastoEducacao } from '@orleans-em-dados/db/conferencias';
 import { linhasDasFuncoes, totaisDasFuncoes } from '../funcoes/funcoes.dao';
 import { populacaoPublicada } from '../municipio/municipio.service';
 import {
@@ -344,8 +344,8 @@ export async function dinheiro(): Promise<EducacaoDinheiro> {
   const conferidos: Conferido[] = (
     await Promise.all(
       anosDaReceita.map(async (ano) => {
-        const dados = await dadosConferidos(ano);
-        return dados.disponivel && !dados.parcial ? [{ ano, naturezas: dados.receita.naturezas }] : [];
+        const { receita, parcial } = await conferenciaPorArea(ano);
+        return receita.disponivel && parcial === false ? [{ ano, naturezas: receita.receita.naturezas }] : [];
       }),
     )
   ).flat();

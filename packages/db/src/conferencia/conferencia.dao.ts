@@ -284,6 +284,11 @@ const LIMITES = `
           WHERE coleta_id = ${coleta('tcesc_empenhos')} AND u.entidade_betha IS NOT NULL) AS "dataEmpenho"`;
 
 export const CONSULTAS_NECESSARIAS = ['receitas', 'empenhos', 'despesas', 'tcesc_receitas', 'tcesc_empenhos'];
+// Cada área com as próprias coletas. A despesa também pede as receitas do TCE-SC: o exercício parcial
+// (e o corte do ano em curso) é dito pelo último mês de receita que o Tribunal recebeu (`ehParcial`).
+export const CONSULTAS_DA_RECEITA = ['receitas', 'tcesc_receitas'];
+// Na mesma ordem de `CONSULTAS_NECESSARIAS`, que é a do `faltando` das respostas.
+export const CONSULTAS_DA_DESPESA = ['empenhos', 'despesas', 'tcesc_receitas', 'tcesc_empenhos'];
 
 export const lerColetas = (ano: number) => consultar<ColetaDaConferencia>(CONSULTAS.coletas, [ano]);
 

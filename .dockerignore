@@ -1,0 +1,23 @@
+# O que não entra na imagem: dependências locais, build local, dados e segredos.
+**/node_modules
+**/dist
+.vite
+coverage
+.git
+.github
+.vscode
+.idea
+
+# Dados coletados podem ter dado pessoal de credor; segredos e depuração.
+data
+.env
+.env.*
+*.har
+*.log
+*.xls
+*.xlsx
+
+# Só para o desenvolvimento.
+docs/plans
+docs/screens
+.claude

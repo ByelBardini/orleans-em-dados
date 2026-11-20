@@ -4,11 +4,12 @@ Coleta das fontes externas, gravação e publicação. Um pacote por fonte em `p
 
 ## O contrato (`packages/importadores/nucleo`)
 
-Todo importador novo segue `Importador` e `ConsultaImportada` (`nucleo/src/importador.ts`): `id`, `fonte`, `agenda` opcional (cron, no fuso de São Paulo; sem ela, o importador não entra nas filas), `anosDaRodada(agora)` e `consultas`, cada uma com `id`, `chave`, `tabela`, `coletar` (só I/O), `normalizar` (pura, lança se o registro não servir) e `validar`. Gravar e publicar são do executor. Fonte nova entra em `apps/worker/src/registro.ts`.
+Todo importador novo segue `Importador` e `ConsultaImportada` (`nucleo/src/importador.ts`): `id`, `fonte`, `agenda` opcional (cron, no fuso de São Paulo; sem ela, o importador não entra nas filas), `anosDaRodada(agora)`, `anosDaCarga(agora, janela)` opcional (o histórico por consulta: `{ chave, anos }[]`; sem ele, nada a completar) e `consultas`, cada uma com `id`, `chave`, `tabela`, `coletar` (só I/O), `normalizar` (pura, lança se o registro não servir) e `validar`. Gravar e publicar são do executor. Fonte nova entra em `apps/worker/src/registro.ts`.
 
 - `executar(importador, ano, { repositorio, relogio, aoMontarLote? }, chaves?)` (`executor.service.ts`) — coletar → normalizar → validar → gravar → publicar, consulta por consulta; falha numa não impede a seguinte. Devolve `ResultadoDaExecucao`, sem relançar.
 - `RepositorioDeLotesPostgres` (`lotes.dao.ts`) — implementa a porta `RepositorioDeLotes`: `gravar` (uma transação, linhas em blocos de 1.000), `publicar` (troca o ponteiro), `reconfirmar`, `abrirExecucao`, `fecharExecucao`.
 - `gravarSnapshot(consulta, snapshot, origem, repositorio)` (`snapshot.ts`) — grava um `{ meta, registros }` já coletado, sem passar pela fonte: os exemplos e os arquivos salvos com `--json`.
+- `janelaDeAnos(agora, janela, { primeiro?, ultimo? })` (`janela.ts`) — do corrente − `janela` até `ultimo` (padrão, o corrente), crescente, sem começar antes de `primeiro`. `anosDeHistorico(valor)` lê `ANOS_DE_HISTORICO` (inteiro ≥ 0; vazio ou inválido vira 10).
 - `ocultarSegredos(texto)` — tira `Bearer` e `access_token` da mensagem de erro antes de gravar.
 
 O núcleo já confere contagem e ids únicos; `validar` cuida do que é da fonte (totalizador, total do motor).
@@ -23,10 +24,13 @@ Status da execução, em `execucoes`: `em_andamento`, `sucesso`, `rejeitada`, `f
 
 - `pnpm worker` — sobe o agendador. Cada importador é uma fila do pg-boss (`importador-<id>`), política `singleton` (uma rodada ativa por importador), com `schedule` no fuso `America/Sao_Paulo` e até 3 repetições com espera crescente a partir de 10 minutos.
 - `pnpm importar <betha|tcesc|ibge|siconfi> --ano 2025 [--consulta <chave>] [--json]` — roda à mão, sem fila. Com `--json`, salva o snapshot em `data/<fonte>/<consulta>-<ano>.json` (`.rejeitado.json` quando reprovado).
+- Agendas: Betha 3h, TCE-SC 4h, IBGE 5h e SICONFI 6h, todo dia. Histórico (`anosDaCarga`): Betha, as três consultas na janela inteira; TCE-SC a partir de `PRIMEIRO_EXERCICIO` ([contracts.md](contracts.md)), receitas 2018 e empenhos 2023; SICONFI até o último exercício com DCA (a mesma regra de `anosDaRodada`); IBGE sem histórico, porque o lote traz a série.
 - INEP, SIOPE e MEC não têm agenda: `coletar` recusa, `pnpm extrair educacao` gera os snapshots e `pnpm importar --arquivo` os carrega ([educacao.md](educacao.md)).
 - `pnpm importar --arquivo <snapshot.json>`, `pnpm db:exemplos` — grava snapshots já existentes; exemplos fictícios só são publicados se não houver dado real para o ano.
 - `pnpm conferir --ano 2025 [--json]` — relatório da conferência no console.
 
+- Na subida, o worker carrega `docs/educacao/snapshots/*.json` (`importarPasta`; hash igual vira `sem mudança`) e manda um job `subida` para a fila `historico`.
+- Fila `historico` (`montarHistorico`, `src/filas.ts`): `singleton`, sem repetição, prazo de 6 h, todo dia às 2h no modo `diario`. `completarHistorico` (`src/historico.ts`) pede a `executar` só as consultas que faltam de cada exercício da janela (`anosDaCarga`), do mais recente ao mais antigo, com `HISTORICO_PAUSA_MS` (padrão 5.000) entre um e outro, sem relançar. `subida` tenta o que não está publicado, inclusive o rejeitado (deploy traz código novo); `diario`, só o que nunca foi gravado. `lerEstadoDoHistorico` ignora coleta de exemplo. A janela vem de `ANOS_DE_HISTORICO`.
 - `rodarImportador(importador, dependencias)` (`src/rodada.ts`) — todos os exercícios da rodada; relança `RodadaComFalha` depois de tentar todos, para a fila repetir. Lote rejeitado não relança: repetir na hora traria o mesmo dado, e a próxima rodada tenta de novo.
 - `montarFilas(boss, importadores, rodar, opcoes?)` (`src/filas.ts`), `importarDaFonte`, `importarArquivos`, `salvarSnapshot` (`src/comandos.ts`).
 
@@ -46,7 +50,7 @@ Status da execução, em `execucoes`: `em_andamento`, `sucesso`, `rejeitada`, `f
 ## Testes
 
 - `nucleo/test/support/fakes.ts` — `RepositorioDeLotesFake` (guarda a ordem das chamadas), `relogioFake`, `bruto`, `consultaFake`, `importadorFake`.
-- `packages/importadores/fixtures/src/` (pacote de teste) — `snapshots.ts`: snapshots fictícios das consultas (`receitas`, `empenhos`, `despesas`, `tcescReceitas`, `tcescEmpenhos`, `ibgePopulacao`, `ibgeCenso`, `ibgePib`, `siconfiFuncoes({ ano, contas })`, e `snapshot(consultaId, registros, opções)` para montar outro), com receita negativa, incoerência mês × acumulado, empenho renumerado, cópia antiga, empenho sem liquidação e a Câmara; o TCE-SC vai só até fevereiro (exercício parcial). `banco-de-teste.ts`: `limparColetas()` (mantém o catálogo), `popularBancoDeTeste()` (todas publicadas) e `popularCenario({ ... })`, que troca lotes; `ibgePopulacao: null` e `siconfiFuncoes: []` deixam a fonte sem coleta. `educacao.ts`: um gerador de snapshot fictício por consulta de educação (`EDUCACAO`, na chave de `consultas.chave`); `popularCenario({ educacao: { mec_retrato: null } })` deixa aquela fonte sem coleta.
+- `packages/importadores/fixtures/src/` (pacote de teste) — `snapshots.ts`: snapshots fictícios das consultas (`receitas`, `empenhos`, `despesas`, `tcescReceitas`, `tcescEmpenhos`, `ibgePopulacao`, `ibgeCenso`, `ibgePib`, `siconfiFuncoes({ ano, contas })`, e `snapshot(consultaId, registros, opções)` para montar outro), com receita negativa, incoerência mês × acumulado, empenho renumerado, cópia antiga, empenho sem liquidação e a Câmara; o TCE-SC vai só até fevereiro (exercício parcial). `banco-de-teste.ts`: `limparColetas()` (mantém o catálogo), `popularBancoDeTeste()` (todas publicadas) e `popularCenario({ ... })`, que troca lotes, e `gravarLote(fonte, chave, snapshot)` (um lote a mais da Betha ou do TCE-SC, para outro exercício); `ibgePopulacao: null` e `siconfiFuncoes: []` deixam a fonte sem coleta. `educacao.ts`: um gerador de snapshot fictício por consulta de educação (`EDUCACAO`, na chave de `consultas.chave`); `popularCenario({ educacao: { mec_retrato: null } })` deixa aquela fonte sem coleta.
 - `apps/worker/test/integration/filas.spec.ts` sobe o pg-boss de verdade no Postgres descartável, com o esquema `pgboss` recriado a cada `it`.
 
 ## Armadilhas

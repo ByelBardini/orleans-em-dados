@@ -15,8 +15,9 @@ export type Indicador = {
 };
 
 const RODADA_DIARIA: Periodicidade = { exercicioCorrente: 'diaria', exercicioAnterior: 'mensal' };
+// IBGE e SICONFI rodam todo dia, mas a fonte muda pouco: o aviso de atraso só depois de dois meses sem coleta.
 const RODADA_MENSAL: Periodicidade = { exercicioCorrente: 'mensal', exercicioAnterior: 'mensal' };
-// O dado muda uma vez por ano, ou nunca (Censo): a rodada mensal do IBGE só o reconfirma.
+// O dado muda uma vez por ano, ou nunca (Censo): a rodada diária do IBGE só o reconfirma.
 const RODADA_ANUAL: Periodicidade = { exercicioCorrente: 'anual', exercicioAnterior: 'anual' };
 
 export const INDICADORES: Indicador[] = [

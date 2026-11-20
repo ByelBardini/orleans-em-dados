@@ -11,6 +11,8 @@ import {
   ordenarDiscrepancias,
 } from './conferencia.bo';
 import {
+  CONSULTAS_DA_DESPESA,
+  CONSULTAS_DA_RECEITA,
   CONSULTAS_NECESSARIAS,
   lerColetas,
   lerDados,
@@ -71,41 +73,98 @@ export async function conferirGastoEducacao(ano: number) {
   return compararGastoEducacao(ano, dca, betha);
 }
 
-/** Só o que as duas fontes sustentam, com o que ficou de fora e por quê. A resposta de
- *  `conferencia(ano)` continua sendo a comparação; esta é a base das páginas. */
-export async function dadosConferidos(ano: number) {
+const faltandoEm = (necessarias: readonly string[], coletas: readonly { chave: string }[]) =>
+  necessarias.filter((chave) => !coletas.some((c) => c.chave === chave));
+
+type AreaIndisponivel = { disponivel: false; faltando: string[] };
+
+/**
+ * Receita e despesa conferidas cada uma com as próprias coletas: o Farol do TCE-SC tem receitas desde 2018 e
+ * empenhos só desde 2023. Área sem as coletas dela diz o que falta, e a outra segue. `discrepancias` é a lista
+ * das áreas disponíveis, ordenada e cruzada com as conferências manuais; cada área traz a sua parte.
+ */
+export async function conferenciaPorArea(ano: number) {
   const coletas = await lerColetas(ano);
-  const faltando = CONSULTAS_NECESSARIAS.filter((chave) => !coletas.some((c) => c.chave === chave));
-  if (faltando.length) {
-    return { ano, disponivel: false as const, faltando, exemplo: await temColetaDeExemplo(ano) };
+  const faltaReceita = faltandoEm(CONSULTAS_DA_RECEITA, coletas);
+  const faltaDespesa = faltandoEm(CONSULTAS_DA_DESPESA, coletas);
+  const indisponivel = (faltando: string[]): AreaIndisponivel => ({ disponivel: false, faltando });
+  // Só importa a quem não tem conferência: a coleta de exemplo mantém os números fictícios.
+  const exemplo = faltaReceita.length || faltaDespesa.length ? await temColetaDeExemplo(ano) : false;
+  if (faltaReceita.length && faltaDespesa.length) {
+    return {
+      ano,
+      exemplo,
+      parcial: null,
+      limites: null,
+      receita: indisponivel(faltaReceita),
+      despesa: indisponivel(faltaDespesa),
+      discrepancias: [],
+      avisos: [],
+    };
   }
 
   const limites = await lerLimites(ano);
   const parcial = ehParcial(limites);
   const corte = parcial ? limites.dataEmpenho : null;
+  const comReceita = !faltaReceita.length;
+  const comDespesa = !faltaDespesa.length;
   const [dadosDaReceita, outrosAnos, dadosDaDespesa, empenhosSemPar] = await Promise.all([
-    lerReceitaConferida(ano, limites.mesReceita),
-    lerDivergenciasEmOutrosAnos(ano),
-    lerDespesaConferida(ano, limites.dataEmpenho),
-    lerEmpenhosParaClassificar(ano, corte),
+    comReceita ? lerReceitaConferida(ano, limites.mesReceita) : null,
+    comReceita ? lerDivergenciasEmOutrosAnos(ano) : null,
+    comDespesa ? lerDespesaConferida(ano, limites.dataEmpenho) : null,
+    comDespesa ? lerEmpenhosParaClassificar(ano, corte) : null,
   ]);
-  const { receita, discrepancias: daReceita } = montarReceitaConferida(ano, limites.mesReceita, {
-    ...dadosDaReceita,
-    outrosAnos,
-  });
-  const { despesa, discrepancias: daDespesa } = montarDespesaConferida(parcial, limites, dadosDaDespesa);
+  const daReceita =
+    dadosDaReceita && outrosAnos
+      ? montarReceitaConferida(ano, limites.mesReceita, { ...dadosDaReceita, outrosAnos })
+      : null;
+  const daDespesa = dadosDaDespesa ? montarDespesaConferida(parcial, limites, dadosDaDespesa) : null;
   // `avisos` é interno, para quem mantém os registros: não é conteúdo da seção pública.
   const { discrepancias, avisos } = cruzarConferenciasManuais(
     ano,
-    ordenarDiscrepancias([...daReceita, ...daDespesa, ...discrepanciasDeEmpenhos(empenhosSemPar, { parcial, corte })]),
+    ordenarDiscrepancias([
+      ...(daReceita?.discrepancias ?? []),
+      ...(daDespesa?.discrepancias ?? []),
+      ...(empenhosSemPar ? discrepanciasDeEmpenhos(empenhosSemPar, { parcial, corte }) : []),
+    ]),
   );
+  const daArea = (...areas: string[]) => discrepancias.filter((d) => areas.includes(d.area));
+  return {
+    ano,
+    exemplo,
+    parcial,
+    limites,
+    receita: daReceita
+      ? { disponivel: true as const, receita: daReceita.receita, discrepancias: daArea('receita') }
+      : indisponivel(faltaReceita),
+    despesa: daDespesa
+      ? { disponivel: true as const, despesa: daDespesa.despesa, discrepancias: daArea('despesa', 'empenho') }
+      : indisponivel(faltaDespesa),
+    discrepancias,
+    avisos,
+  };
+}
+
+/** Só o que as duas fontes sustentam, com o que ficou de fora e por quê. A resposta de
+ *  `conferencia(ano)` continua sendo a comparação; esta é a base das páginas. Exige as cinco coletas:
+ *  para uma área só, `conferenciaPorArea`. */
+export async function dadosConferidos(ano: number) {
+  const coletas = await lerColetas(ano);
+  const faltando = faltandoEm(CONSULTAS_NECESSARIAS, coletas);
+  if (faltando.length) {
+    return { ano, disponivel: false as const, faltando, exemplo: await temColetaDeExemplo(ano) };
+  }
+  const { parcial, limites, receita, despesa, discrepancias, avisos } = await conferenciaPorArea(ano);
+  if (!receita.disponivel || !despesa.disponivel || !limites || parcial === null) {
+    throw new Error(`Conferência de ${ano} sem uma das áreas, com as cinco coletas publicadas`);
+  }
   return {
     ano,
     disponivel: true as const,
     parcial,
     limites,
-    receita,
-    despesa,
+    receita: receita.receita,
+    despesa: despesa.despesa,
     discrepancias,
     avisos,
   };
@@ -115,7 +174,7 @@ export async function dadosConferidos(ano: number) {
  *  só até o corte. É o conjunto que a lista de empenhos publica: `id` é o `id_externo` da Betha. */
 export async function empenhosConferidos(ano: number) {
   const coletas = await lerColetas(ano);
-  const faltando = CONSULTAS_NECESSARIAS.filter((chave) => !coletas.some((c) => c.chave === chave));
+  const faltando = faltandoEm(CONSULTAS_DA_DESPESA, coletas);
   if (faltando.length) {
     return { ano, disponivel: false as const, faltando, exemplo: await temColetaDeExemplo(ano) };
   }

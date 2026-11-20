@@ -1,5 +1,5 @@
 // O que a CLI faz, sem a parte de argumentos e console.
-import { mkdir, readFile, rename, writeFile } from 'node:fs/promises';
+import { mkdir, readdir, readFile, rename, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import {
   executar,
@@ -90,4 +90,18 @@ export async function salvarSnapshot(pasta: string, fonte: string, chave: string
   await writeFile(`${destino}.tmp`, JSON.stringify(snapshot));
   await rename(`${destino}.tmp`, destino);
   return destino;
+}
+
+/** Todos os `.json` de uma pasta, em ordem de nome: os snapshots de Educação na subida do worker. Sem a pasta, nada. */
+export async function importarPasta(
+  pasta: string,
+  importadores: readonly Importador[],
+  repositorio: RepositorioDeLotes,
+): Promise<ResultadoDoArquivo[]> {
+  const nomes = await readdir(pasta).catch(() => [] as string[]);
+  const arquivos = nomes
+    .filter((n) => n.endsWith('.json'))
+    .sort()
+    .map((n) => path.join(pasta, n));
+  return importarArquivos(arquivos, importadores, repositorio);
 }

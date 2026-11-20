@@ -58,6 +58,29 @@ describe('SemConferencia', () => {
     expect(screen.getByText(/Falta publicar: nova_coleta\./)).toBeInTheDocument();
   });
 
+  // O Farol do TCE-SC tem receitas desde 2018 e empenhos desde 2023: ano anterior nunca vai chegar.
+  it('o que a fonte não publica vira "o TCE-SC não publica", sem "ainda", com o primeiro ano de cada', () => {
+    render(
+      <SemConferencia
+        ano={2016}
+        faltando={['tcesc_receitas', 'tcesc_empenhos']}
+        foraDaFonte={['tcesc_receitas', 'tcesc_empenhos']}
+      />,
+    );
+
+    expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent(
+      'O TCE-SC não publica as receitas nem os empenhos de 2016.',
+    );
+    expect(document.body).toHaveTextContent('receitas a partir de 2018 e empenhos a partir de 2023');
+    expect(document.body).not.toHaveTextContent(/ainda/i);
+  });
+
+  it('só os empenhos fora da fonte: o título fala só deles', () => {
+    render(<SemConferencia ano={2019} faltando={['tcesc_empenhos']} foraDaFonte={['tcesc_empenhos']} />);
+
+    expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('O TCE-SC não publica os empenhos de 2019.');
+  });
+
   it('sem a lista do que falta, explica do mesmo jeito', () => {
     render(<SemConferencia ano={2026} />);
     expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('Ainda não dá para conferir 2026.');
