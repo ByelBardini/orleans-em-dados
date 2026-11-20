@@ -4,7 +4,14 @@ import type { FastifyInstance } from 'fastify';
 import { afterEach, describe, expect, it } from 'vitest';
 import { criarApp } from '../../src/app.js';
 import { normalizarSiteUrl } from '../../src/site/site.js';
+import { lerConfigDoApoio } from '../../src/modules/apoio/config.js';
 import { distFalso } from '../support/dist-falso.js';
+
+const CONFIG_DO_APOIO = lerConfigDoApoio({
+  PIX_CHAVE: 'contato@exemplo.test',
+  PIX_NOME: 'Fulano',
+  PIX_CIDADE: 'Orleans',
+});
 
 // Os exercícios publicados, sem banco: guarda quantas vezes foi lido e pode estar fora do ar.
 class ExerciciosFake {
@@ -93,7 +100,10 @@ describe('registrarSite: o painel servido pela API', () => {
   });
 
   it('a página Apoiar, com o Pix configurado, abre', async () => {
-    const resposta = await app({}, { site: distFalso(), apoioAtivo: true }).inject({ method: 'GET', url: '/apoiar' });
+    const resposta = await app(
+      {},
+      { site: distFalso(), apoio: CONFIG_DO_APOIO, codificarQr: async () => '<svg/>' },
+    ).inject({ method: 'GET', url: '/apoiar' });
 
     expect(resposta.statusCode).toBe(200);
     expect(resposta.body).toContain('<title>Apoie o projeto · Orleans em Dados</title>');

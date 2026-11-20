@@ -2,6 +2,8 @@
 import { existsSync } from 'node:fs';
 import path from 'node:path';
 import Fastify, { type FastifyInstance, type FastifyServerOptions } from 'fastify';
+import { rotasDoApoio, type CodificadorDeQr } from './modules/apoio/apoio.routes';
+import type { ConfigDoApoio } from './modules/apoio/config';
 import { rotasDeColetas } from './modules/coletas/coletas.routes';
 import { rotasDeConferencias } from './modules/conferencias/conferencias.routes';
 import { rotasDeDespesas } from './modules/despesas/despesas.routes';
@@ -23,8 +25,10 @@ export type OpcoesDoApp = {
   siteUrl?: string | undefined;
   /** O código da meta `google-site-verification` (`GOOGLE_SITE_VERIFICATION`). */
   verificacaoGoogle?: string | undefined;
-  /** O Pix do apoio está configurado: a página Apoiar existe. */
-  apoioAtivo?: boolean;
+  /** O Pix do apoio (`apoioDaSubida`); sem ele, `/api/apoio` e a página Apoiar são 404. */
+  apoio?: ConfigDoApoio | null;
+  /** Para o teste: o codificador do QR (padrão: o pacote `qrcode`). */
+  codificarQr?: CodificadorDeQr;
   /** Para o teste: os exercícios publicados que o site lê (padrão: `anosDisponiveis`), e o relógio do cache. */
   lerExercicios?: () => Promise<Exercicios>;
   relogio?: () => number;
@@ -38,7 +42,8 @@ export function criarApp(
     site,
     siteUrl,
     verificacaoGoogle,
-    apoioAtivo,
+    apoio = null,
+    codificarQr,
     checarBanco,
     lerExercicios = anosDisponiveis,
     relogio,
@@ -53,7 +58,7 @@ export function criarApp(
   });
 
   if (site && existsSync(path.join(site, 'index.html'))) {
-    registrarSite(app, { pasta: site, siteUrl, verificacaoGoogle, apoioAtivo, lerExercicios, relogio });
+    registrarSite(app, { pasta: site, siteUrl, verificacaoGoogle, apoioAtivo: Boolean(apoio), lerExercicios, relogio });
   } else {
     app.setNotFoundHandler((_request, reply) => reply.code(404).send({ erro: 'Rota não encontrada' }));
   }
@@ -73,5 +78,6 @@ export function criarApp(
   app.register(rotasDeFuncoes);
   app.register(rotasDeEducacao);
   app.register(rotasDeSaude(checarBanco));
+  app.register(rotasDoApoio(apoio, codificarQr));
   return app;
 }
