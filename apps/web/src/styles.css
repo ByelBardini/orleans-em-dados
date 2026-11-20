@@ -1,6 +1,45 @@
 /* Visual de caderno de jornal: papel, tinta e um vermelho para o que importa.
    Referência: docs/screens. */
 
+/* Fontes servidas pelo próprio site (public/fonts, licença OFL em public/fonts/OFL.txt): nenhum pedido a
+   outro domínio, e nada de CSS bloqueante de terceiros. Subconjunto latino; o resto cai na fonte de reserva. */
+@font-face {
+  font-family: 'Instrument Serif';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('/fonts/instrument-serif-400-latin.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Instrument Serif';
+  font-style: italic;
+  font-weight: 400;
+  font-display: swap;
+  src: url('/fonts/instrument-serif-400-italico-latin.woff2') format('woff2');
+}
+/* IBM Plex Sans é variável: um arquivo só para 400, 500 e 600. */
+@font-face {
+  font-family: 'IBM Plex Sans';
+  font-style: normal;
+  font-weight: 400 600;
+  font-display: swap;
+  src: url('/fonts/ibm-plex-sans-variavel-latin.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'IBM Plex Mono';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('/fonts/ibm-plex-mono-400-latin.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'IBM Plex Mono';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url('/fonts/ibm-plex-mono-500-latin.woff2') format('woff2');
+}
+
 :root {
   color-scheme: light;
   --papel: #efeadf;
@@ -2850,4 +2889,15 @@ a.cartao-de-area:hover h3 {
 
 .cartao-de-area.em-breve p {
   font-style: italic;
+}
+
+/* O link da página Apoiar, ao lado do botão de tema, no mesmo tom discreto. */
+.botao-apoiar {
+  color: var(--tinta);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.botao-apoiar:hover {
+  color: var(--vermelho);
 }

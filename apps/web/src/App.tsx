@@ -1,97 +1,83 @@
-import { anosSchema } from '@orleans-em-dados/contracts';
-import { useEffect, useState } from 'react';
+import {
+  anosSchema,
+  apoioSchema,
+  PAGINAS,
+  paginaDoCaminho,
+  type IdDaPagina,
+  type Pagina,
+} from '@orleans-em-dados/contracts';
+import { lazy, Suspense, useEffect, useState } from 'react';
 import { useApi } from './api';
 import type { ComponentType } from 'react';
-import { Estado, SeletorTema } from './components';
+import { Estado, FronteiraDaPagina, SeletorTema } from './components';
 import { dataCurta } from './format';
-import Capa from './paginas/Capa';
-import ConhecaOrleans from './paginas/ConhecaOrleans';
-import Despesas from './paginas/Despesas';
-import Discrepancias from './paginas/Discrepancias';
-import Acesso from './paginas/educacao/Acesso';
-import Aprendizado from './paginas/educacao/Aprendizado';
-import Cidade from './paginas/educacao/Cidade';
-import Dinheiro from './paginas/educacao/Dinheiro';
-import Permanencia from './paginas/educacao/Permanencia';
-import Professores from './paginas/educacao/Professores';
-import Resumo from './paginas/educacao/Resumo';
-import Financas from './paginas/Financas';
-import Metodologia from './paginas/Metodologia';
-import ParaOndeVai from './paginas/ParaOndeVai';
+import NaoEncontrada from './paginas/NaoEncontrada';
 import type { PropsDaPagina } from './paginas/props';
-import Receitas from './paginas/Receitas';
+import { substituir, useCaminho, useRotas } from './rotas';
 
-type Aba = {
-  id: string;
-  nome: string;
+// Cada página vem num pedaço próprio do build, buscado quando é aberta: a capa não carrega o caderno de Educação.
+const Capa = lazy(() => import('./paginas/Capa'));
+const ConhecaOrleans = lazy(() => import('./paginas/ConhecaOrleans'));
+const Despesas = lazy(() => import('./paginas/Despesas'));
+const Discrepancias = lazy(() => import('./paginas/Discrepancias'));
+const Acesso = lazy(() => import('./paginas/educacao/Acesso'));
+const Aprendizado = lazy(() => import('./paginas/educacao/Aprendizado'));
+const Cidade = lazy(() => import('./paginas/educacao/Cidade'));
+const Dinheiro = lazy(() => import('./paginas/educacao/Dinheiro'));
+const Permanencia = lazy(() => import('./paginas/educacao/Permanencia'));
+const Professores = lazy(() => import('./paginas/educacao/Professores'));
+const Resumo = lazy(() => import('./paginas/educacao/Resumo'));
+const Financas = lazy(() => import('./paginas/Financas'));
+const Metodologia = lazy(() => import('./paginas/Metodologia'));
+const ParaOndeVai = lazy(() => import('./paginas/ParaOndeVai'));
+const Receitas = lazy(() => import('./paginas/Receitas'));
+const Apoiar = lazy(() => import('./paginas/Apoiar'));
+
+// O catálogo (`packages/contracts/src/paginas.ts`) diz caminho, nome, título e área; aqui, o que só a tela usa.
+type Tela = {
   Componente: ComponentType<PropsDaPagina>;
   caderno: string | null;
   /** A página abre sem exercício publicado, e o cabeçalho não diz um exercício. */
   semExercicio?: boolean;
-  /** A aba de primeiro nível que abre o segundo nível onde esta página fica. */
-  dentroDe?: string;
   /** O nome no segundo nível, quando a própria área é uma das páginas. */
   nomeNaArea?: string;
 };
 
 const CADERNO_DE_EDUCACAO = { caderno: 'Caderno de Educação', semExercicio: true };
-const NA_EDUCACAO = { ...CADERNO_DE_EDUCACAO, dentroDe: 'educacao' };
 
-const ABAS: Aba[] = [
-  { id: 'visao-geral', nome: 'Início', Componente: Capa, caderno: null, semExercicio: true },
-  {
-    id: 'conheca-orleans',
-    nome: 'Conheça Orleans',
-    Componente: ConhecaOrleans,
-    caderno: 'A cidade pelo IBGE',
-    semExercicio: true,
-  },
-  { id: 'financas', nome: 'Finanças', nomeNaArea: 'Resumo', Componente: Financas, caderno: 'Caderno de Finanças' },
-  { id: 'receitas', nome: 'Receitas', Componente: Receitas, caderno: 'Caderno de Receitas', dentroDe: 'financas' },
-  { id: 'despesas', nome: 'Despesas', Componente: Despesas, caderno: 'Caderno de Despesas', dentroDe: 'financas' },
-  {
-    id: 'para-onde-vai',
-    nome: 'Para onde vai',
-    Componente: ParaOndeVai,
-    caderno: 'Para onde vai o dinheiro',
-    semExercicio: true,
-    dentroDe: 'financas',
-  },
-  { id: 'educacao', nome: 'Educação', nomeNaArea: 'Resumo', Componente: Resumo, ...CADERNO_DE_EDUCACAO },
-  { id: 'educacao-aprendizado', nome: 'Aprendizado', Componente: Aprendizado, ...NA_EDUCACAO },
-  { id: 'educacao-acesso', nome: 'Acesso', Componente: Acesso, ...NA_EDUCACAO },
-  { id: 'educacao-permanencia', nome: 'Permanência', Componente: Permanencia, ...NA_EDUCACAO },
-  { id: 'educacao-professores', nome: 'Professores e turmas', Componente: Professores, ...NA_EDUCACAO },
-  { id: 'educacao-dinheiro', nome: 'Dinheiro', Componente: Dinheiro, ...NA_EDUCACAO },
-  { id: 'educacao-cidade', nome: 'Cidade e ensino superior', Componente: Cidade, ...NA_EDUCACAO },
-  { id: 'discrepancias', nome: 'Discrepâncias', Componente: Discrepancias, caderno: 'Discrepâncias entre as fontes' },
-  {
-    id: 'metodologia',
-    nome: 'Sobre os dados',
-    Componente: Metodologia,
-    caderno: 'Fontes e metodologia',
-    semExercicio: true,
-  },
-];
-
-const PADRAO = ABAS[0]!;
-// O endereço antigo da seção continua abrindo.
-const ALIASES: Record<string, string> = { '#conferencia': '#discrepancias' };
-const abaDoHash = () => {
-  const hash = ALIASES[window.location.hash] ?? window.location.hash;
-  return ABAS.find((a) => `#${a.id}` === hash)?.id ?? PADRAO.id;
+const TELAS: Record<IdDaPagina, Tela> = {
+  'visao-geral': { Componente: Capa, caderno: null, semExercicio: true },
+  'conheca-orleans': { Componente: ConhecaOrleans, caderno: 'A cidade pelo IBGE', semExercicio: true },
+  financas: { Componente: Financas, caderno: 'Caderno de Finanças', nomeNaArea: 'Resumo' },
+  receitas: { Componente: Receitas, caderno: 'Caderno de Receitas' },
+  despesas: { Componente: Despesas, caderno: 'Caderno de Despesas' },
+  'para-onde-vai': { Componente: ParaOndeVai, caderno: 'Para onde vai o dinheiro', semExercicio: true },
+  educacao: { Componente: Resumo, ...CADERNO_DE_EDUCACAO, nomeNaArea: 'Resumo' },
+  'educacao-aprendizado': { Componente: Aprendizado, ...CADERNO_DE_EDUCACAO },
+  'educacao-acesso': { Componente: Acesso, ...CADERNO_DE_EDUCACAO },
+  'educacao-permanencia': { Componente: Permanencia, ...CADERNO_DE_EDUCACAO },
+  'educacao-professores': { Componente: Professores, ...CADERNO_DE_EDUCACAO },
+  'educacao-dinheiro': { Componente: Dinheiro, ...CADERNO_DE_EDUCACAO },
+  'educacao-cidade': { Componente: Cidade, ...CADERNO_DE_EDUCACAO },
+  discrepancias: { Componente: Discrepancias, caderno: 'Discrepâncias entre as fontes' },
+  metodologia: { Componente: Metodologia, caderno: 'Fontes e metodologia', semExercicio: true },
+  // A página Apoiar recebe o Pix de `/api/apoio`, e não as props das outras: o App a monta à parte.
+  apoiar: { Componente: NaoEncontrada, caderno: 'Apoie o projeto', semExercicio: true },
 };
 
-const paginasDaArea = (area: string) => ABAS.filter((a) => a.dentroDe === area);
+const NAO_ENCONTRADA: Tela = { Componente: NaoEncontrada, caderno: null, semExercicio: true };
+const TITULO_NAO_ENCONTRADA = 'Página não encontrada · Orleans em Dados';
 
-function Navegacao({ atual }: { atual: Aba }) {
-  const area = atual.dentroDe ?? atual.id;
+const AREAS = PAGINAS.filter((p) => p.menu && p.area === p.id);
+const paginasDaArea = (area: IdDaPagina) => PAGINAS.filter((p) => p.menu && p.area === area && p.id !== area);
+
+function Navegacao({ atual }: { atual: Pagina | null }) {
   // Com segundo nível, a página atual é marcada lá; aqui, só a área.
-  const marca = paginasDaArea(area).length ? 'true' : 'page';
+  const marca = atual && paginasDaArea(atual.area).length ? 'true' : 'page';
   return (
     <nav className="nav-principal" aria-label="Principal">
-      {ABAS.filter((a) => !a.dentroDe).map((a) => (
-        <a key={a.id} href={`#${a.id}`} aria-current={a.id === area ? marca : undefined}>
+      {AREAS.map((a) => (
+        <a key={a.id} href={a.caminho} aria-current={a.id === atual?.area ? marca : undefined}>
           {a.nome}
         </a>
       ))}
@@ -99,46 +85,69 @@ function Navegacao({ atual }: { atual: Aba }) {
   );
 }
 
-function SegundoNivel({ atual }: { atual: Aba }) {
-  const area = ABAS.find((a) => a.id === (atual.dentroDe ?? atual.id)) ?? PADRAO;
-  const paginas = paginasDaArea(area.id);
-  if (!paginas.length) return null;
+function SegundoNivel({ atual }: { atual: Pagina }) {
+  const paginas = paginasDaArea(atual.area);
+  const area = PAGINAS.find((p) => p.id === atual.area);
+  if (!paginas.length || !area) return null;
   return (
     <nav className="nav-segundo-nivel" aria-label={`Páginas de ${area.nome}`}>
-      {[area, ...paginas].map((a) => (
-        <a key={a.id} href={`#${a.id}`} aria-current={a.id === atual.id ? 'page' : undefined}>
-          {a.nomeNaArea ?? a.nome}
+      {[area, ...paginas].map((p) => (
+        <a key={p.id} href={p.caminho} aria-current={p.id === atual.id ? 'page' : undefined}>
+          {TELAS[p.id].nomeNaArea ?? p.nome}
         </a>
       ))}
     </nav>
   );
 }
 
+function definirMeta(nome: string, conteudo: string | null) {
+  let meta = document.head.querySelector<HTMLMetaElement>(`meta[name="${nome}"]`);
+  if (conteudo === null) return meta?.remove();
+  if (!meta) {
+    meta = document.createElement('meta');
+    meta.name = nome;
+    document.head.append(meta);
+  }
+  meta.content = conteudo;
+}
+
+/** Título, descrição e canonical da página aberta. O servidor já entrega o head certo; aqui, a navegação. */
+function useHead(pagina: Pagina | null) {
+  useEffect(() => {
+    document.title = pagina?.titulo ?? TITULO_NAO_ENCONTRADA;
+    definirMeta('description', pagina?.descricao ?? null);
+    definirMeta('robots', pagina ? null : 'noindex');
+    const canonical = document.head.querySelector<HTMLLinkElement>('link[rel="canonical"]');
+    if (canonical && pagina) canonical.href = new URL(pagina.caminho, canonical.href).href;
+  }, [pagina]);
+}
+
 export default function App() {
+  useRotas();
+  const caminho = useCaminho();
+  const achada = paginaDoCaminho(caminho);
+  const redirecionar = achada?.redirecionar;
+  useEffect(() => {
+    if (redirecionar) substituir(redirecionar);
+  }, [redirecionar]);
+
+  // O Pix do apoio, buscado uma vez: sem ele (404), o botão, o link do rodapé e a página Apoiar somem, sem aviso.
+  const apoio = useApi('/api/apoio', apoioSchema);
+  const existe = (p: Pagina) => p.id !== 'apoiar' || Boolean(apoio.dados) || apoio.carregando;
+  const pagina = achada && existe(achada.pagina) ? achada.pagina : null;
+  const tela = pagina ? TELAS[pagina.id] : NAO_ENCONTRADA;
+  useHead(pagina);
+
   const anos = useApi('/api/anos', anosSchema);
   const [anoEscolhido, setAno] = useState<number | null>(null);
   const ano = anoEscolhido ?? anos.dados?.anos[0] ?? null;
   const [entidade, setEntidade] = useState('');
-  const [aba, setAba] = useState(abaDoHash);
 
-  useEffect(() => {
-    const ouvir = () => {
-      setAba(abaDoHash());
-      window.scrollTo(0, 0);
-    };
-    window.addEventListener('hashchange', ouvir);
-    return () => window.removeEventListener('hashchange', ouvir);
-  }, []);
-
-  const atual = ABAS.find((a) => a.id === aba) ?? PADRAO;
-  const { Componente } = atual;
-  useEffect(() => {
-    document.title = aba === 'visao-geral' ? 'Orleans em Dados' : `${atual.nome} · Orleans em Dados`;
-  }, [aba, atual.nome]);
-
+  const { Componente } = tela;
+  const naCapa = pagina?.id === 'visao-geral';
   const atualizado = ano ? anos.dados?.atualizadoEm[ano] : undefined;
   const exercicio =
-    ano && !atual.semExercicio
+    ano && !tela.semExercicio
       ? `Exercício de ${ano}${atualizado ? ` · Atualizado em ${dataCurta(atualizado)}` : ''}`
       : '';
   const filtros = {
@@ -151,11 +160,16 @@ export default function App() {
   };
 
   return (
-    <div className={`pagina${aba === 'visao-geral' ? ' capa' : ''}`}>
+    <div className={`pagina${naCapa ? ' capa' : ''}`}>
       <div className="faixa-meta barra-tema">
+        {apoio.dados && (
+          <a href="/apoiar" className="botao-apoiar">
+            Apoiar
+          </a>
+        )}
         <SeletorTema />
       </div>
-      {aba === 'visao-geral' ? (
+      {naCapa ? (
         <header>
           <div className="faixa-meta">
             <span>Orleans, Santa Catarina</span>
@@ -164,23 +178,23 @@ export default function App() {
           </div>
           <div className="fio-duplo" aria-hidden="true" />
           <div className="titulo-jornal">
-            <a href="#visao-geral">
+            <a href="/">
               Orleans <span className="italico">em</span> Dados
             </a>
           </div>
-          <Navegacao atual={atual} />
+          <Navegacao atual={pagina} />
         </header>
       ) : (
         <>
           <header className="cabecalho-compacto">
-            <a href="#visao-geral" className="marca">
+            <a href="/" className="marca">
               Orleans <span className="italico">em</span> Dados
             </a>
-            <Navegacao atual={atual} />
+            <Navegacao atual={pagina} />
           </header>
-          <SegundoNivel atual={atual} />
+          {pagina && <SegundoNivel atual={pagina} />}
           <div className="faixa-meta">
-            <span>{atual.caderno}</span>
+            <span>{tela.caderno}</span>
             <span>{exercicio}</span>
           </div>
         </>
@@ -193,9 +207,27 @@ export default function App() {
             <code>pnpm importar betha --ano 2025</code> para baixar os dados reais.
           </p>
         )}
-        <Estado carregando={anos.carregando} erro={anos.erro} />
-        {anos.dados && !anos.dados.anos.length && <p className="aviso">Nenhum snapshot disponível.</p>}
-        {(ano || atual.semExercicio) && <Componente ano={ano as number} entidade={entidade} filtros={filtros} />}
+        {pagina ? (
+          <>
+            <Estado carregando={anos.carregando} erro={anos.erro} />
+            {anos.dados && !anos.dados.anos.length && <p className="aviso">Nenhum snapshot disponível.</p>}
+            {(ano || tela.semExercicio) && (
+              <FronteiraDaPagina key={pagina.id}>
+                <Suspense fallback={<p className="carregando">Carregando a página…</p>}>
+                  {pagina.id !== 'apoiar' ? (
+                    <Componente ano={ano as number} entidade={entidade} filtros={filtros} />
+                  ) : apoio.dados ? (
+                    <Apoiar apoio={apoio.dados} />
+                  ) : (
+                    <p className="carregando">Carregando a página…</p>
+                  )}
+                </Suspense>
+              </FronteiraDaPagina>
+            )}
+          </>
+        ) : (
+          <NaoEncontrada />
+        )}
       </main>
 
       <footer className="rodape">
@@ -203,8 +235,8 @@ export default function App() {
           <p className="rotulo">Sobre os dados</p>
           <p>
             Portal da Transparência de Orleans (Betha) conferido com o Farol do TCE-SC, despesa por função do SICONFI,
-            indicadores do IBGE e, na educação, INEP, SIOPE e MEC. <a href="#discrepancias">Onde as fontes divergem</a>{' '}
-            · <a href="#metodologia">Como os números são conferidos</a>.
+            indicadores do IBGE e, na educação, INEP, SIOPE e MEC. <a href="/discrepancias">Onde as fontes divergem</a>{' '}
+            · <a href="/sobre-os-dados">Como os números são conferidos</a>.
           </p>
         </div>
         <div>
@@ -226,6 +258,12 @@ export default function App() {
           <p>
             Sem vínculo com a Prefeitura de Orleans ou com os órgãos de controle. Código aberto, dados de fontes
             públicas identificadas.
+            {apoio.dados && (
+              <>
+                {' '}
+                <a href="/apoiar">Apoie o projeto</a>.
+              </>
+            )}
           </p>
         </div>
       </footer>

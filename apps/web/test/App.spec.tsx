@@ -1,4 +1,4 @@
-import { render, screen, waitFor, within } from '@testing-library/react';
+import { act, render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import App from '../src/App';
@@ -21,6 +21,9 @@ vi.mock('../src/paginas/educacao/Acesso', () => ({ default: () => <p>Página edu
 vi.mock('../src/paginas/educacao/Permanencia', () => ({ default: () => <p>Página educação permanência</p> }));
 vi.mock('../src/paginas/educacao/Professores', () => ({ default: () => <p>Página educação professores</p> }));
 vi.mock('../src/paginas/educacao/Dinheiro', () => ({ default: () => <p>Página educação dinheiro</p> }));
+vi.mock('../src/paginas/Apoiar', () => ({
+  default: ({ apoio }: { apoio: { chave: string } }) => <p>Página apoiar {apoio.chave}</p>,
+}));
 vi.mock('../src/paginas/educacao/Cidade', () => ({ default: () => <p>Página educação cidade</p> }));
 
 const ANOS = {
@@ -30,17 +33,26 @@ const ANOS = {
   entidades: [{ codigo: '728', nome: 'Prefeitura Municipal', sigla: 'Prefeitura' }],
 };
 
+const APOIO = { chave: 'contato@exemplo.test', nome: 'Fulano de Tal', cidade: 'ORLEANS', copiaECola: '0002016304ABCD' };
+
 const linksDa = (navegacao: string) =>
   within(screen.getByRole('navigation', { name: navegacao }))
     .getAllByRole('link')
     .map((link) => [link.textContent, link.getAttribute('href')]);
 
+/** O endereço com que o navegador abre o painel. */
+const abrir = (endereco: string) => history.replaceState(null, '', endereco);
+const meta = (nome: string) => document.querySelector<HTMLMetaElement>(`meta[name="${nome}"]`)?.content;
+
 beforeEach(() => {
-  window.location.hash = '';
+  abrir('/');
   vi.stubGlobal('scrollTo', () => {});
   vi.stubGlobal('matchMedia', () => ({ matches: false }));
 });
-afterEach(() => vi.unstubAllGlobals());
+afterEach(() => {
+  vi.unstubAllGlobals();
+  document.head.innerHTML = '';
+});
 
 describe('App', () => {
   it('abre na capa', async () => {
@@ -49,34 +61,24 @@ describe('App', () => {
     render(<App />);
 
     expect(await screen.findByText('Página capa')).toBeInTheDocument();
-    expect(document.title).toBe('Orleans em Dados');
+    expect(document.title).toBe('Orleans em Dados · Dados públicos de Orleans/SC');
   });
 
-  it('`#visao-geral` abre a capa', async () => {
+  it('`/financas` abre o conteúdo financeiro, no exercício mais recente publicado', async () => {
     new FetchFake().responder('/api/anos', ANOS).instalar();
-    window.location.hash = '#visao-geral';
-
-    render(<App />);
-
-    expect(await screen.findByText('Página capa')).toBeInTheDocument();
-  });
-
-  it('`#financas` abre o conteúdo financeiro, no exercício mais recente publicado', async () => {
-    new FetchFake().responder('/api/anos', ANOS).instalar();
-    window.location.hash = '#financas';
+    abrir('/financas');
 
     render(<App />);
 
     expect(await screen.findByText('Página finanças 2026')).toBeInTheDocument();
-    expect(document.title).toBe('Finanças · Orleans em Dados');
   });
 
   it.each([
-    ['#conheca-orleans', 'Página conheça Orleans'],
-    ['#para-onde-vai', 'Página para onde vai'],
-  ])('%s abre mesmo sem exercício publicado', async (hash, texto) => {
+    ['/conheca-orleans', 'Página conheça Orleans'],
+    ['/financas/para-onde-vai', 'Página para onde vai'],
+  ])('%s abre mesmo sem exercício publicado', async (caminho, texto) => {
     new FetchFake().responder('/api/anos', { ...ANOS, anos: [], atualizadoEm: {} }).instalar();
-    window.location.hash = hash;
+    abrir(caminho);
 
     render(<App />);
 
@@ -85,7 +87,7 @@ describe('App', () => {
 
   it('a capa e as páginas sem exercício não dizem um exercício no cabeçalho', async () => {
     new FetchFake().responder('/api/anos', ANOS).instalar();
-    window.location.hash = '#conheca-orleans';
+    abrir('/conheca-orleans');
 
     render(<App />);
     await screen.findByText('Página conheça Orleans');
@@ -109,26 +111,30 @@ describe('App', () => {
 
   it('o cabeçalho das páginas financeiras diz o exercício e quando foi atualizado', async () => {
     new FetchFake().responder('/api/anos', ANOS).instalar();
-    window.location.hash = '#financas';
+    abrir('/financas');
 
     render(<App />);
 
     expect(await screen.findByText(/Exercício de 2026 · Atualizado em 10 de março de 2026/)).toBeInTheDocument();
   });
 
-  it('o hash da URL escolhe a aba, e o título da janela acompanha', async () => {
+  it('o caminho escolhe a página, e o título e a descrição são os do catálogo', async () => {
     new FetchFake().responder('/api/anos', ANOS).instalar();
-    window.location.hash = '#receitas';
+    abrir('/financas/receitas');
 
     render(<App />);
 
     expect(await screen.findByText('Página receitas 2026')).toBeInTheDocument();
-    expect(document.title).toBe('Receitas · Orleans em Dados');
+    expect(document.title).toBe('Receitas do município de Orleans/SC · Orleans em Dados');
+    expect(meta('description')).toBe(
+      'Receitas do município de Orleans/SC por mês, origem e rubrica, do Portal da Transparência conferidas com o TCE-SC, com a previsão e a arrecadação.',
+    );
+    expect(meta('robots')).toBeUndefined();
   });
 
-  it.each(['#discrepancias', '#conferencia'])('%s abre a aba de discrepâncias, marcada na navegação', async (hash) => {
+  it('`/discrepancias` abre a aba de discrepâncias, marcada na navegação', async () => {
     new FetchFake().responder('/api/anos', ANOS).instalar();
-    window.location.hash = hash;
+    abrir('/discrepancias');
 
     render(<App />);
 
@@ -136,57 +142,164 @@ describe('App', () => {
     expect(screen.getByRole('link', { name: 'Discrepâncias' })).toHaveAttribute('aria-current', 'page');
   });
 
-  it('hash desconhecido cai na capa', async () => {
+  it.each([
+    ['/#receitas', '/financas/receitas', 'Página receitas 2026'],
+    ['/#conferencia', '/discrepancias', 'Página discrepâncias'],
+    ['/#educacao-dinheiro', '/educacao/dinheiro', 'Página educação dinheiro'],
+    ['/#visao-geral', '/', 'Página capa'],
+  ])('o link antigo %s cai em %s, sem entrada nova no histórico', async (antigo, caminho, texto) => {
     new FetchFake().responder('/api/anos', ANOS).instalar();
-    window.location.hash = '#inexistente';
+    abrir(antigo);
+    const entradas = history.length;
 
     render(<App />);
 
-    expect(await screen.findByText('Página capa')).toBeInTheDocument();
+    expect(await screen.findByText(texto)).toBeInTheDocument();
+    expect(location.pathname).toBe(caminho);
+    expect(location.hash).toBe('');
+    expect(history.length).toBe(entradas);
   });
 
-  it('clicar na navegação troca a aba e marca a atual', async () => {
+  it('caminho com barra no fim abre a página e fica sem a barra', async () => {
     new FetchFake().responder('/api/anos', ANOS).instalar();
+    abrir('/educacao/acesso/');
+
+    render(<App />);
+
+    expect(await screen.findByText('Página educação acesso')).toBeInTheDocument();
+    expect(location.pathname).toBe('/educacao/acesso');
+  });
+
+  it.each(['/financas/nao-existe', '/Financas', '/educacao-'])(
+    'caminho desconhecido %s mostra "Página não encontrada", fora dos buscadores',
+    async (caminho) => {
+      new FetchFake().responder('/api/anos', ANOS).instalar();
+      abrir(caminho);
+
+      render(<App />);
+
+      expect(await screen.findByRole('heading', { name: 'Página não encontrada' })).toBeInTheDocument();
+      expect(screen.getByRole('link', { name: 'Voltar ao início' })).toHaveAttribute('href', '/');
+      expect(meta('robots')).toBe('noindex');
+      expect(screen.queryByText('Página capa')).not.toBeInTheDocument();
+      expect(screen.queryByRole('navigation', { name: /Páginas de/ })).not.toBeInTheDocument();
+    },
+  );
+
+  it('sair da página não encontrada para uma página do painel tira o noindex', async () => {
+    new FetchFake().responder('/api/anos', ANOS).instalar();
+    abrir('/nada');
+    render(<App />);
+    await screen.findByRole('heading', { name: 'Página não encontrada' });
+
+    await userEvent.click(screen.getByRole('link', { name: 'Voltar ao início' }));
+
+    expect(await screen.findByText('Página capa')).toBeInTheDocument();
+    expect(meta('robots')).toBeUndefined();
+  });
+
+  it('clicar na navegação troca a página pelo histórico, sem recarregar nem buscar os anos de novo', async () => {
+    const fetch = new FetchFake().responder('/api/anos', ANOS).instalar();
     render(<App />);
     await screen.findByText('Página capa');
+    const entradas = history.length;
 
     await userEvent.click(screen.getByRole('link', { name: 'Discrepâncias' }));
 
-    await waitFor(() => expect(screen.getByText('Página discrepâncias')).toBeInTheDocument());
+    expect(await screen.findByText('Página discrepâncias')).toBeInTheDocument();
+    expect(location.pathname).toBe('/discrepancias');
+    expect(history.length).toBe(entradas + 1);
     expect(screen.getByRole('link', { name: 'Discrepâncias' })).toHaveAttribute('aria-current', 'page');
+    expect(fetch.pedidos.filter((p) => p === '/api/anos')).toHaveLength(1);
+  });
+
+  it('voltar no navegador mostra a página anterior', async () => {
+    new FetchFake().responder('/api/anos', ANOS).instalar();
+    render(<App />);
+    await screen.findByText('Página capa');
+    await userEvent.click(screen.getByRole('link', { name: 'Finanças' }));
+    await screen.findByText('Página finanças 2026');
+    await userEvent.click(screen.getByRole('link', { name: 'Receitas' }));
+    await screen.findByText('Página receitas 2026');
+
+    act(() => {
+      history.replaceState(null, '', '/financas');
+      window.dispatchEvent(new PopStateEvent('popstate'));
+    });
+
+    expect(await screen.findByText('Página finanças 2026')).toBeInTheDocument();
+    expect(document.title).toBe('Finanças públicas de Orleans/SC · Orleans em Dados');
+  });
+
+  it('clique com Ctrl numa aba fica com o navegador, que abre outra guia', async () => {
+    new FetchFake().responder('/api/anos', ANOS).instalar();
+    render(<App />);
+    await screen.findByText('Página capa');
+    // No navegador, o Ctrl abriria outra guia; no jsdom, o ouvinte da janela só segura o link.
+    const segurar = (evento: MouseEvent) => evento.preventDefault();
+    window.addEventListener('click', segurar);
+    const usuario = userEvent.setup();
+
+    await usuario.keyboard('{Control>}');
+    await usuario.click(screen.getByRole('link', { name: 'Discrepâncias' }));
+    await usuario.keyboard('{/Control}');
+
+    window.removeEventListener('click', segurar);
+    expect(location.pathname).toBe('/');
+    expect(screen.getByText('Página capa')).toBeInTheDocument();
   });
 
   const ABAS_DA_EDUCACAO = [
-    ['Resumo', '#educacao'],
-    ['Aprendizado', '#educacao-aprendizado'],
-    ['Acesso', '#educacao-acesso'],
-    ['Permanência', '#educacao-permanencia'],
-    ['Professores e turmas', '#educacao-professores'],
-    ['Dinheiro', '#educacao-dinheiro'],
-    ['Cidade e ensino superior', '#educacao-cidade'],
+    ['Resumo', '/educacao'],
+    ['Aprendizado', '/educacao/aprendizado'],
+    ['Acesso', '/educacao/acesso'],
+    ['Permanência', '/educacao/permanencia'],
+    ['Professores e turmas', '/educacao/professores-e-turmas'],
+    ['Dinheiro', '/educacao/dinheiro'],
+    ['Cidade e ensino superior', '/educacao/cidade-e-ensino-superior'],
   ];
 
   it.each([
-    ['#educacao', 'Resumo', 'Página educação resumo', 'Educação · Orleans em Dados'],
-    ['#educacao-aprendizado', 'Aprendizado', 'Página educação aprendizado', 'Aprendizado · Orleans em Dados'],
-    ['#educacao-acesso', 'Acesso', 'Página educação acesso', 'Acesso · Orleans em Dados'],
-    ['#educacao-permanencia', 'Permanência', 'Página educação permanência', 'Permanência · Orleans em Dados'],
+    ['/educacao', 'Resumo', 'Página educação resumo', 'Educação pública em Orleans/SC · Orleans em Dados'],
     [
-      '#educacao-professores',
+      '/educacao/aprendizado',
+      'Aprendizado',
+      'Página educação aprendizado',
+      'IDEB e aprendizado em Orleans/SC · Orleans em Dados',
+    ],
+    [
+      '/educacao/acesso',
+      'Acesso',
+      'Página educação acesso',
+      'Creche, pré-escola e escola em Orleans/SC · Orleans em Dados',
+    ],
+    [
+      '/educacao/permanencia',
+      'Permanência',
+      'Página educação permanência',
+      'Abandono e evasão escolar em Orleans/SC · Orleans em Dados',
+    ],
+    [
+      '/educacao/professores-e-turmas',
       'Professores e turmas',
       'Página educação professores',
-      'Professores e turmas · Orleans em Dados',
+      'Professores e turmas em Orleans/SC · Orleans em Dados',
     ],
-    ['#educacao-dinheiro', 'Dinheiro', 'Página educação dinheiro', 'Dinheiro · Orleans em Dados'],
     [
-      '#educacao-cidade',
+      '/educacao/dinheiro',
+      'Dinheiro',
+      'Página educação dinheiro',
+      'Gasto com educação em Orleans/SC · Orleans em Dados',
+    ],
+    [
+      '/educacao/cidade-e-ensino-superior',
       'Cidade e ensino superior',
       'Página educação cidade',
-      'Cidade e ensino superior · Orleans em Dados',
+      'Ensino superior em Orleans/SC · Orleans em Dados',
     ],
-  ])('%s abre %s no segundo nível de Educação, e o título da janela usa o nome', async (hash, atual, texto, titulo) => {
+  ])('%s abre %s no segundo nível de Educação, com o título do catálogo', async (caminho, atual, texto, titulo) => {
     new FetchFake().responder('/api/anos', ANOS).instalar();
-    window.location.hash = hash;
+    abrir(caminho);
 
     render(<App />);
     await screen.findByText(texto);
@@ -203,7 +316,7 @@ describe('App', () => {
 
   it('Educação abre sem exercício publicado, e o cabeçalho diz o caderno', async () => {
     new FetchFake().responder('/api/anos', { ...ANOS, anos: [], atualizadoEm: {} }).instalar();
-    window.location.hash = '#educacao-acesso';
+    abrir('/educacao/acesso');
 
     render(<App />);
 
@@ -213,7 +326,7 @@ describe('App', () => {
 
   it('Educação, com exercício publicado, não diz um exercício no cabeçalho', async () => {
     new FetchFake().responder('/api/anos', ANOS).instalar();
-    window.location.hash = '#educacao';
+    abrir('/educacao');
 
     render(<App />);
     await screen.findByText('Página educação resumo');
@@ -221,49 +334,39 @@ describe('App', () => {
     expect(screen.queryByText(/Exercício de 2026/)).not.toBeInTheDocument();
   });
 
-  it.each(['#educacao-inexistente', '#educacao-'])('%s, desconhecido, segue na capa', async (hash) => {
-    new FetchFake().responder('/api/anos', ANOS).instalar();
-    window.location.hash = hash;
-
-    render(<App />);
-
-    expect(await screen.findByText('Página capa')).toBeInTheDocument();
-    expect(screen.queryByRole('navigation', { name: 'Páginas de Educação' })).not.toBeInTheDocument();
-  });
-
-  it('o primeiro nível da navegação traz as seis áreas, nesta ordem', async () => {
+  it('o primeiro nível da navegação traz as seis áreas, nesta ordem, com caminhos', async () => {
     new FetchFake().responder('/api/anos', ANOS).instalar();
 
     render(<App />);
     await screen.findByText('Página capa');
 
     expect(linksDa('Principal')).toEqual([
-      ['Início', '#visao-geral'],
-      ['Conheça Orleans', '#conheca-orleans'],
-      ['Finanças', '#financas'],
-      ['Educação', '#educacao'],
-      ['Discrepâncias', '#discrepancias'],
-      ['Sobre os dados', '#metodologia'],
+      ['Início', '/'],
+      ['Conheça Orleans', '/conheca-orleans'],
+      ['Finanças', '/financas'],
+      ['Educação', '/educacao'],
+      ['Discrepâncias', '/discrepancias'],
+      ['Sobre os dados', '/sobre-os-dados'],
     ]);
   });
 
   it.each([
-    ['#financas', 'Resumo', 'Página finanças 2026'],
-    ['#receitas', 'Receitas', 'Página receitas 2026'],
-    ['#despesas', 'Despesas', 'Página despesas'],
-    ['#para-onde-vai', 'Para onde vai', 'Página para onde vai'],
-  ])('%s mostra o segundo nível, com %s como página atual e Finanças como área', async (hash, atual, texto) => {
+    ['/financas', 'Resumo', 'Página finanças 2026'],
+    ['/financas/receitas', 'Receitas', 'Página receitas 2026'],
+    ['/financas/despesas', 'Despesas', 'Página despesas'],
+    ['/financas/para-onde-vai', 'Para onde vai', 'Página para onde vai'],
+  ])('%s mostra o segundo nível, com %s como página atual e Finanças como área', async (caminho, atual, texto) => {
     new FetchFake().responder('/api/anos', ANOS).instalar();
-    window.location.hash = hash;
+    abrir(caminho);
 
     render(<App />);
     await screen.findByText(texto);
 
     expect(linksDa('Páginas de Finanças')).toEqual([
-      ['Resumo', '#financas'],
-      ['Receitas', '#receitas'],
-      ['Despesas', '#despesas'],
-      ['Para onde vai', '#para-onde-vai'],
+      ['Resumo', '/financas'],
+      ['Receitas', '/financas/receitas'],
+      ['Despesas', '/financas/despesas'],
+      ['Para onde vai', '/financas/para-onde-vai'],
     ]);
     const segundoNivel = within(screen.getByRole('navigation', { name: 'Páginas de Finanças' }));
     expect(segundoNivel.getByRole('link', { name: atual })).toHaveAttribute('aria-current', 'page');
@@ -273,13 +376,13 @@ describe('App', () => {
   });
 
   it.each([
-    ['#visao-geral', 'Início', 'Página capa'],
-    ['#conheca-orleans', 'Conheça Orleans', 'Página conheça Orleans'],
-    ['#discrepancias', 'Discrepâncias', 'Página discrepâncias'],
-    ['#metodologia', 'Sobre os dados', 'Página metodologia'],
-  ])('%s não mostra o segundo nível, e só %s fica marcada', async (hash, atual, texto) => {
+    ['/', 'Início', 'Página capa'],
+    ['/conheca-orleans', 'Conheça Orleans', 'Página conheça Orleans'],
+    ['/discrepancias', 'Discrepâncias', 'Página discrepâncias'],
+    ['/sobre-os-dados', 'Sobre os dados', 'Página metodologia'],
+  ])('%s não mostra o segundo nível, e só %s fica marcada', async (caminho, atual, texto) => {
     new FetchFake().responder('/api/anos', ANOS).instalar();
-    window.location.hash = hash;
+    abrir(caminho);
 
     render(<App />);
     await screen.findByText(texto);
@@ -305,13 +408,25 @@ describe('App', () => {
     expect(screen.getAllByRole('navigation')).toHaveLength(1);
   });
 
-  it.each([
-    ['#visao-geral', 'Página capa'],
-    ['#receitas', 'Página receitas 2026'],
-    ['#metodologia', 'Página metodologia'],
-  ])('em %s, o botão de tema vem antes de tudo, uma vez só', async (hash, texto) => {
+  it('a marca do cabeçalho leva ao início', async () => {
     new FetchFake().responder('/api/anos', ANOS).instalar();
-    window.location.hash = hash;
+    abrir('/financas');
+    render(<App />);
+    await screen.findByText('Página finanças 2026');
+
+    await userEvent.click(screen.getByRole('link', { name: /Orleans em Dados/ }));
+
+    await waitFor(() => expect(screen.getByText('Página capa')).toBeInTheDocument());
+    expect(location.pathname).toBe('/');
+  });
+
+  it.each([
+    ['/', 'Página capa'],
+    ['/financas/receitas', 'Página receitas 2026'],
+    ['/sobre-os-dados', 'Página metodologia'],
+  ])('em %s, o botão de tema vem antes de tudo, uma vez só', async (caminho, texto) => {
+    new FetchFake().responder('/api/anos', ANOS).instalar();
+    abrir(caminho);
 
     const { container } = render(<App />);
     await screen.findByText(texto);
@@ -322,7 +437,7 @@ describe('App', () => {
 
   it('sem nenhum ano publicado, avisa e não abre página que depende do exercício', async () => {
     new FetchFake().responder('/api/anos', { ...ANOS, anos: [], atualizadoEm: {} }).instalar();
-    window.location.hash = '#financas';
+    abrir('/financas');
 
     render(<App />);
 
@@ -332,7 +447,7 @@ describe('App', () => {
 
   it('a metodologia abre mesmo sem ano publicado', async () => {
     new FetchFake().responder('/api/anos', { ...ANOS, anos: [], atualizadoEm: {} }).instalar();
-    window.location.hash = '#metodologia';
+    abrir('/sobre-os-dados');
 
     render(<App />);
 
@@ -356,7 +471,35 @@ describe('App', () => {
     expect(await screen.findByText('Não foi possível carregar: fora do ar')).toBeInTheDocument();
   });
 
-  it('o rodapé oferece os CSV do exercício atual', async () => {
+  it('a página abre com o aviso de carregamento enquanto o código dela chega', async () => {
+    new FetchFake().responder('/api/anos', ANOS).instalar();
+    abrir('/educacao/acesso');
+    // Um App recém-importado: nos testes anteriores, o código da página já chegou.
+    vi.resetModules();
+    const { default: AppNovo } = await import('../src/App');
+
+    render(<AppNovo />);
+
+    expect(screen.getByText('Carregando a página…')).toBeInTheDocument();
+    expect(await screen.findByText('Página educação acesso')).toBeInTheDocument();
+    expect(screen.queryByText('Carregando a página…')).not.toBeInTheDocument();
+  });
+
+  it('voltar a uma página já aberta não mostra o carregamento de novo', async () => {
+    new FetchFake().responder('/api/anos', ANOS).instalar();
+    abrir('/educacao/acesso');
+    render(<App />);
+    await screen.findByText('Página educação acesso');
+    await userEvent.click(screen.getByRole('link', { name: 'Aprendizado' }));
+    await screen.findByText('Página educação aprendizado');
+
+    await userEvent.click(screen.getByRole('link', { name: 'Acesso' }));
+
+    expect(screen.getByText('Página educação acesso')).toBeInTheDocument();
+    expect(screen.queryByText('Carregando a página…')).not.toBeInTheDocument();
+  });
+
+  it('o rodapé oferece os CSV do exercício atual e aponta as páginas por caminho', async () => {
     new FetchFake().responder('/api/anos', ANOS).instalar();
 
     render(<App />);
@@ -365,5 +508,70 @@ describe('App', () => {
       'href',
       '/api/receitas.csv?ano=2026',
     );
+    expect(screen.getByRole('link', { name: 'Onde as fontes divergem' })).toHaveAttribute('href', '/discrepancias');
+    expect(screen.getByRole('link', { name: 'Como os números são conferidos' })).toHaveAttribute(
+      'href',
+      '/sobre-os-dados',
+    );
+  });
+
+  describe('o apoio', () => {
+    it('com o Pix configurado, o botão Apoiar fica ao lado do tema e o rodapé convida a apoiar', async () => {
+      new FetchFake().responder('/api/anos', ANOS).responder('/api/apoio', APOIO).instalar();
+
+      render(<App />);
+
+      expect(await screen.findByRole('link', { name: 'Apoiar' })).toHaveAttribute('href', '/apoiar');
+      expect(screen.getByRole('link', { name: 'Apoiar' }).closest('.barra-tema')).not.toBeNull();
+      expect(screen.getByRole('link', { name: 'Apoie o projeto' })).toHaveAttribute('href', '/apoiar');
+    });
+
+    it('sem o Pix (404), nem o botão nem o link aparecem, e nenhuma mensagem de falha', async () => {
+      new FetchFake()
+        .responder('/api/anos', ANOS)
+        .responder('/api/apoio', { erro: 'Apoio não configurado' }, 404)
+        .instalar();
+
+      render(<App />);
+      await screen.findByText('Página capa');
+
+      expect(screen.queryByRole('link', { name: 'Apoiar' })).not.toBeInTheDocument();
+      expect(screen.queryByRole('link', { name: 'Apoie o projeto' })).not.toBeInTheDocument();
+      expect(screen.queryByText(/Não foi possível carregar/)).not.toBeInTheDocument();
+    });
+
+    it('/apoiar com o Pix abre a página Apoiar, com o título do catálogo', async () => {
+      new FetchFake().responder('/api/anos', ANOS).responder('/api/apoio', APOIO).instalar();
+      abrir('/apoiar');
+
+      render(<App />);
+
+      expect(await screen.findByText('Página apoiar contato@exemplo.test')).toBeInTheDocument();
+      expect(document.title).toBe('Apoie o projeto · Orleans em Dados');
+      expect(screen.queryByRole('navigation', { name: /Páginas de/ })).not.toBeInTheDocument();
+    });
+
+    it('/apoiar sem o Pix é página não encontrada', async () => {
+      new FetchFake()
+        .responder('/api/anos', ANOS)
+        .responder('/api/apoio', { erro: 'Apoio não configurado' }, 404)
+        .instalar();
+      abrir('/apoiar');
+
+      render(<App />);
+
+      expect(await screen.findByRole('heading', { name: 'Página não encontrada' })).toBeInTheDocument();
+      expect(screen.queryByText(/Página apoiar/)).not.toBeInTheDocument();
+    });
+
+    it('o botão Apoiar leva à página sem recarregar', async () => {
+      new FetchFake().responder('/api/anos', ANOS).responder('/api/apoio', APOIO).instalar();
+      render(<App />);
+
+      await userEvent.click(await screen.findByRole('link', { name: 'Apoiar' }));
+
+      expect(await screen.findByText('Página apoiar contato@exemplo.test')).toBeInTheDocument();
+      expect(location.pathname).toBe('/apoiar');
+    });
   });
 });

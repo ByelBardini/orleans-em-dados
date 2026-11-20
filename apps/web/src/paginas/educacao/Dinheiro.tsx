@@ -55,7 +55,7 @@ function fraseDoCrescimento(crescimento: Gasto['crescimentoReal']) {
 type AnoDoIndice = BlocoDoIndice['anos'][number];
 
 function LinkParaDiscrepancias() {
-  return <a href="#discrepancias">Ver em Discrepâncias</a>;
+  return <a href="/discrepancias">Ver em Discrepâncias</a>;
 }
 
 function fraseDosAnos(anos: readonly AnoDoIndice[]) {

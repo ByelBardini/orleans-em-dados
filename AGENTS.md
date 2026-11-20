@@ -6,22 +6,24 @@ Dashboard público, rastreável, com dados de receitas e despesas do município 
 
 - Node.js ≥ 22.9, pnpm (versão no `packageManager`), PostgreSQL 17 (`docker-compose.yml`, porta 5433).
 - TypeScript 6 strict em todos os workspaces (`tsconfig.base.json`, tsx).
-- `apps/api`: Fastify, SQL em texto pelo `pg`, resposta validada pelos schemas Zod de `packages/contracts`.
+- `apps/api`: Fastify, SQL em texto pelo `pg`, resposta validada pelos schemas Zod de `packages/contracts`. Serve também o build do web, com o head de cada página, o `sitemap.xml`, o `robots.txt` e o `llms.txt`; `qrcode` (só aqui) desenha o QR do Pix do apoio.
 - `packages/db`: Drizzle para esquema, migrações e gravação. `apps/worker`: pg-boss.
 - `packages/importadores/educacao`: `exceljs` só como devDependency, para os extratores; não vai para API nem worker.
-- `apps/web`: React 19 + Vite 6, TSX, CSS próprio em `styles.css`; testes de componente com Testing Library + jsdom.
+- `apps/web`: React 19 + Vite 6, TSX, CSS próprio em `styles.css`, fontes em `public/fonts` (sem Google Fonts), páginas por caminho pela History API (sem roteador) e carregadas sob demanda (`React.lazy`); testes de componente com Testing Library + jsdom.
 - Qualidade: Vitest 5 (`vitest.config.ts`, um projeto por workspace), ESLint flat (`eslint.config.js`), Prettier (`.prettierrc.json`, largura 120).
 
 ## Layout do repositório
 
 - `packages/db/` — esquema Drizzle, migrações (`drizzle/`), conexão e a conferência Betha × TCE-SC.
-- `packages/contracts/` — valores do domínio e schemas Zod compartilhados.
+- `packages/contracts/` — valores do domínio, schemas Zod compartilhados e o catálogo das páginas (`paginas.ts`: caminho, título, descrição e fontes de cada uma).
 - `packages/importadores/nucleo`, `betha/`, `tcesc/`, `ibge/`, `siconfi/`, `educacao/` — contrato e executor dos importadores, e um importador por fonte. `educacao/` traz INEP, SIOPE e MEC, os extratores e a guarda de dados pessoais; não tem agenda.
 - `apps/worker/` — agendador (pg-boss) e CLI dos importadores.
 - `apps/api/src/` — API REST que lê só as coletas publicadas.
 - `apps/web/src/` — dashboard.
 - `docs/` — especificação, metodologia, fontes, dicionário de dados; `docs/context/` (contexto para agentes), `docs/plans/` (planos), `docs/screens/` (mockups HTML), `docs/educacao/` (fontes e indicadores do caderno de Educação, sem dados pessoais: `snapshots/`, o que o sistema carrega; `curados/`, o transcrito à mão; `extratos/`, a referência da primeira carga).
 - `Dockerfile`, `docker-compose.prod.yml` — a imagem e os serviços de produção no Coolify (migração, site com API e build do web, worker); o Postgres é recurso à parte. Passo a passo em `docs/DEPLOY.md`.
+- `docs/marca/` — os SVG de origem do favicon, do ícone e da imagem de compartilhamento (`og.png`).
+- `CONTRIBUTING.md`, `CODE_OF_CONDUCT.md`, `SECURITY.md`, `LICENCA-DO-CONTEUDO.md` (CC BY 4.0 para textos e dados; o `LICENSE` MIT é do código); `.github/ISSUE_TEMPLATE/` (bug, dado divergente, sugestão), `.github/pull_request_template.md`, `.github/dependabot.yml`; `.editorconfig`, `.nvmrc`.
 - `examples/` — snapshots fictícios no formato dos reais. `data/` — snapshots reais opcionais, fora do git.
 
 ## Contexto por área (`docs/context/`)
@@ -37,10 +39,10 @@ Leia o hub da área antes de abrir fonte. O driver do `/testar` indica qual (`le
 | TCE-SC       | [`tcesc.md`](docs/context/tcesc.md)               | sessão Qlik, cubos e normalização do Farol TCE-SC     |
 | IBGE         | [`ibge.md`](docs/context/ibge.md)                 | tabelas, variáveis e símbolos dos agregados do IBGE   |
 | SICONFI      | [`siconfi.md`](docs/context/siconfi.md)           | DCA Anexo I-E, formato de conta, prazo de entrega     |
-| Contratos    | [`contracts.md`](docs/context/contracts.md)       | dinheiro, exercício, rubrica e schemas das respostas  |
-| API          | [`api.md`](docs/context/api.md)                   | rotas, parâmetros, CSV                                |
+| Contratos    | [`contracts.md`](docs/context/contracts.md)       | dinheiro, exercício, rubrica, schemas e páginas       |
+| API          | [`api.md`](docs/context/api.md)                   | rotas, CSV, site servido (head, sitemap), apoio       |
 | Educação     | [`educacao.md`](docs/context/educacao.md)         | modelo, indicadores gravados, extratores, snapshots   |
-| Dashboard    | [`web.md`](docs/context/web.md)                   | páginas, componentes, formatação, selos               |
+| Dashboard    | [`web.md`](docs/context/web.md)                   | páginas, rotas, componentes, formatação, selos        |
 
 ## Testes
 
@@ -53,7 +55,7 @@ Leia o hub da área antes de abrir fonte. O driver do `/testar` indica qual (`le
 
 ## Comandos
 
-- `pnpm db:subir`, `pnpm db:migrar`, `pnpm db:exemplos`, `pnpm dev` (API em 3000, web em 5173). Em produção, `WEB_DIST` faz a API servir o build do web, e o worker lê `ANOS_DE_HISTORICO` e `HISTORICO_PAUSA_MS`.
+- `pnpm db:subir`, `pnpm db:migrar`, `pnpm db:exemplos`, `pnpm dev` (API em 3000, web em 5173). Em produção, `WEB_DIST` faz a API servir o build do web; `SITE_URL` (endereço público: canonical, prévia das redes, sitemap), `GOOGLE_SITE_VERIFICATION` (opcional) e `PIX_CHAVE`, `PIX_NOME`, `PIX_CIDADE` (o Pix da página Apoiar; sem a chave, ela não existe) são do serviço `site`; o worker lê `ANOS_DE_HISTORICO` e `HISTORICO_PAUSA_MS`.
 - `pnpm importar <betha|tcesc|ibge|siconfi> --ano 2025 [--consulta <chave>] [--json]`, `pnpm importar --arquivo <snapshot.json>`, `pnpm conferir --ano 2025`, `pnpm worker`.
 - `pnpm extrair educacao <inep|siope|enem|superior> --origem <pasta> [--de-extratos] [--destino <pasta>]`, `pnpm extrair educacao mec`, `pnpm extrair educacao varrer --origem <pasta>`: geram os snapshots em `docs/educacao/snapshots/`, sem banco; `varrer` procura dados pessoais neles e tem de dizer 0 achados. A carga é `pnpm importar --arquivo`.
 - Argumento vai direto depois do script: `pnpm importar betha --ano 2025`. O pnpm repassa `--` literalmente e o `parseArgs` da CLI trataria o resto como posicional.

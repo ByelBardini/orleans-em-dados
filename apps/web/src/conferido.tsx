@@ -9,7 +9,7 @@ import { DESDE_QUANDO_O_TCE_PUBLICA, naoPublica } from './semConferencia';
 export const ateOMes = (parcial: boolean | null | undefined, mes: number | null | undefined, ano: number) =>
   parcial && mes ? `até ${MESES_LONGOS[mes - 1]} de ${ano}` : '';
 
-export const LINK_DISCREPANCIAS = '#discrepancias';
+export const LINK_DISCREPANCIAS = '/discrepancias';
 
 // A especificação (§7.3) pede que a comparação diga isto. É a única frase da interface com estas palavras.
 export const FRASE_DA_DIFERENCA =

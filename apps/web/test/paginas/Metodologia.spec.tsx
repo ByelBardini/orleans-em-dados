@@ -66,7 +66,7 @@ describe('Metodologia: o que o painel exibe', () => {
     render(<Metodologia />);
 
     const secao = screen.getByRole('heading', { name: 'O que aparece no painel' }).parentElement as HTMLElement;
-    expect(within(secao).getAllByRole('link', { name: 'Discrepâncias' })[0]).toHaveAttribute('href', '#discrepancias');
+    expect(within(secao).getAllByRole('link', { name: 'Discrepâncias' })[0]).toHaveAttribute('href', '/discrepancias');
   });
 
   it('nenhum link aponta para o endereço antigo da seção', () => {
@@ -344,13 +344,14 @@ describe('Metodologia: privacidade', () => {
     expect(secao).toContain('fora dos buscadores');
   });
 
-  it('de quem visita: sem cookies, o tema fica no navegador e as fontes vêm do Google', () => {
+  it('de quem visita: sem cookies, o tema fica no navegador e as fontes saem do próprio site, sem o Google', () => {
     render(<Metodologia />);
 
     const secao = secaoDe('Privacidade');
     expect(secao).toContain('não usa cookies nem rastreadores');
     expect(secao).toContain('fica guardada só no seu navegador');
-    expect(secao).toContain('Google Fonts');
+    expect(secao).toContain('As fontes do texto saem do próprio site');
+    expect(secao).not.toContain('Google');
   });
 
   it('pedido de correção ou remoção vai para o e-mail do projeto', () => {

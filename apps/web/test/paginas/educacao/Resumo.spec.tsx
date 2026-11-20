@@ -90,12 +90,12 @@ describe('Resumo: estados', () => {
 
 describe('Resumo: as seis perguntas', () => {
   it.each([
-    [LER, '#educacao-aprendizado', /Ver aprendizado/],
-    [VAGA, '#educacao-acesso', /Ver acesso/],
-    [FICAM, '#educacao-permanencia', /Ver permanência/],
-    [NOTAS, '#educacao-aprendizado', /Ver aprendizado/],
-    [AULA, '#educacao-professores', /Ver professores e turmas/],
-    [GASTO, '#educacao-dinheiro', /Ver dinheiro/],
+    [LER, '/educacao/aprendizado', /Ver aprendizado/],
+    [VAGA, '/educacao/acesso', /Ver acesso/],
+    [FICAM, '/educacao/permanencia', /Ver permanência/],
+    [NOTAS, '/educacao/aprendizado', /Ver aprendizado/],
+    [AULA, '/educacao/professores-e-turmas', /Ver professores e turmas/],
+    [GASTO, '/educacao/dinheiro', /Ver dinheiro/],
   ])('%s leva para a aba %s, com o link e os detalhes na mesma linha do pé', async (pergunta, destino, link) => {
     await abrir();
 
@@ -299,7 +299,7 @@ describe('Resumo: as seis perguntas', () => {
     expect(c).toHaveTextContent('O SICONFI registra 27,25%');
     expect(within(c).getByRole('link', { name: /diferença em Discrepâncias/ })).toHaveAttribute(
       'href',
-      '#discrepancias',
+      '/discrepancias',
     );
   });
 

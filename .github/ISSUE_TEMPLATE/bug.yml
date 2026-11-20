@@ -1,0 +1,42 @@
+name: Algo não funciona
+description: Uma página que não abre, um botão que não responde, um texto quebrado.
+title: '[bug] '
+labels: ['bug']
+body:
+  - type: input
+    id: pagina
+    attributes:
+      label: Página
+      description: O endereço onde aconteceu.
+      placeholder: https://orleansemdados.com.br/educacao/dinheiro
+    validations:
+      required: true
+  - type: textarea
+    id: passos
+    attributes:
+      label: Passos
+      description: O que você fez, na ordem.
+      placeholder: |
+        1. Abri a página
+        2. Troquei o exercício para 2024
+        3. …
+    validations:
+      required: true
+  - type: textarea
+    id: esperado
+    attributes:
+      label: O que você esperava
+    validations:
+      required: true
+  - type: textarea
+    id: visto
+    attributes:
+      label: O que aconteceu
+      description: Se puder, uma captura de tela, sem dado pessoal de ninguém.
+    validations:
+      required: true
+  - type: input
+    id: navegador
+    attributes:
+      label: Navegador e aparelho
+      placeholder: Chrome 131 no Android, Firefox no Windows…

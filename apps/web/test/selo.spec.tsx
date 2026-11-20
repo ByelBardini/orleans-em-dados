@@ -21,7 +21,7 @@ describe('Selo', () => {
     render(<Selo selo={{ estado: 'confere', titulo: 'conferido com o TCE-SC', motivo: 'Valores do TCE-SC.' }} />);
     expect(screen.getByText('conferido com o TCE-SC')).toBeInTheDocument();
     expect(screen.getByText('Valores do TCE-SC.')).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: 'Ver discrepâncias →' })).toHaveAttribute('href', '#discrepancias');
+    expect(screen.getByRole('link', { name: 'Ver discrepâncias →' })).toHaveAttribute('href', '/discrepancias');
   });
 
   it.each([

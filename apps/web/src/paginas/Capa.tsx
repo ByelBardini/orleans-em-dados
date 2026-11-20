@@ -21,27 +21,27 @@ import type { PropsDaPagina } from './props';
 const AREAS = [
   {
     nome: 'Finanças',
-    destino: '#financas',
+    destino: '/financas',
     texto: 'Quanto entrou, quanto saiu e o que as fontes confirmam.',
   },
   {
     nome: 'Para onde vai o dinheiro',
-    destino: '#para-onde-vai',
+    destino: '/financas/para-onde-vai',
     texto: 'A despesa por área, de saúde a transporte, ano a ano.',
   },
   {
     nome: 'Demografia',
-    destino: '#conheca-orleans',
+    destino: '/conheca-orleans',
     texto: 'Quantos somos, onde moramos e como a população mudou entre os censos.',
   },
   {
     nome: 'Economia',
-    destino: '#conheca-orleans',
+    destino: '/conheca-orleans',
     texto: 'O PIB, o que ele mede e o rendimento das famílias.',
   },
   {
     nome: 'Educação',
-    destino: '#educacao',
+    destino: '/educacao',
     texto: 'Se as crianças aprendem, quem dá aula e quanto a Prefeitura gasta.',
   },
 ];
@@ -145,7 +145,7 @@ export default function Capa({ filtros }: PropsDaPagina) {
             Um retrato da cidade feito só com dados públicos. O ano muda de um número para outro, porque cada fonte
             publica no próprio ritmo. A origem e a conferência de cada um estão na página de cada área.
           </p>
-          <a href="#metodologia" className="botao-link">
+          <a href="/sobre-os-dados" className="botao-link">
             Como estes dados são feitos →
           </a>
         </div>

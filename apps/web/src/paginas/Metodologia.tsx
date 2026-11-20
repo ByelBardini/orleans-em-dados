@@ -56,7 +56,7 @@ export default function Metodologia() {
           <p>
             O total da despesa por função é comparado com o TCE-SC, nas três etapas. Quando fecha, leva “conferido com o
             TCE-SC”; num ano sem coleta do Tribunal, leva fonte única; com diferença, o valor de cada fonte vai para{' '}
-            <a href="#discrepancias">Discrepâncias</a>. Cada função leva fonte única, sem conferência, porque o TCE-SC
+            <a href="/discrepancias">Discrepâncias</a>. Cada função leva fonte única, sem conferência, porque o TCE-SC
             coletado não tem esse recorte, e função não é entidade: igualdade do total não confere cada função. A função
             12, Educação, é a única com par: é comparada com a soma das ações de educação na Betha.
           </p>
@@ -125,7 +125,7 @@ export default function Metodologia() {
           </ul>
           <p>
             Igualdade entre as fontes não é auditoria nem homologação contábil: mostra que as duas publicam o mesmo
-            número. O que difere não some: fica em <a href="#discrepancias">Discrepâncias</a>, separado por tipo, com o
+            número. O que difere não some: fica em <a href="/discrepancias">Discrepâncias</a>, separado por tipo, com o
             valor de cada fonte e a situação do caso. Cada caso diz se foi conferido à mão no portal, com a data, se foi
             conferido só em parte, ou se é apenas cálculo, e aí o tipo é o mais provável. {FRASE_DA_DIFERENCA}
           </p>
@@ -155,7 +155,7 @@ export default function Metodologia() {
               <strong>SICONFI</strong>: o RREO Anexo 14, comparado com o SIOPE no índice de 25% e no Fundeb, e a DCA,
               com a função 12, que é o gasto com educação. Nos índices, igualdade do percentual não confere: o SIOPE
               segue em fonte única, e o ano em que o valor difere traz um aviso e vai para{' '}
-              <a href="#discrepancias">Discrepâncias</a>. O gasto leva “conferido com a Betha” onde fecha, e fonte única
+              <a href="/discrepancias">Discrepâncias</a>. O gasto leva “conferido com a Betha” onde fecha, e fonte única
               nos anos sem coleta da Betha.
             </li>
             <li>
@@ -293,7 +293,7 @@ export default function Metodologia() {
               O portal não informa CPF nem CNPJ dos credores, então não é possível separar pessoas físicas de empresas.
             </li>
             <li>
-              A comparação com o TCE-SC está em <a href="#discrepancias">Discrepâncias</a>. O TCE recebe os dados com
+              A comparação com o TCE-SC está em <a href="/discrepancias">Discrepâncias</a>. O TCE recebe os dados com
               cerca de um mês de atraso: no ano em curso, o painel vai até o último mês recebido.
             </li>
           </ul>
@@ -318,9 +318,9 @@ export default function Metodologia() {
             <li>A lista de empenhos e os arquivos para baixar ficam fora dos buscadores.</li>
             <li>
               De quem visita, o site não usa cookies nem rastreadores e não pede cadastro. A escolha do tema claro ou
-              escuro fica guardada só no seu navegador. As fontes do texto vêm do Google Fonts, então o navegador se
-              conecta aos servidores do Google ao abrir a página. A hospedagem registra dados técnicos de acesso, como o
-              endereço IP, como em qualquer site.
+              escuro fica guardada só no seu navegador. As fontes do texto saem do próprio site, sem conexão a outro
+              servidor ao abrir a página. A hospedagem registra dados técnicos de acesso, como o endereço IP, como em
+              qualquer site.
             </li>
             <li>
               Pedidos de correção ou remoção de dado pessoal:{' '}

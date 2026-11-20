@@ -13,9 +13,11 @@
     "@orleans-em-dados/contracts": "workspace:*",
     "@orleans-em-dados/db": "workspace:*",
     "fastify": "^5.12.7",
+    "qrcode": "^1.5.4",
     "zod": "^4.6.7"
   },
   "devDependencies": {
-    "@orleans-em-dados/importador-nucleo": "workspace:*"
+    "@orleans-em-dados/importador-nucleo": "workspace:*",
+    "@types/qrcode": "^1.5.6"
   }
 }

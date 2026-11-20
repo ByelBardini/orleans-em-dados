@@ -163,7 +163,7 @@ describe('Para onde vai: selos por nível', () => {
     expect(linhaDoTotal()).not.toHaveTextContent(CONFERIDO);
     const aviso = screen.getByText(/o SICONFI registra/).closest('p') as HTMLElement;
     expect(aviso).toHaveTextContent(`No pago, o SICONFI registra R$${NBSP}1.000,00 a mais que o TCE-SC`);
-    expect(within(aviso).getByRole('link', { name: 'Ver em Discrepâncias' })).toHaveAttribute('href', '#discrepancias');
+    expect(within(aviso).getByRole('link', { name: 'Ver em Discrepâncias' })).toHaveAttribute('href', '/discrepancias');
   });
 });
 

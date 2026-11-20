@@ -84,7 +84,7 @@ function DiferencaDoTotal({ dados }: { dados: Funcoes }) {
           {moeda(Math.abs(e.diferenca))} a mais que {LADO[e.maior === 'dca' ? 'tce' : 'dca']}.
         </span>
       ))}{' '}
-      Por isso o total sai como fonte única. <a href="#discrepancias">Ver em Discrepâncias</a>
+      Por isso o total sai como fonte única. <a href="/discrepancias">Ver em Discrepâncias</a>
     </p>
   );
 }

@@ -7,3 +7,8 @@
 - Nº de empenho repete entre datas: `q=340` no SAMAE 2025 acha o nº 340 de 26/03, casado com o TCE-SC, e não o de 01/04, retirado. Confira pelo `id`.
 - Os registros de `CONFERENCIAS_MANUAIS` valem nas fixtures: o SAMAE com `so_tce` em `11130311` e outro valor sai `rever`.
 - Objeto usado como mapa com chave vinda do usuário pega o que é herdado de `Object` (`?situacao=constructor` já virou erro 500): `filtroBusca` usa `Map`.
+- `Disallow: /api/` no `robots.txt` deixava o painel sem número para o Google: o renderizador respeita o robots ao buscar o JSON das páginas. O que tira a API do índice sem impedir a busca é o `X-Robots-Tag: noindex`. O robots só fecha `/api/despesas/empenhos` (busca, resumo e CSV, com nome de credor).
+- Arquivo do build com o nome de uma rota gerada (`robots.txt`, `sitemap.xml`, `llms.txt`, `index.html`) colidiria com a rota no `@fastify/static` com `wildcard: false`, que registra uma rota por arquivo: o `globIgnore` deixa esses nomes de fora.
+- O `setHeaders` do `@fastify/static` recebe a resposta do Fastify, não a do Node: é `res.header(...)`, e `res.setHeader` derruba o asset com 500.
+- O CRC do BR Code é calculado sobre o payload inteiro **com** o `6304` (id e tamanho do próprio campo do CRC) no fim; sem ele, sai outro valor, e o banco recusa o código. O teste do exemplo do manual do BCB (`…63041D3D`) pega isso.
+- Onze dígitos sem `+55` parecem telefone e também CPF: a chave só vale como CPF com dígito verificador certo; telefone exige o `+55`.

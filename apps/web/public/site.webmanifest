@@ -1,0 +1,14 @@
+{
+  "name": "Orleans em Dados",
+  "short_name": "Orleans em Dados",
+  "description": "Dados públicos de Orleans/SC, cada número com fonte, ano e conferência entre as fontes.",
+  "lang": "pt-BR",
+  "start_url": "/",
+  "display": "browser",
+  "background_color": "#efeadf",
+  "theme_color": "#efeadf",
+  "icons": [
+    { "src": "/favicon.svg", "sizes": "any", "type": "image/svg+xml" },
+    { "src": "/apple-touch-icon.png", "sizes": "180x180", "type": "image/png" }
+  ]
+}
