@@ -9,6 +9,7 @@ Valores do domínio e formas que atravessam o sistema, compartilhados por API, i
 - `codigoRubrica(valor)`, `rubricaSchema` (`rubrica.ts`) — texto com dígitos e pontos, mantendo zeros à esquerda; `number` é recusado.
 - `populacaoDoAno(serie, ano)` (`populacao.ts`) — o número do próprio ano, senão o anterior mais próximo; nulo antes da série. A regra do divisor de API e tela.
 - `PRIMEIRO_EXERCICIO` (`fontes.ts`) — o primeiro exercício que a fonte publica, pela chave do catálogo: `tcesc_receitas` 2018, `tcesc_empenhos` 2023 (o Farol não tem anos anteriores). A carga não pede antes dele. `foraDaFonte(faltando, ano)` separa, do `faltando`, o que a fonte não publica naquele exercício do que só não foi coletado ainda.
+- `PAGINAS`, `paginaDoCaminho(caminho)`, `caminhoDoHashAntigo(hash)`, `paginaPeloId(id)`, `FONTES`, `IdDaPagina` (`paginas.ts`) — o catálogo das 16 páginas, que a tela e a API leem: `id` (os de antes das rotas por caminho), `caminho`, `nome` (navegação), `titulo` (até 60 caracteres), `descricao` (de 70 a 160, sem dígito nenhum: nunca desatualiza e não leva a regra do selo ao servidor), `area` (a página de primeiro nível; a própria, numa área), `hashesAntigos`, `fontes` (`{ nome, url }`, de `FONTES`), `dataset` (Conheça Orleans, Receitas, Despesas, Para onde vai, Educação · Resumo) e `menu` (só Apoiar fica fora). `paginaDoCaminho` devolve `{ pagina, redirecionar }`: com barra no fim, `redirecionar` é o caminho sem ela; caixa diferente e caminho desconhecido são nulos, sem adivinhar. Página nova é uma entrada aqui, com título e descrição escritos à mão.
 - `pareceOrganizacao(nome)`, `historicoOmitido({ credor, historico })`, `PADRAO_DE_ORGANIZACAO` (`credor.ts`) — o credor tem marca de empresa, órgão ou entidade (LTDA, S.A., S/A, ME, EPP, CNPJ no nome, prefeitura, associação…), sem acento e em maiúsculas; o resto pode ser pessoa física, e o histórico dele não sai da API. O regex não usa `\b`: o Postgres (`~`) lê igual, e `pareceOrganizacaoSql` da API usa o mesmo texto. Fica fora o que também é sobrenome ("SA" sem pontos, "CÂMARA"); na dúvida, é pessoa.
 
 ## Contrato
@@ -50,6 +51,7 @@ Um schema Zod estrito por rota da API (`src/api/`), espelhando o JSON de hoje (d
 
 ## Testes
 
+- `test/paginas.spec.ts` prova o catálogo: caminhos, hashes antigos, tamanho de título e descrição, o que é `Dataset` e o menu.
 - `test/api/respostas.spec.ts` valida as respostas gravadas de `apps/api/test/paridade/respostas/` contra os schemas.
 
 ## Indicadores
