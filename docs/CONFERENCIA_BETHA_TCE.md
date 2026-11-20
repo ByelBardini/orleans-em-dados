@@ -19,7 +19,7 @@ diferenças entre o que as fontes publicam, que uma fonte sozinha não mostra.**
   portal publica algo diferente do que o município envia ao Tribunal.
 
 O painel passou a exibir como número principal só a parte conferida. O que difere fica na seção
-Discrepâncias (`#discrepancias`). A regra está em [METODOLOGIA.md](METODOLOGIA.md).
+Discrepâncias (`/discrepancias`). A regra está em [METODOLOGIA.md](METODOLOGIA.md).
 
 O custo de manter as duas é menor do que o relatório de investigação previa: o coletor TCE não
 precisa de autenticação, exportação CSV nem cookies. Ele monta hipercubos próprios na API do Qlik
