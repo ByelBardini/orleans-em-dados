@@ -14,7 +14,7 @@ body:
     attributes:
       label: Página
       description: O endereço da página do painel.
-      placeholder: https://…/financas/receitas
+      placeholder: https://orleansemdados.com.br/financas/receitas
     validations:
       required: true
   - type: input

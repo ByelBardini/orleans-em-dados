@@ -4,6 +4,8 @@
 [![Código: MIT](https://img.shields.io/badge/c%C3%B3digo-MIT-blue.svg)](LICENSE)
 [![Conteúdo: CC BY 4.0](https://img.shields.io/badge/conte%C3%BAdo-CC%20BY%204.0-lightgrey.svg)](LICENCA-DO-CONTEUDO.md)
 
+No ar em [orleansemdados.com.br](https://orleansemdados.com.br).
+
 Plataforma open source para centralização, visualização e análise de dados públicos do município de Orleans/SC.
 
 > Projeto independente, sem vínculo institucional com a Prefeitura Municipal de Orleans ou com os órgãos de controle.
@@ -127,7 +129,7 @@ Dá para ajudar avisando de um número que não bate com a fonte (modelo de issu
 
 ## Apoie
 
-O projeto é mantido por uma pessoa, sem vínculo com a Prefeitura nem com órgão nenhum. Com o Pix configurado no servidor, o site tem a página **Apoiar** (`/apoiar`), com o QR e o copia e cola; o apoio paga a hospedagem e o domínio.
+O projeto é mantido por uma pessoa, sem vínculo com a Prefeitura nem com órgão nenhum. Com o Pix configurado no servidor, o site tem a página [**Apoiar**](https://orleansemdados.com.br/apoiar), com o QR e o copia e cola; o apoio paga a hospedagem e o domínio.
 
 ## Licença
 

@@ -14,7 +14,7 @@ Você pode copiar, redistribuir, adaptar e usar para qualquer fim, inclusive com
 
 > Orleans em Dados, &lt;endereço da página&gt;, dados de &lt;fonte&gt;, consultado em &lt;data&gt;.
 
-Por exemplo: _Orleans em Dados, https://…/financas/receitas, dados do Portal da Transparência de Orleans (Betha) conferidos com o Farol do TCE-SC, consultado em 19/11/2026._
+Por exemplo: _Orleans em Dados, https://orleansemdados.com.br/financas/receitas, dados do Portal da Transparência de Orleans (Betha) conferidos com o Farol do TCE-SC, consultado em 19/11/2026._
 
 ## Os dados de origem
 
