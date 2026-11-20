@@ -8,7 +8,7 @@ body:
     attributes:
       label: Página
       description: O endereço onde aconteceu.
-      placeholder: https://…/educacao/dinheiro
+      placeholder: https://orleansemdados.com.br/educacao/dinheiro
     validations:
       required: true
   - type: textarea
