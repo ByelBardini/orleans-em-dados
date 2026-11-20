@@ -4,9 +4,27 @@ import { criarApp } from '../../src/app.js';
 import { normalizarSiteUrl } from '../../src/site/site.js';
 import { distFalso } from '../support/dist-falso.js';
 
+// Os exercícios publicados, sem banco: guarda quantas vezes foi lido e pode estar fora do ar.
+class ExerciciosFake {
+  leituras = 0;
+  constructor(
+    private readonly anos: number[],
+    private readonly erro: Error | null = null,
+  ) {}
+  ler = async () => {
+    this.leituras += 1;
+    if (this.erro) throw this.erro;
+    return { anos: this.anos, atualizadoEm: {} };
+  };
+}
+
+const jsonLd = (html: string) =>
+  [...html.matchAll(/<script type="application\/ld\+json">(.*?)<\/script>/gs)].map((m) => JSON.parse(m[1]!));
+
 const abertos: FastifyInstance[] = [];
-const app = (...args: Parameters<typeof criarApp>) => {
-  const criado = criarApp(...args);
+// Sem banco: quem não passa os exercícios recebe uma lista vazia.
+const app = (opcoes: Parameters<typeof criarApp>[0] = {}, doApp: Parameters<typeof criarApp>[1] = {}) => {
+  const criado = criarApp(opcoes, { lerExercicios: new ExerciciosFake([]).ler, ...doApp });
   abertos.push(criado);
   return criado;
 };
@@ -110,6 +128,65 @@ describe('registrarSite: o painel servido pela API', () => {
 
     expect(resposta.statusCode).toBe(404);
     expect(resposta.json()).toEqual({ erro: 'Rota não encontrada' });
+  });
+});
+
+describe('registrarSite: o JSON-LD no head', () => {
+  const SITE = 'https://exemplo.test';
+
+  it('Receitas leva o Dataset com o período dos exercícios publicados', async () => {
+    const exercicios = new ExerciciosFake([2025, 2024]);
+    const site = app({}, { site: distFalso(), siteUrl: SITE, lerExercicios: exercicios.ler });
+
+    const resposta = await site.inject({ method: 'GET', url: '/financas/receitas' });
+
+    const dataset = jsonLd(resposta.body).find((b) => b['@type'] === 'Dataset');
+    expect(dataset?.temporalCoverage).toBe('2024/2025');
+  });
+
+  it('com o banco fora do ar, a página abre e o Dataset sai sem período', async () => {
+    const exercicios = new ExerciciosFake([], new Error('connect ECONNREFUSED'));
+    const site = app({}, { site: distFalso(), siteUrl: SITE, lerExercicios: exercicios.ler });
+
+    const resposta = await site.inject({ method: 'GET', url: '/financas/receitas' });
+
+    expect(resposta.statusCode).toBe(200);
+    const dataset = jsonLd(resposta.body).find((b) => b['@type'] === 'Dataset');
+    expect(dataset?.license).toBe('https://creativecommons.org/licenses/by/4.0/');
+    expect(dataset).not.toHaveProperty('temporalCoverage');
+  });
+
+  it('os exercícios são lidos uma vez a cada cinco minutos, e não a cada acesso', async () => {
+    const exercicios = new ExerciciosFake([2025]);
+    let agora = 0;
+    const site = app({}, { site: distFalso(), siteUrl: SITE, lerExercicios: exercicios.ler, relogio: () => agora });
+
+    await site.inject({ method: 'GET', url: '/financas/receitas' });
+    agora = 4 * 60_000;
+    await site.inject({ method: 'GET', url: '/financas/despesas' });
+    const antesDeVencer = exercicios.leituras;
+    agora = 5 * 60_000 + 1;
+    await site.inject({ method: 'GET', url: '/financas/receitas' });
+
+    expect([antesDeVencer, exercicios.leituras]).toEqual([1, 2]);
+  });
+
+  it('sem SITE_URL, nada de JSON-LD, porque ele pede URL absoluta', async () => {
+    const site = app({}, { site: distFalso(), lerExercicios: new ExerciciosFake([2025]).ler });
+
+    const resposta = await site.inject({ method: 'GET', url: '/financas/receitas' });
+
+    expect(jsonLd(resposta.body)).toEqual([]);
+  });
+
+  it('a página não encontrada não leva JSON-LD nem consulta o banco', async () => {
+    const exercicios = new ExerciciosFake([2025]);
+    const site = app({}, { site: distFalso(), siteUrl: SITE, lerExercicios: exercicios.ler });
+
+    const resposta = await site.inject({ method: 'GET', url: '/nada' });
+
+    expect(jsonLd(resposta.body)).toEqual([]);
+    expect(exercicios.leituras).toBe(0);
   });
 });
 
