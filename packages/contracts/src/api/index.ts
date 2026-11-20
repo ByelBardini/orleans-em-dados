@@ -1,4 +1,5 @@
 export * from './anos';
+export * from './apoio';
 export * from './comuns';
 export * from './conferencias';
 export * from './despesas';

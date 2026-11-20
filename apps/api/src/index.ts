@@ -1,4 +1,5 @@
 import { criarApp } from './app';
+import { apoioDaSubida } from './modules/apoio/config';
 import { normalizarSiteUrl } from './site/site';
 
 const PORTA = Number(process.env.PORT ?? 3000);
@@ -11,6 +12,8 @@ const app = criarApp(
     site: process.env.WEB_DIST,
     siteUrl: normalizarSiteUrl(process.env.SITE_URL),
     verificacaoGoogle: process.env.GOOGLE_SITE_VERIFICATION?.trim() || undefined,
+    // O Pix do apoio (PIX_CHAVE, PIX_NOME, PIX_CIDADE): config errada desliga o apoio, sem derrubar o site.
+    apoio: apoioDaSubida(process.env, (motivo) => console.warn(motivo)),
   },
 );
 await app.listen({ port: PORTA, host: '0.0.0.0' });
