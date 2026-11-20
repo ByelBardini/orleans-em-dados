@@ -19,6 +19,6 @@
     "@orleans-em-dados/importador-nucleo": "workspace:*",
     "@orleans-em-dados/importador-siconfi": "workspace:*",
     "@orleans-em-dados/importador-tcesc": "workspace:*",
-    "pg-boss": "^12.38.0"
+    "pg-boss": "^12.38.2"
   }
 }
