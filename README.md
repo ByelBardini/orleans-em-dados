@@ -1,9 +1,25 @@
 # Orleans em Dados
 
+[![Testes](https://github.com/ByelBardini/orleans-em-dados/actions/workflows/testes.yml/badge.svg)](https://github.com/ByelBardini/orleans-em-dados/actions/workflows/testes.yml)
+[![Código: MIT](https://img.shields.io/badge/c%C3%B3digo-MIT-blue.svg)](LICENSE)
+[![Conteúdo: CC BY 4.0](https://img.shields.io/badge/conte%C3%BAdo-CC%20BY%204.0-lightgrey.svg)](LICENCA-DO-CONTEUDO.md)
+
 Plataforma open source para centralização, visualização e análise de dados públicos do município de Orleans/SC.
 
 > Projeto independente, sem vínculo institucional com a Prefeitura Municipal de Orleans ou com os órgãos de controle.
 > Os dados são obtidos de fontes públicas identificadas e apresentados com suas respectivas metodologias e limitações.
+
+## Fontes
+
+| Fonte                                                                                                                                                                                                                    | O que traz                                               | Como entra          |
+| ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | -------------------------------------------------------- | ------------------- |
+| [Portal da Transparência de Orleans (Betha)](https://transparencia.betha.cloud/#/mJRAZlfGu2RI9KNBWj49aw==)                                                                                                               | receitas, empenhos e despesa orçamentária                | coleta diária       |
+| [Farol do TCE-SC](https://servicos.tcesc.tc.br/farol_externo/)                                                                                                                                                           | receitas e empenhos, para a conferência; a Câmara        | coleta diária       |
+| [SICONFI](https://www.siconfi.tesouro.gov.br/)                                                                                                                                                                           | despesa por função (DCA Anexo I-E) e índices de educação | coleta              |
+| [IBGE](https://servicodados.ibge.gov.br/api/docs)                                                                                                                                                                        | população, Censo 2022, PIB, rendimento                   | coleta              |
+| [INEP](https://www.gov.br/inep/pt-br/acesso-a-informacao/dados-abertos), [SIOPE](https://www.gov.br/fnde/pt-br/assuntos/sistemas/siope), [MEC](https://www.gov.br/mec/pt-br/pnei/retrato-da-educacao-infantil-no-brasil) | o caderno de Educação                                    | snapshot versionado |
+
+O painel só mostra como número principal o que confere entre duas fontes ou o que tem uma fonte só, rotulada assim. O que não fecha vai para a página Discrepâncias, com a conta; diferença entre fontes não indica irregularidade. Detalhes em [docs/METODOLOGIA.md](docs/METODOLOGIA.md).
 
 ## O que já existe
 
@@ -105,6 +121,14 @@ contínuo ainda não foram confirmadas. Veja [docs/FONTES_DE_DADOS.md](docs/FONT
 - [Fontes de dados](docs/FONTES_DE_DADOS.md)
 - [Metodologia](docs/METODOLOGIA.md)
 
+## Como contribuir
+
+Dá para ajudar avisando de um número que não bate com a fonte (modelo de issue **Dado divergente**), sugerindo uma página ou mexendo no código. O passo a passo, as convenções e as regras que não se quebram estão no [CONTRIBUTING.md](CONTRIBUTING.md). Quem participa segue o [Código de Conduta](CODE_OF_CONDUCT.md). Falha de segurança ou dado pessoal exposto: [SECURITY.md](SECURITY.md), nunca em issue pública.
+
+## Apoie
+
+O projeto é mantido por uma pessoa, sem vínculo com a Prefeitura nem com órgão nenhum. Com o Pix configurado no servidor, o site tem a página **Apoiar** (`/apoiar`), com o QR e o copia e cola; o apoio paga a hospedagem e o domínio.
+
 ## Licença
 
-[MIT](LICENSE)
+O código está sob a licença [MIT](LICENSE). Os textos e os dados que o painel, a API e os CSV entregam estão sob [CC BY 4.0](LICENCA-DO-CONTEUDO.md): podem ser reusados com crédito. Os dados de origem seguem as condições de cada fonte.

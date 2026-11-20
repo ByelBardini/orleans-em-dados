@@ -4,6 +4,14 @@
   "private": true,
   "description": "Plataforma open source para centralização, visualização e análise de dados públicos do município de Orleans/SC.",
   "license": "MIT",
+  "homepage": "https://github.com/ByelBardini/orleans-em-dados#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ByelBardini/orleans-em-dados.git"
+  },
+  "bugs": {
+    "url": "https://github.com/ByelBardini/orleans-em-dados/issues"
+  },
   "type": "module",
   "engines": {
     "node": ">=22.9"
