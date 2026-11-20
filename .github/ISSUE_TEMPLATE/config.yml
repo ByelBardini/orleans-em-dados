@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Falha de segurança ou dado pessoal exposto
+    url: https://github.com/ByelBardini/orleans-em-dados/blob/main/SECURITY.md
+    about: Não abra issue pública. Escreva para o e-mail do SECURITY.md.
+  - name: Como contribuir
+    url: https://github.com/ByelBardini/orleans-em-dados/blob/main/CONTRIBUTING.md
+    about: Como rodar o projeto, as convenções e as regras que não se quebram.

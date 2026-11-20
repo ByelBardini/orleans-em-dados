@@ -1,0 +1,51 @@
+name: Dado divergente
+description: Um número do painel diferente do que a fonte publica.
+title: '[dado] '
+labels: ['dado divergente']
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Obrigado por conferir. Duas lembranças antes de escrever:
+        - **Diferença entre fontes não é, sozinha, irregularidade.** As fontes podem registrar em datas e recortes diferentes; o que não fecha já aparece na página Discrepâncias, com a conta.
+        - **Não cole nome, CPF nem descrição de pessoa física** (credor, servidor). Diga a página e o número, e o link da fonte basta.
+  - type: input
+    id: pagina
+    attributes:
+      label: Página
+      description: O endereço da página do painel.
+      placeholder: https://…/financas/receitas
+    validations:
+      required: true
+  - type: input
+    id: exercicio
+    attributes:
+      label: Exercício
+      placeholder: '2025'
+    validations:
+      required: true
+  - type: input
+    id: valor-painel
+    attributes:
+      label: Valor no painel
+      description: O número como aparece, e onde (cartão, tabela, linha).
+    validations:
+      required: true
+  - type: input
+    id: valor-fonte
+    attributes:
+      label: Valor na fonte
+    validations:
+      required: true
+  - type: input
+    id: link-fonte
+    attributes:
+      label: Link da fonte
+      description: Onde o valor da fonte aparece, com o filtro usado, se houver.
+    validations:
+      required: true
+  - type: textarea
+    id: detalhes
+    attributes:
+      label: Mais detalhes
+      description: Data em que conferiu, entidade (Prefeitura, FMS, SAMAE…), o que mais ajudar a reproduzir.
