@@ -11,7 +11,8 @@ API REST somente leitura sobre as coletas publicadas, em Fastify. Vive em `apps/
 
 ## Estrutura
 
-- `src/app.ts` — `criarApp(opcoes?)`: monta o Fastify, registra os módulos e traduz 404 e erro. Toda resposta de `/api` sai com `X-Robots-Tag: noindex, nofollow` (gancho `onSend`); o site, não. Com `criarApp(opcoes, { site })` (o `index.ts` passa `WEB_DIST`), o mesmo processo serve o build do web pelo `@fastify/static` (`wildcard: false`): assets de `assets/` com `Cache-Control` longo e imutável, o resto `no-cache`, e qualquer `GET` fora de `/api` que não é arquivo volta para o `index.html`. Sem `site`, ou sem o `index.html` na pasta, só a API responde. `checarBanco` troca a checagem da saúde no teste. `src/index.ts` só sobe a porta (`PORT`, padrão 3000).
+- `src/app.ts` — `criarApp(opcoes?, { site, siteUrl, verificacaoGoogle, apoioAtivo, checarBanco })`: monta o Fastify, registra os módulos e traduz 404 e erro. Toda resposta de `/api` sai com `X-Robots-Tag: noindex, nofollow` (gancho `onSend`, `ehDaApi`); o site, não. Com `site` (o `index.ts` passa `WEB_DIST`) e o `index.html` na pasta, chama `registrarSite` (seção Site); sem, só a API responde, e todo 404 é JSON. `checarBanco` troca a checagem da saúde no teste. `src/index.ts` sobe a porta (`PORT`, padrão 3000) e lê `SITE_URL` (por `normalizarSiteUrl`, que tira a barra do fim e recusa o que não é `http(s)://`) e `GOOGLE_SITE_VERIFICATION`.
+- `src/site/` — o painel servido pela API. `site.ts`: `registrarSite(app, { pasta, siteUrl, verificacaoGoogle, apoioAtivo })`, `normalizarSiteUrl`, `ehDaApi`. `head.ts`: `montarHead(pagina | null, { siteUrl, verificacaoGoogle, jsonLd })`, `escaparHtml`, `urlDoSite`.
 - `src/modules/<área>/` — `<área>.dao.ts` (SQL), `<área>.service.ts` (composição com a conferência), `<área>.routes.ts` (borda). Áreas: `coletas`, `receitas`, `despesas`, `empenhos`, `discrepancias`, `conferencias`, `importacoes`, `municipio`, `funcoes`, `educacao` (estrutura própria, em "Caderno de Educação").
 - `src/lib/borda.ts` — `parametro`, `texto`, `responder`, `responderCsv`.
 - `src/lib/consultas.ts` — `consultar`, `ENTIDADE`, `chaveTexto`. `src/lib/csv.ts` — `gerarCsv`.
@@ -36,6 +37,13 @@ Todas as rotas de dados recebem `ano` e respondem `404 { erro }` quando o ano n�
 - `GET /api/saude` — `{ ok: true }` com o banco respondendo (`SELECT 1`), `503 { ok: false }` sem ele, sem a mensagem do erro. É o healthcheck do Coolify.
 - `GET /api/importacoes` — por importador do registro: última execução (sem a mensagem de erro, que fica só no banco) e, por exercício, a data da consulta publicada mais antiga da fonte. Exemplo não conta.
 - Rota desconhecida ou método diferente de `GET`: `404 { erro: 'Rota não encontrada' }`; exceção: `500 { erro: 'Erro interno' }`.
+
+## Site
+
+- Os arquivos do build saem pelo `@fastify/static` (`wildcard: false`, raiz por `path.resolve`, `index: false`): `assets/` com `Cache-Control` longo e imutável, o resto `no-cache`. O `index.html` não sai pelo nome (`allowedPath`): só pelas rotas das páginas, com o head certo.
+- Uma rota `GET` por página do catálogo (`PAGINAS`, em [contracts.md](contracts.md)): o `index.html`, lido uma vez na subida, com o bloco `<!--head:inicio-->…<!--head:fim-->` trocado por `montarHead(pagina)`, `text/html; charset=utf-8`, `no-cache`. O head traz `<title>`, description, canonical e `og:url` (só com `siteUrl`), Open Graph (`og:image` = `/og.png` absoluto, só com `siteUrl`), Twitter e, com `verificacaoGoogle`, a meta do Search Console. Todo texto passa por `escaparHtml`. A query não muda a página nem o canonical.
+- `/apoiar` só existe com `apoioAtivo`; sem ele, é 404 como qualquer caminho desconhecido.
+- O que sobra (`setNotFoundHandler`): `GET` com barra no fim de uma página → `301` para o caminho sem ela, com a query; outro `GET` fora de `/api` → `404` com o index e o head de "Página não encontrada" (`meta robots noindex`); `/api` ou método diferente de `GET` → `404 { erro }` em JSON. Nada de 200 para endereço inexistente (soft 404).
 
 ## Regras de negócio
 
@@ -68,4 +76,4 @@ Todas as rotas de dados recebem `ano` e respondem `404 { erro }` quando o ano n�
 - `test/integration/conferidos-por-area.spec.ts` — 2025 sem os empenhos do TCE-SC (receita igual, despesa sem número, seção com `semConferencia`) e 2016 só com a Betha (`foraDaFonte`), com `gravarLote` da fixture.
 - `test/integration/conferidos.spec.ts` — só o conferido em cada rota, sobre cenários próprios: duplicidade, registro sem par, ano em curso, ano sem o TCE-SC, coleta de exemplo.
 - `test/integration/empenhos-credor.spec.ts` — histórico mascarado na lista, nos maiores, no CSV e na busca, e o regex do Postgres igual ao `pareceOrganizacao` da tela.
-- Unit: `gerarCsv`, `filtroBusca`, `montarSecao`, `criarApp` (`test/app.spec.ts`: o `X-Robots-Tag`, o site sobre um `dist` falso em pasta temporária, a volta para o `index.html`, o cache e a saúde com `BancoFake`). `test/integration/saude.spec.ts` — a saúde contra o Postgres. `app.inject()` serve para rota sem paridade; a paridade sobe o servidor de verdade, em porta efêmera.
+- Unit: `gerarCsv`, `filtroBusca`, `montarSecao`, `criarApp` (`test/app.spec.ts`: o `X-Robots-Tag` e a saúde com `BancoFake`), o site (`test/site/site.spec.ts`: páginas, 301, 404, cache, sobre o `distFalso()` de `test/support/dist-falso.ts`, um build em miniatura em pasta temporária) e o head (`test/site/head.spec.ts`). `test/integration/saude.spec.ts` — a saúde contra o Postgres. `app.inject()` serve para rota sem paridade; a paridade sobe o servidor de verdade, em porta efêmera.
