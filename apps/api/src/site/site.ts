@@ -7,9 +7,12 @@ import { PAGINAS, paginaDoCaminho, type Pagina } from '@orleans-em-dados/contrac
 import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
 import { montarHead } from './head';
 import { jsonLdDaPagina, serializarJsonLd } from './jsonld';
+import { montarLlms } from './llms';
+import { montarRobots } from './robots';
+import { montarSitemap } from './sitemap';
 
 /** O que o site lê do banco: os exercícios publicados e quando cada um foi atualizado. */
-export type Exercicios = { anos: number[]; atualizadoEm: Record<string, string> };
+export type Exercicios = { anos: number[]; atualizadoEm: Record<string, string | Date> };
 
 export type OpcoesDoSite = {
   /** A pasta do build do web, com o `index.html`. */
@@ -95,11 +98,23 @@ export function registrarSite(
   app.register(fastifyStatic, {
     root: path.resolve(pasta),
     wildcard: false,
-    // A raiz e o `index.html` saem só pelas rotas abaixo, com o head da página.
+    // A raiz e o `index.html` saem só pelas rotas abaixo, com o head da página; robots, sitemap e llms são
+    // gerados aqui, e um arquivo antigo com o mesmo nome no build não ganha deles.
     index: false,
-    allowedPath: (caminho) => caminho !== '/index.html',
+    globIgnore: ['index.html', 'robots.txt', 'sitemap.xml', 'llms.txt'],
     setHeaders: (res, caminho) =>
       res.header('Cache-Control', caminho.includes(`${path.sep}assets${path.sep}`) ? CACHE_LONGO : 'no-cache'),
+  });
+
+  const texto = (reply: FastifyReply, tipo: string, corpo: string) =>
+    reply.header('Content-Type', `${tipo}; charset=utf-8`).header('Cache-Control', 'no-cache').send(corpo);
+  app.get('/robots.txt', async (_request, reply) => texto(reply, 'text/plain', montarRobots({ siteUrl })));
+  app.get('/llms.txt', async (_request, reply) => texto(reply, 'text/plain', montarLlms({ siteUrl, apoioAtivo })));
+  app.get('/sitemap.xml', async (_request, reply) => {
+    // O protocolo pede endereço absoluto: sem `SITE_URL`, não há sitemap.
+    if (!siteUrl) return enviar(reply, 404, null);
+    const { atualizadoEm } = await exercicios();
+    return texto(reply, 'application/xml', montarSitemap({ siteUrl, apoioAtivo, atualizadoEm }));
   });
 
   for (const pagina of PAGINAS) {
