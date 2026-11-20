@@ -24,6 +24,10 @@ services:
       # O endereço público (https://dominio): canonical, prévia das redes e sitemap. Sem ele, o site sobe sem URL absoluta.
       SITE_URL: ${SITE_URL:-}
       GOOGLE_SITE_VERIFICATION: ${GOOGLE_SITE_VERIFICATION:-}
+      # O Pix do apoio: sem PIX_CHAVE, o botão Apoiar e a página /apoiar não existem.
+      PIX_CHAVE: ${PIX_CHAVE:-}
+      PIX_NOME: ${PIX_NOME:-}
+      PIX_CIDADE: ${PIX_CIDADE:-}
     expose:
       - '3000'
     depends_on:
