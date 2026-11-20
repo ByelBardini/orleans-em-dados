@@ -1,3 +1,5 @@
+import { writeFileSync } from 'node:fs';
+import path from 'node:path';
 import type { FastifyInstance } from 'fastify';
 import { afterEach, describe, expect, it } from 'vitest';
 import { criarApp } from '../../src/app.js';
@@ -10,11 +12,12 @@ class ExerciciosFake {
   constructor(
     private readonly anos: number[],
     private readonly erro: Error | null = null,
+    private readonly atualizadoEm: Record<string, string> = {},
   ) {}
   ler = async () => {
     this.leituras += 1;
     if (this.erro) throw this.erro;
-    return { anos: this.anos, atualizadoEm: {} };
+    return { anos: this.anos, atualizadoEm: this.atualizadoEm };
   };
 }
 
@@ -110,12 +113,6 @@ describe('registrarSite: o painel servido pela API', () => {
     expect(resposta.headers['cache-control']).toBe('public, max-age=31536000, immutable');
   });
 
-  it('o robots.txt do build é servido', async () => {
-    const resposta = await app({}, { site: distFalso() }).inject({ method: 'GET', url: '/robots.txt' });
-
-    expect(resposta.body).toContain('Disallow: /api/');
-  });
-
   it('método que não é GET num caminho do site é 404 em JSON', async () => {
     const resposta = await app({}, { site: distFalso() }).inject({ method: 'POST', url: '/financas' });
 
@@ -187,6 +184,57 @@ describe('registrarSite: o JSON-LD no head', () => {
 
     expect(jsonLd(resposta.body)).toEqual([]);
     expect(exercicios.leituras).toBe(0);
+  });
+});
+
+describe('registrarSite: robots.txt, sitemap.xml e llms.txt', () => {
+  const SITE = 'https://exemplo.test';
+
+  it('o robots.txt é gerado, fecha só a busca de empenhos e aponta o sitemap', async () => {
+    const resposta = await app({}, { site: distFalso(), siteUrl: SITE }).inject({ method: 'GET', url: '/robots.txt' });
+
+    expect(resposta.statusCode).toBe(200);
+    expect(resposta.headers['content-type']).toBe('text/plain; charset=utf-8');
+    expect(resposta.body).toContain('Disallow: /api/despesas/empenhos');
+    expect(resposta.body).not.toMatch(/^Disallow: \/api\/$/m);
+    expect(resposta.body).toContain('Sitemap: https://exemplo.test/sitemap.xml');
+  });
+
+  // Um build antigo ainda pode trazer o robots.txt estático que fechava a API inteira.
+  it('um robots.txt antigo no build não ganha do gerado', async () => {
+    const pasta = distFalso();
+    writeFileSync(path.join(pasta, 'robots.txt'), 'User-agent: *\nDisallow: /api/\n');
+
+    const resposta = await app({}, { site: pasta, siteUrl: SITE }).inject({ method: 'GET', url: '/robots.txt' });
+
+    expect(resposta.body).toContain('Disallow: /api/despesas/empenhos');
+    expect(resposta.body).not.toMatch(/^Disallow: \/api\/$/m);
+  });
+
+  it('o sitemap.xml sai em XML, com a data da última coleta nas páginas de finanças', async () => {
+    const exercicios = new ExerciciosFake([2025], null, { 2025: '2026-03-10T06:00:00.000Z' });
+    const site = app({}, { site: distFalso(), siteUrl: SITE, lerExercicios: exercicios.ler });
+
+    const resposta = await site.inject({ method: 'GET', url: '/sitemap.xml' });
+
+    expect(resposta.statusCode).toBe(200);
+    expect(resposta.headers['content-type']).toBe('application/xml; charset=utf-8');
+    expect(resposta.body).toContain('<loc>https://exemplo.test/financas/receitas</loc>');
+    expect(resposta.body).toContain('<lastmod>2026-03-10</lastmod>');
+  });
+
+  it('sem SITE_URL, não há sitemap.xml', async () => {
+    const resposta = await app({}, { site: distFalso() }).inject({ method: 'GET', url: '/sitemap.xml' });
+
+    expect(resposta.statusCode).toBe(404);
+  });
+
+  it('o llms.txt sai em texto, com as páginas do painel', async () => {
+    const resposta = await app({}, { site: distFalso(), siteUrl: SITE }).inject({ method: 'GET', url: '/llms.txt' });
+
+    expect(resposta.statusCode).toBe(200);
+    expect(resposta.headers['content-type']).toBe('text/plain; charset=utf-8');
+    expect(resposta.body).toContain('- [Receitas](https://exemplo.test/financas/receitas): ');
   });
 });
 

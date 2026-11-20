@@ -12,6 +12,6 @@ export function distFalso() {
       '<body><div id="root"></div></body></html>',
   );
   writeFileSync(path.join(pasta, 'assets', 'index-abc123.js'), 'console.log(1)');
-  writeFileSync(path.join(pasta, 'robots.txt'), 'User-agent: *\nDisallow: /api/\n');
+  writeFileSync(path.join(pasta, 'favicon.svg'), '<svg xmlns="http://www.w3.org/2000/svg"/>');
   return pasta;
 }
