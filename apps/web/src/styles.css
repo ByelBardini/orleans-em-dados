@@ -2890,3 +2890,14 @@ a.cartao-de-area:hover h3 {
 .cartao-de-area.em-breve p {
   font-style: italic;
 }
+
+/* O link da página Apoiar, ao lado do botão de tema, no mesmo tom discreto. */
+.botao-apoiar {
+  color: var(--tinta);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.botao-apoiar:hover {
+  color: var(--vermelho);
+}

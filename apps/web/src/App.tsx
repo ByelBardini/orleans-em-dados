@@ -1,4 +1,11 @@
-import { anosSchema, PAGINAS, paginaDoCaminho, type IdDaPagina, type Pagina } from '@orleans-em-dados/contracts';
+import {
+  anosSchema,
+  apoioSchema,
+  PAGINAS,
+  paginaDoCaminho,
+  type IdDaPagina,
+  type Pagina,
+} from '@orleans-em-dados/contracts';
 import { lazy, Suspense, useEffect, useState } from 'react';
 import { useApi } from './api';
 import type { ComponentType } from 'react';
@@ -24,6 +31,7 @@ const Financas = lazy(() => import('./paginas/Financas'));
 const Metodologia = lazy(() => import('./paginas/Metodologia'));
 const ParaOndeVai = lazy(() => import('./paginas/ParaOndeVai'));
 const Receitas = lazy(() => import('./paginas/Receitas'));
+const Apoiar = lazy(() => import('./paginas/Apoiar'));
 
 // O catálogo (`packages/contracts/src/paginas.ts`) diz caminho, nome, título e área; aqui, o que só a tela usa.
 type Tela = {
@@ -53,11 +61,9 @@ const TELAS: Record<IdDaPagina, Tela> = {
   'educacao-cidade': { Componente: Cidade, ...CADERNO_DE_EDUCACAO },
   discrepancias: { Componente: Discrepancias, caderno: 'Discrepâncias entre as fontes' },
   metodologia: { Componente: Metodologia, caderno: 'Fontes e metodologia', semExercicio: true },
-  apoiar: { Componente: NaoEncontrada, caderno: null, semExercicio: true },
+  // A página Apoiar recebe o Pix de `/api/apoio`, e não as props das outras: o App a monta à parte.
+  apoiar: { Componente: NaoEncontrada, caderno: 'Apoie o projeto', semExercicio: true },
 };
-
-// A página Apoiar está no catálogo, mas só abre com o Pix configurado.
-const existe = (pagina: Pagina) => pagina.id !== 'apoiar';
 
 const NAO_ENCONTRADA: Tela = { Componente: NaoEncontrada, caderno: null, semExercicio: true };
 const TITULO_NAO_ENCONTRADA = 'Página não encontrada · Orleans em Dados';
@@ -125,6 +131,9 @@ export default function App() {
     if (redirecionar) substituir(redirecionar);
   }, [redirecionar]);
 
+  // O Pix do apoio, buscado uma vez: sem ele (404), o botão, o link do rodapé e a página Apoiar somem, sem aviso.
+  const apoio = useApi('/api/apoio', apoioSchema);
+  const existe = (p: Pagina) => p.id !== 'apoiar' || Boolean(apoio.dados) || apoio.carregando;
   const pagina = achada && existe(achada.pagina) ? achada.pagina : null;
   const tela = pagina ? TELAS[pagina.id] : NAO_ENCONTRADA;
   useHead(pagina);
@@ -153,6 +162,11 @@ export default function App() {
   return (
     <div className={`pagina${naCapa ? ' capa' : ''}`}>
       <div className="faixa-meta barra-tema">
+        {apoio.dados && (
+          <a href="/apoiar" className="botao-apoiar">
+            Apoiar
+          </a>
+        )}
         <SeletorTema />
       </div>
       {naCapa ? (
@@ -200,7 +214,13 @@ export default function App() {
             {(ano || tela.semExercicio) && (
               <FronteiraDaPagina key={pagina.id}>
                 <Suspense fallback={<p className="carregando">Carregando a página…</p>}>
-                  <Componente ano={ano as number} entidade={entidade} filtros={filtros} />
+                  {pagina.id !== 'apoiar' ? (
+                    <Componente ano={ano as number} entidade={entidade} filtros={filtros} />
+                  ) : apoio.dados ? (
+                    <Apoiar apoio={apoio.dados} />
+                  ) : (
+                    <p className="carregando">Carregando a página…</p>
+                  )}
                 </Suspense>
               </FronteiraDaPagina>
             )}
@@ -238,6 +258,12 @@ export default function App() {
           <p>
             Sem vínculo com a Prefeitura de Orleans ou com os órgãos de controle. Código aberto, dados de fontes
             públicas identificadas.
+            {apoio.dados && (
+              <>
+                {' '}
+                <a href="/apoiar">Apoie o projeto</a>.
+              </>
+            )}
           </p>
         </div>
       </footer>

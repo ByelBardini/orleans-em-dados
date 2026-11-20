@@ -1,0 +1,99 @@
+/* Página Apoiar: só os tokens de styles.css, e o tema escuro vem junto. */
+.apoiar h1 {
+  margin-bottom: 12px;
+}
+
+.apoiar-entrada {
+  max-width: 62ch;
+  color: var(--apagado);
+}
+
+.apoiar-grade {
+  display: grid;
+  grid-template-columns: minmax(0, 340px) minmax(0, 1fr);
+  gap: 32px 48px;
+  margin-top: 28px;
+}
+
+@media (max-width: 720px) {
+  .apoiar-grade {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.apoiar-pix,
+.apoiar-texto {
+  border-top: 3px solid var(--tinta);
+  padding-top: 12px;
+}
+
+.apoiar-texto p {
+  max-width: 62ch;
+}
+
+.apoiar-qr {
+  display: block;
+  width: 100%;
+  max-width: 240px;
+  height: auto;
+  margin: 8px 0 12px;
+  /* O QR precisa de fundo claro para a câmera ler, também no tema escuro. */
+  background: #fff;
+  border: 1px solid var(--regua);
+}
+
+.apoiar-rotulo {
+  display: block;
+  margin-top: 12px;
+  font-family: var(--mono);
+  font-size: 13px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.apoiar-codigo {
+  box-sizing: border-box;
+  width: 100%;
+  margin-top: 6px;
+  padding: 8px;
+  font-family: var(--mono);
+  font-size: 13px;
+  line-height: 1.4;
+  color: var(--tinta);
+  background: var(--realce);
+  border: 1px solid var(--regua);
+  resize: none;
+  word-break: break-all;
+}
+
+.apoiar-acoes {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 16px;
+  margin-top: 8px;
+}
+
+.apoiar-aviso {
+  font-size: 14px;
+  color: var(--verde);
+}
+
+.apoiar-dados {
+  margin: 16px 0 0;
+  font-size: 15px;
+}
+
+.apoiar-dados dt,
+.apoiar-dados dd {
+  display: inline;
+  margin: 0;
+}
+
+.apoiar-dados dt {
+  color: var(--apagado);
+}
+
+.apoiar-dados dd {
+  overflow-wrap: anywhere;
+}
