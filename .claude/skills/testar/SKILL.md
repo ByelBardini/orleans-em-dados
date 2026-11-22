@@ -23,7 +23,7 @@ O objetivo não é "ter teste": é ter **um teste que quebra quando o comportame
 
 ## Pré-requisitos
 
-Node `>=22.9` (o `engines` do `package.json`), pnpm (`packageManager` do `package.json`) e `pnpm install` feito na raiz. O driver carrega o `typescript` da raiz (devDependency, `^6`: o TypeScript 7 nativo não expõe a API de parser que o driver usa); não instala nada.
+Node `>=22.12` (o `engines` do `package.json`), pnpm (`packageManager` do `package.json`) e `pnpm install` feito na raiz. O driver carrega o `typescript` da raiz (devDependency, `^6`: o TypeScript 7 nativo não expõe a API de parser que o driver usa); não instala nada.
 
 O runner é o **Vitest 5**, na raiz, com um projeto por workspace (`vitest.config.ts`): `describe`/`it`/`expect` importados de `vitest`, sem globals. `jsdom` + `@testing-library/react` entram no `apps/web` quando o primeiro spec de componente aparecer (fase 17 do plano de `docs/plans/`).
 

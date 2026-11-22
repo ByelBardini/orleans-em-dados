@@ -14,7 +14,7 @@
   },
   "type": "module",
   "engines": {
-    "node": ">=22.9"
+    "node": ">=22.12"
   },
   "scripts": {
     "db:subir": "docker compose up -d --wait",
