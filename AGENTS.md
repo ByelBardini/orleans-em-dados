@@ -4,7 +4,7 @@ Dashboard público, rastreável, com dados de receitas e despesas do município 
 
 ## Stack
 
-- Node.js ≥ 22.9, pnpm (versão no `packageManager`), PostgreSQL 17 (`docker-compose.yml`, porta 5433).
+- Node.js ≥ 22.12, pnpm (versão no `packageManager`), PostgreSQL 17 (`docker-compose.yml`, porta 5433).
 - TypeScript 6 strict em todos os workspaces (`tsconfig.base.json`, tsx).
 - `apps/api`: Fastify, SQL em texto pelo `pg`, resposta validada pelos schemas Zod de `packages/contracts`. Serve também o build do web, com o head de cada página, o `sitemap.xml`, o `robots.txt` e o `llms.txt`; `qrcode` (só aqui) desenha o QR do Pix do apoio.
 - `packages/db`: Drizzle para esquema, migrações e gravação. `apps/worker`: pg-boss.
