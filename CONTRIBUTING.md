@@ -12,7 +12,7 @@ Dá para ajudar sem programar: avisar de um número que não bate com a fonte, s
 
 ## Como rodar
 
-Requer Node.js 22.9 ou superior, pnpm (`corepack enable` instala a versão do `packageManager`) e Docker.
+Requer Node.js 22.12 ou superior, pnpm (`corepack enable` instala a versão do `packageManager`) e Docker.
 
 ```bash
 pnpm install
