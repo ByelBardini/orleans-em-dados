@@ -33,7 +33,7 @@ O painel só mostra como número principal o que confere entre duas fontes ou o 
 
 ## Como rodar
 
-Requer Node.js 22.9 ou superior, pnpm (`corepack enable` instala a versão do `packageManager`) e Docker (para o PostgreSQL).
+Requer Node.js 22.12 ou superior, pnpm (`corepack enable` instala a versão do `packageManager`) e Docker (para o PostgreSQL).
 
 ```bash
 pnpm install
