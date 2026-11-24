@@ -66,6 +66,15 @@ describe('Apoiar', () => {
     );
   });
 
+  it.each([
+    ['Dado divergente', 'https://github.com/ByelBardini/orleans-em-dados/issues/new?template=dado-divergente.yml'],
+    ['Sugestão', 'https://github.com/ByelBardini/orleans-em-dados/issues/new?template=sugestao.yml'],
+  ])('o link "%s" abre a issue nova já com o modelo certo', (nome, endereco) => {
+    render(<Apoiar apoio={APOIO} />);
+
+    expect(screen.getByRole('link', { name: nome })).toHaveAttribute('href', endereco);
+  });
+
   it('copiar põe o código na área de transferência e anuncia', async () => {
     const area = new AreaDeTransferenciaFake();
     instalarAreaDeTransferencia(area);
