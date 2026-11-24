@@ -1,6 +1,6 @@
-// A receita das páginas: os valores vêm de `dadosConferidos`, e a Betha só completa o orçado e a
-// quantidade de linhas. Coleta de exemplo mantém os números fictícios; ano real sem as coletas do
-// TCE-SC não tem número de arrecadação.
+// A receita das páginas: os valores vêm de `conferenciaPorArea`, e a Betha só completa o orçado e a
+// quantidade de linhas. Coleta de exemplo mantém os números fictícios. No ano que o TCE-SC não publica,
+// a Betha é a fonte única, rotulada; ano em que só falta coletar o TCE-SC não tem número de arrecadação.
 import { foraDaFonte } from '@orleans-em-dados/contracts';
 import { conferenciaPorArea } from '@orleans-em-dados/db/conferencias';
 import type { ColetaPublicada } from '../coletas/coletas.dao';
@@ -29,7 +29,15 @@ const semConferencia = ({ faltando, foraDaFonte }: Indisponiveis) => ({
   totalTce: null,
   faltando,
   ...(foraDaFonte.length ? { foraDaFonte } : {}),
+  fonteUnica: false,
+  receitaBruta: false,
+  deducaoSoTce: null,
+  entidadesSemBetha: [],
 });
+
+// Tudo o que falta é do TCE-SC, e ele não publica o exercício: a Betha sozinha é o número.
+const soFaltaOQueAFonteNaoPublica = ({ faltando, foraDaFonte }: Indisponiveis) =>
+  faltando.length > 0 && faltando.every((chave) => foraDaFonte.includes(chave));
 
 // O que só existe depois do corte não é conferido nem diferença: a linha não sai no agregado.
 const temAlgoConferido = (l: { conferido: number; diferencaBetha: number; diferencaTce: number }) =>
@@ -62,6 +70,10 @@ async function receitasConferidas({ coletaId, meta }: ColetaPublicada, dados: Di
       aguardandoTce: conta?.aguardandoTce ?? null,
       totalBetha: conta?.totalBetha ?? null,
       totalTce: conta?.totalTce ?? null,
+      fonteUnica: false,
+      receitaBruta: receita.receitaBruta,
+      deducaoSoTce: entidade ? (contaDaEntidade?.deducaoSoTce ?? null) : receita.deducaoSoTce,
+      entidadesSemBetha: receita.entidadesSemBetha.filter((e) => !entidade || e.codigo === entidade),
     },
     totais: {
       quantidade: complementos.totais.quantidade,
@@ -95,7 +107,8 @@ async function receitasConferidas({ coletaId, meta }: ColetaPublicada, dados: Di
       const { quantidade, orcadoAtualizado } = (n.nivel === 14 ? daRubrica : daNatureza).get(chave) ?? VAZIO;
       return {
         chave,
-        rubrica: n.natureza,
+        rubrica: (n.nivel === 14 ? daRubrica.get(chave)?.publicada : null) ?? n.natureza,
+        natureza: n.natureza,
         nivel: n.nivel,
         descricao: n.descricao ?? '',
         entidade: n.entidade,
@@ -137,11 +150,15 @@ export async function receitasDoAno(coleta: ColetaPublicada, ano: number, entida
   }
   const faltando = receita.disponivel ? [] : receita.faltando;
   const indisponiveis = { faltando, foraDaFonte: foraDaFonte(faltando, ano) };
-  if (exemplo && coleta.meta.exemplo) {
+  const daExemplo = exemplo && coleta.meta.exemplo;
+  if (daExemplo || soFaltaOQueAFonteNaoPublica(indisponiveis)) {
+    const { receitaBruta, ...resumo } = await resumoReceitas(coleta, { entidade });
     return {
-      ...(await resumoReceitas(coleta, { entidade })),
+      ...resumo,
       fonteUnica: FONTE_UNICA,
-      conferencia: semConferencia(indisponiveis),
+      conferencia: daExemplo
+        ? semConferencia(indisponiveis)
+        : { ...semConferencia(indisponiveis), fonteUnica: true, receitaBruta },
     };
   }
   return receitasSemConferencia(coleta, indisponiveis, entidade);
