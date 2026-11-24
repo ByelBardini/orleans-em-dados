@@ -71,6 +71,19 @@ rubrica interna `697340`, mês `4`.
 **Mês:** o sufixo `_1`…`_12` se comporta como competência (o orçamento só aparece no `_1`; o acumulado cresce com
 o sufixo). Uma rubrica tem de 1 a 12 registros — meses sem movimento não aparecem. Semântica ainda **não confirmada**.
 
+**Formato antigo (até 2019):** `rubricaNatureza` vem com 15 dígitos e um dígito de classe na frente — `4` receita,
+`9` dedução (`417280111010000`). A linha de dedução traz o arrecadado zerado e o orçado da dedução, negativo, em
+`valorOrcadoDeducoes`; a receita é a bruta, antes da dedução do FUNDEB. No banco, `receitas.rubrica` fica como a
+Betha publica, e duas colunas geradas pelo Postgres leem o formato:
+
+| Coluna     | Tipo    | Regra                                                                                        |
+| ---------- | ------- | -------------------------------------------------------------------------------------------- |
+| `natureza` | texto   | A rubrica sem o dígito de classe quando tem 15 dígitos e começa com `4` ou `9`; senão, igual |
+| `deducao`  | boolean | `true` quando a rubrica tem 15 dígitos e começa com `9`                                      |
+
+O CSV de receitas (`/api/receitas.csv`) traz as duas: `Rubrica`, como a Betha publica, e `Natureza`, no formato
+de 14 dígitos (8 na linha agrupada por mês em discrepância).
+
 ---
 
 ## `57140` — Execução Detalhada de Despesas
