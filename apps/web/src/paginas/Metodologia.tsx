@@ -1,5 +1,9 @@
+import { PRIMEIRO_EXERCICIO } from '@orleans-em-dados/contracts';
 import { FRASE_DA_DIFERENCA } from '../conferido';
 import { CONTATO_DE_PRIVACIDADE } from '../privacidade';
+
+// O último exercício que o Farol do TCE-SC não publica, pela consulta.
+const anoAntes = (chave: string) => (PRIMEIRO_EXERCICIO[chave] ?? 0) - 1;
 
 const REPO = 'https://github.com/ByelBardini/orleans-em-dados/blob/main/docs';
 const LEI_DO_PNE = 'https://www.planalto.gov.br/ccivil_03/_ato2023-2026/2026/lei/L15388.htm';
@@ -115,8 +119,9 @@ export default function Metodologia() {
               <span className="selo-icone" aria-hidden="true">
                 –
               </span>{' '}
-              <strong>fonte única, sem conferência</strong>: Orçamento, órgão e Câmara vêm de uma fonte só. O valor
-              aparece com este rótulo, porque não há com o que comparar. Na educação, é o caso de INEP, SIOPE e MEC.
+              <strong>fonte única, sem conferência</strong>: Orçamento, órgão e Câmara vêm de uma fonte só, e também a
+              receita e a despesa da Betha nos anos que o TCE-SC não publica. O valor aparece com este rótulo, porque
+              não há com o que comparar. Na educação, é o caso de INEP, SIOPE e MEC.
             </li>
             <li>
               <strong>aguardando TCE</strong>: mês que o Tribunal ainda não recebeu. É pendência de remessa, e o valor
@@ -252,6 +257,27 @@ export default function Metodologia() {
             </li>
             <li>Nome, CPF, número de inscrição e valor individual nunca entram no banco.</li>
           </ul>
+
+          <h2>Receita bruta e anos só da Betha</h2>
+          <p>
+            Até 2019, a Betha publica a receita bruta, antes da dedução do FUNDEB: o código traz um dígito a mais na
+            frente (4 para receita, 9 para dedução), e a linha da dedução vem zerada. O TCE-SC traz o bruto e a dedução
+            em linhas separadas. Por isso, nesses anos, o bruto da Betha é comparado com o bruto do TCE-SC, ao centavo,
+            e a página diz que é receita bruta. A dedução vem só do TCE-SC: aparece em nota ao lado da conta, nunca
+            somada ao conferido.
+          </p>
+          <p>
+            O Farol do TCE-SC tem receitas a partir de {PRIMEIRO_EXERCICIO.tcesc_receitas} e empenhos a partir de{' '}
+            {PRIMEIRO_EXERCICIO.tcesc_empenhos}. De 2015 a {anoAntes('tcesc_receitas')}, a receita, e de 2015 a{' '}
+            {anoAntes('tcesc_empenhos')}, a despesa e os empenhos são só da Betha: aparecem com o rótulo de fonte única,
+            sem conferência, e um aviso no topo da página. A lista de empenhos segue as mesmas regras de privacidade.
+          </p>
+          <p>
+            Em 2020, a Betha não publica a receita da Prefeitura; em 2018 e 2019, a do Fundo Municipal de Saúde; de 2018
+            a 2020, a da Fundação Ambiental. O total da própria Betha fecha sem elas: falta na fonte, e não na coleta. O
+            TCE-SC registra essas receitas. O número principal fica só com o conferido, e um aviso diz quanto o TCE-SC
+            registra da entidade, com o valor em <a href="/discrepancias">Discrepâncias</a>.
+          </p>
 
           <h2>Como a coleta é conferida</h2>
           <ul>
