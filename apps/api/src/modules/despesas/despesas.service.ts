@@ -1,5 +1,6 @@
-// A despesa das páginas: valores de `dadosConferidos().despesa`. Entidade não conferida sai sem
-// número e fora da soma; a Câmara fica à parte. Coleta de exemplo mantém os números fictícios.
+// A despesa das páginas: valores de `conferenciaPorArea().despesa`. Entidade não conferida sai sem
+// número e fora da soma; a Câmara fica à parte. Coleta de exemplo mantém os números fictícios, e o
+// ano que o TCE-SC não publica mostra a 57170 como fonte única.
 import { foraDaFonte } from '@orleans-em-dados/contracts';
 import { conferenciaPorArea } from '@orleans-em-dados/db/conferencias';
 import type { ColetaPublicada } from '../coletas/coletas.dao';
@@ -27,7 +28,12 @@ const semConferencia = (faltando: string[], fora: string[]) => ({
   entidadesFora: null,
   faltando,
   ...(fora.length ? { foraDaFonte: fora } : {}),
+  fonteUnica: false,
 });
+
+// Tudo o que falta é do TCE-SC, e ele não publica o exercício: a Betha sozinha é o número.
+const soFaltaOQueAFonteNaoPublica = (faltando: string[], fora: string[]) =>
+  faltando.length > 0 && faltando.every((chave) => fora.includes(chave));
 
 const emCentavos = (v: number | null | undefined) => Math.round((v ?? 0) * 100);
 
@@ -66,6 +72,7 @@ async function despesasConferidas(coleta: ColetaPublicada, dados: Disponiveis, a
       ...contaDoEmpenhado(dados, entidade, totais?.empenhado),
       entidadesConferidas: despesa.totais.entidadesConferidas,
       entidadesFora: despesa.totais.entidadesFora,
+      fonteUnica: false,
     },
     totais: {
       orcadoAtualizado,
@@ -100,11 +107,13 @@ export async function despesasDoAno(coleta: ColetaPublicada, ano: number, entida
   }
   const faltando = despesa.disponivel ? [] : despesa.faltando;
   const fora = foraDaFonte(faltando, ano);
-  if (exemplo && coleta.meta.exemplo) {
+  const daExemplo = exemplo && coleta.meta.exemplo;
+  if (daExemplo || soFaltaOQueAFonteNaoPublica(faltando, fora)) {
+    // Fonte única: a 57170 inteira, sem a Câmara de exemplo (antes de 2023 não há empenho do TCE-SC).
     return {
-      ...(await resumoDespesas(coleta, { entidade, ano })),
+      ...(await resumoDespesas(coleta, { entidade, ano, aceitaCamaraDeExemplo: daExemplo })),
       fonteUnica: FONTE_UNICA,
-      conferencia: semConferencia(faltando, fora),
+      conferencia: { ...semConferencia(faltando, fora), fonteUnica: !daExemplo },
     };
   }
   return {
