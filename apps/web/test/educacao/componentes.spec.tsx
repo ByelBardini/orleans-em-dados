@@ -638,6 +638,30 @@ describe('BarrasPorAno', () => {
     expect(container.querySelector('.bpa-dica')).toBeNull();
   });
 
+  it('na barra alta a dica desce a partir do topo da barra, para não sair da figura; na baixa, fica acima', async () => {
+    const { container } = render(
+      <BarrasPorAno
+        casas={1}
+        maximo={20}
+        descricao="Alunos por docente"
+        barras={[
+          { ano: 2018, valor: 16 },
+          { ano: 2019, valor: 4 },
+        ]}
+      />,
+    );
+
+    await userEvent.hover(coluna(container, 2018));
+    const alta = container.querySelector<HTMLElement>('.bpa-dica') as HTMLElement;
+    expect(alta).toHaveClass('para-baixo');
+    expect(alta.style.bottom).toBe('');
+
+    await userEvent.hover(coluna(container, 2019));
+    const baixa = container.querySelector<HTMLElement>('.bpa-dica') as HTMLElement;
+    expect(baixa).not.toHaveClass('para-baixo');
+    expect(baixa.style.top).toBe('');
+  });
+
   it('o teclado também abre a dica, pelo foco na barra', async () => {
     const { container } = render(<BarrasPorAno unidade="%" casas={0} descricao="Alfabetização" barras={anos} />);
 
