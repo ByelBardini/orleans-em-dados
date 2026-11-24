@@ -1408,11 +1408,16 @@ tr.expansivel {
   font-weight: 600;
 }
 
+/* Lado a lado, o texto leva quase toda a largura que sobra e a coluna ao lado (a Documentação, na Metodologia)
+   fica perto dos 320px; empilhada, ela ainda ocupa a linha inteira. */
 .texto-corrido {
-  max-width: 760px;
   display: flex;
   flex-direction: column;
   gap: 14px;
+}
+
+.secao.larga.texto-corrido {
+  flex-grow: 100;
 }
 
 .texto-corrido h2 {
