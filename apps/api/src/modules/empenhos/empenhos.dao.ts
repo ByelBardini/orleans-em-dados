@@ -34,8 +34,9 @@ export const conjuntoConferido = (
   params: [pares.map((p) => p.id), pares.map((p) => p.idTce), ano],
 });
 
-/** A coleta de exemplo nunca é conferida: fica com os valores da própria 57140. */
-export const conjuntoDeExemplo = (): ConjuntoDeEmpenhos => ({
+/** A 57140 inteira, com os valores dela: a coleta de exemplo, que nunca é conferida, e a fonte única do
+ *  ano que o TCE-SC não publica. O histórico de credor pessoa física sai nulo, como no conferido. */
+export const conjuntoDaBetha = (): ConjuntoDeEmpenhos => ({
   relacao: `(SELECT ${COLUNAS_DA_BETHA}, NULL::numeric AS empenhado_liquido, b.valor_liquidado AS liquidado,
                     b.valor_pago AS pago, b.saldo_a_pagar AS saldo
              FROM empenhos b WHERE b.coleta_id = $1) e`,
