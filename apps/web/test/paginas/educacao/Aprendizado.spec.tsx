@@ -350,14 +350,26 @@ describe('Aprendizado: IDEB e o alternador', () => {
     expect(medio.closest('section')).toHaveTextContent('Sem IDEB da rede municipal nesta etapa.');
   });
 
-  it('o como ler do IDEB e o link do INEP ficam nos detalhes', async () => {
+  it('o link do INEP fica nos detalhes', async () => {
     await abrir();
     expect(within(bloco(/^IDEB/)).queryByRole('link', { name: 'INEP, arquivo do IDEB' })).not.toBeInTheDocument();
 
     await abrirDetalhesDe(bloco(/^IDEB/));
 
-    expect(within(bloco(/^IDEB/)).getByText(/Rendimento vai de 0 a 1/)).toBeVisible();
     expect(within(bloco(/^IDEB/)).getByRole('link', { name: 'INEP, arquivo do IDEB' })).toBeVisible();
+  });
+
+  // Quem lia "242,16" não sabia de onde vinha nem até onde ia a nota (pedido de 23/11/2026).
+  it('a escala das notas e do rendimento fica escrita na tela, sem abrir os detalhes', async () => {
+    await abrir();
+
+    const texto = bloco(/^IDEB/).textContent;
+    expect(texto).toMatch(
+      /Matemática e Português são as notas médias do Saeb, a prova do INEP no 5º ano, no 9º ano e no fim do ensino médio\./,
+    );
+    expect(texto).toMatch(/A escala vai de 0 a 500 e é a mesma nas três etapas: por isso a nota cresce de uma etapa/);
+    expect(texto).toMatch(/Rendimento vai de 0 a 1 e sai da aprovação de cada série\./);
+    expect(texto).toMatch(/O IDEB é a média das duas notas, levada para 0 a 10, vezes o rendimento\./);
   });
 
   it('diz que o IBGE republica o INEP: não conta como conferência', async () => {
@@ -403,10 +415,89 @@ describe('Aprendizado: ENEM', () => {
       .map((t) => t.getAttribute('aria-label'));
     expect(quadros).toEqual(['Quem fez a prova, 2025', 'Quem fez a prova, 2024']);
     const de2025 = screen.getByRole('table', { name: 'Quem fez a prova, 2025' });
-    expect(celulasDa(linhaDe(de2025, /^Privada/))).toEqual(['28', '22', '32', '68,8%']);
+    expect(celulasDa(linhaDe(de2025, /^Privada/))).toEqual(['32', '28', '22', '68,8%']);
     const de2024 = screen.getByRole('table', { name: 'Quem fez a prova, 2024' });
-    expect(celulasDa(linhaDe(de2024, /^Pública/))).toEqual(['113', '79', '181', '43,6%']);
+    expect(celulasDa(linhaDe(de2024, /^Pública/))).toEqual(['181', '113', '79', '43,6%']);
     expect(within(de2024).queryByRole('row', { name: /^Privada/ })).not.toBeInTheDocument();
+  });
+
+  // Regressão: "106 inscritos, 74 presentes, 167 na 3ª série" não dizia que a 3ª série é a turma inteira e os
+  // outros dois, a parte dela que foi ao ENEM (pedido de 23/11/2026).
+  it('as colunas seguem o funil: a turma da 3ª série, quem se inscreveu e quem fez as quatro provas', async () => {
+    await abrir();
+
+    const de2025 = screen.getByRole('table', { name: 'Quem fez a prova, 2025' });
+    expect(
+      within(de2025)
+        .getAllByRole('columnheader')
+        .map((c) => c.textContent),
+    ).toEqual(['Alunos na 3ª série', 'Inscritos no ENEM', 'Fizeram as quatro provas', 'Fizeram ÷ alunos na 3ª série']);
+  });
+
+  it('diz o que cada coluna conta, à vista', async () => {
+    await abrir();
+
+    const texto = bloco(/^ENEM/).textContent;
+    expect(texto).toMatch(
+      /A 3ª série é a turma que termina o ensino médio nas escolas da rede, contada no Censo Escolar\./,
+    );
+    expect(texto).toMatch(/Inscritos são os alunos dessa turma que se inscreveram no ENEM\./);
+    expect(texto).toMatch(/Quem faltou a uma das quatro provas não entra em "fizeram"\./);
+  });
+
+  it('a frase do funil sai do último ano, na rede escolhida', async () => {
+    await abrir();
+
+    expect(bloco(/^ENEM/)).toHaveTextContent(
+      'Em 2025, rede pública: dos 167 alunos na 3ª série, 106 se inscreveram no ENEM e 74 fizeram as quatro provas, 44,3% da turma.',
+    );
+
+    escolherRede('Todas');
+
+    expect(bloco(/^ENEM/)).toHaveTextContent(
+      'Em 2025, todas as redes: dos 199 alunos na 3ª série, 134 se inscreveram no ENEM e 96 fizeram as quatro provas, 48,2% da turma.',
+    );
+  });
+
+  it('com a pública igual à estadual, o quadro do ano diz que todo aluno público no ENEM é da rede estadual', async () => {
+    const base = aprendizado();
+    const enem = base.enem!;
+    const comEstadual = enem.anos.map((a) => {
+      const publica = a.redes.find((r) => r.rede === 'publica')!;
+      return { ...a, redes: [...a.redes, { ...publica, rede: 'estadual' as const }] };
+    });
+    await abrir(aprendizado({ enem: { ...enem, anos: comEstadual } }));
+
+    const de2025 = screen.getByRole('table', { name: 'Quem fez a prova, 2025' });
+    expect(de2025.closest('section')).toHaveTextContent(
+      'A pública e a estadual têm os mesmos números: em Orleans, todo aluno de escola pública no ENEM é da rede estadual.',
+    );
+  });
+
+  it('pública diferente da estadual não leva a nota', async () => {
+    const base = aprendizado();
+    const enem = base.enem!;
+    const comEstadualMenor = enem.anos.map((a) => {
+      const publica = a.redes.find((r) => r.rede === 'publica')!;
+      return { ...a, redes: [...a.redes, { ...publica, rede: 'estadual' as const, inscritos: 90 }] };
+    });
+    await abrir(aprendizado({ enem: { ...enem, anos: comEstadualMenor } }));
+
+    expect(bloco(/^ENEM/).textContent).not.toMatch(/A pública e a estadual têm os mesmos números/);
+  });
+
+  it('os números de quem fez a prova começam pela turma da 3ª série', async () => {
+    await abrir();
+
+    const numeros = screen.getByRole('region', { name: /quem fez a prova, rede pública/i });
+    expect([...numeros.querySelectorAll('.numero-cel')].map((c) => c.textContent?.replace(/\s+/g, ' ').trim())).toEqual(
+      [
+        expect.stringMatching(/^Alunos na 3ª série em 2025.*167/),
+        expect.stringMatching(/^Inscritos no ENEM em 2025.*106/),
+        expect.stringMatching(/^Fizeram as quatro provas em 2025.*74/),
+        expect.stringMatching(/^Fizeram ÷ alunos na 3ª série.*44,3%/),
+      ],
+    );
   });
 
   it('a média do ENEM leva seta: maior é melhor, em percentual do outro lugar', async () => {
