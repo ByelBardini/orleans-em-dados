@@ -65,6 +65,15 @@
   margin-top: 36px;
 }
 
+/* O como ler das notas do IDEB abre as tabelas: o espaço grande fica antes dele, e o título vem logo depois. */
+.edu-aprendizado-como-ler {
+  margin-top: 36px;
+}
+
+.edu-aprendizado-como-ler + .edu-aprendizado-subtitulo {
+  margin-top: 20px;
+}
+
 /* Orleans por rede: cada etapa é um quadro com colunas próprias; os quadros ficam lado a lado, como os de Quadros. */
 .edu-aprendizado-por-rede {
   display: grid;
@@ -91,6 +100,12 @@
 
 .edu-aprendizado-estreito {
   max-width: none;
+}
+
+/* Os cabeçalhos do funil do ENEM são frases curtas: quebram em duas linhas em vez de passar por cima do vizinho. */
+.edu-aprendizado-funil .quadro thead th {
+  white-space: normal;
+  vertical-align: bottom;
 }
 
 @media (max-width: 1100px) {
