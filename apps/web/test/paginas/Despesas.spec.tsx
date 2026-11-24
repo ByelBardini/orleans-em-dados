@@ -7,7 +7,9 @@ import {
   contaNaTela,
   despesas,
   despesasDeExemplo,
+  despesasFonteUnica,
   despesasForaDaFonte,
+  empenhosFonteUnica,
   empenhosForaDaFonte,
   despesasParciais,
   despesasSemConferencia,
@@ -277,6 +279,56 @@ describe('Despesas com o conferido', () => {
     const { container } = render(<Despesas {...PROPS} />);
     await screen.findByRole('heading', { level: 1 });
 
+    expect(container.textContent).not.toMatch(TEXTO_PROIBIDO);
+  });
+});
+
+describe('Despesas de um exercício que o TCE-SC não publica, com a Betha', () => {
+  const abrirFonteUnica = () => abrir({ despesa: despesasFonteUnica(), empenhos: empenhosFonteUnica() });
+
+  it('empenhado, pago e falta pagar têm número, com o selo de fonte única', async () => {
+    await abrirFonteUnica();
+
+    expect(celula('Empenhado').querySelector('.numero-valor')).toHaveTextContent('10,8 mi');
+    expect(within(celula('Empenhado')).getByText('fonte única, sem conferência')).toBeInTheDocument();
+    expect(celula('Pago').querySelector('.numero-valor')).toHaveTextContent('10,1 mi');
+  });
+
+  it('o aviso acima da manchete diz que o TCE-SC não publica os empenhos e que os números são só da Betha', async () => {
+    await abrirFonteUnica();
+
+    const aviso = screen.getByText(
+      'O TCE-SC não publica os empenhos de 2025. Os números são só da Betha, sem conferência.',
+    );
+    expect(
+      aviso.compareDocumentPosition(screen.getByRole('heading', { level: 1 })) & Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBe(Node.DOCUMENT_POSITION_FOLLOWING);
+  });
+
+  // Mordida: fonte única não tem conta nem link para Discrepâncias no cartão.
+  it('o empenhado não tem conta nem o link para Discrepâncias', async () => {
+    await abrirFonteUnica();
+
+    expect(within(celula('Empenhado')).queryByRole('link', { name: /Ver discrepâncias/ })).not.toBeInTheDocument();
+    expect(screen.queryByRole('group', { name: 'A conta do conferido' })).not.toBeInTheDocument();
+  });
+
+  it('a lista de empenhos aparece com o selo de fonte única, e o CSV continua', async () => {
+    await abrirFonteUnica();
+
+    const secao = screen.getByRole('heading', { name: 'Todos os empenhos' }).closest('section') as HTMLElement;
+    expect(within(secao).getByText('fonte única, sem conferência')).toBeInTheDocument();
+    expect(within(secao).getByRole('link', { name: /Baixar CSV/ })).toHaveAttribute(
+      'href',
+      expect.stringContaining('/api/despesas/empenhos.csv?ano=2025'),
+    );
+    expect(await within(secao).findByText('Nº 1')).toBeInTheDocument();
+  });
+
+  it('nada diz que foi conferido com o TCE-SC, e nada de texto proibido', async () => {
+    const container = await abrirFonteUnica();
+
+    expect(container.textContent).not.toMatch(/conferid[oa] com o TCE-SC/);
     expect(container.textContent).not.toMatch(TEXTO_PROIBIDO);
   });
 });
