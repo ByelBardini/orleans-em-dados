@@ -22,8 +22,17 @@ export const ANO = 2025;
 const LIMITES_ENCERRADO = { mesReceita: 12, dataEmpenho: '2025-12-31' };
 const LIMITES_PARCIAL = { mesReceita: 9, dataEmpenho: '2025-09-30' };
 
+// Os campos do formato da receita, no formato novo (de 2020 em diante): conferida, líquida, sem lacuna.
+export const FORMATO_NOVO = {
+  fonteUnica: false,
+  receitaBruta: false,
+  deducaoSoTce: null,
+  entidadesSemBetha: [] as Receitas['conferencia']['entidadesSemBetha'],
+};
+
 // Conferido 1,2 mi; total da Betha 9,9 mi: o número que não pode virar principal é fácil de achar.
 export const CONTA_ENCERRADO = {
+  ...FORMATO_NOVO,
   disponivel: true,
   parcial: false,
   limites: LIMITES_ENCERRADO,
@@ -36,6 +45,7 @@ export const CONTA_ENCERRADO = {
 };
 
 export const CONTA_PARCIAL = {
+  ...FORMATO_NOVO,
   disponivel: true,
   parcial: true,
   limites: LIMITES_PARCIAL,
@@ -48,6 +58,7 @@ export const CONTA_PARCIAL = {
 };
 
 const SEM_CONFERENCIA = {
+  ...FORMATO_NOVO,
   disponivel: false,
   parcial: null,
   limites: null,
@@ -63,6 +74,7 @@ const SEM_CONFERENCIA = {
 export const natureza = (campos: Partial<Receitas['naturezas'][number]> = {}): Receitas['naturezas'][number] => ({
   chave: '728|11125001000000',
   rubrica: '11125001000000',
+  natureza: '11125001000000',
   nivel: 14,
   descricao: 'IPTU (exemplo)',
   entidade: 'Prefeitura',
@@ -96,6 +108,7 @@ export const receitas = (campos: Partial<Receitas> = {}): Receitas =>
       natureza({
         chave: '728|17115101',
         rubrica: '17115101',
+        natureza: '17115101',
         nivel: 8,
         descricao: 'FPM (exemplo)',
         arrecadadoNoMes: 700000.25,
@@ -125,6 +138,55 @@ export const receitasForaDaFonte = () =>
   receitasSemConferencia({ faltando: ['tcesc_receitas'], foraDaFonte: ['tcesc_receitas'] });
 export const receitasDeExemplo = () =>
   receitas({ meta: META_DE_EXEMPLO, conferencia: { ...SEM_CONFERENCIA, faltando: ['tcesc_receitas'] } });
+
+// O TCE-SC não publica as receitas do ano: os números da Betha, rotulados, sem conta. Como de 2015 a
+// 2017, a Betha publica a receita bruta.
+export const receitasFonteUnica = () =>
+  receitas({
+    conferencia: {
+      ...SEM_CONFERENCIA,
+      faltando: ['tcesc_receitas'],
+      foraDaFonte: ['tcesc_receitas'],
+      fonteUnica: true,
+      receitaBruta: true,
+    },
+  });
+
+type EntidadeSemBetha = Receitas['conferencia']['entidadesSemBetha'][number];
+export const PREFEITURA_SEM_BETHA: EntidadeSemBetha = { codigo: '728', entidade: 'Prefeitura', totalTce: 74677758.7 };
+
+// Até 2019: a Betha publica o bruto, conferido com o bruto do TCE-SC; a dedução do FUNDEB é só do TCE-SC.
+export const receitasBrutas = (deducaoSoTce = -790000.4) =>
+  receitas({ conferencia: { ...CONTA_ENCERRADO, receitaBruta: true, deducaoSoTce } });
+
+// Uma entidade que a Betha não publica no ano (a Prefeitura em 2020): o resto continua conferido.
+export const receitasComLacuna = (entidadesSemBetha: EntidadeSemBetha[] = [PREFEITURA_SEM_BETHA]) =>
+  receitas({ conferencia: { ...CONTA_ENCERRADO, entidadesSemBetha } });
+
+// Conferência disponível e nada conferido: só a lacuna, ou tudo em Discrepâncias.
+export const receitasSemConferido = (entidadesSemBetha: EntidadeSemBetha[] = []) =>
+  receitas({
+    conferencia: {
+      ...CONTA_ENCERRADO,
+      conferido: 0,
+      diferencaBetha: entidadesSemBetha.length ? 0 : 50000,
+      totalBetha: entidadesSemBetha.length ? 0 : 50000,
+      diferencaTce: 74677758.7,
+      totalTce: 74677758.7,
+      entidadesSemBetha,
+    },
+    totais: {
+      quantidade: 0,
+      orcadoAtualizado: 2000000,
+      orcadoDeducoes: 0,
+      arrecadadoNoMes: 0,
+      negativos: 0,
+      rubricas: 0,
+    },
+    porMes: [],
+    porOrigem: [],
+    naturezas: [],
+  });
 
 type EntidadeDaDespesa = DespesasResumo['porEntidade'][number];
 
@@ -179,6 +241,7 @@ export const despesas = (campos: Partial<DespesasResumo> = {}): DespesasResumo =
       totalBetha: 10915539.85,
       entidadesConferidas: 1,
       entidadesFora: 0,
+      fonteUnica: false,
     },
     totais: { orcadoAtualizado: 14000000, empenhado: 10791652.53, liquidado: 10127438.11, pago: 10124827.04 },
     porEntidade: [entidadeDaDespesa()],
@@ -197,6 +260,7 @@ export const despesasParciais = () =>
       totalBetha: null,
       entidadesConferidas: 1,
       entidadesFora: 0,
+      fonteUnica: false,
     },
     porEntidade: [entidadeDaDespesa({ fonte: 'tce', dataCorte: '2025-09-30', aguardandoTce: 14233097.48 })],
   });
@@ -211,6 +275,7 @@ const CONFERENCIA_VAZIA = {
   entidadesConferidas: null,
   entidadesFora: null,
   faltando: ['tcesc_receitas', 'tcesc_empenhos'],
+  fonteUnica: false,
 };
 
 export const despesasSemConferencia = (conferencia: Partial<DespesasResumo['conferencia']> = CONFERENCIA_VAZIA) =>
@@ -224,6 +289,19 @@ export const despesasSemConferencia = (conferencia: Partial<DespesasResumo['conf
 // O Farol não publica empenhos antes de 2023: a receita do ano é conferida, a despesa não.
 export const despesasForaDaFonte = () =>
   despesasSemConferencia({ faltando: ['tcesc_empenhos'], foraDaFonte: ['tcesc_empenhos'] });
+
+// O TCE-SC não publica os empenhos do ano: a 57170 inteira, rotulada, sem conta.
+export const despesasFonteUnica = () =>
+  despesas({
+    conferencia: {
+      ...CONFERENCIA_VAZIA,
+      faltando: ['tcesc_empenhos'],
+      foraDaFonte: ['tcesc_empenhos'],
+      fonteUnica: true,
+    },
+    porEntidade: [entidadeDaDespesa({ fonte: 'betha', conferida: false })],
+    camara: null,
+  });
 
 export const despesasDeExemplo = () =>
   despesas({
@@ -240,7 +318,7 @@ export const resumoDeEmpenhos = (
 ): EmpenhosResumo =>
   empenhosResumoSchema.parse({
     meta: META,
-    conferencia: { disponivel: true, parcial: false, dataCorte: null },
+    conferencia: { disponivel: true, parcial: false, dataCorte: null, fonteUnica: false },
     totais: {
       ...somas,
       semValoresDeExecucao: 0,
@@ -260,6 +338,20 @@ export const resumoDeEmpenhos = (
     maiores,
   });
 
+// A lista da 57140 inteira, no ano que o TCE-SC não publica.
+export const empenhosFonteUnica = (): EmpenhosResumo =>
+  empenhosResumoSchema.parse({
+    ...resumoDeEmpenhos(),
+    conferencia: {
+      disponivel: false,
+      parcial: null,
+      dataCorte: null,
+      faltando: ['tcesc_empenhos'],
+      foraDaFonte: ['tcesc_empenhos'],
+      fonteUnica: true,
+    },
+  });
+
 type ItemDaBusca = EmpenhosBusca['itens'][number];
 
 export const empenhosForaDaFonte = (): EmpenhosResumo => {
@@ -272,6 +364,7 @@ export const empenhosForaDaFonte = (): EmpenhosResumo => {
       dataCorte: null,
       faltando: ['tcesc_empenhos'],
       foraDaFonte: ['tcesc_empenhos'],
+      fonteUnica: false,
     },
     porMes: [],
     porOrgao: [],

@@ -8,7 +8,12 @@ import {
   natureza,
   PROPS,
   receitas,
+  receitasBrutas,
+  receitasComLacuna,
   receitasDeExemplo,
+  receitasFonteUnica,
+  receitasSemConferido,
+  PREFEITURA_SEM_BETHA,
   receitasForaDaFonte,
   receitasParciais,
   receitasSemConferencia,
@@ -310,6 +315,117 @@ describe('Receitas com o conferido', () => {
     await screen.findByRole('heading', { level: 1 });
 
     expect(container.textContent).not.toMatch(TEXTO_PROIBIDO);
+  });
+});
+
+describe('Receitas de um exercício que o TCE-SC não publica, com a Betha', () => {
+  it('a manchete e o cartão mostram o valor da Betha, com o selo de fonte única', async () => {
+    await abrir(receitasFonteUnica());
+
+    expect(celula('Arrecadado').querySelector('.numero-valor')).toHaveTextContent('1,2 mi');
+    expect(within(celula('Arrecadado')).getByText('fonte única, sem conferência')).toBeInTheDocument();
+    expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('arrecadou 60,0% do que o orçamento');
+  });
+
+  // Mordida: o cartão da fonte única nunca diz que foi conferido.
+  it('nada na tela diz conferido com o TCE-SC', async () => {
+    await abrir(receitasFonteUnica());
+
+    expect(within(celula('Arrecadado')).queryByText(/conferido com o TCE-SC/)).not.toBeInTheDocument();
+    expect(document.body).not.toHaveTextContent(/conferido com o TCE-SC/);
+  });
+
+  it('o aviso fica acima da manchete e diz que a fonte não publica e que os números são só da Betha', async () => {
+    await abrir(receitasFonteUnica());
+
+    const aviso = screen.getByText(
+      'O TCE-SC não publica as receitas de 2025. Os números são só da Betha, sem conferência.',
+    );
+    const manchete = screen.getByRole('heading', { level: 1 });
+    expect(aviso.compareDocumentPosition(manchete) & Node.DOCUMENT_POSITION_FOLLOWING).toBe(
+      Node.DOCUMENT_POSITION_FOLLOWING,
+    );
+  });
+
+  it('não tem a conta do conferido, porque não há o que conferir', async () => {
+    await abrir(receitasFonteUnica());
+
+    expect(screen.queryByRole('group', { name: 'A conta do conferido' })).not.toBeInTheDocument();
+    expect(document.body).not.toHaveTextContent('arrecadado conferido');
+  });
+
+  it('a receita bruta da Betha é rotulada na manchete', async () => {
+    await abrir(receitasFonteUnica());
+
+    expect(screen.getByText(/receita bruta, antes da dedução do FUNDEB/)).toBeInTheDocument();
+  });
+});
+
+describe('Receitas no formato bruto, até 2019', () => {
+  it('a manchete diz que é a receita bruta, e o cartão segue conferido', async () => {
+    await abrir(receitasBrutas());
+
+    expect(screen.getByText(/receita bruta, antes da dedução do FUNDEB/)).toBeInTheDocument();
+    expect(within(celula('Arrecadado')).getByText('conferido com o TCE-SC')).toBeInTheDocument();
+  });
+
+  it('a conta diz a dedução do FUNDEB que só o TCE-SC registra, fora do conferido', async () => {
+    await abrir(receitasBrutas(-790000.4));
+
+    expect(
+      within(conta()).getByText(
+        `O TCE-SC registra a dedução do FUNDEB de R$${NBSP}790.000,40, que a Betha não publica neste ano.`,
+      ),
+    ).toBeInTheDocument();
+    expect(contaNaTela(conta()).parcelas).not.toContain(79000040);
+  });
+
+  it('no formato novo, a conta não fala de dedução', async () => {
+    await abrir();
+
+    expect(document.body).not.toHaveTextContent(/dedução do FUNDEB/);
+  });
+});
+
+describe('Receitas com uma entidade que a Betha não publica', () => {
+  it('o aviso em destaque diz o que o TCE-SC registra dela e leva a Discrepâncias', async () => {
+    await abrir(receitasComLacuna());
+
+    const aviso = screen.getByText(/A Betha não publica a receita da Prefeitura em 2025/).closest('.aviso');
+    expect(aviso).toHaveTextContent(`O TCE-SC registra R$${NBSP}74.677.758,70.`);
+    expect(within(aviso as HTMLElement).getByRole('link', { name: /Ver discrepâncias/ })).toHaveAttribute(
+      'href',
+      '/discrepancias',
+    );
+  });
+
+  it('a manchete continua só com o conferido', async () => {
+    await abrir(receitasComLacuna());
+
+    expect(celula('Arrecadado').querySelector('.numero-valor')).toHaveTextContent('1,2 mi');
+  });
+});
+
+describe('Receitas com a conferência disponível e nada conferido', () => {
+  it('com a lacuna, o cartão não mostra R$ 0,0 e diz que a Betha não publica a entidade', async () => {
+    await abrir(receitasSemConferido([PREFEITURA_SEM_BETHA]));
+
+    expect(celula('Arrecadado').querySelector('.numero-valor')).not.toHaveTextContent('0,0');
+    expect(celula('Arrecadado')).toHaveTextContent('A Betha não publica a receita da Prefeitura em 2025');
+  });
+
+  it('sem lacuna, o cartão diz que nada confere e leva a Discrepâncias', async () => {
+    await abrir(receitasSemConferido());
+
+    expect(celula('Arrecadado').querySelector('.numero-valor')).not.toHaveTextContent('0,0');
+    expect(celula('Arrecadado')).toHaveTextContent('Nada confere entre as fontes neste recorte');
+    expect(within(celula('Arrecadado')).getByRole('link', { name: /Ver discrepâncias/ })).toBeInTheDocument();
+  });
+
+  it('a manchete não diz que arrecadou zero', async () => {
+    await abrir(receitasSemConferido());
+
+    expect(screen.getByRole('heading', { level: 1 })).not.toHaveTextContent(/arrecadou (0|R\$ 0|zero)/);
   });
 });
 
