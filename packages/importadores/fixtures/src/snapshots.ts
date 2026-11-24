@@ -240,12 +240,19 @@ export const FMS_TCE = 'Fundo Municipal de Saúde de Orleans';
 export const SAMAE_TCE = 'Serviço Autônomo Municipal de Água e Esgoto de Orleans';
 export const FUNDACAO_TCE = 'Fundação Ambiental Municipal de Orleans';
 
-export const receitaTce = (unidade: string, codigoreceita: string, natureza: string, mes: string, valor: string) => ({
-  id: [unidade, codigoreceita, mes, ''].join('|'),
+export const receitaTce = (
+  unidade: string,
+  codigoreceita: string,
+  natureza: string,
+  mes: string,
+  valor: string,
+  deducao: string | null = null,
+) => ({
+  id: [unidade, codigoreceita, mes, deducao ?? ''].join('|'),
   nomeunidade: unidade,
   codigoreceita,
   Mês: mes,
-  descricaotipodeducaoreceita: null,
+  descricaotipodeducaoreceita: deducao,
   valorArrecadado: valor,
   natureza,
 });
@@ -259,6 +266,34 @@ export const tcescReceitas = () =>
     receitaTce(FMS_TCE, '1.7.1.3.50.1.1', 'Transferência SUS', 'jan', '200000.00'),
     receitaTce(FMS_TCE, '1.7.1.3.50.1.1', 'Transferência SUS', 'fev', '150000.00'),
   ]);
+
+// Formato antigo da Betha (até 2019): rubrica de 15 dígitos com a classe na frente (4 receita,
+// 9 dedução) e a receita bruta; a linha de dedução vem com o arrecadado zerado. O TCE-SC traz o
+// bruto e a dedução do FUNDEB em linhas separadas. O FMS não tem receita na Betha neste ano.
+export const ANO_ANTIGO = 2019;
+
+export const receitasFormatoAntigo = () =>
+  snapshot(
+    57153,
+    [
+      receita('728:401', '417280111010000', 'Cota-parte ICMS (exemplo)', 1, 1000, 1000, 12000),
+      receita('728:901', '917280111000000', 'Dedução FUNDEB do ICMS (exemplo)', 1, 0, 0),
+      receita('728:402', '411125001000000', 'IPTU (exemplo)', 1, 500, 500, 6000),
+    ],
+    { ano: ANO_ANTIGO },
+  );
+
+export const tcescReceitasFormatoAntigo = () =>
+  snapshot(
+    900001,
+    [
+      receitaTce(PREFEITURA_TCE, '1.7.2.8.01.1.1', 'Cota-parte ICMS', 'jan', '1000.00'),
+      receitaTce(PREFEITURA_TCE, '1.7.2.8.01.1.1', 'Cota-parte ICMS', 'jan', '-200.00', 'FUNDEB'),
+      receitaTce(PREFEITURA_TCE, '1.1.1.2.50.0.1', 'IPTU', 'jan', '500.00'),
+      receitaTce(FMS_TCE, '1.7.1.3.50.1.1', 'Transferência SUS', 'jan', '300.00'),
+    ],
+    { ano: ANO_ANTIGO },
+  );
 
 export const empenhoTce = (
   id: number,
