@@ -42,7 +42,11 @@
       "diferencaTce": 0,
       "aguardandoTce": 0,
       "totalBetha": 400000,
-      "totalTce": 350000
+      "totalTce": 350000,
+      "fonteUnica": false,
+      "receitaBruta": false,
+      "deducaoSoTce": null,
+      "entidadesSemBetha": []
     },
     "totais": {
       "quantidade": 2,
@@ -101,6 +105,7 @@
       {
         "chave": "319|17135011",
         "rubrica": "17135011",
+        "natureza": "17135011",
         "nivel": 8,
         "descricao": "Transferência SUS",
         "entidade": "FMS",
