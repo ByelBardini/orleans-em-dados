@@ -17,6 +17,9 @@ const MIGRACOES = readMigrationFiles({ migrationsFolder: path.resolve(AQUI, '../
 const NOVAS = "('execucoes', 'ibge_valores', 'siconfi_funcoes', 'educacao_valores', 'educacao_financas')";
 const VIEWS_NOVAS =
   "('ibge_valores_publicados', 'siconfi_funcoes_publicadas', 'educacao_valores_publicados', 'educacao_financas_publicadas')";
+// Colunas e índices novos em tabelas originais (0007: natureza gerada da rubrica).
+const COLUNAS_NOVAS = "('receitas.natureza', 'receitas.deducao')";
+const INDICES_NOVOS = "('receitas_coleta_id_natureza_idx')";
 
 async function comCliente<T>(url: string, fn: (c: pg.Client) => Promise<T>): Promise<T> {
   const cliente = await conectar(url);
@@ -45,11 +48,15 @@ async function montarLegado(url: string, arquivos = readdirSync(LEGADAS).sort())
 async function catalogo(url: string, opcoes: { views?: boolean; soOriginais?: boolean } = {}) {
   const fora = opcoes.soOriginais ? NOVAS : "('')";
   const viewsFora = opcoes.soOriginais ? VIEWS_NOVAS : "('')";
+  const colunasFora = opcoes.soOriginais ? COLUNAS_NOVAS : "('')";
+  const indicesFora = opcoes.soOriginais ? INDICES_NOVOS : "('')";
   return comCliente(url, async (c) => {
     const colunas = await c.query(`
-      SELECT table_name, column_name, data_type, numeric_precision, numeric_scale, is_nullable, column_default
+      SELECT table_name, column_name, data_type, numeric_precision, numeric_scale, is_nullable, column_default,
+             generation_expression
       FROM information_schema.columns
       WHERE table_schema = 'public' AND table_name <> 'migracoes' AND table_name NOT IN ${fora}
+        AND table_name || '.' || column_name NOT IN ${colunasFora}
         AND table_name IN (SELECT table_name FROM information_schema.tables
                            WHERE table_schema = 'public' AND table_type = 'BASE TABLE')
       ORDER BY table_name, column_name`);
@@ -61,7 +68,8 @@ async function catalogo(url: string, opcoes: { views?: boolean; soOriginais?: bo
       ORDER BY 1, 2`);
     const indices = await c.query(`
       SELECT tablename, indexname, indexdef FROM pg_indexes
-      WHERE schemaname = 'public' AND tablename <> 'migracoes' AND tablename NOT IN ${fora} ORDER BY 1, 2`);
+      WHERE schemaname = 'public' AND tablename <> 'migracoes' AND tablename NOT IN ${fora}
+        AND indexname NOT IN ${indicesFora} ORDER BY 1, 2`);
     const views = await c.query(`
       SELECT viewname FROM pg_views WHERE schemaname = 'public' AND viewname NOT IN ${viewsFora} ORDER BY 1`);
     return {
