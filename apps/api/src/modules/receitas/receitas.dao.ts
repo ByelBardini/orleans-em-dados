@@ -22,24 +22,35 @@ const ORIGENS: Record<string, string> = {
 
 export const descricaoDaOrigem = (chave: string) => ORIGENS[chave] ?? `Origem ${chave}`;
 
-/** A forma de antes da conferência: só para a coleta de exemplo, que nunca é conferida. */
+/** A receita só com a Betha: a coleta de exemplo, que nunca é conferida, e a fonte única do ano que o
+ *  TCE-SC não publica. Origem e natureza saem da `natureza` (sem a classe que a Betha publica até 2019),
+ *  e a linha de dedução da Betha (zerada) não conta como linha; o orçado da dedução, sim. */
 export async function resumoReceitas({ coletaId, meta }: ColetaPublicada, { entidade = '' } = {}) {
   const p = [coletaId, entidade];
   const filtro = `coleta_id = $1 AND ($2 = '' OR r.entidade_codigo = $2)`;
-  const [[totais], porMes, porEntidade, porOrigem, naturezas] = await Promise.all([
-    consultar(
-      `SELECT count(*)::int AS quantidade,
+  const [[resumo], porMes, porEntidade, porOrigem, naturezas] = await Promise.all([
+    consultar<{
+      quantidade: number;
+      orcadoAtualizado: number | null;
+      orcadoDeducoes: number | null;
+      arrecadadoNoMes: number | null;
+      negativos: number;
+      rubricas: number;
+      receitaBruta: boolean;
+    }>(
+      `SELECT count(*) FILTER (WHERE NOT deducao)::int AS quantidade,
               sum(valor_orcado_atualizado) AS "orcadoAtualizado",
               sum(valor_orcado_deducoes) AS "orcadoDeducoes",
-              sum(valor_arrecadado_mes) AS "arrecadadoNoMes",
-              count(*) FILTER (WHERE valor_arrecadado_mes < 0)::int AS negativos,
-              count(DISTINCT rubrica)::int AS rubricas
+              sum(valor_arrecadado_mes) FILTER (WHERE NOT deducao) AS "arrecadadoNoMes",
+              count(*) FILTER (WHERE NOT deducao AND valor_arrecadado_mes < 0)::int AS negativos,
+              count(DISTINCT natureza) FILTER (WHERE NOT deducao)::int AS rubricas,
+              coalesce(bool_or(deducao), false) AS "receitaBruta"
        FROM receitas r WHERE ${filtro}`,
       p,
     ),
     consultar(
       `SELECT mes AS chave, count(*)::int AS quantidade, sum(valor_arrecadado_mes) AS "arrecadadoNoMes"
-       FROM receitas r WHERE ${filtro} GROUP BY mes ORDER BY mes`,
+       FROM receitas r WHERE ${filtro} AND NOT deducao GROUP BY mes ORDER BY mes`,
       p,
     ),
     // Sem o filtro de entidade: serve para comparar as entidades entre si.
@@ -47,27 +58,31 @@ export async function resumoReceitas({ coletaId, meta }: ColetaPublicada, { enti
       `SELECT r.entidade_codigo AS chave, ${ENTIDADE} AS entidade, count(*)::int AS quantidade,
               sum(valor_orcado_atualizado) AS "orcadoAtualizado", sum(valor_arrecadado_mes) AS "arrecadadoNoMes"
        FROM receitas r LEFT JOIN entidades en ON en.codigo_betha = r.entidade_codigo
-       WHERE coleta_id = $1 GROUP BY r.entidade_codigo, en.codigo_betha ORDER BY "arrecadadoNoMes" DESC`,
+       WHERE coleta_id = $1 AND NOT deducao GROUP BY r.entidade_codigo, en.codigo_betha ORDER BY "arrecadadoNoMes" DESC`,
       [coletaId],
     ),
     consultar<{ chave: string }>(
-      `SELECT left(rubrica, 2) AS chave, count(*)::int AS quantidade,
+      `SELECT left(natureza, 2) AS chave, count(*)::int AS quantidade,
               sum(valor_orcado_atualizado) AS "orcadoAtualizado", sum(valor_arrecadado_mes) AS "arrecadadoNoMes"
-       FROM receitas r WHERE ${filtro} GROUP BY 1 ORDER BY "arrecadadoNoMes" DESC`,
+       FROM receitas r WHERE ${filtro} AND NOT deducao GROUP BY 1 ORDER BY "arrecadadoNoMes" DESC`,
       p,
     ),
     consultar(
-      `SELECT r.entidade_codigo || '|' || rubrica AS chave, rubrica, 14 AS nivel, min(descricao) AS descricao,
-              coalesce(en.sigla, 'Entidade ' || r.entidade_codigo) AS entidade, count(*)::int AS quantidade,
-              sum(valor_orcado_atualizado) AS "orcadoAtualizado", sum(valor_arrecadado_mes) AS "arrecadadoNoMes"
+      `SELECT r.entidade_codigo || '|' || natureza AS chave, min(rubrica) AS rubrica, natureza, 14 AS nivel,
+              min(descricao) AS descricao, coalesce(en.sigla, 'Entidade ' || r.entidade_codigo) AS entidade,
+              count(*)::int AS quantidade, sum(valor_orcado_atualizado) AS "orcadoAtualizado",
+              sum(valor_arrecadado_mes) AS "arrecadadoNoMes"
        FROM receitas r LEFT JOIN entidades en ON en.codigo_betha = r.entidade_codigo
-       WHERE ${filtro} GROUP BY r.entidade_codigo, rubrica, en.sigla ORDER BY "arrecadadoNoMes" DESC`,
+       WHERE ${filtro} AND NOT deducao GROUP BY r.entidade_codigo, natureza, en.sigla ORDER BY "arrecadadoNoMes" DESC`,
       p,
     ),
   ]);
+  if (!resumo) throw new Error(`Consulta de totais da receita sem linha para a coleta ${coletaId}`);
+  const { receitaBruta, ...totais } = resumo;
 
   return {
     meta,
+    receitaBruta,
     totais,
     porMes,
     porEntidade,
@@ -85,7 +100,8 @@ export async function complementosDaReceita(coletaId: number, entidade: string, 
   const p = [coletaId, entidade, mesLimite];
   const filtro = `coleta_id = $1 AND ($2 = '' OR r.entidade_codigo = $2)`;
   const ate = `(mes IS NULL OR mes <= $3::int)`;
-  const somas = `count(*) FILTER (WHERE ${ate})::int AS quantidade, sum(valor_orcado_atualizado) AS "orcadoAtualizado"`;
+  // A linha de dedução da Betha (até 2019, zerada) não entra na conferência, nem na quantidade.
+  const somas = `count(*) FILTER (WHERE ${ate} AND NOT deducao)::int AS quantidade, sum(valor_orcado_atualizado) AS "orcadoAtualizado"`;
   const [[totais], porMes, porOrigem, rubricas, naturezas, porEntidade] = await Promise.all([
     consultar<{
       quantidade: number;
@@ -95,29 +111,32 @@ export async function complementosDaReceita(coletaId: number, entidade: string, 
       rubricas: number;
     }>(
       `SELECT ${somas}, sum(valor_orcado_deducoes) AS "orcadoDeducoes",
-              count(*) FILTER (WHERE ${ate} AND valor_arrecadado_mes < 0)::int AS negativos,
-              (count(DISTINCT rubrica) FILTER (WHERE ${ate}))::int AS rubricas
+              count(*) FILTER (WHERE ${ate} AND NOT deducao AND valor_arrecadado_mes < 0)::int AS negativos,
+              (count(DISTINCT natureza) FILTER (WHERE ${ate} AND NOT deducao))::int AS rubricas
        FROM receitas r WHERE ${filtro}`,
       p,
     ),
     consultar<Linha<number | null>>(`SELECT mes AS chave, ${somas} FROM receitas r WHERE ${filtro} GROUP BY mes`, p),
     consultar<Linha<string>>(
-      `SELECT left(rubrica, 2) AS chave, ${somas} FROM receitas r WHERE ${filtro} GROUP BY 1`,
+      `SELECT left(natureza, 2) AS chave, ${somas} FROM receitas r WHERE ${filtro} GROUP BY 1`,
+      p,
+    ),
+    // A rubrica como a Betha publica, para a tabela e o CSV; a natureza é a chave.
+    consultar<Linha<string> & { publicada: string | null }>(
+      `SELECT r.entidade_codigo || '|' || natureza AS chave, min(rubrica) FILTER (WHERE NOT deducao) AS publicada, ${somas}
+       FROM receitas r WHERE ${filtro} GROUP BY 1`,
       p,
     ),
     consultar<Linha<string>>(
-      `SELECT r.entidade_codigo || '|' || rubrica AS chave, ${somas} FROM receitas r WHERE ${filtro} GROUP BY 1`,
-      p,
-    ),
-    consultar<Linha<string>>(
-      `SELECT r.entidade_codigo || '|' || left(rubrica, 8) AS chave, ${somas} FROM receitas r WHERE ${filtro} GROUP BY 1`,
+      `SELECT r.entidade_codigo || '|' || left(natureza, 8) AS chave, ${somas} FROM receitas r WHERE ${filtro} GROUP BY 1`,
       p,
     ),
     // Sem o filtro de entidade: serve para comparar as entidades entre si. O catálogo cobre a
     // entidade que só tem linha no TCE-SC.
     consultar<Linha<string> & { entidade: { nome: string | null; sigla: string | null; status: string | null } }>(
       `SELECT coalesce(r.entidade_codigo, en.codigo_betha) AS chave, ${ENTIDADE} AS entidade,
-              count(*) FILTER (WHERE r.entidade_codigo IS NOT NULL AND (r.mes IS NULL OR r.mes <= $2::int))::int AS quantidade,
+              count(*) FILTER (WHERE r.entidade_codigo IS NOT NULL AND NOT r.deducao
+                                 AND (r.mes IS NULL OR r.mes <= $2::int))::int AS quantidade,
               sum(r.valor_orcado_atualizado) AS "orcadoAtualizado"
        FROM (SELECT * FROM receitas WHERE coleta_id = $1) r
        FULL JOIN entidades en ON en.codigo_betha = r.entidade_codigo

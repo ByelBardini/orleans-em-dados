@@ -35,7 +35,9 @@ Compara as coletas publicadas das duas fontes num exercício. A regra mora em `p
 
 - Gasto com educação: as três etapas iguais ao centavo são `conferido`; qualquer outra coisa, `diferenca`, com a etapa. O número da ação muda entre exercícios, então a ligação é pelo nome, sempre de `ACOES_DE_EDUCACAO`, comparado por `CHAVE_DE_TEXTO`: número novo com o mesmo nome soma, e outro nome fica fora, mesmo com o número de uma ação da lista. Coleta sem nenhuma ação da lista compara com zero, porque é coleta; só a falta dela é `sem_betha`. Coleta de exemplo, da Betha ou da DCA, não confere (`sem_betha`, `sem_dca`). Só o total da função é conferido: cada ação segue fonte única, e nenhuma outra função tem par na Betha.
 
-- Compara só conceitos iguais, no nível comum às duas fontes: natureza da receita em 8 dígitos (Betha `17135011000000` ↔ TCE `1.7.1.3.50.1.1`).
+- Compara só conceitos iguais, no nível comum às duas fontes: natureza da receita em 8 dígitos (Betha `17135011000000` ↔ TCE `1.7.1.3.50.1.1`). Do lado da Betha é sempre `left(natureza, 8)` (`NAT_BETHA`, a coluna gerada sem a classe), nunca a `rubrica`.
+- Formato bruto (`BETHA_BRUTA`: a coleta da Betha tem linha com `deducao`): a Betha publica a receita antes da dedução do FUNDEB, com a dedução zerada. Aí o TCE-SC entra só com `tipo_deducao IS NULL` (`RECEITA_TCE`), bruto × bruto, e `deducaoSoTce` soma as linhas de dedução do TCE-SC das entidades com Betha (fora do conferido). Fora do bruto, o TCE-SC entra líquido e `deducaoSoTce` é `null`. A linha de dedução da Betha nunca entra (`RECEITA_BETHA`). A regra olha o formato do dado, não o ano.
+- `entidadesSemBetha[]` (`codigo`, `entidade`, `totalTce`): entidade com receita no TCE-SC e nenhuma linha de receita na coleta da Betha. O valor dela continua em Discrepâncias como `so_tce`.
 - Sem as cinco coletas publicadas (status diferente de `exemplo`), devolve `{ disponivel: false, faltando }`.
 - No exercício parcial, receita e empenhos são comparados só até onde o TCE-SC já recebeu, e a despesa por entidade não é comparável (a 57170 não tem data). Atraso do TCE-SC é pendência, não divergência.
 - Empenhos casam 1:1 por entidade, número, data e valor original. Entre repetidos na Betha, o que tem execução e id maior é o válido; as cópias antigas da 57140 ficam "só na Betha".
@@ -65,7 +67,7 @@ Compara as coletas publicadas das duas fontes num exercício. A regra mora em `p
 
 - `{ ano, disponivel: false, faltando, exemplo }`, ou
 - `{ ano, disponivel: true, parcial, limites, receita, despesa, discrepancias, avisos }`:
-  - `receita`: `recortes` por `codigoEntidade`, `porMes[]` (`mes`, `betha`, `tce`, `conferido`, `diferencaBetha`, `diferencaTce`, `aguardandoTce`), `porEntidade[]` (`codigoEntidade`, `entidade`, partes, `aguardandoTce`, `totalBetha`, `totalTce`), `porOrigem[]` (`origem`, partes, `aguardandoTce`), `naturezas[]` (tipo `LinhaNaturezaConferida`), `totais` (partes, `aguardandoTce`, `totalBetha`, `totalTce`);
+  - `receita`: `recortes` por `codigoEntidade`, `porMes[]` (`mes`, `betha`, `tce`, `conferido`, `diferencaBetha`, `diferencaTce`, `aguardandoTce`), `porEntidade[]` (`codigoEntidade`, `entidade`, partes, `aguardandoTce`, `totalBetha`, `totalTce`, `deducaoSoTce` da entidade), `porOrigem[]` (`origem`, partes, `aguardandoTce`), `naturezas[]` (tipo `LinhaNaturezaConferida`), `totais` (partes, `aguardandoTce`, `totalBetha`, `totalTce`), `receitaBruta`, `deducaoSoTce` (centavos somados no banco; `null` fora do bruto), `entidadesSemBetha[]`;
   - `despesa`: `porEntidade[]` (tipo `DespesaConferida`), `camara`, `totais` (`empenhado`, `liquidado`, `pago`, `aguardandoTce`, `entidadesConferidas`, `entidadesFora`);
   - `avisos[]`: interno, para quem mantém os registros manuais. A rota pública não devolve;
   - `discrepancias[]`: tipo `DiscrepanciaConferida` (`Discrepancia` + `situacao`, `data`, `evidencia`), com `area` (`receita`, `despesa` ou `empenho`). Na despesa, `betha`, `tce` e `diferenca` são do empenhado; as três etapas ficam em `etapas`. No empenho, `fonte`, `numero`, `dataEmpenho` e `id`, com o valor no lado da fonte; `data` é sempre a da conferência manual. A área `empenho` é outra visão da mesma execução: não some com `despesa`.
@@ -82,10 +84,13 @@ Compara as coletas publicadas das duas fontes num exercício. A regra mora em `p
 
 ## Testes
 
-- Unit em `packages/db/test/conferencia/conferencia.bo.spec.ts`, `conferencias-manuais.spec.ts`, `funcoes.spec.ts` e `gasto-educacao.spec.ts`; integração em `packages/db/test/integration/conferencia.spec.ts`, `conferencia-funcoes.spec.ts` e `conferencia-gasto-educacao.spec.ts`, sobre as fixtures de `popularBancoDeTeste()`. `popularCenario({ receitas, despesas, ... })` troca só os lotes que o cenário informa.
+- Unit em `packages/db/test/conferencia/conferencia.bo.spec.ts`, `conferencias-manuais.spec.ts`, `funcoes.spec.ts` e `gasto-educacao.spec.ts`; integração em `packages/db/test/integration/conferencia.spec.ts`, `conferencia-receita-bruta.spec.ts`, `conferencia-funcoes.spec.ts` e `conferencia-gasto-educacao.spec.ts`, sobre as fixtures de `popularBancoDeTeste()`. `popularCenario({ receitas, despesas, ... })` troca só os lotes que o cenário informa.
 
 ## Armadilhas
 
+- A Betha de Orleans publica a rubrica com o dígito de classe (`4`/`9`, 15 dígitos) até 2019, embora a estrutura nova da natureza valha desde 2018. Consulta nova da receita que use `rubrica` em vez de `natureza` volta a conferir zero nesses anos e a agrupar a origem por `41`/`91`.
+- Lacunas da própria Betha, não da coleta (o totalizador bate): em 2020 a 57153 não tem a Prefeitura; de 2018 a 2020, o FMS (2018 e 2019) e a Fundação Ambiental. Saem em `entidadesSemBetha`.
+- Fixture do formato antigo: `receitasFormatoAntigo()` e `tcescReceitasFormatoAntigo()` (`ANO_ANTIGO`, 2019), gravadas por `gravarLote` depois do `popularCenario`.
 - Ação de educação com nome novo na Betha fica fora da soma, e o ano sai como `diferenca`: confira o nome e acrescente-o a `ACOES_DE_EDUCACAO`. A fixture `despesas()` usa um nome da lista, para o gasto das fixtures ficar conferido.
 - `receitaIncoerente` aponta o mês em que o acumulado desencontra, que pode não ser o da linha sobrando (a linha é de maio, o desencontro aparece em junho). Por isso a classificação é por natureza, e `mes` vem do cruzamento com o TCE, nunca da incoerência.
 - Credor diverge muito entre as fontes: no SAMAE 2024, dos 32 empenhos sem par com a mesma data e valor em outro número, 12 têm o credor igual e 32 têm o histórico igual, mesmo com a chave sem acento. Sem o histórico, 20 deles perderiam a pista.

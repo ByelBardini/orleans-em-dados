@@ -209,6 +209,8 @@ describe('dadosConferidos: exercício encerrado', () => {
       aguardandoTce: 0,
       totalBetha: 10000,
       totalTce: 5000,
+      // Formato novo: sem dedução à parte.
+      deducaoSoTce: null,
     });
     expect(porOrigem.find((o) => o.origem === '24')).toEqual({
       origem: '24',

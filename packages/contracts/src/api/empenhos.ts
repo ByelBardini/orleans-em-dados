@@ -27,16 +27,20 @@ const empenhoBaseSchema = {
 
 export const empenhosResumoSchema = z.strictObject({
   meta: metaSchema,
-  conferencia: z.strictObject({
-    disponivel: z.boolean(),
-    parcial: z.boolean().nullable(),
-    dataCorte: z.string().nullable(),
-    // Só quando não há conferência: as consultas que faltam publicar.
-    faltando: z.array(z.string()).optional(),
-    // Das que faltam, as que a fonte não publica naquele exercício (o Farol: receitas desde 2018,
-    // empenhos desde 2023). Ausente quando não há nenhuma.
-    foraDaFonte: z.array(z.string()).optional(),
-  }),
+  conferencia: z
+    .strictObject({
+      disponivel: z.boolean(),
+      parcial: z.boolean().nullable(),
+      dataCorte: z.string().nullable(),
+      // Só quando não há conferência: as consultas que faltam publicar.
+      faltando: z.array(z.string()).optional(),
+      // Das que faltam, as que a fonte não publica naquele exercício (o Farol: receitas desde 2018,
+      // empenhos desde 2023). Ausente quando não há nenhuma.
+      foraDaFonte: z.array(z.string()).optional(),
+      // O TCE-SC não publica o exercício: a lista é a 57140 inteira, com os valores da Betha.
+      fonteUnica: z.boolean(),
+    })
+    .refine((c) => !c.fonteUnica || !c.disponivel, { message: 'Fonte única não é conferida' }),
   totais: z.strictObject({
     ...somasSchema,
     semValoresDeExecucao: z.number(),

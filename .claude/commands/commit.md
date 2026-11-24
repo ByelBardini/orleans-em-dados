@@ -1,7 +1,7 @@
 ---
-description: Separa as mudanças em commits atômicos com mensagens semânticas; cria branch se estiver na main; nunca faz push.
+description: Separa as mudanças em commits atômicos com mensagens semânticas; cria branch se estiver na main; deixa a descrição do PR pronta no modelo do repositório; nunca faz push nem abre PR.
 argument-hint: [contexto opcional sobre as mudanças]
-allowed-tools: Bash(git status:*), Bash(git branch:*), Bash(git switch:*), Bash(git checkout:*), Bash(git diff:*), Bash(git log:*), Bash(git show:*), Bash(git add:*), Bash(git restore:*), Bash(git commit:*), Read, Grep, Glob, AskUserQuestion
+allowed-tools: Bash(git status:*), Bash(git branch:*), Bash(git switch:*), Bash(git checkout:*), Bash(git diff:*), Bash(git log:*), Bash(git show:*), Bash(git add:*), Bash(git restore:*), Bash(git commit:*), Bash(pnpm test:*), Bash(pnpm lint:*), Bash(gh pr view:*), Read, Write, Grep, Glob, AskUserQuestion
 ---
 
 # /commit — Commits atômicos com padrão semântico
@@ -10,7 +10,7 @@ Organize as mudanças atuais do repositório em commits atômicos, seguindo as r
 
 ## Regras invioláveis
 
-1. **NUNCA execute `git push`** — em nenhuma variação (`push`, `push -u`, `push --force`, etc.). O push é sempre decisão manual do usuário. Repare que `git push` não está na lista de comandos permitidos deste comando: isso é intencional.
+1. **NUNCA execute `git push`** — em nenhuma variação (`push`, `push -u`, `push --force`, etc.). O push é sempre decisão manual do usuário. Repare que `git push` não está na lista de comandos permitidos deste comando: isso é intencional. Pelo mesmo motivo, nunca rode `gh pr create` nem `gh pr edit`: a descrição do PR fica pronta num arquivo, e quem abre o PR é o usuário.
 2. **Se estiver na `main`/`master`/`desenvolvimento`, SEMPRE crie uma branch nova antes de qualquer commit.** Nunca commite direto na main ou branch de desenvolvimento.
 3. **Se já estiver em outra branch, permaneça nela.** Não crie outra branch, não faça checkout/switch para trocar.
 4. **Arquivo sensível nunca entra em commit sem confirmação explícita do usuário.**
@@ -87,9 +87,34 @@ docs(context): atualiza contexto da conferência
 chore(claude): porta comandos e skills do lorkarium
 ```
 
-### 6. Finalizar
+### 6. Descrição do PR
 
-Mostre o resultado com `git log --oneline` dos commits criados e liste qualquer arquivo sensível deixado de fora. Termine aí: **o push é responsabilidade do usuário.**
+Preencha `.github/pull_request_template.md` e grave em `.git/descricao-do-pr.md`: fica dentro da pasta, nunca é versionado e é sobrescrito a cada execução. A descrição cobre a branch inteira (`git log main..HEAD`, `git diff main...HEAD --stat`), não só os commits desta execução. Se `gh pr view` achar um PR da branch, a descrição serve para o `gh pr edit`.
+
+- **O que muda:** uma ou duas frases, e depois uma linha por área tocada (`db`, `api`, `web`, ...), dizendo o que existe de novo.
+- **Por quê:** o problema, tirado do plano (`docs/plans/`) ou da conversa, e o link da issue, se houver. Não linke `docs/plans/`: está no `.gitignore` e não abre no GitHub. Copie o motivo para o texto.
+- **Checklist:** marque `[x]` só o que foi conferido nesta execução e deixe `[ ]` no resto.
+  - `pnpm test && pnpm lint`: rode os dois. Se algum falhar, deixe desmarcado e diga qual teste falhou.
+  - Teste escrito antes: marque só se a conversa mostra o `/testar` daquela mudança.
+  - `docs/context/`: confira no diff.
+  - Dado pessoal: confira na barreira do passo 3.
+  - Texto proibido: busque `validad|irregular|fraude|fantasma` nas linhas novas de `apps/web/src`.
+- **Depois do deploy:** acrescente só se o plano tiver essa seção (migração, conferência em produção).
+- Sem número coletado de pessoa física, sem protocolo de e-SIC e sem assinatura de autoria.
+
+### 7. Finalizar
+
+Mostre o resultado com `git log --oneline` dos commits criados e liste qualquer arquivo sensível deixado de fora. Depois, entregue os comandos para o usuário rodar, cada um no seu bloco, com o nome real da branch e um título no padrão semântico:
+
+```powershell
+git push -u origin <branch>
+```
+
+```powershell
+gh pr create --base main --title "<tipo>: <descrição>" --body-file .git/descricao-do-pr.md
+```
+
+Se o PR já existe, entregue `gh pr edit --body-file .git/descricao-do-pr.md` no lugar do `create`. Termine aí: **o push e o PR são responsabilidade do usuário.**
 
 ## Contexto adicional do usuário
 

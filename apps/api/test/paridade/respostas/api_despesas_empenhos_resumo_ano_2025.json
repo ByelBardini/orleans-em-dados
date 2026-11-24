@@ -29,7 +29,8 @@
     "conferencia": {
       "disponivel": true,
       "parcial": true,
-      "dataCorte": "2025-02-05"
+      "dataCorte": "2025-02-05",
+      "fonteUnica": false
     },
     "totais": {
       "quantidade": 4,

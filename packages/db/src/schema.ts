@@ -6,6 +6,7 @@ import { sql } from 'drizzle-orm';
 import {
   bigint,
   bigserial,
+  boolean,
   check,
   date,
   foreignKey,
@@ -157,12 +158,23 @@ export const receitas = pgTable(
     valorArrecadadoMes: dinheiro('valor_arrecadado_mes'),
     valorArrecadadoAteMes: dinheiro('valor_arrecadado_ate_mes'),
     percentualRealizado: numeric('percentual_realizado', { precision: 10, scale: 2 }),
+    // Até 2019 a Betha publica 15 dígitos com a classe na frente (4 receita, 9 dedução);
+    // depois, 14 dígitos. A natureza é sempre a de 14; `rubrica` fica como a fonte publica.
+    natureza: text('natureza')
+      .notNull()
+      .generatedAlwaysAs(
+        sql`CASE WHEN length(rubrica) = 15 AND left(rubrica, 1) IN ('4', '9') THEN substr(rubrica, 2) ELSE rubrica END`,
+      ),
+    deducao: boolean('deducao')
+      .notNull()
+      .generatedAlwaysAs(sql`(length(rubrica) = 15 AND left(rubrica, 1) = '9')`),
   },
   (t) => [
     primaryKey({ name: 'receitas_pkey', columns: [t.coletaId, t.idExterno] }),
     fkColeta('receitas', t.coletaId),
     index('receitas_coleta_id_entidade_codigo_idx').on(t.coletaId, t.entidadeCodigo),
     index('receitas_coleta_id_rubrica_idx').on(t.coletaId, t.rubrica),
+    index('receitas_coleta_id_natureza_idx').on(t.coletaId, t.natureza),
   ],
 );
 

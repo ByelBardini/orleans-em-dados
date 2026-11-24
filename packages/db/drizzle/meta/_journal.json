@@ -50,6 +50,13 @@
       "when": 1793846294367,
       "tag": "0006_ipca",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1795485054172,
+      "tag": "0007_natureza_da_receita",
+      "breakpoints": true
     }
   ]
 }

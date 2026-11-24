@@ -689,6 +689,10 @@ export type Discrepancia = {
 
 export type RubricaDaReceita = { ent: string; rubrica: string; descricao: string | null; valor: number };
 export type TotaisDasFontes = { totalBetha: number | null; totalTce: number | null };
+/** A coleta da Betha no formato bruto (até 2019, com linhas de dedução) e a dedução do TCE-SC por entidade. */
+export type FormatoDaReceita = { receitaBruta: boolean; deducoes: readonly { ent: string; valor: number }[] };
+/** Entidade com receita no TCE-SC e nenhuma linha de receita na Betha no exercício. */
+export type EntidadeSemBetha = { codigo: string; entidade: string; totalTce: number };
 
 export type LinhaNaturezaConferida = {
   codigoEntidade: string;
@@ -888,10 +892,23 @@ export type DadosDaReceitaConferida = {
   totais: TotaisDasFontes;
   pistas: PistasDaReceita;
   outrosAnos: DivergenciasEmOutrosAnos;
+  /** Sem formato: coleta no formato novo, a receita líquida das duas fontes. */
+  formato?: FormatoDaReceita;
+  entidadesSemBetha?: readonly EntidadeSemBetha[];
 };
 
 export function montarReceitaConferida(ano: number, mesLimite: number | null, dados: DadosDaReceitaConferida) {
   const { cruzamentos, rubricas, totais, pistas, outrosAnos } = dados;
+  const receitaBruta = dados.formato?.receitaBruta ?? false;
+  // No bruto, a comparação é bruto × bruto; a dedução do FUNDEB é só do TCE-SC e nunca entra no conferido.
+  const deducoes = dados.formato?.deducoes ?? [];
+  const deducaoSoTce = (filtro: (ent: string) => boolean) =>
+    receitaBruta
+      ? somaEmCentavos(
+          deducoes.filter((d) => filtro(d.ent)),
+          (d) => d.valor,
+        )
+      : null;
   const { linhas, partes, aguardando } = separarReceita(cruzamentos, pistas, mesLimite);
 
   const meses = [...new Set([...linhas, ...aguardando].map((l) => l.mes))].sort((a, b) => (a ?? 13) - (b ?? 13));
@@ -940,6 +957,7 @@ export function montarReceitaConferida(ano: number, mesLimite: number | null, da
           aguardandoTce: aguardandoEm(aguardando, (l) => l.ent === primeira.ent),
           totalBetha: somaEmCentavos(grupo, (l) => l.betha ?? 0),
           totalTce: somaEmCentavos(grupo, (l) => l.tce ?? 0),
+          deducaoSoTce: deducaoSoTce((ent) => ent === primeira.ent),
         },
       ];
     })
@@ -969,6 +987,9 @@ export function montarReceitaConferida(ano: number, mesLimite: number | null, da
         totalBetha: totais.totalBetha ?? 0,
         totalTce: totais.totalTce ?? 0,
       },
+      receitaBruta,
+      deducaoSoTce: deducaoSoTce(() => true),
+      entidadesSemBetha: [...(dados.entidadesSemBetha ?? [])],
     },
     discrepancias: discrepanciasDaReceita(linhas, partes, aguardando, pistas, outrosAnos, ano),
   };

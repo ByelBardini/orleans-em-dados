@@ -10,7 +10,8 @@ import {
 import { useEffect, useRef, useState } from 'react';
 import { useApi } from '../api';
 import { BarraDividida, BarrasMensais, Estado, Filtros, Fonte, ListaPontos, Mi, Numero, Numeros } from '../components';
-import { ContaDaDespesa, LINK_DISCREPANCIAS, SemConferencia } from '../conferido';
+import { AvisosDaConferencia, ContaDaDespesa, LINK_DISCREPANCIAS, SemConferencia } from '../conferido';
+import { avisoDeFonteUnica } from '../semConferencia';
 import { data, decimal, diaEMes, emMilhoes, MESES, MESES_LONGOS, moeda, nomeProprio, numero, pct } from '../format';
 import { usePopulacao } from '../usePopulacao';
 import { AvisoDeAtraso, Selo } from '../selo';
@@ -62,7 +63,9 @@ export default function Despesas({ ano, entidade, filtros }: PropsDaPagina) {
     `/api/despesas/resumo?${new URLSearchParams({ ano: String(ano), entidade })}`,
     despesasResumoSchema,
   );
-  const semConferencia = desp.dados && !desp.dados.meta.exemplo && !desp.dados.conferencia.disponivel;
+  // A fonte única tem número: a Betha, rotulada. Sem número fica só o ano em que falta coletar o TCE-SC.
+  const semConferencia =
+    desp.dados && !desp.dados.meta.exemplo && !desp.dados.conferencia.disponivel && !desp.dados.conferencia.fonteUnica;
   return (
     <>
       <Estado
@@ -125,13 +128,13 @@ function Conteudo({ ano, entidade, filtros, d, o }: PropsDaPagina & { d: Empenho
   const camara = o.camara;
   const anoEncerrado = ano < new Date().getFullYear();
   const exemplo = o.meta.exemplo;
-  const { parcial, limites, aguardandoTce } = o.conferencia;
+  const { parcial, limites, aguardandoTce, fonteUnica } = o.conferencia;
   const dataCorte = limites?.dataEmpenho ?? null;
   const ate = parcial ? ` até ${data(dataCorte)}` : '';
   // Nulo: a entidade do recorte não fechou entre as fontes e está fora da soma.
   const temDespesa = o.totais.empenhado !== null;
   const fora = o.porEntidade.filter((e) => !e.conferida && e.fonte === null);
-  const seloDaLista = exemplo ? SELO_EXEMPLO : seloDaDespesa(o.conferencia);
+  const seloDaLista = exemplo ? SELO_EXEMPLO : fonteUnica ? SELO_FONTE_UNICA : seloDaDespesa(o.conferencia);
 
   const meses = MESES.map((rotulo, i) => {
     const m = d.porMes.find((x) => x.chave === i + 1);
@@ -157,6 +160,10 @@ function Conteudo({ ano, entidade, filtros, d, o }: PropsDaPagina & { d: Empenho
 
   return (
     <>
+      <AvisosDaConferencia
+        ano={ano}
+        fonteUnica={fonteUnica ? avisoDeFonteUnica(o.conferencia.foraDaFonte ?? [], ano) : null}
+      />
       <div className="abertura">
         {temDespesa ? (
           <h1 className="manchete">
@@ -186,6 +193,8 @@ function Conteudo({ ano, entidade, filtros, d, o }: PropsDaPagina & { d: Empenho
               <>
                 {exemplo ? (
                   <Selo selo={SELO_EXEMPLO} />
+                ) : fonteUnica ? (
+                  <Selo selo={SELO_FONTE_UNICA} />
                 ) : (
                   <>
                     <Selo semLink={o.conferencia.totalBetha !== null} selo={seloDaDespesa(o.conferencia)} />
@@ -427,7 +436,7 @@ function Conteudo({ ano, entidade, filtros, d, o }: PropsDaPagina & { d: Empenho
             <h2 className="secao-titulo">Todos os empenhos</h2>
             <p className="legenda-secao">
               Busque por credor, número ou descrição · clique numa linha para ler tudo · empenhado é o valor original;
-              liquidado e pago, do TCE-SC
+              liquidado e pago, {fonteUnica ? 'da Betha' : 'do TCE-SC'}
             </p>
             <Selo compacto selo={seloDaLista} />
           </div>
@@ -615,11 +624,12 @@ function Conteudo({ ano, entidade, filtros, d, o }: PropsDaPagina & { d: Empenho
         ) : (
           <>
             Os totais (empenhado, liquidado, pago e falta pagar) são a <strong>despesa orçamentária</strong> (consulta
-            Betha 57170), já descontadas as anulações{exemplo ? '' : ': é o número conferido com o TCE-SC'}.
+            Betha 57170), já descontadas as anulações
+            {exemplo || fonteUnica ? '' : ': é o número conferido com o TCE-SC'}.
           </>
         )}{' '}
         O mês, os órgãos, os credores e a lista usam o <strong>valor original</strong> de cada empenho (consulta 57140)
-        {exemplo ? '' : ', só dos casados com o TCE-SC'}.
+        {exemplo || fonteUnica ? '' : ', só dos casados com o TCE-SC'}.
         {t.aguardandoTce > 0 &&
           ` ${numero(t.aguardandoTce)} empenhos aguardam o TCE-SC e ainda não entram nas somas nem na lista.`}
         {t.emDiscrepancia > 0 && (

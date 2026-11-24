@@ -6,10 +6,11 @@ import type { ColetaPublicada } from '../coletas/coletas.dao';
 
 export type EntidadeDoCatalogo = { nome: string | null; sigla: string | null; status: string | null };
 
-/** A forma de antes da conferência: só para a coleta de exemplo, que nunca é conferida. */
+/** A 57170 sozinha: a coleta de exemplo, que nunca é conferida, e a fonte única do ano que o TCE-SC
+ *  não publica. A Câmara só existe no TCE-SC e segue à parte. */
 export async function resumoDespesas(
   { coletaId, meta }: ColetaPublicada,
-  { entidade = '', ano }: { entidade?: string; ano: number },
+  { entidade = '', ano, aceitaCamaraDeExemplo }: { entidade?: string; ano: number; aceitaCamaraDeExemplo: boolean },
 ) {
   const [[totais], porEntidade, camara] = await Promise.all([
     consultar(
@@ -26,7 +27,7 @@ export async function resumoDespesas(
        WHERE coleta_id = $1 GROUP BY d.entidade_codigo, en.codigo_betha ORDER BY empenhado DESC`,
       [coletaId],
     ),
-    camaraDoAno(ano, true),
+    camaraDoAno(ano, aceitaCamaraDeExemplo),
   ]);
   return { meta, totais, porEntidade, camara: entidade ? null : camara };
 }
