@@ -42,6 +42,7 @@ Um schema Zod estrito por rota da API (`src/api/`), espelhando o JSON de hoje (d
 
 - Bloco `conferencia` de receitas, despesas e empenhos, e a seção de discrepâncias: `foraDaFonte` opcional, junto do `faltando`. `discrepanciasSchema.semConferencia` opcional: a área que ficou de fora.
 - Bloco `conferencia` em `/api/receitas` (`disponivel`, `parcial`, `limites`, `conferido`, `diferencaBetha`, `diferencaTce`, `aguardandoTce`, `totalBetha`, `totalTce`), em `/api/despesas/resumo` (`disponivel`, `parcial`, `limites`, `aguardandoTce`, `diferencaBetha`, `totalBetha`, `entidadesConferidas`, `entidadesFora`) e em `/api/despesas/empenhos/resumo` (`disponivel`, `parcial`, `dataCorte`). Indisponível: campos nulos, e `faltando` diz o que falta. A conta: `conferido + diferencaBetha + aguardandoTce = totalBetha`; `conferido + diferencaTce = totalTce`. Na despesa encerrada, `totais.empenhado + diferencaBetha = totalBetha`; no ano em curso, os dois são nulos. `/api/despesas/empenhos/resumo` separa `totais.excluidos` em `aguardandoTce` e `emDiscrepancia`.
+- `conferencia.fonteUnica` (boolean, em receitas, despesas e resumo de empenhos): o exercício sem o TCE-SC, só com a Betha. O schema recusa `fonteUnica` com `disponivel`, e também com `conferido` (receitas) ou `entidadesConferidas` (despesas). `receitaBruta`, `deducaoSoTce` (nulo fora do bruto) e `entidadesSemBetha[]` (`codigo`, `entidade`, `totalTce`) vêm de `conferenciaPorArea`. Nas `naturezas`, `natureza` (formato novo) e `rubrica` (como publicada).
 - `fonteUnica` lista os campos que só a Betha tem e que nunca são conferidos: `orcadoAtualizado` e `orcadoDeducoes` em receitas, `orcadoAtualizado` em despesas.
 - `funcoesSchema` e os `anos[]` de `funcoesSerieSchema` trazem `conferenciaEducacao` (`conferido`, `diferenca`, `sem_betha`), ao lado de `conferencia`. Só `funcoesSchema` tem `diferencaEducacao`: nula, ou as três etapas com `dca`, `betha`, `diferenca` (DCA − Betha) e `maior` (`dca`, `betha` ou nulo).
 - `naturezas[].nivel` é 8 ou 14; `rubrica` tem esse número de dígitos.
@@ -54,6 +55,7 @@ Um schema Zod estrito por rota da API (`src/api/`), espelhando o JSON de hoje (d
 
 - `test/paginas.spec.ts` prova o catálogo: caminhos, hashes antigos, tamanho de título e descrição, o que é `Dataset` e o menu.
 - `test/api/respostas.spec.ts` valida as respostas gravadas de `apps/api/test/paridade/respostas/` contra os schemas.
+- `test/api/receitas.spec.ts`, `despesas.spec.ts` e `empenhos.spec.ts` — o `refine` da fonte única: recusa junto de conferido, aceita sem.
 
 ## Indicadores
 
