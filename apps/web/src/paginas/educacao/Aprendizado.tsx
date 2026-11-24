@@ -294,7 +294,6 @@ function BlocoDoIdeb({ bloco, rede }: { bloco: Ideb; rede: Rede }) {
         <>
           <p>Fonte única: o IBGE republica o INEP, e os dois não contam como conferência.</p>
           <Detalhes>
-            <p>Rendimento vai de 0 a 1 e sai da aprovação; matemática e português são as notas da prova.</p>
             {bloco.fonteDoInep && (
               <p>
                 O Brasil, a aprovação e as notas vêm de{' '}
@@ -316,6 +315,15 @@ function BlocoDoIdeb({ bloco, rede }: { bloco: Ideb; rede: Rede }) {
           <SerieDaEtapa key={etapa.etapa} etapa={etapa} rede={rede} />
         ))}
       </div>
+      {/* O como ler fica junto das tabelas, que são onde aparecem as notas e o rendimento. */}
+      {(naRede.length > 0 || deOrleans.length > 0) && (
+        <p className="edu-aprendizado-apoio edu-aprendizado-como-ler">
+          Matemática e Português são as notas médias do Saeb, a prova do INEP no 5º ano, no 9º ano e no fim do ensino
+          médio. A escala vai de 0 a 500 e é a mesma nas três etapas: por isso a nota cresce de uma etapa para a outra.
+          Rendimento vai de 0 a 1 e sai da aprovação de cada série. O IDEB é a média das duas notas, levada para 0 a 10,
+          vezes o rendimento.
+        </p>
+      )}
       {naRede.length > 0 && (
         <>
           <h3 className="edu-aprendizado-subtitulo">
@@ -371,34 +379,71 @@ function QuemFezAProva({ bloco, rede }: { bloco: Enem; rede: Rede }) {
   const antes = anterior ? linhaDe(anterior) : undefined;
   const noAnoAnterior = (texto: string | undefined) => (texto ? `${texto} em ${anterior}` : undefined);
   if (!atual) return <p className="edu-aprendizado-apoio">Rede sem número publicado em Orleans em {bloco.ano}.</p>;
+  const frase = fraseDoFunil(bloco.ano, atual);
   return (
-    <Numeros rotulo={`Quem fez a prova, ${rotuloDaRede(rede)}`}>
-      <Numero rotulo={`Inscritos em ${bloco.ano}`} detalhe={noAnoAnterior(antes && contagem(antes.inscritos))}>
-        {contagem(atual.inscritos)}
-      </Numero>
-      <Numero
-        rotulo={`Presentes nas quatro provas em ${bloco.ano}`}
-        detalhe={noAnoAnterior(antes && contagem(antes.presentes))}
-      >
-        {contagem(atual.presentes)}
-      </Numero>
-      <Numero
-        rotulo="Presentes ÷ matrículas da 3ª série"
-        detalhe={noAnoAnterior(antes && emPorcento(antes.presentesSobreTerceiraSerie))}
-      >
-        {emPorcento(atual.presentesSobreTerceiraSerie)}
-      </Numero>
-    </Numeros>
+    <>
+      {frase && <p className="edu-aprendizado-frase">{frase}</p>}
+      <Numeros rotulo={`Quem fez a prova, ${rotuloDaRede(rede)}`}>
+        <Numero
+          rotulo={`Alunos na 3ª série em ${bloco.ano}`}
+          detalhe={noAnoAnterior(antes && contagem(antes.terceiraSerie))}
+        >
+          {contagem(atual.terceiraSerie)}
+        </Numero>
+        <Numero
+          rotulo={`Inscritos no ENEM em ${bloco.ano}`}
+          detalhe={noAnoAnterior(antes && contagem(antes.inscritos))}
+        >
+          {contagem(atual.inscritos)}
+        </Numero>
+        <Numero
+          rotulo={`Fizeram as quatro provas em ${bloco.ano}`}
+          detalhe={noAnoAnterior(antes && contagem(antes.presentes))}
+        >
+          {contagem(atual.presentes)}
+        </Numero>
+        <Numero
+          rotulo={COLUNA_DA_PARTE}
+          detalhe={noAnoAnterior(antes && emPorcento(antes.presentesSobreTerceiraSerie))}
+        >
+          {emPorcento(atual.presentesSobreTerceiraSerie)}
+        </Numero>
+      </Numeros>
+    </>
   );
 }
 
-// Um quadro por ano, o mais recente primeiro; só o essencial: quantos se inscreveram, quantos foram e a 3ª série.
+type LinhaDoEnem = Enem['anos'][number]['redes'][number];
+
+// O funil numa frase: a turma inteira, a parte que se inscreveu e a que fez a prova toda. Falta um, não há frase.
+function fraseDoFunil(ano: string, l: LinhaDoEnem) {
+  const { terceiraSerie, inscritos, presentes, presentesSobreTerceiraSerie: parte } = l;
+  if (terceiraSerie === null || inscritos === null || presentes === null || parte === null) return null;
+  return (
+    `Em ${ano}, ${rotuloDaRede(l.rede)}: dos ${numero(terceiraSerie)} alunos na 3ª série, ${numero(inscritos)} se ` +
+    `inscreveram no ENEM e ${numero(presentes)} fizeram as quatro provas, ${emPorcento(parte)} da turma.`
+  );
+}
+
+// Um quadro por ano, o mais recente primeiro, na ordem do funil: a turma, quem se inscreveu e quem fez a prova toda.
+const COLUNA_DA_PARTE = 'Fizeram ÷ alunos na 3ª série';
 const COLUNAS_DO_ENEM = [
-  { nome: 'Inscritos' },
-  { nome: 'Presentes' },
-  { nome: '3ª série' },
-  { nome: 'Presentes ÷ 3ª série' },
+  { nome: 'Alunos na 3ª série' },
+  { nome: 'Inscritos no ENEM' },
+  { nome: 'Fizeram as quatro provas' },
+  { nome: COLUNA_DA_PARTE },
 ];
+
+const mesmosNumeros = (a: LinhaDoEnem, b: LinhaDoEnem) =>
+  a.terceiraSerie === b.terceiraSerie && a.inscritos === b.inscritos && a.presentes === b.presentes;
+
+// Orleans não tem ensino médio municipal: a pública repete a estadual, e o quadro diz por quê.
+function notaDoAno(redes: readonly LinhaDoEnem[]) {
+  const publica = redes.find((r) => r.rede === 'publica');
+  const estadual = redes.find((r) => r.rede === 'estadual');
+  if (!publica || !estadual || !mesmosNumeros(publica, estadual)) return undefined;
+  return 'A pública e a estadual têm os mesmos números: em Orleans, todo aluno de escola pública no ENEM é da rede estadual.';
+}
 
 function QuadrosDoEnem({ bloco }: { bloco: Enem }) {
   return (
@@ -407,12 +452,13 @@ function QuadrosDoEnem({ bloco }: { bloco: Enem }) {
       colunas={COLUNAS_DO_ENEM}
       grupos={[...bloco.anos].reverse().map(({ ano, redes }) => ({
         titulo: ano,
+        nota: notaDoAno(redes),
         linhas: redes.map((l) => ({
           nome: NOMES_DE_REDE[l.rede],
           celulas: [
+            contagem(l.terceiraSerie),
             contagem(l.inscritos),
             contagem(l.presentes),
-            contagem(l.terceiraSerie),
             emPorcento(l.presentesSobreTerceiraSerie),
           ],
         })),
@@ -483,7 +529,14 @@ function BlocoDoEnem({ bloco, rede }: { bloco: Enem; rede: Rede }) {
         </>
       )}
       <h3 className="edu-aprendizado-subtitulo">Quem fez a prova, por ano e rede</h3>
-      <QuadrosDoEnem bloco={bloco} />
+      <p className="edu-aprendizado-apoio">
+        A 3ª série é a turma que termina o ensino médio nas escolas da rede, contada no Censo Escolar. Inscritos são os
+        alunos dessa turma que se inscreveram no ENEM. Quem faltou a uma das quatro provas não entra em
+        &quot;fizeram&quot;.
+      </p>
+      <div className="edu-aprendizado-funil">
+        <QuadrosDoEnem bloco={bloco} />
+      </div>
     </BlocoDoCaderno>
   );
 }

@@ -425,7 +425,8 @@ function textoDoValor(
 }
 
 // Uma barra por ano, com o valor em cima e, se houver, a linha de mínimo. As barras são de Orleans: a do ano sob o
-// mouse ou com o foco fica vermelha e abre a dica. O mínimo não leva vermelho.
+// mouse ou com o foco fica vermelha e abre a dica, acima da barra baixa e para dentro da alta. O mínimo não leva
+// vermelho.
 export function BarrasPorAno({
   barras,
   descricao,
@@ -466,6 +467,8 @@ export function BarrasPorAno({
         {barras.map((barra, i) => {
           const { ano, valor, minimo: doAno } = barra;
           const altura = valor === null ? '0%' : posicaoNaEscala(valor, faixa);
+          // Acima de uma barra alta a dica passaria do topo da figura, que corta o que sobra: ali ela desce.
+          const paraBaixo = valor !== null && valor - faixa.min > (faixa.max - faixa.min) * 0.45;
           const abrir = () => setAtiva(ano);
           const fechar = () => setAtiva((atual) => (atual === ano ? null : atual));
           return (
@@ -488,8 +491,8 @@ export function BarrasPorAno({
               </span>
               {ativa === ano && (
                 <div
-                  className={`bpa-dica${i >= barras.length / 2 ? ' a-esquerda' : ''}`}
-                  style={{ bottom: `calc(${altura} + 34px)` }}
+                  className={`bpa-dica${i >= barras.length / 2 ? ' a-esquerda' : ''}${paraBaixo ? ' para-baixo' : ''}`}
+                  style={paraBaixo ? { top: `calc(100% - ${altura} + 8px)` } : { bottom: `calc(${altura} + 34px)` }}
                   aria-hidden="true"
                 >
                   <strong>{ano}</strong>
