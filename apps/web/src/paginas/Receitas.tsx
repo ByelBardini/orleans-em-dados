@@ -2,10 +2,19 @@ import { receitasSchema, type Receitas as DadosDeReceitas } from '@orleans-em-da
 import { useMemo, useState } from 'react';
 import { useApi } from '../api';
 import { BarraDividida, Estado, Filtros, Fonte, LinhaAcumulada, ListaPontos, Mi, Numero, Numeros } from '../components';
-import { ateOMes, ContaDaReceita, LINK_DISCREPANCIAS, SecaoDaConta, SemConferencia } from '../conferido';
+import {
+  ateOMes,
+  AvisosDaConferencia,
+  ContaDaReceita,
+  LINK_DISCREPANCIAS,
+  motivoSemConferido,
+  SecaoDaConta,
+  SemConferencia,
+} from '../conferido';
 import { emMilhoes, MESES, MESES_LONGOS, milhoes, moeda, numero, pct, porExtenso } from '../format';
 import { AvisoDeAtraso, Selo } from '../selo';
 import { SELO_EXEMPLO, SELO_FONTE_UNICA, seloConferidoComTce } from '../selos';
+import { avisoDeFonteUnica, RECEITA_BRUTA } from '../semConferencia';
 import { ORIGEM_CIDADAO, ORIGENS_DE_FORA, sujeito } from '../referencias';
 import { usePopulacao } from '../usePopulacao';
 import type { PropsDaPagina } from './props';
@@ -32,7 +41,8 @@ export default function Receitas({ ano, entidade, filtros }: PropsDaPagina) {
     `/api/receitas?${new URLSearchParams({ ano: String(ano), entidade })}`,
     receitasSchema,
   );
-  const semConferencia = dados && !dados.meta.exemplo && !dados.conferencia.disponivel;
+  // A fonte única tem número: a Betha, rotulada. Sem número fica só o ano em que falta coletar o TCE-SC.
+  const semConferencia = dados && !dados.meta.exemplo && !dados.conferencia.disponivel && !dados.conferencia.fonteUnica;
   return (
     <>
       <Estado carregando={carregando} erro={erro} />
@@ -53,13 +63,18 @@ function Conteudo({ ano, entidade, filtros, dados }: PropsDaPagina & { dados: Da
   const pop = usePopulacao(ano);
   const arrecadado = N(dados.totais.arrecadadoNoMes);
   const previsto = N(dados.totais.orcadoAtualizado);
-  const deducoes = N(dados.totais.orcadoDeducoes ?? 0);
-  const realizado = previsto > 0 ? (arrecadado / previsto) * 100 : null;
+  // Até 2019 a Betha publica a dedução prevista em linha própria, negativa.
+  const deducoes = Math.abs(N(dados.totais.orcadoDeducoes ?? 0));
+  // Conferência disponível e nada conferido: o cartão diz por quê, e nenhum número sai do zero.
+  const semConferido = motivoSemConferido(dados.conferencia, ano);
+  const realizado = previsto > 0 && !semConferido ? (arrecadado / previsto) * 100 : null;
   const diferenca = arrecadado - previsto;
   const quem = sujeito(entidade, filtros.entidades);
   const Quem = quem.charAt(0).toUpperCase() + quem.slice(1);
   const exemplo = dados.meta.exemplo;
-  const { parcial, limites } = dados.conferencia;
+  const { parcial, limites, fonteUnica, receitaBruta } = dados.conferencia;
+  // Na fonte única, o número é da Betha sozinha: nada é dito conferido.
+  const conferido = fonteUnica ? '' : ' conferido';
   const mesReceita = limites?.mesReceita;
   const ate = ateOMes(parcial, mesReceita, ano);
   const Ate = ate && ate.charAt(0).toUpperCase() + ate.slice(1);
@@ -79,9 +94,10 @@ function Conteudo({ ano, entidade, filtros, dados }: PropsDaPagina & { dados: Da
         entidades: Set<string | null>;
       }
     >();
+    // Pela natureza no formato novo: a rubrica da Betha até 2019 traz a classe na frente.
     for (const n of dados.naturezas) {
-      const r = mapa.get(n.rubrica) ?? {
-        rubrica: n.rubrica,
+      const r = mapa.get(n.natureza) ?? {
+        rubrica: n.natureza,
         nivel: n.nivel,
         descricao: nomeReceita(n.descricao),
         previsto: 0,
@@ -91,7 +107,7 @@ function Conteudo({ ano, entidade, filtros, dados }: PropsDaPagina & { dados: Da
       r.previsto += N(n.orcadoAtualizado);
       r.arrecadado += N(n.arrecadadoNoMes);
       r.entidades.add(n.entidade);
-      mapa.set(n.rubrica, r);
+      mapa.set(n.natureza, r);
     }
     return [...mapa.values()].sort((a, b) => b.arrecadado - a.arrecadado);
   }, [dados.naturezas]);
@@ -128,7 +144,7 @@ function Conteudo({ ano, entidade, filtros, dados }: PropsDaPagina & { dados: Da
   const textoLinha = !previsto
     ? null
     : nomeDoMes
-      ? `Até ${nomeDoMes}, a arrecadação conferida ${(acumulado.at(-1) ?? 0) >= ritmo(acumulado.length - 1) ? 'está à frente' : 'está atrás'} do ritmo previsto.`
+      ? `Até ${nomeDoMes}, a arrecadação${fonteUnica ? '' : ' conferida'} ${(acumulado.at(-1) ?? 0) >= ritmo(acumulado.length - 1) ? 'está à frente' : 'está atrás'} do ritmo previsto.`
       : sempreAcima
         ? 'A linha cheia corre acima da tracejada o ano todo: a arrecadação ficou à frente do previsto.'
         : sempreAbaixo
@@ -152,10 +168,19 @@ function Conteudo({ ano, entidade, filtros, dados }: PropsDaPagina & { dados: Da
 
   return (
     <>
+      <AvisosDaConferencia
+        ano={ano}
+        fonteUnica={fonteUnica ? avisoDeFonteUnica(dados.conferencia.foraDaFonte ?? [], ano) : null}
+        lacunas={dados.conferencia.entidadesSemBetha}
+      />
       <div className="abertura">
         <div className="manchete" style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
           <h1 style={{ font: 'inherit' }}>
-            {realizado !== null ? (
+            {semConferido ? (
+              <>
+                {Quem} não tem receita conferida em {ano}.
+              </>
+            ) : realizado !== null ? (
               ate ? (
                 <>
                   {Ate}, {quem} arrecadou <em>{pct(arrecadado, previsto)}</em> do que o orçamento previa para o ano.
@@ -175,16 +200,19 @@ function Conteudo({ ano, entidade, filtros, dados }: PropsDaPagina & { dados: Da
               </>
             )}
           </h1>
+          {receitaBruta && <p className="nota-serif">Valores da {RECEITA_BRUTA}.</p>}
         </div>
         <div className="abertura-lado">
           <p className="capitular">
-            {realizado === null
-              ? 'Não há previsão de receita publicada para este recorte. '
-              : diferenca >= 0
-                ? `Entraram ${porExtenso(diferenca)} a mais que os ${porExtenso(previsto)} previstos. `
-                : nomeDoMes
-                  ? `Faltam ${porExtenso(-diferenca)} para os ${porExtenso(previsto)} previstos para o ano. `
-                  : `Faltaram ${porExtenso(-diferenca)} para a meta de ${porExtenso(previsto)}. `}
+            {semConferido
+              ? 'O cartão abaixo diz por quê; o que cada fonte registra está em Discrepâncias. '
+              : realizado === null
+                ? 'Não há previsão de receita publicada para este recorte. '
+                : diferenca >= 0
+                  ? `Entraram ${porExtenso(diferenca)} a mais que os ${porExtenso(previsto)} previstos. `
+                  : nomeDoMes
+                    ? `Faltam ${porExtenso(-diferenca)} para os ${porExtenso(previsto)} previstos para o ano. `
+                    : `Faltaram ${porExtenso(-diferenca)} para a meta de ${porExtenso(previsto)}. `}
             {deFora > 0 &&
               `Repasses da União e do Estado responderam por ${pct(deFora, arrecadado)} do total; o restante saiu de impostos, taxas e tarifas cobrados aqui.`}
           </p>
@@ -203,11 +231,13 @@ function Conteudo({ ano, entidade, filtros, dados }: PropsDaPagina & { dados: Da
         </Numero>
         <Numero
           rotulo={`Arrecadado${ate ? ` ${ate}` : ''}`}
-          detalhe={moeda(arrecadado)}
+          detalhe={semConferido ?? moeda(arrecadado)}
           selo={
             <>
               {exemplo ? (
                 <Selo selo={SELO_EXEMPLO} />
+              ) : fonteUnica ? (
+                <Selo selo={SELO_FONTE_UNICA} />
               ) : (
                 <Selo semLink selo={seloConferidoComTce(parcial ? mesReceita : null)} />
               )}
@@ -215,11 +245,11 @@ function Conteudo({ ano, entidade, filtros, dados }: PropsDaPagina & { dados: Da
             </>
           }
         >
-          <Mi valor={arrecadado} />
+          {semConferido ? '—' : <Mi valor={arrecadado} />}
         </Numero>
         <Numero
           rotulo={`Realizado${ate ? ` ${ate}` : ''}`}
-          detalhe={realizado === null ? undefined : 'arrecadado conferido ÷ previsto para o ano'}
+          detalhe={realizado === null ? undefined : `arrecadado${conferido} ÷ previsto para o ano`}
           vermelho
           barra={realizado ?? undefined}
         >
@@ -233,17 +263,17 @@ function Conteudo({ ano, entidade, filtros, dados }: PropsDaPagina & { dados: Da
           >
             <Mi valor={deducoes} />
           </Numero>
-        ) : pop ? (
+        ) : pop && !semConferido ? (
           <Numero
             rotulo={`Por morador${ate ? ` ${ate}` : ''}`}
-            detalhe={`arrecadado conferido ÷ ${numero(pop.pessoas)} moradores (${pop.fonte})`}
+            detalhe={`arrecadado${conferido} ÷ ${numero(pop.pessoas)} moradores (${pop.fonte})`}
           >
             R$ {numero(Math.round(arrecadado / pop.pessoas))}
           </Numero>
         ) : null}
       </Numeros>
 
-      {!exemplo && (
+      {!exemplo && !fonteUnica && (
         <SecaoDaConta titulo="Como se chega ao arrecadado">
           <ContaDaReceita explicada conferencia={dados.conferencia} />
         </SecaoDaConta>

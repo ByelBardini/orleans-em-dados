@@ -23,13 +23,15 @@ import {
 } from '../format';
 import {
   ateOMes,
+  AvisosDaConferencia,
   ContaDaDespesa,
   ContaDaReceita,
   SecaoDaConta,
   LINK_DISCREPANCIAS,
+  motivoSemConferido,
   SemConferencia,
 } from '../conferido';
-import { motivoSemConferencia } from '../semConferencia';
+import { avisoDeFonteUnica, motivoSemConferencia, RECEITA_BRUTA } from '../semConferencia';
 import { AvisoDeAtraso, Selo } from '../selo';
 import { SELO_EXEMPLO, SELO_FONTE_UNICA, seloConferidoComTce, seloDaDespesa } from '../selos';
 import { GLOSSARIO, ORIGEM_CIDADAO, ORIGENS_DE_FORA, sujeito } from '../referencias';
@@ -55,10 +57,10 @@ export default function Financas({ ano, entidade, filtros }: PropsDaPagina) {
         carregando={rec.carregando || emp.carregando || desp.carregando}
         erro={rec.erro || emp.erro || desp.erro}
       />
-      {r && d && o && !r.meta.exemplo && !r.conferencia.disponivel && (
+      {r && d && o && !r.meta.exemplo && !r.conferencia.disponivel && !r.conferencia.fonteUnica && (
         <SemConferencia ano={ano} faltando={r.conferencia.faltando} foraDaFonte={r.conferencia.foraDaFonte} />
       )}
-      {r && d && o && (r.meta.exemplo || r.conferencia.disponivel) && (
+      {r && d && o && (r.meta.exemplo || r.conferencia.disponivel || r.conferencia.fonteUnica) && (
         <Conteudo ano={ano} entidade={entidade} r={r} d={d} o={o} pop={pop} entidades={filtros.entidades} />
       )}
     </>
@@ -95,10 +97,27 @@ function Conteudo({
   const original = N(d.totais.empenhado);
   const camara = o.camara;
   const exemplo = r.meta.exemplo;
-  // De 2018 a 2022 o TCE-SC tem as receitas e não os empenhos: a receita é conferida, a despesa não tem número.
+  // De 2015 a 2022 o TCE-SC não tem os empenhos: a despesa é a da Betha, rotulada. Sem número fica só o
+  // ano em que falta coletar o TCE-SC.
+  const despesaUnica = o.conferencia.fonteUnica;
   const semDespesa =
-    !exemplo && !o.conferencia.disponivel ? motivoSemConferencia(ano, o.conferencia.foraDaFonte) : null;
-  const { parcial, limites } = r.conferencia;
+    !exemplo && !o.conferencia.disponivel && !despesaUnica
+      ? motivoSemConferencia(ano, o.conferencia.foraDaFonte)
+      : null;
+  const { parcial, limites, receitaBruta } = r.conferencia;
+  // O TCE-SC não publica as receitas do ano: o arrecadado é da Betha, rotulado, sem conta.
+  const receitaUnica = r.conferencia.fonteUnica;
+  // Conferência disponível e nada conferido: o cartão diz por quê, em vez de R$ 0,0.
+  const semConferido = motivoSemConferido(r.conferencia, ano);
+  // Um aviso só, com o que o TCE-SC não publica nas áreas em fonte única, na ordem do Farol.
+  const daFonteUnica = [
+    ...(receitaUnica ? (r.conferencia.foraDaFonte ?? []) : []),
+    ...(despesaUnica ? (o.conferencia.foraDaFonte ?? []) : []),
+  ];
+  const foraDaFonte = ['tcesc_receitas', 'tcesc_empenhos'].filter((c) => daFonteUnica.includes(c));
+  const avisoDaFonte = foraDaFonte.length
+    ? avisoDeFonteUnica(foraDaFonte, ano, receitaUnica ? undefined : 'da despesa')
+    : null;
   const mesReceita = limites?.mesReceita;
   const dataCorte = o.conferencia.limites?.dataEmpenho;
   const ate = ateOMes(parcial, mesReceita, ano);
@@ -145,10 +164,17 @@ function Conteudo({
 
   return (
     <>
+      <AvisosDaConferencia ano={ano} fonteUnica={avisoDaFonte} lacunas={r.conferencia.entidadesSemBetha} />
       <div className="abertura">
         <h1 className="manchete">
-          {ate ? ate.charAt(0).toLocaleUpperCase('pt-BR') + ate.slice(1) : `Em ${ano}`}, {quem} arrecadou{' '}
-          <em>{porExtenso(arrecadado)}</em>
+          {ate ? ate.charAt(0).toLocaleUpperCase('pt-BR') + ate.slice(1) : `Em ${ano}`}, {quem}{' '}
+          {semConferido ? (
+            'não tem receita conferida'
+          ) : (
+            <>
+              arrecadou <em>{porExtenso(arrecadado)}</em>
+            </>
+          )}
           {temDespesa ? (
             <>
               {parcial ? ` e, até ${diaEMes(dataCorte)}, empenhou ` : ' e empenhou '}
@@ -161,6 +187,7 @@ function Conteudo({
           )}
         </h1>
         <div className="abertura-lado">
+          {receitaBruta && <p className="nota-serif">Receita: valores da {RECEITA_BRUTA}.</p>}
           <p className="capitular">
             {principalOrigem && (
               <>
@@ -203,15 +230,18 @@ function Conteudo({
         <Numero
           rotulo={`Arrecadado${ate ? ` ${ate}` : ''}`}
           detalhe={
-            previsto > 0
+            semConferido ??
+            (previsto > 0
               ? `${pct(arrecadado, previsto)} dos ${emMilhoes(previsto)} previstos para o ano (orçamento: fonte única, sem conferência)`
-              : 'sem previsão'
+              : 'sem previsão')
           }
-          barra={previsto > 0 ? (arrecadado / previsto) * 100 : undefined}
+          barra={previsto > 0 && !semConferido ? (arrecadado / previsto) * 100 : undefined}
           selo={
             <>
               {exemplo ? (
                 <Selo selo={SELO_EXEMPLO} />
+              ) : receitaUnica ? (
+                <Selo selo={SELO_FONTE_UNICA} />
               ) : (
                 <Selo semLink selo={seloConferidoComTce(parcial ? mesReceita : null)} />
               )}
@@ -219,7 +249,7 @@ function Conteudo({
             </>
           }
         >
-          <Mi valor={arrecadado} />
+          {semConferido ? '—' : <Mi valor={arrecadado} />}
         </Numero>
         {temDespesa ? (
           <>
@@ -230,6 +260,8 @@ function Conteudo({
                 <>
                   {exemplo ? (
                     <Selo selo={SELO_EXEMPLO} />
+                  ) : despesaUnica ? (
+                    <Selo selo={SELO_FONTE_UNICA} />
                   ) : (
                     <Selo semLink={o.conferencia.totalBetha !== null} selo={seloDaDespesa(o.conferencia)} />
                   )}
@@ -262,7 +294,7 @@ function Conteudo({
             —
           </Numero>
         )}
-        {pop && (
+        {pop && !semConferido && (
           <Numero
             rotulo={`Arrecadado aqui, por morador${ate ? `, ${ate}` : ''}`}
             detalhe={`impostos, taxas e tarifas da cidade ÷ ${numero(pop.pessoas)} moradores (${pop.fonte}). Com os repasses, R$ ${numero(Math.round(arrecadado / pop.pessoas))}`}
@@ -272,10 +304,12 @@ function Conteudo({
         )}
       </Numeros>
 
-      {!exemplo && (
+      {!exemplo && (r.conferencia.disponivel || (temDespesa && o.conferencia.disponivel)) && (
         <SecaoDaConta titulo="Como se chega a estes números">
-          <ContaDaReceita explicada titulo="A conta da receita" conferencia={r.conferencia} />
-          {temDespesa && (
+          {r.conferencia.disponivel && (
+            <ContaDaReceita explicada titulo="A conta da receita" conferencia={r.conferencia} />
+          )}
+          {temDespesa && o.conferencia.disponivel && (
             <ContaDaDespesa
               explicada
               titulo="A conta da despesa"
@@ -441,8 +475,8 @@ function Conteudo({
           ? `Empenhado e pago são os valores do TCE-SC nos empenhos casados com a Betha até ${data(dataCorte)}.`
           : 'Empenhado e pago são a despesa orçamentária (consulta 57170), já descontadas as anulações.'}{' '}
         As divisões por órgão e por mês usam o valor original de cada empenho (consulta 57140)
-        {exemplo ? '' : ', só dos empenhos casados com o TCE-SC'}. A Câmara Municipal não está no portal Betha: seus
-        valores vêm do TCE-SC, sem conferência, e aparecem à parte.
+        {exemplo || despesaUnica ? '' : ', só dos empenhos casados com o TCE-SC'}. A Câmara Municipal não está no portal
+        Betha: seus valores vêm do TCE-SC, sem conferência, e aparecem à parte.
       </p>
       <Fonte meta={r.meta} />
       <Fonte meta={o.meta} />
