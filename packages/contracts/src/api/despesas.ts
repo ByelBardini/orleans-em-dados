@@ -1,27 +1,34 @@
 import { z } from 'zod';
 import { entidadeSchema, limitesDaConferenciaSchema, metaSchema, valorSchema } from './comuns';
 
-// Só as entidades conferidas entram em `totais`. O orçado existe só na Betha: fonte única.
+// Só as entidades conferidas entram em `totais`; no ano que o TCE-SC não publica (`conferencia.fonteUnica`),
+// os totais são os da 57170 inteira, sem conferência. O orçado existe só na Betha: fonte única.
 export const despesasResumoSchema = z.strictObject({
   meta: metaSchema,
   fonteUnica: z.tuple([z.literal('orcadoAtualizado')]),
-  conferencia: z.strictObject({
-    disponivel: z.boolean(),
-    parcial: z.boolean().nullable(),
-    limites: limitesDaConferenciaSchema.nullable(),
-    aguardandoTce: valorSchema,
-    // A conta do empenhado no exercício encerrado: conferido + diferencaBetha = totalBetha (57170).
-    // Nula no ano em curso: o aguardando é valor original da Betha, o conferido é líquido do TCE-SC.
-    diferencaBetha: valorSchema,
-    totalBetha: valorSchema,
-    entidadesConferidas: z.number().nullable(),
-    entidadesFora: z.number().nullable(),
-    // Só quando não há conferência: as consultas que faltam publicar.
-    faltando: z.array(z.string()).optional(),
-    // Das que faltam, as que a fonte não publica naquele exercício (o Farol: receitas desde 2018,
-    // empenhos desde 2023). Ausente quando não há nenhuma.
-    foraDaFonte: z.array(z.string()).optional(),
-  }),
+  conferencia: z
+    .strictObject({
+      disponivel: z.boolean(),
+      parcial: z.boolean().nullable(),
+      limites: limitesDaConferenciaSchema.nullable(),
+      aguardandoTce: valorSchema,
+      // A conta do empenhado no exercício encerrado: conferido + diferencaBetha = totalBetha (57170).
+      // Nula no ano em curso: o aguardando é valor original da Betha, o conferido é líquido do TCE-SC.
+      diferencaBetha: valorSchema,
+      totalBetha: valorSchema,
+      entidadesConferidas: z.number().nullable(),
+      entidadesFora: z.number().nullable(),
+      // Só quando não há conferência: as consultas que faltam publicar.
+      faltando: z.array(z.string()).optional(),
+      // Das que faltam, as que a fonte não publica naquele exercício (o Farol: receitas desde 2018,
+      // empenhos desde 2023). Ausente quando não há nenhuma.
+      foraDaFonte: z.array(z.string()).optional(),
+      // O TCE-SC não publica o exercício: os números são só da Betha, sem conferência.
+      fonteUnica: z.boolean(),
+    })
+    .refine((c) => !c.fonteUnica || (c.entidadesConferidas === null && !c.disponivel), {
+      message: 'Fonte única não tem entidade conferida',
+    }),
   totais: z.strictObject({
     orcadoAtualizado: valorSchema,
     empenhado: valorSchema,

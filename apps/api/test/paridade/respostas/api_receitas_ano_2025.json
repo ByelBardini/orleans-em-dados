@@ -42,7 +42,11 @@
       "diferencaTce": 0,
       "aguardandoTce": 0,
       "totalBetha": 1945000.25,
-      "totalTce": 1895000.25
+      "totalTce": 1895000.25,
+      "fonteUnica": false,
+      "receitaBruta": false,
+      "deducaoSoTce": null,
+      "entidadesSemBetha": []
     },
     "totais": {
       "quantidade": 6,
@@ -108,6 +112,7 @@
       {
         "chave": "728|17115101000000",
         "rubrica": "17115101000000",
+        "natureza": "17115101000000",
         "nivel": 14,
         "descricao": "Cota-parte FPM (exemplo)",
         "entidade": "Prefeitura",
@@ -118,6 +123,7 @@
       {
         "chave": "728|11125001000000",
         "rubrica": "11125001000000",
+        "natureza": "11125001000000",
         "nivel": 14,
         "descricao": "IPTU (exemplo)",
         "entidade": "Prefeitura",
@@ -128,6 +134,7 @@
       {
         "chave": "319|17135011",
         "rubrica": "17135011",
+        "natureza": "17135011",
         "nivel": 8,
         "descricao": "Transferência SUS",
         "entidade": "FMS",

@@ -26,6 +26,7 @@ Esquema PostgreSQL, migrações e conexão. Vive em `packages/db/` (pacote `@orl
 - `ibge_valores` — `localidade` é o código do IBGE (`4211702` Orleans, `42` Santa Catarina, `1` Brasil). `valor` `NUMERIC(18,3)` (contagem, área, mil reais), `NULL` quando o SIDRA traz símbolo, guardado em `simbolo`. `categoria` vazia quando a tabela não tem classificação.
 - `educacao_valores`, `educacao_financas` — o caderno de Educação, migrações `0004` e `0005`; modelo e indicadores em [educacao.md](educacao.md).
 - `0006_ipca` só registra a consulta `ibge_ipca` (900108), gravada em `ibge_valores`.
+- `receitas.natureza` e `receitas.deducao` (`0007`) — colunas geradas (`generatedAlwaysAs`, `STORED`) da `rubrica`: rubrica de 15 dígitos com `4`/`9` na frente (a Betha até 2019) perde a classe, e `9` é dedução; o resto sai igual, com `deducao = false`. Valem para coleta já gravada, sem recoleta; `rubrica` segue como a fonte publica. Escrita direta é recusada. Índice `(coleta_id, natureza)`.
 - `siconfi_funcoes` — `etapa` `empenhado`, `liquidado`, `pago`, `rp_nao_processados`, `rp_processados`; `tipo` `total` (sem `funcao_codigo`), `funcao`, `subfuncao` (`10.301` ou `FU12`).
 
 ## Funções e utilitários
@@ -36,7 +37,8 @@ Esquema PostgreSQL, migrações e conexão. Vive em `packages/db/` (pacote `@orl
 
 - Mudança de banco: edita `src/schema.ts`, roda `pnpm --filter @orleans-em-dados/db gerar` e revisa o SQL em `drizzle/`. Catálogo (fontes, consultas) entra por `INSERT` à mão no SQL gerado.
 - Banco antigo (tabela `migracoes` com as duas migrações originais) recebe a baseline como aplicada, sem DDL. Só parte delas: `migrar` recusa citando o que falta.
-- Nomes de restrição e índice em `schema.ts` são os que o Postgres deu às migrações originais: `migracoes.spec.ts` compara o catálogo de três bancos (migrado, SQL original, DDL gerada do `schema.ts`).
+- Nomes de restrição e índice em `schema.ts` são os que o Postgres deu às migrações originais: `migracoes.spec.ts` compara o catálogo de três bancos (migrado, SQL original, DDL gerada do `schema.ts`). Coluna ou índice novo em tabela original entra em `COLUNAS_NOVAS`/`INDICES_NOVOS` do spec.
+- Migração escrita à mão (ou editada) vai sem BOM: o `Set-Content -Encoding utf8` do PowerShell 5.1 grava BOM e o Postgres recusa o arquivo.
 
 ## Regras de negócio
 

@@ -64,6 +64,34 @@ entidades) + Câmara = total TCE, sem dupla contagem.
 A série mensal confirma que o sufixo `_N` do ID Betha é o mês. Em 2024, 9 dos 12 meses são
 idênticos.
 
+#### Os anos antigos: formato bruto e lacunas da Betha
+
+Visto no banco local, em 23/11/2026, com as coletas de 2015 a 2026:
+
+- **Formato antigo, até 2019.** A Betha grava a rubrica com 15 dígitos e um dígito de classe na frente
+  (`4` receita, `9` dedução: `417280111010000`); de 2020 em diante, com 14 (`17215001000000`). A estrutura
+  nova da natureza vale para municípios desde 2018, mas a Betha de Orleans manteve o prefixo até 2019. Sem
+  tirar esse dígito, nenhuma natureza casava, e 2018 e 2019 conferiam R$ 0.
+- **Receita bruta.** Nesse formato, a Betha publica a receita antes da dedução do FUNDEB, e as linhas de
+  classe 9 vêm com o arrecadado zerado (só o orçado da dedução). O TCE-SC traz o bruto e a dedução em
+  linhas separadas. O bruto bate ao centavo: o ICMS de 2019 é R$ 20.814.864,27 nas duas fontes.
+- **Com bruto × bruto,** a receita da Betha confere 100%: R$ 74.885.914,21 em 2018 e R$ 82.089.384,20
+  em 2019. O que fica só no TCE-SC é a dedução do FUNDEB (−R$ 7.200.631,62 em 2018 e −R$ 7.939.733,75 em
+  2019), exibida em nota, e as entidades que a Betha não publica.
+
+| Exercício | Entidade sem receita na Betha | O TCE-SC registra |
+| --------- | ----------------------------- | ----------------: |
+| 2018      | FMS                           |   R$ 8.570.068,10 |
+| 2018      | Fundação Ambiental            |     R$ 115.771,30 |
+| 2019      | FMS                           |  R$ 10.426.557,06 |
+| 2019      | Fundação Ambiental            |     R$ 136.137,26 |
+| 2020      | Prefeitura                    |  R$ 74.677.758,70 |
+| 2020      | Fundação Ambiental            |     R$ 130.363,82 |
+
+Em 2020, a consulta 57153 devolve 221 linhas, só do SAMAE e do FMS, e o totalizador da própria Betha
+bate com elas: a falta é da fonte, não da coleta. Os empenhos da Prefeitura de 2020 estão na 57140.
+**Não foi provado** por que a Betha não publica essas receitas; o painel só diz que ela não as publica.
+
 ### Empenhos individuais (Betha 57140 × TCE)
 
 Casamento 1:1 por entidade + número + data + valor original:

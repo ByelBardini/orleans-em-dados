@@ -6,15 +6,22 @@ import {
   contaNaTela,
   despesas,
   despesasDeExemplo,
+  despesasFonteUnica,
   despesasForaDaFonte,
+  empenhosFonteUnica,
   empenhosForaDaFonte,
   despesasParciais,
   despesasSemConferencia,
   ENTIDADE_FORA,
   entidadeDaDespesa,
+  PREFEITURA_SEM_BETHA,
   PROPS,
   receitas,
+  receitasBrutas,
+  receitasComLacuna,
   receitasDeExemplo,
+  receitasFonteUnica,
+  receitasSemConferido,
   receitasParciais,
   receitasSemConferencia,
   TEXTO_PROIBIDO,
@@ -222,7 +229,122 @@ describe('Finanças com o conferido', () => {
   });
 });
 
-// De 2018 a 2022 o Farol tem as receitas e não os empenhos: a receita é conferida, a despesa não tem número.
+describe('Finanças com a receita só da Betha, no ano que o TCE-SC não publica', () => {
+  it('o arrecadado tem número e o selo de fonte única, e o aviso fica acima da manchete', async () => {
+    await abrir({ receita: receitasFonteUnica(), despesa: despesasForaDaFonte(), empenhos: empenhosForaDaFonte() });
+
+    expect(celula('Arrecadado').querySelector('.numero-valor')).toHaveTextContent('1,2 mi');
+    expect(within(celula('Arrecadado')).getByText('fonte única, sem conferência')).toBeInTheDocument();
+    const aviso = screen.getByText(/^O TCE-SC não publica as receitas de 2025\. Os números/);
+    expect(
+      aviso.compareDocumentPosition(screen.getByRole('heading', { level: 1 })) & Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBe(Node.DOCUMENT_POSITION_FOLLOWING);
+  });
+
+  it('não mostra a conta da receita', async () => {
+    await abrir({ receita: receitasFonteUnica(), despesa: despesasForaDaFonte(), empenhos: empenhosForaDaFonte() });
+
+    expect(screen.queryByRole('group', { name: 'A conta da receita' })).not.toBeInTheDocument();
+  });
+});
+
+describe('Finanças com a receita bruta e a lacuna da Betha', () => {
+  it('a receita bruta é rotulada, e a dedução do TCE-SC sai em nota, fora do conferido', async () => {
+    await abrir({ receita: receitasBrutas(-790000.4) });
+
+    expect(screen.getByText(/receita bruta, antes da dedução do FUNDEB/)).toBeInTheDocument();
+    expect(screen.getByRole('group', { name: 'A conta da receita' })).toHaveTextContent(
+      /O TCE-SC registra a dedução do FUNDEB de R\$\s790\.000,40/,
+    );
+  });
+
+  it('a entidade que a Betha não publica tem aviso em destaque, com link para Discrepâncias', async () => {
+    await abrir({ receita: receitasComLacuna() });
+
+    const aviso = screen.getByText(/A Betha não publica a receita da Prefeitura em 2025/).closest('.aviso');
+    expect(within(aviso as HTMLElement).getByRole('link', { name: /Ver discrepâncias/ })).toBeInTheDocument();
+  });
+
+  it('sem nada conferido, o cartão do arrecadado não mostra R$ 0,0', async () => {
+    await abrir({ receita: receitasSemConferido([PREFEITURA_SEM_BETHA]) });
+
+    expect(celula('Arrecadado').querySelector('.numero-valor')).not.toHaveTextContent('0,0');
+    expect(celula('Arrecadado')).toHaveTextContent('A Betha não publica a receita da Prefeitura em 2025');
+  });
+});
+
+// De 2018 a 2022 o Farol tem as receitas e não os empenhos: a receita é conferida, a despesa é só da Betha.
+describe('Finanças com a receita conferida e a despesa em fonte única', () => {
+  const abrirDespesaUnica = () => abrir({ despesa: despesasFonteUnica(), empenhos: empenhosFonteUnica() });
+
+  it('cada cartão tem o próprio selo: o arrecadado conferido, o empenhado fonte única', async () => {
+    await abrirDespesaUnica();
+
+    expect(within(celula('Arrecadado')).getByText(/^conferido com o TCE-SC/)).toBeInTheDocument();
+    expect(within(celula('Empenhado')).getByText('fonte única, sem conferência')).toBeInTheDocument();
+    expect(celula('Empenhado').querySelector('.numero-valor')).toHaveTextContent('10,8 mi');
+  });
+
+  it('o aviso diz que o TCE-SC não publica os empenhos e que só a despesa é da Betha', async () => {
+    await abrirDespesaUnica();
+
+    expect(
+      screen.getByText(
+        'O TCE-SC não publica os empenhos de 2025. Os números da despesa são só da Betha, sem conferência.',
+      ),
+    ).toBeInTheDocument();
+  });
+
+  it('"Quem gasta" e "Para onde vai cada R$ 100" voltam', async () => {
+    await abrirDespesaUnica();
+
+    expect(screen.getByRole('heading', { name: 'Para onde vai cada R$ 100' })).toBeInTheDocument();
+    const quem = screen.getByRole('heading', { name: 'Quem gasta' }).closest('section') as HTMLElement;
+    expect(quem).not.toHaveTextContent('O TCE-SC não publica');
+  });
+
+  // Mordida: a despesa em fonte única não tem conta, nem o link do conferido.
+  it('o empenhado não leva a Discrepâncias, e só a receita tem conta', async () => {
+    await abrirDespesaUnica();
+
+    expect(within(celula('Empenhado')).queryByRole('link', { name: /Ver discrepâncias/ })).not.toBeInTheDocument();
+    expect(screen.getByRole('group', { name: 'A conta da receita' })).toBeInTheDocument();
+    expect(screen.queryByRole('group', { name: 'A conta da despesa' })).not.toBeInTheDocument();
+  });
+
+  it('o rodapé não diz que os empenhos foram casados com o TCE-SC', async () => {
+    await abrirDespesaUnica();
+
+    expect(document.body).not.toHaveTextContent('só dos empenhos casados com o TCE-SC');
+  });
+});
+
+describe('Finanças de um ano só da Betha, na receita e na despesa', () => {
+  it('um aviso só, com as duas consultas que o TCE-SC não publica', async () => {
+    const despesa = despesasFonteUnica();
+    await abrir({
+      receita: receitasFonteUnica(),
+      despesa: {
+        ...despesa,
+        conferencia: {
+          ...despesa.conferencia,
+          faltando: ['tcesc_receitas', 'tcesc_empenhos'],
+          foraDaFonte: ['tcesc_receitas', 'tcesc_empenhos'],
+        },
+      },
+      empenhos: empenhosFonteUnica(),
+    });
+
+    expect(
+      screen.getByText(
+        'O TCE-SC não publica as receitas nem os empenhos de 2025. Os números são só da Betha, sem conferência.',
+      ),
+    ).toBeInTheDocument();
+    expect(within(totais()).getAllByText('fonte única, sem conferência')).toHaveLength(2);
+  });
+});
+
+// O estado de antes da fonte única: a despesa sem número nenhum.
 describe('Finanças com a receita conferida e a despesa fora da fonte', () => {
   const abrirSemDespesa = () => abrir({ despesa: despesasForaDaFonte(), empenhos: empenhosForaDaFonte() });
 

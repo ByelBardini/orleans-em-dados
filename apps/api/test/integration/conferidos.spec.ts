@@ -131,6 +131,11 @@ describe('exercício encerrado', () => {
         aguardandoTce: 0,
         totalBetha: 860000.8,
         totalTce: 855428.92,
+        fonteUnica: false,
+        receitaBruta: false,
+        deducaoSoTce: null,
+        // O SAMAE só tem receita no TCE-SC neste cenário: é a diferença do TCE-SC inteira.
+        entidadesSemBetha: [{ codigo: '2473', entidade: 'SAMAE', totalTce: 428.37 }],
       });
     });
 
@@ -192,12 +197,14 @@ describe('exercício encerrado', () => {
         get('/api/receitas?ano=2025'),
       ]);
       const [cabecalho, ...linhas] = csv.replace('﻿', '').trim().split('\r\n');
-      expect(cabecalho).toBe('Rubrica;Descrição;Entidade;Orçado atualizado;Arrecadado conferido');
+      expect(cabecalho).toBe('Rubrica;Natureza;Descrição;Entidade;Orçado atualizado;Arrecadado conferido');
       const doCsv = linhas.map((l: string) => {
         const c = l.split(';');
-        return [c[0], Number((c[4] ?? '').replace(',', '.'))];
+        return [c[0], c[1], Number((c[5] ?? '').replace(',', '.'))];
       });
-      expect(doCsv).toEqual(json.naturezas.map((n: Natureza) => [n.rubrica, n.arrecadadoNoMes]));
+      expect(doCsv).toEqual(
+        json.naturezas.map((n: Natureza & { natureza: string }) => [n.rubrica, n.natureza, n.arrecadadoNoMes]),
+      );
     });
   });
 
@@ -304,7 +311,7 @@ describe('exercício encerrado', () => {
         aguardandoTce: 0,
         emDiscrepancia: 2,
       });
-      expect(corpo.conferencia).toEqual({ disponivel: true, parcial: false, dataCorte: null });
+      expect(corpo.conferencia).toEqual({ disponivel: true, parcial: false, dataCorte: null, fonteUnica: false });
     });
 
     it('nem credor nem maiores trazem o registro retirado', async () => {
@@ -498,7 +505,7 @@ describe('ano em curso', () => {
 
   it('o resumo de empenhos diz o corte e conta o posterior em excluidos', async () => {
     const { corpo } = await get('/api/despesas/empenhos/resumo?ano=2025');
-    expect(corpo.conferencia).toEqual({ disponivel: true, parcial: true, dataCorte: '2025-02-05' });
+    expect(corpo.conferencia).toEqual({ disponivel: true, parcial: true, dataCorte: '2025-02-05', fonteUnica: false });
     expect(corpo.porMes.map((m: { chave: number }) => m.chave)).toEqual([1, 2]);
     // Sem par: o 12 e a cópia do 13. Depois do corte: o 77.
     expect(corpo.totais).toMatchObject({ excluidos: 3, aguardandoTce: 1, emDiscrepancia: 2 });
@@ -622,6 +629,11 @@ describe('ano sem a coleta do TCE-SC', () => {
       totalTce: null,
       // A receita só depende das receitas das duas fontes: os empenhos do TCE-SC não entram no que falta.
       faltando: ['tcesc_receitas'],
+      // O TCE-SC publica 2025: a falta é da coleta, então não é fonte única.
+      fonteUnica: false,
+      receitaBruta: false,
+      deducaoSoTce: null,
+      entidadesSemBetha: [],
     });
     expect(corpo.totais.arrecadadoNoMes).toBeNull();
     expect(corpo.totais.orcadoAtualizado).toBe(9400000);
@@ -658,6 +670,8 @@ describe('ano sem a coleta do TCE-SC', () => {
       parcial: null,
       dataCorte: null,
       faltando: ['tcesc_receitas', 'tcesc_empenhos'],
+      // O TCE-SC publica 2025: a falta é da coleta, então não é fonte única.
+      fonteUnica: false,
     });
   });
 

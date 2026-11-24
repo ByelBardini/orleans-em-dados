@@ -40,7 +40,8 @@
       "diferencaBetha": null,
       "totalBetha": null,
       "entidadesConferidas": 2,
-      "entidadesFora": 0
+      "entidadesFora": 0,
+      "fonteUnica": false
     },
     "totais": {
       "orcadoAtualizado": 1600000,

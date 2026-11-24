@@ -14,6 +14,8 @@ import type {
   EmpenhoSemPar,
   EmpenhosAguardando,
   EmpenhosPorEntidade,
+  EntidadeSemBetha,
+  FormatoDaReceita,
   Limites,
   LinhaDeReceita,
   LinhaNatureza,
@@ -36,9 +38,17 @@ const coleta = (chave: string) =>
   `(SELECT p.coleta_id FROM publicacoes p JOIN consultas q ON q.id = p.consulta_id WHERE q.chave = '${chave}' AND p.ano = $1)`;
 
 // Natureza da receita no nível comum às duas fontes: 8 dígitos
-// (Betha 17135011000000 ↔ TCE 1.7.1.3.50.1.1).
-const NAT_BETHA = 'left(rubrica, 8)';
+// (Betha 17135011000000 ↔ TCE 1.7.1.3.50.1.1). A `natureza` da Betha é a rubrica sem o
+// dígito de classe que ela publica até 2019 (coluna gerada).
+const NAT_BETHA = 'left(natureza, 8)';
 const NAT_TCE = `left(replace(codigo, '.', ''), 8)`;
+
+// Formato bruto: a Betha publica linhas de dedução (até 2019, com o arrecadado zerado) e a receita
+// antes da dedução do FUNDEB. Aí o TCE-SC entra só com as linhas de receita, sem as de dedução;
+// fora dele, entra líquido, como a Betha. As linhas de dedução da Betha nunca entram.
+const BETHA_BRUTA = `EXISTS (SELECT 1 FROM receitas WHERE coleta_id = ${coleta('receitas')} AND deducao)`;
+const RECEITA_TCE = `(tipo_deducao IS NULL OR NOT ${BETHA_BRUTA})`;
+const RECEITA_BETHA = 'NOT deducao';
 
 // $2: último mês que o TCE já recebeu. Meses sem sufixo na Betha entram sempre.
 const MES_BETHA = '(mes IS NULL OR mes <= $2)';
@@ -118,27 +128,29 @@ const CONSULTAS = {
   // Betha 57153 (valorArrecadadoNoMes, com sinais) × TCE (valorarrecadado, líquido de deduções).
   receitaPorEntidade: `
     WITH b AS (SELECT entidade_codigo, sum(valor_arrecadado_mes) v FROM receitas
-               WHERE coleta_id = ${coleta('receitas')} AND ${MES_BETHA} GROUP BY 1),
+               WHERE coleta_id = ${coleta('receitas')} AND ${RECEITA_BETHA} AND ${MES_BETHA} GROUP BY 1),
          t AS (SELECT unidade, sum(valor_arrecadado) v FROM tcesc_receitas
-               WHERE coleta_id = ${coleta('tcesc_receitas')} AND mes <= $2 GROUP BY 1)
+               WHERE coleta_id = ${coleta('tcesc_receitas')} AND ${RECEITA_TCE} AND mes <= $2 GROUP BY 1)
     SELECT u.sigla, u.entidade_betha AS "codigoEntidade", b.v AS betha, t.v AS tce, coalesce(b.v, 0) - coalesce(t.v, 0) AS diferenca
     FROM unidades_tce u LEFT JOIN b ON b.entidade_codigo = u.entidade_betha LEFT JOIN t ON t.unidade = u.nome
     WHERE b.v IS NOT NULL OR t.v IS NOT NULL ORDER BY t.v DESC NULLS LAST`,
 
   // O mês Betha é inferido do sufixo _N do ID; a igualdade mês a mês testa essa inferência.
   receitaPorMes: `
-    WITH b AS (SELECT mes, sum(valor_arrecadado_mes) v FROM receitas WHERE coleta_id = ${coleta('receitas')} GROUP BY 1),
-         t AS (SELECT mes, sum(valor_arrecadado) v FROM tcesc_receitas WHERE coleta_id = ${coleta('tcesc_receitas')} GROUP BY 1)
+    WITH b AS (SELECT mes, sum(valor_arrecadado_mes) v FROM receitas
+               WHERE coleta_id = ${coleta('receitas')} AND ${RECEITA_BETHA} GROUP BY 1),
+         t AS (SELECT mes, sum(valor_arrecadado) v FROM tcesc_receitas
+               WHERE coleta_id = ${coleta('tcesc_receitas')} AND ${RECEITA_TCE} GROUP BY 1)
     SELECT coalesce(b.mes, t.mes) AS mes, b.v AS betha, t.v AS tce,
            CASE WHEN coalesce(b.mes, t.mes) <= $2 THEN coalesce(b.v, 0) - coalesce(t.v, 0) END AS diferenca
     FROM b FULL JOIN t USING (mes) ORDER BY 1`,
 
   receitaPorNatureza: `
     WITH b AS (SELECT entidade_codigo ent, ${NAT_BETHA} nat, min(descricao) descricao, sum(valor_arrecadado_mes) v
-               FROM receitas WHERE coleta_id = ${coleta('receitas')} AND ${MES_BETHA} GROUP BY 1, 2),
+               FROM receitas WHERE coleta_id = ${coleta('receitas')} AND ${RECEITA_BETHA} AND ${MES_BETHA} GROUP BY 1, 2),
          t AS (SELECT u.entidade_betha ent, ${NAT_TCE} nat, min(natureza) descricao, sum(valor_arrecadado) v
                FROM tcesc_receitas r JOIN unidades_tce u ON u.nome = r.unidade
-               WHERE coleta_id = ${coleta('tcesc_receitas')} AND mes <= $2 GROUP BY 1, 2)
+               WHERE coleta_id = ${coleta('tcesc_receitas')} AND ${RECEITA_TCE} AND mes <= $2 GROUP BY 1, 2)
     SELECT ent, coalesce(en.sigla, ent) AS entidade, nat AS natureza, coalesce(t.descricao, b.descricao) AS descricao,
            b.v AS betha, t.v AS tce, coalesce(b.v, 0) - coalesce(t.v, 0) AS diferenca
     FROM b FULL JOIN t USING (ent, nat) LEFT JOIN entidades en ON en.codigo_betha = ent
@@ -181,10 +193,10 @@ const CONSULTAS = {
   // só a soma destas parcelas (inclusive rubricas que batem no ano e mudam de mês).
   receitaMesPorRubrica: `
     WITH b AS (SELECT entidade_codigo ent, ${NAT_BETHA} nat, mes, sum(valor_arrecadado_mes) v
-               FROM receitas WHERE coleta_id = ${coleta('receitas')} AND mes <= $2 GROUP BY 1, 2, 3),
+               FROM receitas WHERE coleta_id = ${coleta('receitas')} AND ${RECEITA_BETHA} AND mes <= $2 GROUP BY 1, 2, 3),
          t AS (SELECT u.entidade_betha ent, ${NAT_TCE} nat, mes, sum(valor_arrecadado) v
                FROM tcesc_receitas r JOIN unidades_tce u ON u.nome = r.unidade
-               WHERE coleta_id = ${coleta('tcesc_receitas')} AND mes <= $2 GROUP BY 1, 2, 3)
+               WHERE coleta_id = ${coleta('tcesc_receitas')} AND ${RECEITA_TCE} AND mes <= $2 GROUP BY 1, 2, 3)
     SELECT mes, ent, coalesce(en.sigla, ent) AS entidade, nat AS natureza, coalesce(b.v, 0) - coalesce(t.v, 0) AS diferenca
     FROM b FULL JOIN t USING (ent, nat, mes) LEFT JOIN entidades en ON en.codigo_betha = ent
     WHERE coalesce(b.v, 0) <> coalesce(t.v, 0)
@@ -193,22 +205,22 @@ const CONSULTAS = {
   // Lançamentos Betha com o mesmo valor, na mesma entidade e mês, em duas
   // rubricas diferentes: pista para diferenças do tipo "só na Betha".
   receitaRepetida: `
-    SELECT a.entidade_codigo ent, ${NAT_BETHA.replace('rubrica', 'a.rubrica')} nat,
-           ${NAT_BETHA.replace('rubrica', 'o.rubrica')} outra, a.mes, a.valor_arrecadado_mes v
+    SELECT a.entidade_codigo ent, ${NAT_BETHA.replace('natureza', 'a.natureza')} nat,
+           ${NAT_BETHA.replace('natureza', 'o.natureza')} outra, a.mes, a.valor_arrecadado_mes v
     FROM receitas a JOIN receitas o
       ON o.coleta_id = a.coleta_id AND o.entidade_codigo = a.entidade_codigo AND o.mes = a.mes
-     AND o.valor_arrecadado_mes = a.valor_arrecadado_mes AND left(o.rubrica, 8) <> left(a.rubrica, 8)
+     AND o.valor_arrecadado_mes = a.valor_arrecadado_mes AND left(o.natureza, 8) <> left(a.natureza, 8)
     WHERE a.coleta_id = ${coleta('receitas')} AND a.valor_arrecadado_mes >= 1000 AND a.mes <= $2`,
 
   // As linhas da 57153 com o mesmo valor em outra natureza do mês e da entidade, de R$ 1,00 para cima:
   // há repetições pequenas reais, e centavos coincidem por acaso. O casamento 1:1 é da regra.
   receitaLinhasRepetidas: `
-    SELECT a.id_externo AS id, a.entidade_codigo ent, ${NAT_BETHA.replace('rubrica', 'a.rubrica')} nat, a.mes, a.valor_arrecadado_mes v
+    SELECT a.id_externo AS id, a.entidade_codigo ent, ${NAT_BETHA.replace('natureza', 'a.natureza')} nat, a.mes, a.valor_arrecadado_mes v
     FROM receitas a
     WHERE a.coleta_id = ${coleta('receitas')} AND a.valor_arrecadado_mes >= 1 AND a.mes <= $2
       AND EXISTS (SELECT 1 FROM receitas o
                   WHERE o.coleta_id = a.coleta_id AND o.entidade_codigo = a.entidade_codigo AND o.mes = a.mes
-                    AND o.valor_arrecadado_mes = a.valor_arrecadado_mes AND left(o.rubrica, 8) <> left(a.rubrica, 8))`,
+                    AND o.valor_arrecadado_mes = a.valor_arrecadado_mes AND left(o.natureza, 8) <> left(a.natureza, 8))`,
 
   // Coerência interna da 57153: o arrecadado no mês deve ser a variação do acumulado
   // da mesma rubrica. Quando não é, a consulta mantém um lançamento que o próprio
@@ -223,35 +235,56 @@ const CONSULTAS = {
 
   // Mesma rubrica com o mesmo valor em dois meses diferentes na Betha.
   receitaRepetidaMeses: `
-    SELECT a.entidade_codigo ent, ${NAT_BETHA.replace('rubrica', 'a.rubrica')} nat, a.mes, o.mes AS "outroMes", a.valor_arrecadado_mes v
+    SELECT a.entidade_codigo ent, ${NAT_BETHA.replace('natureza', 'a.natureza')} nat, a.mes, o.mes AS "outroMes", a.valor_arrecadado_mes v
     FROM receitas a JOIN receitas o
       ON o.coleta_id = a.coleta_id AND o.entidade_codigo = a.entidade_codigo AND o.mes > a.mes
-     AND o.valor_arrecadado_mes = a.valor_arrecadado_mes AND left(o.rubrica, 8) = left(a.rubrica, 8)
+     AND o.valor_arrecadado_mes = a.valor_arrecadado_mes AND left(o.natureza, 8) = left(a.natureza, 8)
     WHERE a.coleta_id = ${coleta('receitas')} AND a.valor_arrecadado_mes >= 1000 AND o.mes <= $2`,
 
   // A separação da receita: entidade × natureza de 8 dígitos × mês, em todos os meses da Betha.
   // A Câmara fica de fora: é fonte única, sem par para conferir.
   receitaCruzamentos: `
     WITH b AS (SELECT entidade_codigo ent, ${NAT_BETHA} nat, mes, min(descricao) descricao, sum(valor_arrecadado_mes) v
-               FROM receitas WHERE coleta_id = ${coleta('receitas')} GROUP BY 1, 2, 3),
+               FROM receitas WHERE coleta_id = ${coleta('receitas')} AND ${RECEITA_BETHA} GROUP BY 1, 2, 3),
          t AS (SELECT u.entidade_betha ent, ${NAT_TCE} nat, mes, min(natureza) descricao, sum(valor_arrecadado) v
                FROM tcesc_receitas r JOIN unidades_tce u ON u.nome = r.unidade
-               WHERE coleta_id = ${coleta('tcesc_receitas')} AND u.entidade_betha IS NOT NULL GROUP BY 1, 2, 3)
+               WHERE coleta_id = ${coleta('tcesc_receitas')} AND u.entidade_betha IS NOT NULL AND ${RECEITA_TCE}
+               GROUP BY 1, 2, 3)
     SELECT ent, coalesce(en.sigla, ent) AS entidade, nat AS natureza, coalesce(t.descricao, b.descricao) AS descricao,
            mes, b.v AS betha, t.v AS tce
     FROM b FULL JOIN t USING (ent, nat, mes) LEFT JOIN entidades en ON en.codigo_betha = ent
     ORDER BY ent, nat, mes`,
 
-  // As rubricas de 14 dígitos da Betha até o corte, para a natureza em que todos os meses batem.
+  // As naturezas de 14 dígitos da Betha até o corte, para a natureza em que todos os meses batem.
   receitaRubricas: `
-    SELECT entidade_codigo ent, rubrica, min(descricao) descricao, sum(valor_arrecadado_mes) valor
-    FROM receitas WHERE coleta_id = ${coleta('receitas')} AND ${MES_BETHA} GROUP BY 1, 2`,
+    SELECT entidade_codigo ent, natureza AS rubrica, min(descricao) descricao, sum(valor_arrecadado_mes) valor
+    FROM receitas WHERE coleta_id = ${coleta('receitas')} AND ${RECEITA_BETHA} AND ${MES_BETHA} GROUP BY 1, 2`,
 
   // O total de cada fonte, somado à parte: é com ele que a conta da separação é conferida.
   receitaTotais: `
-    SELECT (SELECT sum(valor_arrecadado_mes) FROM receitas WHERE coleta_id = ${coleta('receitas')}) AS "totalBetha",
+    SELECT (SELECT sum(valor_arrecadado_mes) FROM receitas
+            WHERE coleta_id = ${coleta('receitas')} AND ${RECEITA_BETHA}) AS "totalBetha",
            (SELECT sum(valor_arrecadado) FROM tcesc_receitas r JOIN unidades_tce u ON u.nome = r.unidade
-            WHERE coleta_id = ${coleta('tcesc_receitas')} AND u.entidade_betha IS NOT NULL) AS "totalTce"`,
+            WHERE coleta_id = ${coleta('tcesc_receitas')} AND u.entidade_betha IS NOT NULL AND ${RECEITA_TCE}) AS "totalTce"`,
+
+  // O formato da coleta da Betha.
+  receitaFormato: `SELECT ${BETHA_BRUTA} AS "receitaBruta"`,
+
+  // A dedução que o TCE-SC registra, por entidade: no bruto, a Betha a publica zerada.
+  receitaDeducoes: `
+    SELECT u.entidade_betha ent, sum(valor_arrecadado) valor
+    FROM tcesc_receitas r JOIN unidades_tce u ON u.nome = r.unidade
+    WHERE coleta_id = ${coleta('tcesc_receitas')} AND u.entidade_betha IS NOT NULL AND tipo_deducao IS NOT NULL
+    GROUP BY 1`,
+
+  // Entidades com receita no TCE-SC e nenhuma linha de receita na Betha: lacuna da fonte, não da coleta.
+  receitaEntidadesSemBetha: `
+    SELECT u.entidade_betha AS codigo, coalesce(en.sigla, u.entidade_betha) AS entidade, sum(valor_arrecadado) AS "totalTce"
+    FROM tcesc_receitas r JOIN unidades_tce u ON u.nome = r.unidade LEFT JOIN entidades en ON en.codigo_betha = u.entidade_betha
+    WHERE r.coleta_id = ${coleta('tcesc_receitas')} AND u.entidade_betha IS NOT NULL AND ${RECEITA_TCE}
+      AND NOT EXISTS (SELECT 1 FROM receitas b WHERE b.coleta_id = ${coleta('receitas')}
+                      AND b.entidade_codigo = u.entidade_betha AND NOT b.deducao)
+    GROUP BY 1, 2 ORDER BY 3 DESC`,
 
   // Modalidade de aplicação 71: dígitos 3-4 da natureza da despesa (33713300000000).
   modalidade71: `
@@ -341,16 +374,36 @@ export async function lerDados(ano: number, mes: number | null, dataLimite: stri
 }
 
 export async function lerReceitaConferida(ano: number, mes: number | null) {
-  const [cruzamentos, rubricas, [totais], linhasRepetidas, incoerentes, repetidasMeses] = await Promise.all([
+  const [
+    cruzamentos,
+    rubricas,
+    [totais],
+    linhasRepetidas,
+    incoerentes,
+    repetidasMeses,
+    [formato],
+    deducoes,
+    entidadesSemBetha,
+  ] = await Promise.all([
     consultar<CruzamentoReceita>(CONSULTAS.receitaCruzamentos, [ano]),
     consultar<RubricaDaReceita>(CONSULTAS.receitaRubricas, [ano, mes]),
     consultar<TotaisDasFontes>(CONSULTAS.receitaTotais, [ano]),
     consultar<LinhaDeReceita>(CONSULTAS.receitaLinhasRepetidas, [ano, mes]),
     consultar<ReceitaIncoerente>(CONSULTAS.receitaIncoerente, [ano, mes]),
     consultar<ReceitaRepetidaMeses>(CONSULTAS.receitaRepetidaMeses, [ano, mes]),
+    consultar<{ receitaBruta: boolean }>(CONSULTAS.receitaFormato, [ano]),
+    consultar<FormatoDaReceita['deducoes'][number]>(CONSULTAS.receitaDeducoes, [ano]),
+    consultar<EntidadeSemBetha>(CONSULTAS.receitaEntidadesSemBetha, [ano]),
   ]);
-  if (!totais) throw new Error(`Consulta de totais da receita sem linha para ${ano}`);
-  return { cruzamentos, rubricas, totais, pistas: { linhasRepetidas, incoerentes, repetidasMeses } };
+  if (!totais || !formato) throw new Error(`Consulta de totais da receita sem linha para ${ano}`);
+  return {
+    cruzamentos,
+    rubricas,
+    totais,
+    formato: { receitaBruta: formato.receitaBruta, deducoes } satisfies FormatoDaReceita,
+    entidadesSemBetha,
+    pistas: { linhasRepetidas, incoerentes, repetidasMeses },
+  };
 }
 
 export async function lerDespesaConferida(ano: number, dataCorte: string | null) {

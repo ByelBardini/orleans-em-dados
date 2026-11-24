@@ -1090,6 +1090,37 @@ const receitaConferida = (cruzamentos: CruzamentoReceita[], pistas: Partial<Pist
     outrosAnos: new Map(),
   });
 
+describe('montarReceitaConferida: formato da coleta', () => {
+  const comFormato = (formato?: { receitaBruta: boolean; deducoes: { ent: string; valor: number }[] }) =>
+    montarReceitaConferida(2019, 12, {
+      cruzamentos: [cruzamento({ betha: 1000, tce: 1000 })],
+      rubricas: [],
+      totais: { totalBetha: 1000, totalTce: 1000 },
+      pistas: SEM_PISTAS,
+      outrosAnos: new Map(),
+      ...(formato ? { formato } : {}),
+      entidadesSemBetha: [{ codigo: '319', entidade: 'FMS', totalTce: 300 }],
+    }).receita;
+
+  it('formato bruto devolve a dedução do TCE-SC à parte, sem mexer no conferido', () => {
+    const receita = comFormato({ receitaBruta: true, deducoes: [{ ent: '728', valor: -200 }] });
+
+    expect(receita).toMatchObject({ receitaBruta: true, deducaoSoTce: -200 });
+    expect(receita.totais.conferido).toBe(1000);
+  });
+
+  it('formato novo não tem dedução à parte, mesmo com dedução no TCE-SC', () => {
+    expect(comFormato({ receitaBruta: false, deducoes: [{ ent: '728', valor: -200 }] })).toMatchObject({
+      receitaBruta: false,
+      deducaoSoTce: null,
+    });
+  });
+
+  it('as entidades sem Betha passam como vieram', () => {
+    expect(comFormato().entidadesSemBetha).toEqual([{ codigo: '319', entidade: 'FMS', totalTce: 300 }]);
+  });
+});
+
 const excesso = (valor: number, nat = '11125001') => ({
   incoerentes: [{ ent: '728', nat, mes: 1, excesso: valor }],
 });

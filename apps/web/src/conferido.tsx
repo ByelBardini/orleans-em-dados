@@ -3,7 +3,13 @@
 import type { DespesasResumo, Receitas } from '@orleans-em-dados/contracts';
 import type { ReactNode } from 'react';
 import { MESES_LONGOS, moeda } from './format';
-import { DESDE_QUANDO_O_TCE_PUBLICA, naoPublica } from './semConferencia';
+import {
+  avisoDeLacuna,
+  DESDE_QUANDO_O_TCE_PUBLICA,
+  naoPublica,
+  naoPublicaNaBetha,
+  notaDaDeducao,
+} from './semConferencia';
 
 /** "até setembro de 2026" no ano em curso; vazio no encerrado, em que o ano inteiro está conferido. */
 export const ateOMes = (parcial: boolean | null | undefined, mes: number | null | undefined, ano: number) =>
@@ -101,6 +107,9 @@ export function ContaDaReceita({
       total={{ rotulo: '= total da Betha', valor: c.totalBetha, explicacao: TOTAL_DA_BETHA }}
     >
       {soNoTce && <p className="conta-nota">Só o TCE-SC registra mais {moeda(c.diferencaTce)}, fora desta conta.</p>}
+      {c.receitaBruta && c.deducaoSoTce !== null && c.deducaoSoTce !== 0 && (
+        <p className="conta-nota">{notaDaDeducao(c.deducaoSoTce)}</p>
+      )}
       {abaixoDasDuas && (
         <p className="conta-nota">
           O conferido é só o que as duas fontes registram; por isso pode ficar abaixo de cada uma.
@@ -167,6 +176,45 @@ export function ContaDosEmpenhos({
     >
       {soNoTce > 0 && <p className="conta-nota">Só o TCE-SC registra mais {moeda(soNoTce)}, fora desta conta.</p>}
     </Conta>
+  );
+}
+
+type EntidadeSemBetha = Receitas['conferencia']['entidadesSemBetha'][number];
+
+/** Acima da manchete: a fonte única (o TCE-SC não publica o ano) e, em destaque, a entidade que a Betha
+ *  não publica, com o que o TCE-SC registra dela. Os dois limitam o que o número quer dizer. */
+export function AvisosDaConferencia({
+  ano,
+  fonteUnica,
+  lacunas = [],
+}: {
+  ano: number;
+  fonteUnica?: string | null;
+  lacunas?: readonly EntidadeSemBetha[];
+}) {
+  if (!fonteUnica && !lacunas.length) return null;
+  return (
+    <div className="avisos-da-conferencia">
+      {fonteUnica && <p className="aviso-neutro">{fonteUnica}</p>}
+      {lacunas.map((e) => (
+        <p key={e.codigo} className="aviso">
+          {avisoDeLacuna(e, ano)} <a href={LINK_DISCREPANCIAS}>Ver discrepâncias →</a>
+        </p>
+      ))}
+    </div>
+  );
+}
+
+/** Conferência disponível e nada conferido: o cartão diz por quê, em vez de mostrar R$ 0,0. Nulo quando
+ *  há conferido, ou quando não há conferência (fonte única, exemplo, sem as duas fontes). */
+export function motivoSemConferido(c: Receitas['conferencia'], ano: number): ReactNode | null {
+  if (!c.disponivel || c.fonteUnica || Number(c.conferido) !== 0) return null;
+  const [lacuna] = c.entidadesSemBetha;
+  if (lacuna) return `Sem parte conferida. ${naoPublicaNaBetha(lacuna.entidade, ano)}.`;
+  return (
+    <>
+      Nada confere entre as fontes neste recorte. <a href={LINK_DISCREPANCIAS}>Ver discrepâncias</a>
+    </>
   );
 }
 
