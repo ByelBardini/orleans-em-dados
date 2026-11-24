@@ -21,6 +21,36 @@ const secaoDe = (nome: string) => {
 
 const termo = (nome: string) => screen.getByText(nome).closest('li') as HTMLElement;
 
+describe('Metodologia: receita bruta e anos só da Betha', () => {
+  const secao = () => secaoDe('Receita bruta e anos só da Betha');
+
+  it('diz que até 2019 a Betha publica o bruto, comparado com o bruto, e que a dedução vem só do TCE-SC', () => {
+    render(<Metodologia />);
+
+    expect(secao()).toContain('Até 2019, a Betha publica a receita bruta, antes da dedução do FUNDEB');
+    expect(secao()).toContain('A dedução vem só do TCE-SC');
+  });
+
+  it('diz que de 2015 a 2017 a receita, e de 2015 a 2022 a despesa, são só da Betha', () => {
+    render(<Metodologia />);
+
+    expect(secao()).toContain('De 2015 a 2017, a receita, e de 2015 a 2022, a despesa e os empenhos são só da Betha');
+  });
+
+  it('diz que em 2020 a Betha não publica a receita da Prefeitura, e onde fica o valor do TCE-SC', () => {
+    render(<Metodologia />);
+
+    expect(secao()).toContain('Em 2020, a Betha não publica a receita da Prefeitura');
+    expect(secao()).toContain('Discrepâncias');
+  });
+
+  it('o selo de fonte única cobre os anos sem o TCE-SC', () => {
+    render(<Metodologia />);
+
+    expect(termo('fonte única, sem conferência')).toHaveTextContent('anos que o TCE-SC não publica');
+  });
+});
+
 describe('Metodologia: o que o painel exibe', () => {
   it('"conferido com o TCE-SC" vem com a definição: a parte que as duas fontes registram', () => {
     render(<Metodologia />);
