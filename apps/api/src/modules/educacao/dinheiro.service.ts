@@ -160,7 +160,7 @@ function blocoDasAcoes(
 ): EducacaoDinheiro['acoes'] {
   const anos = [...new Set(acoes.map((a) => a.ano))].filter(encerrado);
   return {
-    fonte: fonteDoLote(lote, 'Portal da Transparência (Betha), despesa por ação, valor liquidado'),
+    fonte: fonteDoLote(lote, 'Portal da Transparência, despesa por ação, valor liquidado'),
     anos: anos.map((ano) => {
       const total = totalDe(acoes, ano);
       return {
@@ -383,7 +383,7 @@ export async function dinheiro(): Promise<EducacaoDinheiro> {
     repasses:
       loteDaReceita && emRepasses.length
         ? {
-            fonte: fonteDoLote(loteDaReceita, 'Portal da Transparência (Betha), receita conferida com o TCE-SC'),
+            fonte: fonteDoLote(loteDaReceita, 'Portal da Transparência, receita conferida com o TCE-SC'),
             anos: emRepasses,
           }
         : null,

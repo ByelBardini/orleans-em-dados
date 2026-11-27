@@ -274,7 +274,7 @@ describe('exercício encerrado', () => {
       expect(corpo.itens).toEqual([]);
     });
 
-    it('empenhado é o original da Betha; a execução e o líquido vêm do TCE-SC, e o saldo é a conta em NUMERIC', async () => {
+    it('empenhado é o original do Portal da Transparência; a execução e o líquido vêm do TCE-SC, e o saldo é a conta em NUMERIC', async () => {
       const { corpo } = await get('/api/despesas/empenhos?ano=2025&entidade=2473');
       expect(corpo.itens[0]).toMatchObject({
         numero: 1,
@@ -488,7 +488,7 @@ describe('ano em curso', () => {
     expect(corpo.conferencia).toMatchObject({ parcial: true, aguardandoTce: VALOR_EMPENHO });
   });
 
-  it('despesa: sem conta até o total, porque o aguardando é valor original da Betha, e o conferido é líquido do TCE-SC', async () => {
+  it('despesa: sem conta até o total, porque o aguardando é valor original do Portal da Transparência, e o conferido é líquido do TCE-SC', async () => {
     const { corpo } = await get('/api/despesas/resumo?ano=2025');
     expect(corpo.conferencia).toMatchObject({ diferencaBetha: null, totalBetha: null });
   });

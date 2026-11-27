@@ -65,7 +65,7 @@ describe('ano com as receitas das duas fontes e sem os empenhos do TCE-SC', () =
 });
 
 describe('exercício que o TCE-SC não publica', () => {
-  it('/api/receitas diz que a fonte não publica as receitas do ano e mostra a Betha como fonte única', async () => {
+  it('/api/receitas diz que a fonte não publica as receitas do ano e mostra o Portal da Transparência como fonte única', async () => {
     const { conferencia, totais } = await get('/api/receitas?ano=2016');
 
     expect(conferencia).toMatchObject({

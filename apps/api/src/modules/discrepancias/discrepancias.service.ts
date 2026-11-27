@@ -34,11 +34,13 @@ const TIPO_PUBLICO: Record<TipoDoGrupo, Grupo['tipo']> = {
 export const TEXTOS: Record<TipoDoGrupo, { rotulo: string; explicacao: string }> = {
   fora_do_acumulado: {
     rotulo: 'Lançamento fora do acumulado',
-    explicacao: 'O valor do mês na Betha traz um lançamento que o acumulado da própria rubrica não considera.',
+    explicacao:
+      'O valor do mês no Portal da Transparência traz um lançamento que o acumulado da própria rubrica não considera.',
   },
   duas_rubricas: {
     rotulo: 'Mesmo valor em duas rubricas',
-    explicacao: 'O mesmo valor aparece em duas rubricas da Betha no mesmo mês, e o TCE-SC só tem uma delas.',
+    explicacao:
+      'O mesmo valor aparece em duas rubricas do Portal da Transparência no mesmo mês, e o TCE-SC só tem uma delas.',
   },
   mes_diferente: {
     rotulo: 'Mesmo valor em meses diferentes',
@@ -46,7 +48,7 @@ export const TEXTOS: Record<TipoDoGrupo, { rotulo: string; explicacao: string }>
   },
   so_tce: {
     rotulo: 'Só no TCE-SC',
-    explicacao: 'A natureza tem valor no TCE-SC e não aparece na Betha no ano.',
+    explicacao: 'A natureza tem valor no TCE-SC e não aparece no Portal da Transparência no ano.',
   },
   reclassificacao: {
     rotulo: 'Valor em outra rubrica',
@@ -54,19 +56,22 @@ export const TEXTOS: Record<TipoDoGrupo, { rotulo: string; explicacao: string }>
   },
   mes_repetido: {
     rotulo: 'Mesmo valor em dois meses',
-    explicacao: 'A rubrica tem o mesmo valor em dois meses na Betha, e a diferença com o TCE-SC é desse valor.',
+    explicacao:
+      'A rubrica tem o mesmo valor em dois meses no Portal da Transparência, e a diferença com o TCE-SC é desse valor.',
   },
   despesa_duplicada: {
     rotulo: 'Despesa de consórcio em duas linhas',
-    explicacao: 'As linhas de modalidade 71 da Betha somam exatamente a diferença com o TCE-SC nas três etapas.',
+    explicacao:
+      'As linhas de modalidade 71 do Portal da Transparência somam exatamente a diferença com o TCE-SC nas três etapas.',
   },
   empenho_fantasma: {
     rotulo: 'Registro sem execução e sem par no TCE-SC',
-    explicacao: 'O registro está na Betha, sem liquidado, pago ou saldo a pagar, e não tem correspondente no TCE-SC.',
+    explicacao:
+      'O registro está no Portal da Transparência, sem liquidado, pago ou saldo a pagar, e não tem correspondente no TCE-SC.',
   },
   empenho_repetido: {
     rotulo: 'Registro repetido',
-    explicacao: 'Mais de um registro na Betha com o mesmo número, a mesma data e o mesmo valor.',
+    explicacao: 'Mais de um registro no Portal da Transparência com o mesmo número, a mesma data e o mesmo valor.',
   },
   empenho_renumerado: {
     rotulo: 'Empenho com outro número na outra fonte',
@@ -75,7 +80,7 @@ export const TEXTOS: Record<TipoDoGrupo, { rotulo: string; explicacao: string }>
   },
   empenho_ausente: {
     rotulo: 'Empenho só no TCE-SC',
-    explicacao: 'O número do empenho está no TCE-SC e não aparece na Betha.',
+    explicacao: 'O número do empenho está no TCE-SC e não aparece no Portal da Transparência.',
   },
   sem_causa: {
     rotulo: 'Diferença sem padrão conhecido',
@@ -160,7 +165,9 @@ const formamPar = (a: DiscrepanciaConferida, b: DiscrepanciaConferida) =>
 function juntarPar(a: DiscrepanciaConferida, b: DiscrepanciaConferida): ComPar {
   const [aMenos, aMais] = a.diferenca < 0 ? [a, b] : [b, a];
   const acumulado =
-    a.tipo === 'fora_do_acumulado' ? ' Na Betha, o arrecadado no mês dessas rubricas não fecha com o acumulado.' : '';
+    a.tipo === 'fora_do_acumulado'
+      ? ' No Portal da Transparência, o arrecadado no mês dessas rubricas não fecha com o acumulado.'
+      : '';
   return {
     ...a,
     tipo: 'reclassificacao',
@@ -177,7 +184,7 @@ function juntarPar(a: DiscrepanciaConferida, b: DiscrepanciaConferida): ComPar {
       aMais: { natureza: aMais.natureza ?? '', betha: aMais.betha, tce: aMais.tce },
     },
     valorDoPar: Math.abs(a.diferenca),
-    nota: `Em relação ao TCE-SC, a Betha tem ${fmt(Math.abs(a.diferenca))} a menos na rubrica ${aMenos.natureza} e a mais na ${aMais.natureza}: provável reclassificação entre rubricas, sem efeito no total.${acumulado}`,
+    nota: `Em relação ao TCE-SC, o Portal da Transparência tem ${fmt(Math.abs(a.diferenca))} a menos na rubrica ${aMenos.natureza} e a mais na ${aMais.natureza}: provável reclassificação entre rubricas, sem efeito no total.${acumulado}`,
   };
 }
 
