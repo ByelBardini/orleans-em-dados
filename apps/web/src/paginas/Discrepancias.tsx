@@ -30,9 +30,21 @@ type PropsDeConteudo = Pick<PropsDaPagina, 'ano' | 'entidade' | 'filtros'>;
 
 // Receita, despesa e empenhos são visões que não se somam: cada área tem o seu bloco.
 const AREAS: readonly { id: Area; titulo: string; legenda: string }[] = [
-  { id: 'receita', titulo: 'Receita', legenda: 'Betha 57153 × TCE-SC · o que difere em cada natureza' },
-  { id: 'despesa', titulo: 'Despesa', legenda: 'Betha 57170 × TCE-SC · empenhado, liquidado e pago' },
-  { id: 'empenho', titulo: 'Empenhos', legenda: 'Betha 57140 × TCE-SC · registro a registro, em valor original' },
+  {
+    id: 'receita',
+    titulo: 'Receita',
+    legenda: 'Portal da Transparência (consulta 57153) × TCE-SC · o que difere em cada natureza',
+  },
+  {
+    id: 'despesa',
+    titulo: 'Despesa',
+    legenda: 'Portal da Transparência (consulta 57170) × TCE-SC · empenhado, liquidado e pago',
+  },
+  {
+    id: 'empenho',
+    titulo: 'Empenhos',
+    legenda: 'Portal da Transparência (consulta 57140) × TCE-SC · registro a registro, em valor original',
+  },
   { id: 'funcao', titulo: 'Despesa por função', legenda: 'DCA Anexo I-E (SICONFI) × TCE-SC · uma etapa por grupo' },
 ];
 
@@ -45,7 +57,7 @@ const descricaoCurta = (d: string | null | undefined) => (d ? d.replace(/\s*-\s*
 // Diferença Betha − TCE dita por extenso, nunca com sinal: "R$ 1,00 a mais na Betha" / "a mais no TCE" / "igual".
 function Diferenca({
   valor,
-  ladoPositivo = 'a mais na Betha',
+  ladoPositivo = 'a mais no Portal da Transparência',
 }: {
   valor: number | null | undefined;
   ladoPositivo?: string;
@@ -203,19 +215,19 @@ function Conteudo({ ano, entidade, filtros, dados }: PropsDeConteudo & { dados: 
               </em>{' '}
               {grupos.some((g) => g.area === 'funcao')
                 ? 'em que as fontes não coincidem.'
-                : 'em que Betha e TCE-SC não coincidem.'}
+                : 'em que o Portal da Transparência e o TCE-SC não coincidem.'}
             </>
           ) : (
             <>
-              {quando}, Betha e TCE-SC mostram <em>os mesmos números</em>.
+              {quando}, o Portal da Transparência e o TCE-SC mostram <em>os mesmos números</em>.
             </>
           )}
         </h1>
         <div className="abertura-lado">
           <p className="capitular">
             Esta seção mostra cada valor que ficou fora do número principal do painel, separado por tipo, com o que cada
-            fonte registra. O Portal da Transparência (Betha) é o que o município publica. O Farol do TCE-SC reúne o que
-            o município envia ao Tribunal de Contas. {FRASE_DA_DIFERENCA}
+            fonte registra. O Portal da Transparência é o que o município publica. O Farol do TCE-SC reúne o que o
+            município envia ao Tribunal de Contas. {FRASE_DA_DIFERENCA}
           </p>
         </div>
       </div>
@@ -324,7 +336,7 @@ function ContasDoAno({
               ) : despesa.dados.conferencia.totalBetha === null ? (
                 <p className="conta-nota">
                   No ano em curso, a despesa não tem esta conta: o conferido é o valor líquido do TCE-SC, e o que
-                  aguarda é o valor original da Betha.
+                  aguarda é o valor original do Portal da Transparência.
                 </p>
               ) : (
                 <ContaDaDespesa
@@ -446,7 +458,7 @@ function GrupoDeCasos({ grupo }: { grupo: Grupo }) {
             <th scope="col">Caso</th>
             <th scope="col">Quando</th>
             <th scope="col" className="num">
-              {grupo.area === 'funcao' ? 'SICONFI' : 'Betha'}
+              {grupo.area === 'funcao' ? 'SICONFI' : 'Portal da Transparência'}
             </th>
             <th scope="col" className="num">
               TCE-SC
@@ -501,7 +513,7 @@ function Identificacao({ item }: { item: Item }) {
         <strong>
           Empenho nº {item.numero} · {item.entidade}
         </strong>
-        <div className="sub">{item.fonte === 'betha' ? 'só na Betha' : 'só no TCE-SC'}</div>
+        <div className="sub">{item.fonte === 'betha' ? 'só no Portal da Transparência' : 'só no TCE-SC'}</div>
       </>
     );
   }
@@ -565,7 +577,7 @@ function Caso({ item }: { item: Item }) {
         {item.evidencia && <p className="caso-nota">{item.evidencia}</p>}
       </td>
       <td data-rotulo="Quando">{quandoFoi(item)}</td>
-      <td className="num" data-rotulo={item.area === 'funcao' ? 'SICONFI' : 'Betha'}>
+      <td className="num" data-rotulo={item.area === 'funcao' ? 'SICONFI' : 'Portal da Transparência'}>
         <ValorNaFonte item={item} fonte="betha" />
       </td>
       <td className="num" data-rotulo="TCE-SC">
@@ -698,7 +710,7 @@ function Despesa({ dados, sigla }: PropsDosTotais) {
           Despesa por entidade
         </h2>
         <span className="legenda">
-          <span>Betha 57170 × TCE-SC · empenhado, liquidado e pago</span>
+          <span>Portal da Transparência (consulta 57170) × TCE-SC · empenhado, liquidado e pago</span>
         </span>
       </div>
       <div className="tabela-rolagem">
@@ -707,7 +719,7 @@ function Despesa({ dados, sigla }: PropsDosTotais) {
             <tr>
               <th scope="col">Entidade</th>
               <th scope="col" className="num">
-                Empenhado Betha
+                Empenhado no Portal da Transparência
               </th>
               <th scope="col" className="num">
                 Empenhado TCE
@@ -759,7 +771,7 @@ function Despesa({ dados, sigla }: PropsDosTotais) {
                 <td className="num">{moeda(soma('bethaEmpenhado'))}</td>
                 <td className="num">{moeda(soma('tceEmpenhado'))}</td>
                 <td colSpan={4} className="sub">
-                  O total do TCE inclui a Câmara; o da Betha, não.
+                  O total do TCE inclui a Câmara; o do Portal da Transparência, não.
                 </td>
               </tr>
             </tfoot>
@@ -779,7 +791,10 @@ function ReceitaEntidades({ dados, sigla }: PropsDosTotais) {
           Receita arrecadada por entidade
         </h2>
         <span className="legenda">
-          <span>Betha 57153 × TCE-SC · {dados.parcial ? 'até o último mês recebido pelo TCE' : 'ano inteiro'}</span>
+          <span>
+            Portal da Transparência (consulta 57153) × TCE-SC ·{' '}
+            {dados.parcial ? 'até o último mês recebido pelo TCE' : 'ano inteiro'}
+          </span>
         </span>
       </div>
       <div className="tabela-rolagem">
@@ -788,7 +803,7 @@ function ReceitaEntidades({ dados, sigla }: PropsDosTotais) {
             <tr>
               <th scope="col">Entidade</th>
               <th scope="col" className="num">
-                Betha
+                Portal da Transparência
               </th>
               <th scope="col" className="num">
                 TCE
@@ -827,7 +842,7 @@ function Empenhos({ dados, sigla }: PropsDosTotais) {
           Empenhos, um a um
         </h2>
         <span className="legenda">
-          <span>Betha 57140 × TCE-SC · entidade + número + data + valor original</span>
+          <span>Portal da Transparência (consulta 57140) × TCE-SC · entidade + número + data + valor original</span>
         </span>
       </div>
       <div className="tabela-rolagem">
@@ -836,7 +851,7 @@ function Empenhos({ dados, sigla }: PropsDosTotais) {
             <tr>
               <th scope="col">Entidade</th>
               <th scope="col" className="num">
-                Na Betha
+                No Portal da Transparência
               </th>
               <th scope="col" className="num">
                 No TCE
@@ -845,7 +860,7 @@ function Empenhos({ dados, sigla }: PropsDosTotais) {
                 Casados
               </th>
               <th scope="col" className="num">
-                Só na Betha
+                Só no Portal da Transparência
               </th>
               <th scope="col" className="num">
                 Só no TCE
@@ -942,7 +957,7 @@ function ComoLer({ dados, filtrado }: { dados: DadosDaConferencia; filtrado: boo
             Câmara Municipal
           </h2>
           <p>
-            A Câmara não está no portal Betha da Prefeitura. Os números dela vêm só do TCE-SC
+            A Câmara não está no Portal da Transparência da Prefeitura. Os números dela vêm só do TCE-SC
             {camara.empenhos > 0 &&
               ` (${moeda(camara.empenhado)} empenhados e ${moeda(camara.pago)} pagos em ${numero(camara.empenhos)} empenhos, dados até ${data(camara.ultimo)})`}{' '}
             e já fazem parte do total municipal do Tribunal: somar a Câmara ao total do TCE contaria duas vezes. Ela não
@@ -956,13 +971,13 @@ function ComoLer({ dados, filtrado }: { dados: DadosDaConferencia; filtrado: boo
       </h2>
       <p>
         <strong>Igual</strong> significa idêntico ao centavo. Quando não é igual, a diferença diz qual fonte registra
-        mais: “a mais na Betha” ou “a mais no TCE”.
+        mais: “a mais no Portal da Transparência” ou “a mais no TCE”.
       </p>
       <p>
-        <strong>Despesa</strong> compara a consulta 57170 da Betha (empenhado, liquidado e pago já descontadas as
-        anulações). <strong>Empenhos</strong> compara a lista 57140, um a um, por entidade, número, data e valor
-        original. <strong>Rubricas</strong> são comparadas pelos 8 primeiros dígitos do código da receita, o nível comum
-        às duas fontes.{' '}
+        <strong>Despesa</strong> compara a consulta 57170 do Portal da Transparência (empenhado, liquidado e pago já
+        descontadas as anulações). <strong>Empenhos</strong> compara a lista 57140, um a um, por entidade, número, data
+        e valor original. <strong>Rubricas</strong> são comparadas pelos 8 primeiros dígitos do código da receita, o
+        nível comum às duas fontes.{' '}
         <a href={RELATORIO} target="_blank" rel="noreferrer">
           Relatório completo da conferência
         </a>
@@ -972,7 +987,7 @@ function ComoLer({ dados, filtrado }: { dados: DadosDaConferencia; filtrado: boo
   );
 }
 
-const NOME_FONTE: Record<string, string> = { betha: 'Betha', tcesc: 'TCE-SC' };
+const NOME_FONTE: Record<string, string> = { betha: 'Portal da Transparência', tcesc: 'TCE-SC' };
 
 function Coletas({ coletas }: { coletas: DadosDaConferencia['coletas'] }) {
   const recarga = coletas

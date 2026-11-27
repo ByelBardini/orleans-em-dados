@@ -445,7 +445,7 @@ function Conteudo({
                           <Selo compacto selo={SELO_FONTE_UNICA} />
                         </>
                       ),
-                      dica: `${camara.nome}: ${emMilhoes(camara.empenhado)} (TCE-SC; não está no portal Betha)`,
+                      dica: `${camara.nome}: ${emMilhoes(camara.empenhado)} (TCE-SC; não está no Portal da Transparência)`,
                     },
                   ]
                 : []),
@@ -472,11 +472,11 @@ function Conteudo({
       <p className="nota" style={{ marginTop: 32 }}>
         Abrangência: Prefeitura, Fundo Municipal de Saúde, SAMAE e Fundação Ambiental.{' '}
         {parcial
-          ? `Empenhado e pago são os valores do TCE-SC nos empenhos casados com a Betha até ${data(dataCorte)}.`
+          ? `Empenhado e pago são os valores do TCE-SC nos empenhos casados com o Portal da Transparência até ${data(dataCorte)}.`
           : 'Empenhado e pago são a despesa orçamentária (consulta 57170), já descontadas as anulações.'}{' '}
         As divisões por órgão e por mês usam o valor original de cada empenho (consulta 57140)
-        {exemplo || despesaUnica ? '' : ', só dos empenhos casados com o TCE-SC'}. A Câmara Municipal não está no portal
-        Betha: seus valores vêm do TCE-SC, sem conferência, e aparecem à parte.
+        {exemplo || despesaUnica ? '' : ', só dos empenhos casados com o TCE-SC'}. A Câmara Municipal não está no Portal
+        da Transparência: seus valores vêm do TCE-SC, sem conferência, e aparecem à parte.
       </p>
       <Fonte meta={r.meta} />
       <Fonte meta={o.meta} />

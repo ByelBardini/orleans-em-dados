@@ -17,12 +17,15 @@ export const seloConferidoComTce = (ateMes?: number | null): DadosDoSelo => ({
 
 export const seloConferidoComBetha = (dataCorte: string | null): DadosDoSelo => ({
   estado: 'confere',
-  titulo: `conferido com a Betha até ${diaEMes(dataCorte)}`,
+  titulo: `conferido com o Portal da Transparência até ${diaEMes(dataCorte)}`,
   motivo: 'Valores do TCE-SC.',
 });
 
 // Um total que tem par na Betha, sem corte: a função 12 da DCA igual à soma das ações de educação.
-export const SELO_CONFERIDO_COM_A_BETHA: DadosDoSelo = { estado: 'confere', titulo: 'conferido com a Betha' };
+export const SELO_CONFERIDO_COM_A_BETHA: DadosDoSelo = {
+  estado: 'confere',
+  titulo: 'conferido com o Portal da Transparência',
+};
 
 export const SELO_FONTE_UNICA: DadosDoSelo = { estado: 'fonte-unica', titulo: 'fonte única, sem conferência' };
 

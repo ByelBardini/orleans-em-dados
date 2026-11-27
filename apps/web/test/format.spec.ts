@@ -116,7 +116,7 @@ describe('datas', () => {
 });
 
 describe('nomeProprio', () => {
-  it('caixa alta da Betha vira nome próprio, com as preposições em minúscula', () => {
+  it('caixa alta do Portal da Transparência vira nome próprio, com as preposições em minúscula', () => {
     expect(nomeProprio('SECRETARIA MUNICIPAL DE EDUCAÇÃO')).toBe('Secretaria Municipal de Educação');
   });
 

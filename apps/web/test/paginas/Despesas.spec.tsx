@@ -46,7 +46,7 @@ describe('Despesas com o conferido', () => {
     expect(celula('Empenhado').querySelector('.numero-valor')).toHaveTextContent('10,8 mi');
   });
 
-  it('a entidade mostra o valor sem as linhas retiradas, e não o total da Betha', async () => {
+  it('a entidade mostra o valor sem as linhas retiradas, e não o total do Portal da Transparência', async () => {
     await abrir();
 
     const samae = linhaDa('SAMAE (exemplo)');
@@ -54,7 +54,7 @@ describe('Despesas com o conferido', () => {
     expect(samae).not.toHaveTextContent('10.915.539,85');
   });
 
-  it('o total da Betha fica só na conta, e a conta fecha', async () => {
+  it('o total do Portal da Transparência fica só na conta, e a conta fecha', async () => {
     const container = await abrir();
 
     const conta = within(celula('Empenhado')).getByRole('group', { name: 'A conta do conferido' });
@@ -122,15 +122,17 @@ describe('Despesas com o conferido', () => {
       empenhos: resumoDeEmpenhos({ excluidos: 956, aguardandoTce: 956, emDiscrepancia: 0 }),
     });
 
-    it('o selo diz conferido com a Betha até DD/MM, com os valores do TCE-SC', async () => {
+    it('o selo diz conferido com o Portal da Transparência até DD/MM, com os valores do TCE-SC', async () => {
       await abrir(emCurso());
 
-      const selo = within(celula('Empenhado até 30/09/2025')).getByText('conferido com a Betha até 30/09');
+      const selo = within(celula('Empenhado até 30/09/2025')).getByText(
+        'conferido com o Portal da Transparência até 30/09',
+      );
       expect(selo.closest('.selo')).toHaveTextContent('Valores do TCE-SC.');
       expect(screen.queryByText('conferido com o TCE-SC')).not.toBeInTheDocument();
     });
 
-    it('não soma o que aguarda, valor original da Betha, ao líquido do TCE-SC', async () => {
+    it('não soma o que aguarda, valor original do Portal da Transparência, ao líquido do TCE-SC', async () => {
       await abrir(emCurso());
 
       expect(screen.queryByRole('group', { name: 'A conta do conferido' })).not.toBeInTheDocument();
@@ -142,7 +144,7 @@ describe('Despesas com o conferido', () => {
       const selo = screen.getByText('aguardando TCE').closest('.selo') as HTMLElement;
       expect(selo).toHaveClass('pendente');
       expect(selo).toHaveTextContent(
-        `956 empenhos da Betha depois de 30/09/2025 (R$${NBSP}14.233.097,48 no valor original)`,
+        `956 empenhos do Portal da Transparência depois de 30/09/2025 (R$${NBSP}14.233.097,48 no valor original)`,
       );
     });
 
@@ -201,7 +203,7 @@ describe('Despesas com o conferido', () => {
       expect(colunas).toEqual(['Empenho', 'Órgão', 'Credor e descrição', 'Empenhado', 'Liquidado', 'Pago', 'Situação']);
     });
 
-    it('cada coluna traz o seu valor: o original da Betha e a execução do TCE-SC', async () => {
+    it('cada coluna traz o seu valor: o original do Portal da Transparência e a execução do TCE-SC', async () => {
       const tabela = await listaDeEmpenhos();
 
       const celulas = [...(within(tabela).getByText('Nº 1').closest('tr') as HTMLElement).querySelectorAll('td.num')];
@@ -283,7 +285,7 @@ describe('Despesas com o conferido', () => {
   });
 });
 
-describe('Despesas de um exercício que o TCE-SC não publica, com a Betha', () => {
+describe('Despesas de um exercício que o TCE-SC não publica, com o Portal da Transparência', () => {
   const abrirFonteUnica = () => abrir({ despesa: despesasFonteUnica(), empenhos: empenhosFonteUnica() });
 
   it('empenhado, pago e falta pagar têm número, com o selo de fonte única', async () => {
@@ -294,11 +296,11 @@ describe('Despesas de um exercício que o TCE-SC não publica, com a Betha', () 
     expect(celula('Pago').querySelector('.numero-valor')).toHaveTextContent('10,1 mi');
   });
 
-  it('o aviso acima da manchete diz que o TCE-SC não publica os empenhos e que os números são só da Betha', async () => {
+  it('o aviso acima da manchete diz que o TCE-SC não publica os empenhos e que os números são só do Portal da Transparência', async () => {
     await abrirFonteUnica();
 
     const aviso = screen.getByText(
-      'O TCE-SC não publica os empenhos de 2025. Os números são só da Betha, sem conferência.',
+      'O TCE-SC não publica os empenhos de 2025. Os números são só do Portal da Transparência, sem conferência.',
     );
     expect(
       aviso.compareDocumentPosition(screen.getByRole('heading', { level: 1 })) & Node.DOCUMENT_POSITION_FOLLOWING,

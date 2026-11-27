@@ -271,13 +271,13 @@ describe('Dinheiro: gasto', () => {
   it('o selo do ano fica na linha do gasto', async () => {
     await abrir();
 
-    expect(seloEm(linhaDoGasto(quadroDo(2025)), 'conferido com a Betha')).toBeInTheDocument();
+    expect(seloEm(linhaDoGasto(quadroDo(2025)), 'conferido com o Portal da Transparência')).toBeInTheDocument();
   });
 
-  it('cada ano tem o próprio selo: conferido com a Betha ou fonte única', async () => {
+  it('cada ano tem o próprio selo: conferido com o Portal da Transparência ou fonte única', async () => {
     await abrir();
 
-    expect(seloEm(quadroDo(2025), 'conferido com a Betha')).toBeInTheDocument();
+    expect(seloEm(quadroDo(2025), 'conferido com o Portal da Transparência')).toBeInTheDocument();
     expect(seloEm(quadroDo(2023), FONTE_UNICA)).toBeInTheDocument();
   });
 
@@ -298,7 +298,9 @@ describe('Dinheiro: gasto', () => {
   it('o selo do título diz os anos conferidos', async () => {
     await abrir();
 
-    const titulo = within(bloco(GASTO)).getAllByRole('button', { name: /conferido com a Betha em 2024 e 2025/ });
+    const titulo = within(bloco(GASTO)).getAllByRole('button', {
+      name: /conferido com o Portal da Transparência em 2024 e 2025/,
+    });
     expect(titulo).toHaveLength(1);
   });
 
@@ -310,7 +312,9 @@ describe('Dinheiro: gasto', () => {
       }),
     );
 
-    expect(within(bloco(GASTO)).queryByRole('button', { name: /conferido com a Betha em/ })).toBeNull();
+    expect(
+      within(bloco(GASTO)).queryByRole('button', { name: /conferido com o Portal da Transparência em/ }),
+    ).toBeNull();
   });
 
   it('o Anexo 8 fica em Fonte e detalhes, que diz em que anos ele traz o mesmo valor', async () => {
