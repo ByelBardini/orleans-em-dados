@@ -271,7 +271,7 @@ describe('GET /api/educacao/dinheiro', () => {
   });
 
   describe('gasto', () => {
-    it('com a Betha igual nas três etapas, o exercício sai conferido; sem ela, fica sem_betha', async () => {
+    it('com o Portal da Transparência igual nas três etapas, o exercício sai conferido; sem ela, fica sem_betha', async () => {
       await popularCenario({
         despesas: despesasDaEducacao(),
         siconfiFuncoes: [siconfiFuncoes({ ano: 2018 }), dcaDaEducacao()],
@@ -285,7 +285,7 @@ describe('GET /api/educacao/dinheiro', () => {
       ]);
     });
 
-    it('um valor a menos na Betha sai como diferenca', async () => {
+    it('um valor a menos no Portal da Transparência sai como diferenca', async () => {
       await popularCenario({ despesas: despesasDaEducacao(), siconfiFuncoes: [siconfiFuncoes()] });
 
       const { corpo } = await pedir();
@@ -345,7 +345,7 @@ describe('GET /api/educacao/dinheiro', () => {
       ]);
     });
 
-    it('a nota sobre as etapas traz transporte e merenda do último exercício com a Betha', async () => {
+    it('a nota sobre as etapas traz transporte e merenda do último exercício com o Portal da Transparência', async () => {
       await exercicioFechado();
 
       const { corpo } = await pedir();
@@ -353,7 +353,7 @@ describe('GET /api/educacao/dinheiro', () => {
       expect(corpo.gasto?.acoesNasEtapas).toEqual({ ano: 2025, transporte: 100000, merenda: 40000 });
     });
 
-    it('sem as duas ações na Betha, a nota fica sem valores, nunca com zero', async () => {
+    it('sem as duas ações no Portal da Transparência, a nota fica sem valores, nunca com zero', async () => {
       const { corpo } = await pedir();
 
       expect(corpo.gasto?.acoesNasEtapas).toEqual({ ano: 2025, transporte: null, merenda: null });
@@ -432,7 +432,7 @@ describe('GET /api/educacao/dinheiro', () => {
       ]);
     });
 
-    it('o total é marcado conferido quando a função 12 fecha com a Betha', async () => {
+    it('o total é marcado conferido quando a função 12 fecha com o Portal da Transparência', async () => {
       await comAsAcoes();
 
       const { corpo } = await pedir();
@@ -440,7 +440,7 @@ describe('GET /api/educacao/dinheiro', () => {
       expect(doAno(corpo.acoes?.anos, 2025)?.totalConferido).toBe(true);
     });
 
-    it('o total não é marcado conferido quando a função 12 difere da Betha', async () => {
+    it('o total não é marcado conferido quando a função 12 difere do Portal da Transparência', async () => {
       await popularCenario({ despesas: despesasDaEducacao(), siconfiFuncoes: [siconfiFuncoes()] });
 
       const { corpo } = await pedir();
