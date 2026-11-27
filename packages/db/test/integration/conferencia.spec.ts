@@ -564,7 +564,7 @@ describe('empenhos de exercício encerrado', () => {
       (d) => d.area === 'empenho' && d.fonte === 'tce' && d.numero === numero,
     );
 
-  it('sem par e sem execução é fantasma, com o valor no lado da Betha', async () => {
+  it('sem par e sem execução é fantasma, com o valor no lado do Portal da Transparência', async () => {
     expect(await daBetha(340)).toMatchObject({
       tipo: 'empenho_fantasma',
       entidade: 'SAMAE',
@@ -611,11 +611,11 @@ describe('empenhos de exercício encerrado', () => {
     expect((await daBetha(62))?.tipo).toBe('empenho_fantasma');
   });
 
-  it('só no TCE, com número que a Betha não tem, é ausente', async () => {
+  it('só no TCE, com número que o Portal da Transparência não tem, é ausente', async () => {
     expect(await doTce(761)).toMatchObject({ tipo: 'empenho_ausente', betha: null, tce: 160, diferenca: -160 });
   });
 
-  it('só no TCE, com o número na Betha em outro valor, fica sem_causa', async () => {
+  it('só no TCE, com o número no Portal da Transparência em outro valor, fica sem_causa', async () => {
     expect((await doTce(611))?.tipo).toBe('sem_causa');
   });
 

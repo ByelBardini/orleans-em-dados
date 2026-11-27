@@ -215,17 +215,17 @@ export function anotarNaturezas(
         for (const i of incoerencias) porMes.set(i.mes, (porMes.get(i.mes) ?? 0) + centavos(i.excesso));
         const meses = [...porMes].map(([m, v]) => `${MESES[m - 1]} (${fmt(v / 100)})`).join(', ');
         const resto = centavos(r.diferenca) - centavos(excesso);
-        nota = `Na própria Betha, o arrecadado no mês não fecha com o acumulado da rubrica em ${meses}: é onde a conta desencontra. A linha que o acumulado provavelmente desconsidera pode ser de outro mês. `;
+        nota = `Na própria Portal da Transparência, o arrecadado no mês não fecha com o acumulado da rubrica em ${meses}: é onde a conta desencontra. A linha que o acumulado provavelmente desconsidera pode ser de outro mês. `;
         nota += resto === 0 ? 'Explica toda a diferença.' : `Explica ${fmt(excesso)}; restam ${fmt(resto / 100)}.`;
         // Explicação parcial deixa um resto sem causa: a rubrica continua em aberto.
         if (resto === 0) causa = 'Lançamento fora do acumulado';
       } else if (duplicada) {
         causa = 'Possível duplicidade';
         const outraBate = linhas.some((o) => o.ent === r.ent && o.natureza === duplicada.outra && o.diferenca === 0);
-        nota = `Em ${MESES[duplicada.mes - 1]}, o mesmo valor (${fmt(duplicada.v)}) também foi lançado na rubrica ${duplicada.outra}${outraBate ? ', que bate com o TCE' : ''}: possível lançamento em duplicidade na Betha.`;
+        nota = `Em ${MESES[duplicada.mes - 1]}, o mesmo valor (${fmt(duplicada.v)}) também foi lançado na rubrica ${duplicada.outra}${outraBate ? ', que bate com o TCE' : ''}: possível lançamento em duplicidade no Portal da Transparência.`;
       } else if (emDoisMeses) {
         causa = 'Possível duplicidade';
-        nota = `O mesmo valor (${fmt(emDoisMeses.v)}) aparece em ${MESES[emDoisMeses.mes - 1]} e em ${MESES[emDoisMeses.outroMes - 1]} na Betha, e uma vez só no TCE: possível lançamento em duplicidade.`;
+        nota = `O mesmo valor (${fmt(emDoisMeses.v)}) aparece em ${MESES[emDoisMeses.mes - 1]} e em ${MESES[emDoisMeses.outroMes - 1]} no Portal da Transparência, e uma vez só no TCE: possível lançamento em duplicidade.`;
       } else if (compensa) {
         causa = 'Provável reclassificação';
         nota = `Compensa exatamente a diferença da rubrica ${compensa.natureza}: provável reclassificação entre rubricas, sem efeito no total.`;
@@ -233,15 +233,15 @@ export function anotarNaturezas(
         causa = 'Provável reclassificação';
         nota = `No grupo ${grupo}, as duas fontes somam o mesmo valor: a diferença está só na classificação entre as rubricas do grupo.`;
       } else if (tipo === 'soTce') {
-        nota = 'Registrado no TCE, sem lançamento correspondente na Betha.';
+        nota = 'Registrado no TCE, sem lançamento correspondente no Portal da Transparência.';
       } else if (tipo === 'soBetha') {
         nota =
-          'Lançado na Betha, sem correspondente no TCE neste código (pode estar classificado em outro nível de detalhe).';
+          'Lançado no Portal da Transparência, sem correspondente no TCE neste código (pode estar classificado em outro nível de detalhe).';
       } else {
         nota =
           r.diferenca > 0
-            ? 'A Betha registra mais que o TCE nesta rubrica.'
-            : 'O TCE registra mais que a Betha nesta rubrica.';
+            ? 'O Portal da Transparência registra mais que o TCE nesta rubrica.'
+            : 'O TCE registra mais que o Portal da Transparência nesta rubrica.';
       }
       const { ent, ...resto } = r;
       // Explicada: um padrão nos números aponta a causa provável. As demais são o foco da conferência.
@@ -270,7 +270,8 @@ export function completarRubricas(
       nota += ` A diferença se repete em ${meses.length} meses do ano.`;
     } else if (meses.length) {
       const lista = meses.map(
-        (m) => `${MESES[m.mes - 1]} (${fmt(Math.abs(m.diferenca))} a mais ${m.diferenca > 0 ? 'na Betha' : 'no TCE'})`,
+        (m) =>
+          `${MESES[m.mes - 1]} (${fmt(Math.abs(m.diferenca))} a mais ${m.diferenca > 0 ? 'no Portal da Transparência' : 'no TCE'})`,
       );
       const texto = lista.length > 1 ? `${lista.slice(0, -1).join(', ')} e ${lista.at(-1)}` : lista[0];
       nota += ` A diferença aparece em ${texto}.`;
@@ -300,7 +301,7 @@ export function anotarEmpenho(e: EmpenhoSemPar) {
   } else if (e.numeroNaOutra) {
     causa = 'Provável renumeração';
     nota = `Na outra fonte, o empenho com esta data e valor é o nº ${e.numeroNaOutra}: provável renumeração.`;
-  } else nota = e.fonte === 'betha' ? 'Sem correspondente no TCE.' : 'Sem correspondente na Betha.';
+  } else nota = e.fonte === 'betha' ? 'Sem correspondente no TCE.' : 'Sem correspondente no Portal da Transparência.';
   if (e.fonte === 'betha' && e.liquidado === null) nota += ' Não tem liquidação registrada.';
   return { ...e, nota, causa, explicada: causa !== null };
 }
@@ -325,7 +326,7 @@ export function listarSemExplicacao(
         betha: r.bethaEmpenhado,
         tce: r.tceEmpenhado,
         diferenca: r.difEmpenhado,
-        nota: `Empenhado, liquidado ou pago diferem do TCE (liquidado: ${fmt(r.difLiquidado ?? 0)}; pago: ${fmt(r.difPago ?? 0)}, Betha − TCE). A consulta 57170 não detalha empenho a empenho; veja os empenhos sem par da entidade.`,
+        nota: `Empenhado, liquidado ou pago diferem do TCE (liquidado: ${fmt(r.difLiquidado ?? 0)}; pago: ${fmt(r.difPago ?? 0)}, Portal da Transparência − TCE). A consulta 57170 não detalha empenho a empenho; veja os empenhos sem par da entidade.`,
       })),
     ...rubricas
       .filter((r) => !r.explicada && !r.conhecida)
@@ -534,7 +535,7 @@ function notaDasLinhas(casadas: LinhasCasadas, naturezas: readonly LinhaNatureza
           .map((m) => MESES[m - 1])
           .join(', ')} (${fmt(casadas.centavos / 100)}) têm o mesmo valor, no mesmo mês, ${rubricas}`;
   const fim = resto === 0 ? '' : ` Restam ${fmt(resto / 100)} sem padrão.`;
-  return `${inicio}${todasBatem ? `, que ${outras.length > 1 ? 'batem' : 'bate'} com o TCE` : ''}: possível lançamento em duplicidade na Betha.${fim}`;
+  return `${inicio}${todasBatem ? `, que ${outras.length > 1 ? 'batem' : 'bate'} com o TCE` : ''}: possível lançamento em duplicidade no Portal da Transparência.${fim}`;
 }
 
 /** O acumulado explica parte da diferença: só divide se excesso e resto têm o sinal dela. */
@@ -878,7 +879,7 @@ function discrepanciasDaReceita(
         betha: valor,
         tce: null,
         diferenca: valor,
-        nota: `O TCE-SC ainda não recebeu ${MESES[primeira.mes - 1]}: o valor da Betha fica fora do conferido até a remessa chegar.`,
+        nota: `O TCE-SC ainda não recebeu ${MESES[primeira.mes - 1]}: o valor do Portal da Transparência fica fora do conferido até a remessa chegar.`,
       },
     ];
   });
@@ -1068,14 +1069,14 @@ export function conferirDespesaEncerrada(l: DespesaPorEntidade, modalidade71: Mo
       : discrepanciaDeDespesa(
           l,
           'despesa_duplicada',
-          `As linhas de modalidade 71 da 57170 somam exatamente a diferença com o TCE nas três etapas: provável duplicidade de consórcio na Betha. O valor conferido fica sem essas linhas (empenhado: ${fmt(modalidade71?.empenhado ?? 0)}; liquidado: ${fmt(modalidade71?.liquidado ?? 0)}; pago: ${fmt(modalidade71?.pago ?? 0)}).`,
+          `As linhas de modalidade 71 da 57170 somam exatamente a diferença com o TCE nas três etapas: provável duplicidade de consórcio no Portal da Transparência. O valor conferido fica sem essas linhas (empenhado: ${fmt(modalidade71?.empenhado ?? 0)}; liquidado: ${fmt(modalidade71?.liquidado ?? 0)}; pago: ${fmt(modalidade71?.pago ?? 0)}).`,
         );
     return { entidade, discrepancia };
   }
 
   const nota = comparavel
-    ? `Fora do conferido: ${ETAPAS.map((e, i) => `${e.toLowerCase()} difere em ${fmt(diferencas[i] ?? 0)}`).join('; ')} (Betha − TCE), sem padrão que explique as três etapas.`
-    : `Fora do conferido: a entidade só tem despesa em ${l.bethaEmpenhado === null ? 'TCE-SC' : 'Betha'}, sem o que comparar.`;
+    ? `Fora do conferido: ${ETAPAS.map((e, i) => `${e.toLowerCase()} difere em ${fmt(diferencas[i] ?? 0)}`).join('; ')} (Portal da Transparência − TCE), sem padrão que explique as três etapas.`
+    : `Fora do conferido: a entidade só tem despesa em ${l.bethaEmpenhado === null ? 'TCE-SC' : 'Portal da Transparência'}, sem o que comparar.`;
   const entidade: DespesaConferida = {
     ...base,
     empenhado: null,
@@ -1125,8 +1126,8 @@ function conferirDespesaEmCurso(
       diferenca: aguardando.valor,
       quantidade: aguardando.quantidade,
       nota: corte
-        ? `${aguardando.quantidade} empenho(s) da Betha depois de ${dataBr(corte)}, último que o TCE-SC recebeu: ficam fora do conferido até a remessa chegar.`
-        : `${aguardando.quantidade} empenho(s) da Betha: o TCE-SC ainda não recebeu empenhos deste exercício, e eles ficam fora do conferido até a remessa chegar.`,
+        ? `${aguardando.quantidade} empenho(s) do Portal da Transparência depois de ${dataBr(corte)}, último que o TCE-SC recebeu: ficam fora do conferido até a remessa chegar.`
+        : `${aguardando.quantidade} empenho(s) do Portal da Transparência: o TCE-SC ainda não recebeu empenhos deste exercício, e eles ficam fora do conferido até a remessa chegar.`,
     });
   }
   return { entidade, discrepancias };
@@ -1205,14 +1206,15 @@ function notaDoEmpenho(e: EmpenhoParaClassificar, tipo: TipoDoEmpenho) {
     case 'empenho_renumerado':
       return `Na outra fonte, o empenho com esta data, este valor e a mesma identificação é o nº ${e.numeroNaOutra}: provável renumeração.`;
     case 'empenho_fantasma':
-      return 'Na Betha, sem correspondente no TCE-SC e sem nenhum campo de execução (liquidado, pago ou saldo a pagar).';
+      return 'No Portal da Transparência, sem correspondente no TCE-SC e sem nenhum campo de execução (liquidado, pago ou saldo a pagar).';
     case 'empenho_ausente':
-      return 'Registrado no TCE; o número não aparece na Betha.';
+      return 'Registrado no TCE; o número não aparece no Portal da Transparência.';
     default:
-      if (e.fonte === 'tce') return 'Registrado no TCE; o número existe na Betha, com outra data ou valor.';
+      if (e.fonte === 'tce')
+        return 'Registrado no TCE; o número existe no Portal da Transparência, com outra data ou valor.';
       return e.semExecucao
-        ? 'Na Betha, sem correspondente no TCE até a data de corte.'
-        : 'Na Betha, com execução registrada e sem correspondente no TCE.';
+        ? 'No Portal da Transparência, sem correspondente no TCE até a data de corte.'
+        : 'No Portal da Transparência, com execução registrada e sem correspondente no TCE.';
   }
 }
 
