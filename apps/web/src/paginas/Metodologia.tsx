@@ -28,7 +28,7 @@ export default function Metodologia() {
         <article className="secao larga texto-corrido">
           <h2 style={{ marginTop: 0 }}>De onde vêm os dados</h2>
           <p>
-            Os valores são coletados do <strong>Portal da Transparência Betha</strong> de Orleans, nas consultas{' '}
+            Os valores são coletados do <strong>Portal da Transparência</strong> de Orleans, nas consultas{' '}
             <code>57153</code> (Receitas Orçamentárias), <code>57140</code> (Execução Detalhada de Despesas) e{' '}
             <code>57170</code> (Despesas Orçamentárias), e do <strong>Farol do TCE-SC</strong>, que reúne o que o
             município envia ao Tribunal de Contas. O site lê cópias já conferidas com o total de cada fonte; não
@@ -62,7 +62,7 @@ export default function Metodologia() {
             TCE-SC”; num ano sem coleta do Tribunal, leva fonte única; com diferença, o valor de cada fonte vai para{' '}
             <a href="/discrepancias">Discrepâncias</a>. Cada função leva fonte única, sem conferência, porque o TCE-SC
             coletado não tem esse recorte, e função não é entidade: igualdade do total não confere cada função. A função
-            12, Educação, é a única com par: é comparada com a soma das ações de educação na Betha.
+            12, Educação, é a única com par: é comparada com a soma das ações de educação no Portal da Transparência.
           </p>
           <p>
             A função Legislativa é a Câmara: fica à parte, fora do total e da participação das outras funções, como na
@@ -104,24 +104,25 @@ export default function Metodologia() {
               <span className="selo-icone" aria-hidden="true">
                 ✓
               </span>{' '}
-              <strong>conferido com a Betha até DD/MM</strong>: no ano em curso, a despesa vem do TCE-SC, só nos
-              empenhos que têm par na Betha até a data do último dado que o Tribunal recebeu.
+              <strong>conferido com o Portal da Transparência até DD/MM</strong>: no ano em curso, a despesa vem do
+              TCE-SC, só nos empenhos que têm par no Portal da Transparência até a data do último dado que o Tribunal
+              recebeu.
             </li>
             <li>
               <span className="selo-icone" aria-hidden="true">
                 ✓
               </span>{' '}
-              <strong>conferido com a Betha</strong>: sem data, é o gasto com educação de um exercício encerrado. A
-              função 12 da DCA é igual, ao centavo, à soma das ações de educação na Betha, nas três etapas. Só o total é
-              conferido. Cada ação segue em fonte única.
+              <strong>conferido com o Portal da Transparência</strong>: sem data, é o gasto com educação de um exercício
+              encerrado. A função 12 da DCA é igual, ao centavo, à soma das ações de educação no Portal da
+              Transparência, nas três etapas. Só o total é conferido. Cada ação segue em fonte única.
             </li>
             <li>
               <span className="selo-icone" aria-hidden="true">
                 –
               </span>{' '}
               <strong>fonte única, sem conferência</strong>: Orçamento, órgão e Câmara vêm de uma fonte só, e também a
-              receita e a despesa da Betha nos anos que o TCE-SC não publica. O valor aparece com este rótulo, porque
-              não há com o que comparar. Na educação, é o caso de INEP, SIOPE e MEC.
+              receita e a despesa do Portal da Transparência nos anos que o TCE-SC não publica. O valor aparece com este
+              rótulo, porque não há com o que comparar. Na educação, é o caso de INEP, SIOPE e MEC.
             </li>
             <li>
               <strong>aguardando TCE</strong>: mês que o Tribunal ainda não recebeu. É pendência de remessa, e o valor
@@ -160,8 +161,8 @@ export default function Metodologia() {
               <strong>SICONFI</strong>: o RREO Anexo 14, comparado com o SIOPE no índice de 25% e no Fundeb, e a DCA,
               com a função 12, que é o gasto com educação. Nos índices, igualdade do percentual não confere: o SIOPE
               segue em fonte única, e o ano em que o valor difere traz um aviso e vai para{' '}
-              <a href="/discrepancias">Discrepâncias</a>. O gasto leva “conferido com a Betha” onde fecha, e fonte única
-              nos anos sem coleta da Betha.
+              <a href="/discrepancias">Discrepâncias</a>. O gasto leva “conferido com o Portal da Transparência” onde
+              fecha, e fonte única nos anos sem coleta do Portal da Transparência.
             </li>
             <li>
               <strong>MEC</strong>: o Retrato da Educação Infantil, sobre a procura por creche, sempre com “a Prefeitura
@@ -258,25 +259,27 @@ export default function Metodologia() {
             <li>Nome, CPF, número de inscrição e valor individual nunca entram no banco.</li>
           </ul>
 
-          <h2>Receita bruta e anos só da Betha</h2>
+          <h2>Receita bruta e anos só do Portal da Transparência</h2>
           <p>
-            Até 2019, a Betha publica a receita bruta, antes da dedução do FUNDEB: o código traz um dígito a mais na
-            frente (4 para receita, 9 para dedução), e a linha da dedução vem zerada. O TCE-SC traz o bruto e a dedução
-            em linhas separadas. Por isso, nesses anos, o bruto da Betha é comparado com o bruto do TCE-SC, ao centavo,
-            e a página diz que é receita bruta. A dedução vem só do TCE-SC: aparece em nota ao lado da conta, nunca
-            somada ao conferido.
+            Até 2019, o Portal da Transparência publica a receita bruta, antes da dedução do FUNDEB: o código traz um
+            dígito a mais na frente (4 para receita, 9 para dedução), e a linha da dedução vem zerada. O TCE-SC traz o
+            bruto e a dedução em linhas separadas. Por isso, nesses anos, o bruto do Portal da Transparência é comparado
+            com o bruto do TCE-SC, ao centavo, e a página diz que é receita bruta. A dedução vem só do TCE-SC: aparece
+            em nota ao lado da conta, nunca somada ao conferido.
           </p>
           <p>
             O Farol do TCE-SC tem receitas a partir de {PRIMEIRO_EXERCICIO.tcesc_receitas} e empenhos a partir de{' '}
             {PRIMEIRO_EXERCICIO.tcesc_empenhos}. De 2015 a {anoAntes('tcesc_receitas')}, a receita, e de 2015 a{' '}
-            {anoAntes('tcesc_empenhos')}, a despesa e os empenhos são só da Betha: aparecem com o rótulo de fonte única,
-            sem conferência, e um aviso no topo da página. A lista de empenhos segue as mesmas regras de privacidade.
+            {anoAntes('tcesc_empenhos')}, a despesa e os empenhos são só do Portal da Transparência: aparecem com o
+            rótulo de fonte única, sem conferência, e um aviso no topo da página. A lista de empenhos segue as mesmas
+            regras de privacidade.
           </p>
           <p>
-            Em 2020, a Betha não publica a receita da Prefeitura; em 2018 e 2019, a do Fundo Municipal de Saúde; de 2018
-            a 2020, a da Fundação Ambiental. O total da própria Betha fecha sem elas: falta na fonte, e não na coleta. O
-            TCE-SC registra essas receitas. O número principal fica só com o conferido, e um aviso diz quanto o TCE-SC
-            registra da entidade, com o valor em <a href="/discrepancias">Discrepâncias</a>.
+            Em 2020, o Portal da Transparência não publica a receita da Prefeitura; em 2018 e 2019, a do Fundo Municipal
+            de Saúde; de 2018 a 2020, a da Fundação Ambiental. O total do próprio Portal da Transparência fecha sem
+            elas: falta na fonte, e não na coleta. O TCE-SC registra essas receitas. O número principal fica só com o
+            conferido, e um aviso diz quanto o TCE-SC registra da entidade, com o valor em{' '}
+            <a href="/discrepancias">Discrepâncias</a>.
           </p>
 
           <h2>Como a coleta é conferida</h2>
@@ -296,8 +299,8 @@ export default function Metodologia() {
           <h2>Limitações conhecidas</h2>
           <ul>
             <li>
-              A Câmara Municipal não faz parte da seleção Betha; seus valores vêm do TCE-SC, com o rótulo de fonte
-              única, e não somam com as entidades.
+              A Câmara Municipal não faz parte da seleção do Portal da Transparência; seus valores vêm do TCE-SC, com o
+              rótulo de fonte única, e não somam com as entidades.
             </li>
             <li>
               O valor da consulta 57140 é o valor original dos empenhos, sem anulações. A despesa orçamentária líquida
@@ -326,8 +329,8 @@ export default function Metodologia() {
 
           <h2>Privacidade</h2>
           <p>
-            O Orleans em Dados é um projeto independente, sem vínculo com a Prefeitura, a Betha ou o TCE-SC. Tudo o que
-            ele mostra já é público nas fontes citadas acima.
+            O Orleans em Dados é um projeto independente, sem vínculo com a Prefeitura nem com o TCE-SC. Tudo o que ele
+            mostra já é público nas fontes citadas acima.
           </p>
           <ul>
             <li>
@@ -367,7 +370,7 @@ export default function Metodologia() {
             <a href={`${REPO}/FONTES_DE_DADOS.md`}>Fontes de dados</a>
           </p>
           <p>
-            <a href={`${REPO}/CONFERENCIA_BETHA_TCE.md`}>Conferência Betha × TCE-SC</a>
+            <a href={`${REPO}/CONFERENCIA_BETHA_TCE.md`}>Conferência Portal da Transparência × TCE-SC</a>
           </p>
           <p>
             <a href={`${REPO}/DICIONARIO_DE_DADOS.md`}>Dicionário de dados</a>

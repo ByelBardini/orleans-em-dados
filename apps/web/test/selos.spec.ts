@@ -18,10 +18,10 @@ describe('selo do nível da conferência', () => {
     expect(seloConferidoComTce(9).titulo).toBe('conferido com o TCE-SC até setembro');
   });
 
-  it('despesa em curso: conferido com a Betha até DD/MM, com a fonte TCE-SC no motivo', () => {
+  it('despesa em curso: conferido com o Portal da Transparência até DD/MM, com a fonte TCE-SC no motivo', () => {
     expect(seloConferidoComBetha('2026-09-30')).toEqual({
       estado: 'confere',
-      titulo: 'conferido com a Betha até 30/09',
+      titulo: 'conferido com o Portal da Transparência até 30/09',
       motivo: 'Valores do TCE-SC.',
     });
   });
@@ -38,10 +38,10 @@ describe('selo do nível da conferência', () => {
     });
   });
 
-  it('despesa encerrada é conferida com o TCE-SC; em curso, com a Betha até o corte', () => {
+  it('despesa encerrada é conferida com o TCE-SC; em curso, com o Portal da Transparência até o corte', () => {
     const limites = { dataEmpenho: '2026-09-30' };
     expect(seloDaDespesa({ parcial: false, limites }).titulo).toBe('conferido com o TCE-SC');
-    expect(seloDaDespesa({ parcial: true, limites }).titulo).toBe('conferido com a Betha até 30/09');
+    expect(seloDaDespesa({ parcial: true, limites }).titulo).toBe('conferido com o Portal da Transparência até 30/09');
   });
 
   it('dado de exemplo não se diz conferido', () => {

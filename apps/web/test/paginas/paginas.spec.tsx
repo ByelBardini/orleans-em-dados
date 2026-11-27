@@ -131,7 +131,7 @@ describe('Financas', () => {
     render(<Financas {...props} />);
 
     await screen.findByRole('heading', { level: 1 });
-    expect(screen.getAllByText(/Fonte: Portal da Transparência Betha/)).toHaveLength(3);
+    expect(screen.getAllByText(/Fonte: Portal da Transparência/)).toHaveLength(3);
   });
 
   it('a entidade escolhida entra na frase e nos pedidos', async () => {
