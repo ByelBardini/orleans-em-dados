@@ -6,7 +6,7 @@ export type FonteDaPagina = { nome: string; url: string };
 
 export const FONTES = {
   betha: {
-    nome: 'Portal da Transparência de Orleans (Betha)',
+    nome: 'Portal da Transparência de Orleans',
     url: 'https://transparencia.betha.cloud/#/mJRAZlfGu2RI9KNBWj49aw==',
   },
   tcesc: { nome: 'Farol do TCE-SC', url: 'https://servicos.tcesc.tc.br/farol_externo/' },

@@ -61,7 +61,7 @@ describe('jsonLdDaPagina: Receitas como Dataset', () => {
     expect(dataset?.isBasedOn).toEqual([
       {
         '@type': 'CreativeWork',
-        name: 'Portal da Transparência de Orleans (Betha)',
+        name: 'Portal da Transparência de Orleans',
         url: 'https://transparencia.betha.cloud/#/mJRAZlfGu2RI9KNBWj49aw==',
       },
       { '@type': 'CreativeWork', name: 'Farol do TCE-SC', url: 'https://servicos.tcesc.tc.br/farol_externo/' },
