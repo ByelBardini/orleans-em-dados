@@ -59,18 +59,21 @@ describe('anotarNaturezas', () => {
 
   it('natureza só no TCE-SC é classificada e anotada como tal', () => {
     const [linha] = anotarNaturezas([natureza({ betha: null, tce: 50, diferenca: -50 })], [], []);
-    expect(linha).toMatchObject({ tipo: 'soTce', nota: 'Registrado no TCE, sem lançamento correspondente na Betha.' });
+    expect(linha).toMatchObject({
+      tipo: 'soTce',
+      nota: 'Registrado no TCE, sem lançamento correspondente no Portal da Transparência.',
+    });
   });
 
-  it('natureza só na Betha lembra que pode estar em outro nível de detalhe', () => {
+  it('natureza só no Portal da Transparência lembra que pode estar em outro nível de detalhe', () => {
     const [linha] = anotarNaturezas([natureza({ betha: 50, tce: null, diferenca: 50 })], [], []);
     expect(linha?.tipo).toBe('soBetha');
     expect(linha?.nota).toContain('pode estar classificado em outro nível de detalhe');
   });
 
   it.each([
-    [10, 'A Betha registra mais que o TCE nesta rubrica.'],
-    [-10, 'O TCE registra mais que a Betha nesta rubrica.'],
+    [10, 'O Portal da Transparência registra mais que o TCE nesta rubrica.'],
+    [-10, 'O TCE registra mais que o Portal da Transparência nesta rubrica.'],
   ])('diferença de %s sem pista diz só quem registra mais', (diferenca, nota) => {
     const [linha] = anotarNaturezas([natureza({ diferenca })], [], []);
     expect(linha).toMatchObject({ tipo: 'valor', nota });
@@ -94,7 +97,7 @@ describe('anotarNaturezas', () => {
       [{ ent: '728', nat: '11125001', mes: 6, excesso: 50000 }],
     );
     expect(linha?.nota).toBe(
-      `Na própria Betha, o arrecadado no mês não fecha com o acumulado da rubrica em junho (R$${NBSP}50.000,00): é onde a conta desencontra. A linha que o acumulado provavelmente desconsidera pode ser de outro mês. Explica toda a diferença.`,
+      `Na própria Portal da Transparência, o arrecadado no mês não fecha com o acumulado da rubrica em junho (R$${NBSP}50.000,00): é onde a conta desencontra. A linha que o acumulado provavelmente desconsidera pode ser de outro mês. Explica toda a diferença.`,
     );
   });
 
@@ -121,14 +124,14 @@ describe('anotarNaturezas', () => {
     const repetidas = [{ ent: '728', nat: '11125001', outra: '17115101', mes: 3, v: 500 }];
     const [linha] = anotarNaturezas(linhas, repetidas, []);
     expect(linha?.nota).toBe(
-      `Em março, o mesmo valor (R$${NBSP}500,00) também foi lançado na rubrica 17115101, que bate com o TCE: possível lançamento em duplicidade na Betha.`,
+      `Em março, o mesmo valor (R$${NBSP}500,00) também foi lançado na rubrica 17115101, que bate com o TCE: possível lançamento em duplicidade no Portal da Transparência.`,
     );
   });
 
   it('repetição com valor diferente da diferença não é duplicidade', () => {
     const repetidas = [{ ent: '728', nat: '11125001', outra: '17115101', mes: 3, v: 499 }];
     const [linha] = anotarNaturezas([natureza({ diferenca: 500 })], repetidas, []);
-    expect(linha?.nota).toBe('A Betha registra mais que o TCE nesta rubrica.');
+    expect(linha?.nota).toBe('O Portal da Transparência registra mais que o TCE nesta rubrica.');
   });
 
   it('diferença que outra rubrica compensa exatamente é provável reclassificação', () => {
@@ -173,19 +176,21 @@ describe('anotarEmpenho', () => {
 
   it.each([
     ['betha', 'Sem correspondente no TCE.'],
-    ['tce', 'Sem correspondente na Betha.'],
+    ['tce', 'Sem correspondente no Portal da Transparência.'],
   ] as const)('empenho da fonte %s sem pista diz que não tem correspondente', (fonte, nota) => {
     expect(anotarEmpenho(semPar({ fonte })).nota).toBe(nota);
   });
 
-  it('empenho da Betha sem liquidação ganha o aviso', () => {
+  it('empenho do Portal da Transparência sem liquidação ganha o aviso', () => {
     expect(anotarEmpenho(semPar({ liquidado: null })).nota).toBe(
       'Sem correspondente no TCE. Não tem liquidação registrada.',
     );
   });
 
   it('empenho do TCE-SC sem liquidação não ganha o aviso', () => {
-    expect(anotarEmpenho(semPar({ fonte: 'tce', liquidado: null })).nota).toBe('Sem correspondente na Betha.');
+    expect(anotarEmpenho(semPar({ fonte: 'tce', liquidado: null })).nota).toBe(
+      'Sem correspondente no Portal da Transparência.',
+    );
   });
 });
 
@@ -398,7 +403,9 @@ describe('completarRubricas', () => {
 
   it('rubrica em aberto diz em quais meses a diferença aparece e de que lado', () => {
     const [linha] = completarRubricas(aberta(), [parcela(3, 4), parcela(5, 6)], new Map(), 2025);
-    expect(linha?.nota).toContain(`março (R$${NBSP}4,00 a mais na Betha) e maio (R$${NBSP}6,00 a mais na Betha)`);
+    expect(linha?.nota).toContain(
+      `março (R$${NBSP}4,00 a mais no Portal da Transparência) e maio (R$${NBSP}6,00 a mais no Portal da Transparência)`,
+    );
   });
 
   it('diferença em mais de seis meses diz só quantos', () => {
@@ -409,7 +416,7 @@ describe('completarRubricas', () => {
 
   it('parcela de outra natureza não entra na nota', () => {
     const [linha] = completarRubricas(aberta(), [{ ...parcela(3, 4), natureza: '17135011' }], new Map(), 2025);
-    expect(linha?.nota).toBe('A Betha registra mais que o TCE nesta rubrica.');
+    expect(linha?.nota).toBe('O Portal da Transparência registra mais que o TCE nesta rubrica.');
   });
 
   it('mesma rubrica divergindo do mesmo lado em outro ano é conhecida, sem virar explicada', () => {
@@ -552,17 +559,20 @@ describe('montarConferencia com as causas', () => {
 describe('separarValores', () => {
   it.each([
     ['iguais', 100, 100, 100, 0, 0],
-    ['Betha maior', 150, 100, 100, 50, 0],
+    ['Portal da Transparência maior', 150, 100, 100, 50, 0],
     ['TCE maior', 100, 150, 100, 0, 50],
     ['negativos de mesmo sinal', -100, -60, -60, -40, 0],
     ['negativos com o TCE mais negativo', -60, -100, -60, 0, -40],
     ['sinais opostos', 50, -50, 0, 50, -50],
-    ['só na Betha', 80, null, 0, 80, 0],
+    ['só no Portal da Transparência', 80, null, 0, 80, 0],
     ['só no TCE', null, 80, 0, 0, 80],
-    ['linha negativa só na Betha', -15312.12, null, 0, -15312.12, 0],
-  ])('%s: Betha %s e TCE %s conferem %s', (_cenario, betha, tce, conferido, diferencaBetha, diferencaTce) => {
-    expect(separarValores(betha, tce)).toEqual({ conferido, diferencaBetha, diferencaTce });
-  });
+    ['linha negativa só no Portal da Transparência', -15312.12, null, 0, -15312.12, 0],
+  ])(
+    '%s: Portal da Transparência %s e TCE %s conferem %s',
+    (_cenario, betha, tce, conferido, diferencaBetha, diferencaTce) => {
+      expect(separarValores(betha, tce)).toEqual({ conferido, diferencaBetha, diferencaTce });
+    },
+  );
 
   it('valores quebrados saem em centavos exatos, sem erro de ponto flutuante', () => {
     // Em number, 1234567.89 - 1234567.8 dá 0.08999999985.
@@ -607,7 +617,7 @@ describe('separarReceita', () => {
     expect(linhas).toMatchObject([{ conferido: 0, diferencaBetha: 0, diferencaTce: 80, tipo: 'so_tce' }]);
   });
 
-  it('mês sem Betha em natureza que a Betha tem em outro mês não é so_tce', () => {
+  it('mês sem Portal da Transparência em natureza que o Portal da Transparência tem em outro mês não é so_tce', () => {
     const { linhas } = separarReceita(
       [cruzamento({ mes: 1 }), cruzamento({ mes: 2, betha: null, tce: 80 })],
       SEM_PISTAS,
@@ -683,7 +693,7 @@ describe('separarReceita', () => {
     expect(aguardando).toMatchObject([{ mes: 10, valor: 700 }]);
   });
 
-  it('o mês do corte ainda é comparado, e linha sem mês na Betha nunca aguarda', () => {
+  it('o mês do corte ainda é comparado, e linha sem mês no Portal da Transparência nunca aguarda', () => {
     const { linhas, aguardando } = separarReceita(
       [cruzamento({ mes: 9 }), cruzamento({ mes: null, betha: 40, tce: null })],
       SEM_PISTAS,
@@ -818,7 +828,7 @@ describe('conferirDespesaEncerrada', () => {
     expect(discrepancia?.tipo).toBe('sem_causa');
   });
 
-  it('entidade que só existe na Betha não é conferida', () => {
+  it('entidade que só existe no Portal da Transparência não é conferida', () => {
     const { entidade, discrepancia } = conferirDespesaEncerrada(
       despesaDaEntidade({
         tceEmpenhado: null,
@@ -896,7 +906,7 @@ describe('montarDespesaConferida', () => {
     expect(despesa.camara).toEqual({ ...CAMARA, fonte: 'tce', conferida: false });
   });
 
-  it('ano em curso sem nenhum empenho no TCE: tudo aguarda, sem contar a Betha como sem par', () => {
+  it('ano em curso sem nenhum empenho no TCE: tudo aguarda, sem contar o Portal da Transparência como sem par', () => {
     const { despesa, discrepancias } = montarDespesaConferida(
       true,
       { mesReceita: 2, dataEmpenho: null },
@@ -931,11 +941,11 @@ const ENCERRADO = { parcial: false, corte: null };
 const EM_CURSO = { parcial: true, corte: '2025-09-30' };
 
 describe('classificarEmpenho', () => {
-  it('sem par, da Betha, sem execução e em ano encerrado é empenho_fantasma', () => {
+  it('sem par, do Portal da Transparência, sem execução e em ano encerrado é empenho_fantasma', () => {
     expect(classificarEmpenho(paraClassificar({}), ENCERRADO)).toBe('empenho_fantasma');
   });
 
-  it('com qualquer campo de execução, sem par na Betha fica sem_causa, e nunca fantasma', () => {
+  it('com qualquer campo de execução, sem par no Portal da Transparência fica sem_causa, e nunca fantasma', () => {
     expect(classificarEmpenho(paraClassificar({ semExecucao: false }), ENCERRADO)).toBe('sem_causa');
   });
 
@@ -953,12 +963,12 @@ describe('classificarEmpenho', () => {
     expect(classificarEmpenho(paraClassificar({ numeroNaOutra: 12 }), ENCERRADO)).toBe('empenho_renumerado');
   });
 
-  it('do TCE-SC com número que a Betha não tem é empenho_ausente', () => {
+  it('do TCE-SC com número que o Portal da Transparência não tem é empenho_ausente', () => {
     const e = paraClassificar({ fonte: 'tce', numeroExisteNaOutra: false, semExecucao: false });
     expect(classificarEmpenho(e, ENCERRADO)).toBe('empenho_ausente');
   });
 
-  it('do TCE-SC com o número na Betha, em outra data ou valor, fica sem_causa', () => {
+  it('do TCE-SC com o número no Portal da Transparência, em outra data ou valor, fica sem_causa', () => {
     const e = paraClassificar({ fonte: 'tce', numeroExisteNaOutra: true, semExecucao: false });
     expect(classificarEmpenho(e, ENCERRADO)).toBe('sem_causa');
   });
@@ -1038,7 +1048,7 @@ describe('discrepanciasDeEmpenhos', () => {
     ['empenho_fantasma', {}, /sem nenhum campo de execução/],
     ['empenho_repetido', { ocorrencia: 2 }, /mesmo número, data e valor/],
     ['empenho_renumerado', { numeroNaOutra: 112 }, /nº 112.*provável renumeração/],
-    ['empenho_ausente', { fonte: 'tce', numeroExisteNaOutra: false }, /número não aparece na Betha/],
+    ['empenho_ausente', { fonte: 'tce', numeroExisteNaOutra: false }, /número não aparece no Portal da Transparência/],
     ['sem_causa', { fonte: 'tce' }, /outra data ou valor/],
   ] as const)('a nota de %s diz o padrão, sem termo proibido', (tipo, campos, texto) => {
     const [discrepancia] = discrepanciasDeEmpenhos([paraClassificar(campos)], ENCERRADO);
@@ -1116,7 +1126,7 @@ describe('montarReceitaConferida: formato da coleta', () => {
     });
   });
 
-  it('as entidades sem Betha passam como vieram', () => {
+  it('as entidades sem Portal da Transparência passam como vieram', () => {
     expect(comFormato().entidadesSemBetha).toEqual([{ codigo: '319', entidade: 'FMS', totalTce: 300 }]);
   });
 });
@@ -1390,7 +1400,7 @@ describe('repetição linha a linha entre rubricas', () => {
       linhasRepetidas: [provisoria('1', 100), naDefinitiva('1', 100)],
     });
     expect(discrepancias[0]?.nota).toBe(
-      `Em janeiro, o mesmo valor (R$${NBSP}100,00) também foi lançado na rubrica 13210111, que bate com o TCE: possível lançamento em duplicidade na Betha.`,
+      `Em janeiro, o mesmo valor (R$${NBSP}100,00) também foi lançado na rubrica 13210111, que bate com o TCE: possível lançamento em duplicidade no Portal da Transparência.`,
     );
   });
 
@@ -1398,7 +1408,7 @@ describe('repetição linha a linha entre rubricas', () => {
     const { discrepancias } = receitaConferida([sobrando(380), definitiva], {
       linhasRepetidas: [provisoria('1', 200), provisoria('2', 100), naDefinitiva('1', 200), naDefinitiva('2', 100)],
     });
-    const esperada = `2 linhas de janeiro (R$${NBSP}300,00) têm o mesmo valor, no mesmo mês, na rubrica 13210111, que bate com o TCE: possível lançamento em duplicidade na Betha. Restam R$${NBSP}80,00 sem padrão.`;
+    const esperada = `2 linhas de janeiro (R$${NBSP}300,00) têm o mesmo valor, no mesmo mês, na rubrica 13210111, que bate com o TCE: possível lançamento em duplicidade no Portal da Transparência. Restam R$${NBSP}80,00 sem padrão.`;
     expect(discrepancias.map((d) => d.nota)).toEqual([esperada, esperada]);
   });
 });
