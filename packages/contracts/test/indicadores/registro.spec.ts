@@ -124,7 +124,7 @@ describe('INDICADORES', () => {
     expect(conferidoContra('despesa-por-funcao-divisao')).toBeNull();
   });
 
-  it('a despesa da Câmara não tem conferência na Betha, porque não está no portal', () => {
+  it('a despesa da Câmara não tem conferência no Portal da Transparência, porque não está no portal', () => {
     expect(INDICADORES.find((i) => i.id === 'despesa-camara')?.conferidoContra).toBeNull();
   });
 });
