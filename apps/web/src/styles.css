@@ -1909,6 +1909,29 @@ button.selo-icone:hover {
   color: var(--tinta);
 }
 
+/* À vista, uma linha por área; a conta explicada abre em "Ver a conta". */
+.faixa-conta .conta-resumo {
+  margin: 0;
+  font-family: var(--serif);
+  font-size: 18px;
+  line-height: 1.4;
+}
+
+.conta-detalhes > summary {
+  cursor: pointer;
+  font-family: var(--mono);
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  min-height: 32px;
+  display: flex;
+  align-items: center;
+}
+
+.conta-detalhes[open] > summary {
+  margin-bottom: 8px;
+}
+
 .conta-explicada dd {
   font-size: 16px;
 }

@@ -70,6 +70,12 @@ describe('Finanças com o conferido', () => {
       .closest('section') as HTMLElement;
     expect(secao).toHaveTextContent('Tribunal de Contas do Estado');
     expect(within(totais()).queryByRole('group')).not.toBeInTheDocument();
+    // À vista, uma linha por área; a conta fica recolhida em "Ver a conta".
+    expect([...secao.querySelectorAll('.conta-resumo')].map((p) => p.textContent)).toEqual([
+      'Receita: R$ 1,2 mi conferidos, 12,1% do total do Portal da Transparência.',
+      'Despesa: R$ 10,8 mi conferidos, 98,9% do total do Portal da Transparência.',
+    ]);
+    expect(secao.querySelector('details')).not.toHaveAttribute('open');
     const daReceita = within(secao).getByRole('group', { name: 'A conta da receita' });
     expect(contaNaTela(daReceita)).toEqual({ parcelas: [120000050, 870000030], total: 990000080 });
     const daDespesa = within(secao).getByRole('group', { name: 'A conta da despesa' });
