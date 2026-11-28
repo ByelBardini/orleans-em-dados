@@ -138,6 +138,48 @@ describe('registrarSite: o painel servido pela API', () => {
   });
 });
 
+describe('registrarSite: o contador de acessos', () => {
+  const TOKEN = '0123456789abcdef0123456789abcdef';
+  // A tag do Cloudflare Web Analytics, como `scriptDoAnalitico` a escreve.
+  const TAG =
+    '<script defer src="https://static.cloudflareinsights.com/beacon.min.js" ' +
+    'data-cf-beacon="{&quot;token&quot;:&quot;0123456789abcdef0123456789abcdef&quot;}"></script>';
+  const vezes = (texto: string, trecho: string) => texto.split(trecho).length - 1;
+
+  it('com o token, a página do painel sai com uma tag do contador', async () => {
+    const resposta = await app({}, { site: distFalso(), analitico: TOKEN }).inject({
+      method: 'GET',
+      url: '/financas/receitas',
+    });
+
+    expect(resposta.statusCode).toBe(200);
+    expect(vezes(resposta.body, TAG)).toBe(1);
+  });
+
+  it('com o token, o 404 do site também leva o contador', async () => {
+    const resposta = await app({}, { site: distFalso(), analitico: TOKEN }).inject({
+      method: 'GET',
+      url: '/nao-existe',
+    });
+
+    expect(resposta.statusCode).toBe(404);
+    expect(vezes(resposta.body, TAG)).toBe(1);
+  });
+
+  it.each(['/robots.txt', '/llms.txt', '/api/nao-existe'])('com o token, %s não leva o contador', async (url) => {
+    const resposta = await app({}, { site: distFalso(), analitico: TOKEN }).inject({ method: 'GET', url });
+
+    expect(resposta.body).not.toContain('cloudflareinsights');
+  });
+
+  it('sem o token, a capa sai sem o contador', async () => {
+    const resposta = await app({}, { site: distFalso() }).inject({ method: 'GET', url: '/' });
+
+    expect(resposta.statusCode).toBe(200);
+    expect(resposta.body).not.toContain('cloudflareinsights');
+  });
+});
+
 describe('registrarSite: o JSON-LD no head', () => {
   const SITE = 'https://exemplo.test';
 
