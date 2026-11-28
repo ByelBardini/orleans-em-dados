@@ -29,6 +29,48 @@ export const SELO_CONFERIDO_COM_A_BETHA: DadosDoSelo = {
 
 export const SELO_FONTE_UNICA: DadosDoSelo = { estado: 'fonte-unica', titulo: 'fonte única, sem conferência' };
 
+// Um termo do bloco: o gasto (sem nome) ou uma parcela da conta ("recebido", "contribuição"), com os anos que mostra
+// e os que foram conferidos.
+export type AnosDoTermo = {
+  nome?: string;
+  anos: readonly (number | string)[];
+  conferidos: readonly (number | string)[];
+};
+
+const emLista = (itens: readonly (number | string)[]) =>
+  new Intl.ListFormat('pt-BR', { style: 'long', type: 'conjunction' }).format(itens.map(String));
+const comMaiuscula = (texto: string) => texto.charAt(0).toUpperCase() + texto.slice(1);
+
+// O selo de um bloco inteiro, no título: um selo só no lugar de um por ano ou por termo. O título diz o que foi
+// conferido e em que anos; o motivo diz o que fica em fonte única. Sem nada conferido, é fonte única.
+export function seloPorAnos(
+  conferidoCom: string,
+  termos: readonly AnosDoTermo[],
+  foraDaConferencia: readonly string[] = [],
+): DadosDoSelo {
+  const comConferido = termos.filter((t) => t.conferidos.length > 0);
+  if (!comConferido.length) return SELO_FONTE_UNICA;
+  const titulo = comConferido
+    .map((t, i) => {
+      const quem = t.nome ? `${t.nome} ` : '';
+      return i === 0
+        ? `${quem}conferido com ${conferidoCom} em ${emLista(t.conferidos)}`
+        : `${quem}em ${emLista(t.conferidos)}`;
+    })
+    .join('; ');
+  const resto = [
+    ...termos.flatMap((t) => {
+      if (t.conferidos.length === t.anos.length) return [];
+      if (!t.nome) return ['Demais anos: fonte única.'];
+      return t.conferidos.length
+        ? [`${comMaiuscula(t.nome)}, nos demais anos: fonte única.`]
+        : [`${comMaiuscula(t.nome)}: fonte única.`];
+    }),
+    ...foraDaConferencia.map((nome) => `${comMaiuscula(nome)}: fonte única.`),
+  ];
+  return { estado: 'confere', titulo, ...(resto.length ? { motivo: resto.join(' ') } : {}) };
+}
+
 export const SELO_EXEMPLO: DadosDoSelo = { estado: 'pendente', titulo: 'dados fictícios, sem conferência' };
 
 export const seloAguardando = (motivo?: string): DadosDoSelo => ({
