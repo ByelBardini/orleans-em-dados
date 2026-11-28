@@ -26,6 +26,7 @@ import {
   AvisosDaConferencia,
   ContaDaDespesa,
   ContaDaReceita,
+  linhaDoConferido,
   SecaoDaConta,
   LINK_DISCREPANCIAS,
   motivoSemConferido,
@@ -305,7 +306,25 @@ function Conteudo({
       </Numeros>
 
       {!exemplo && (r.conferencia.disponivel || (temDespesa && o.conferencia.disponivel)) && (
-        <SecaoDaConta titulo="Como se chega a estes números">
+        <SecaoDaConta
+          titulo="Como se chega a estes números"
+          resumo={[
+            r.conferencia.disponivel
+              ? linhaDoConferido({
+                  area: 'Receita',
+                  conferido: r.conferencia.conferido,
+                  total: r.conferencia.totalBetha,
+                })
+              : null,
+            temDespesa && o.conferencia.disponivel
+              ? linhaDoConferido({
+                  area: 'Despesa',
+                  conferido: o.totais.empenhado,
+                  total: o.conferencia.totalBetha,
+                })
+              : null,
+          ].filter((linha): linha is string => linha !== null)}
+        >
           {r.conferencia.disponivel && (
             <ContaDaReceita explicada titulo="A conta da receita" conferencia={r.conferencia} />
           )}

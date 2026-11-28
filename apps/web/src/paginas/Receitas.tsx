@@ -6,6 +6,7 @@ import {
   ateOMes,
   AvisosDaConferencia,
   ContaDaReceita,
+  linhaDoConferido,
   LINK_DISCREPANCIAS,
   motivoSemConferido,
   SecaoDaConta,
@@ -274,7 +275,12 @@ function Conteudo({ ano, entidade, filtros, dados }: PropsDaPagina & { dados: Da
       </Numeros>
 
       {!exemplo && !fonteUnica && (
-        <SecaoDaConta titulo="Como se chega ao arrecadado">
+        <SecaoDaConta
+          titulo="Como se chega ao arrecadado"
+          resumo={[
+            linhaDoConferido({ conferido: dados.conferencia.conferido, total: dados.conferencia.totalBetha }),
+          ].filter((linha): linha is string => linha !== null)}
+        >
           <ContaDaReceita explicada conferencia={dados.conferencia} />
         </SecaoDaConta>
       )}

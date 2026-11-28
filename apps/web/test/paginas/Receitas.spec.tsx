@@ -82,6 +82,20 @@ describe('Receitas com o conferido', () => {
     expect(within(secao).getByRole('group', { name: 'A conta do conferido' })).toBeInTheDocument();
   });
 
+  it('à vista fica uma linha com o conferido; a conta abre em "Ver a conta"', async () => {
+    await abrir();
+
+    const secao = screen
+      .getByRole('heading', { name: 'Como se chega ao arrecadado' })
+      .closest('section') as HTMLElement;
+    expect([...secao.querySelectorAll('.conta-resumo')].map((p) => p.textContent)).toEqual([
+      'R$ 1,2 mi conferidos, 12,1% do total do Portal da Transparência.',
+    ]);
+    const detalhes = secao.querySelector('details') as HTMLElement;
+    expect(detalhes).not.toHaveAttribute('open');
+    expect(detalhes).toContainElement(conta());
+  });
+
   it.each([
     ['conferido', 'registram igual, ao centavo'],
     ['+ em discrepância', 'difere do TCE-SC'],

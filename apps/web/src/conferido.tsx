@@ -2,7 +2,7 @@
 // TCE-SC e o estado sem conferência. Os valores vêm do bloco `conferencia` da API; nada é recalculado.
 import type { DespesasResumo, Receitas } from '@orleans-em-dados/contracts';
 import type { ReactNode } from 'react';
-import { MESES_LONGOS, moeda } from './format';
+import { emMilhoes, MESES_LONGOS, moeda, pct } from './format';
 import {
   avisoDeLacuna,
   DESDE_QUANDO_O_TCE_PUBLICA,
@@ -29,16 +29,50 @@ type Linha = { rotulo: string; valor: number | null; explicacao?: string };
 const EM_DISCREPANCIA = 'A parte do Portal da Transparência que difere do TCE-SC. Cada caso está em Discrepâncias.';
 const TOTAL_DA_BETHA = 'O total publicado no portal da transparência do município.';
 
-// Os cartões ficam com o número; a conta, as fontes e o que cada parcela quer dizer ficam aqui, abaixo deles.
-export function SecaoDaConta({ titulo, children }: { titulo: string; children: ReactNode }) {
+/** A linha à vista da conta: o conferido e a parte que ele é do total do Portal da Transparência. O total fica só na
+ *  conta, nunca como número. Conferido zero diz que nada confere, sem "0%"; sem total ou conferido, não há linha. */
+export function linhaDoConferido({
+  area,
+  conferido,
+  total,
+}: {
+  area?: string;
+  conferido: number | string | null;
+  total: number | string | null;
+}): string | null {
+  if (conferido === null || total === null || Number(total) === 0) return null;
+  const inicio = area ? `${area}: ` : '';
+  if (Number(conferido) === 0) return `${inicio}nada confere entre as fontes neste recorte.`;
+  return `${inicio}${emMilhoes(Number(conferido))} conferidos, ${pct(Number(conferido), Number(total))} do total do Portal da Transparência.`;
+}
+
+// Os cartões ficam com o número. Aqui fica uma linha por área, à vista, e a conta explicada, recolhida: as fontes e o
+// que cada parcela quer dizer abrem em "Ver a conta".
+export function SecaoDaConta({
+  titulo,
+  resumo,
+  children,
+}: {
+  titulo: string;
+  resumo: readonly string[];
+  children: ReactNode;
+}) {
   return (
     <section className="secao solta faixa-conta">
       <h2 className="secao-titulo">{titulo}</h2>
-      <p className="nota-serif">
-        O número do cartão é só o que as duas fontes registram igual: o Portal da Transparência do município, e o
-        TCE-SC, sistema do Tribunal de Contas do Estado. O resto continua na conta, separado.
-      </p>
-      {children}
+      {resumo.map((linha) => (
+        <p key={linha} className="conta-resumo">
+          {linha}
+        </p>
+      ))}
+      <details className="conta-detalhes">
+        <summary>Ver a conta</summary>
+        <p className="nota-serif">
+          O número do cartão é só o que as duas fontes registram igual: o Portal da Transparência do município, e o
+          TCE-SC, sistema do Tribunal de Contas do Estado. O resto continua na conta, separado.
+        </p>
+        {children}
+      </details>
     </section>
   );
 }
