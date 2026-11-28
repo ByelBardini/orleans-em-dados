@@ -20,6 +20,7 @@ import {
   CabecalhoDoCaderno,
   Comparacao,
   Detalhes,
+  UmRecortePorVez,
 } from '../../educacao/componentes';
 import { moeda, numero } from '../../format';
 import './Professores.css';
@@ -42,6 +43,12 @@ const NOME_DO_NIVEL: Record<NivelDeRegularidade, string> = {
   media_alta: 'Média-alta',
   alta: 'Alta',
 };
+
+// Os dois grupos do SIOPE, um por vez nos blocos de temporários e de salário.
+const GRUPOS_DO_SIOPE = [
+  { grupo: 'magisterio', nome: 'Magistério' },
+  { grupo: 'outros', nome: 'Outros profissionais' },
+] as const;
 
 const nomeDaEtapa = (etapa: string) => NOMES_DE_ETAPA[etapa] ?? etapa;
 const emPct = (valor: number | null) => formatarValor(valor, '%');
@@ -119,6 +126,7 @@ function fraseDaFormacao({ etapas }: Formacao, rede: Rede) {
 
 function BlocoDaFormacao({ bloco, rede }: { bloco: Formacao; rede: Rede }) {
   const frase = fraseDaFormacao(bloco, rede);
+  const etapasDoArt62 = bloco.etapas.filter((etapa) => ETAPAS_DO_ART_62.includes(etapa.etapa));
   return (
     <BlocoDoCaderno
       titulo="Quem dá as aulas"
@@ -145,25 +153,36 @@ function BlocoDaFormacao({ bloco, rede }: { bloco: Formacao; rede: Rede }) {
         })}
       </div>
       <h3 className="edu-professores-subtitulo">Formação de quem dá as aulas, grupo a grupo</h3>
-      <div className="edu-professores-dupla">
-        {bloco.etapas
-          .filter((etapa) => ETAPAS_DO_ART_62.includes(etapa.etapa))
-          .map((etapa) => (
-            <div key={etapa.etapa}>
-              <h4 className="edu-professores-etapa">{nomeDaEtapa(etapa.etapa)}</h4>
-              <BarrasEmpilhadas
-                descricao={`${nomeDaEtapa(etapa.etapa)}, ${rotuloDaRede(rede)}: percentual de aulas por grupo`}
-                linhas={LUGARES.map((lugar) => ({
-                  rotulo: lugar.nome,
-                  partes: etapa.grupos.map(({ grupo, comparacao }) => ({
-                    nome: NOME_DO_GRUPO[grupo],
-                    valor: comparacao.porRede[rede]?.[lugar.chave] ?? null,
-                  })),
-                }))}
-              />
-            </div>
-          ))}
-      </div>
+      <UmRecortePorVez
+        rotulo="Etapa"
+        opcoes={etapasDoArt62.map((etapa) => ({
+          valor: etapa.etapa,
+          nome: nomeDaEtapa(etapa.etapa),
+          temDado: etapa.grupos.some(({ comparacao }) =>
+            LUGARES.some((lugar) => comparacao.porRede[rede]?.[lugar.chave] != null),
+          ),
+        }))}
+      >
+        {(escolhida) => {
+          const etapa = etapasDoArt62.find((e) => e.etapa === escolhida);
+          return (
+            etapa && (
+              <div className="edu-professores-estreito">
+                <BarrasEmpilhadas
+                  descricao={`${nomeDaEtapa(etapa.etapa)}, ${rotuloDaRede(rede)}: percentual de aulas por grupo`}
+                  linhas={LUGARES.map((lugar) => ({
+                    rotulo: lugar.nome,
+                    partes: etapa.grupos.map(({ grupo, comparacao }) => ({
+                      nome: NOME_DO_GRUPO[grupo],
+                      valor: comparacao.porRede[rede]?.[lugar.chave] ?? null,
+                    })),
+                  }))}
+                />
+              </div>
+            )
+          );
+        }}
+      </UmRecortePorVez>
       <dl className="edu-professores-grupos">
         <div>
           <dt>Grupo 1</dt>
@@ -281,22 +300,34 @@ function BlocoDosAlunosPorDocente({ bloco }: { bloco: NonNullable<EducacaoProfes
           Em {ano}, a rede municipal tem {emLista(trechos)}.
         </p>
       )}
-      <div className="edu-professores-dupla">
-        {bloco.etapas.map(({ etapa, anos }) => (
-          <div key={etapa}>
-            <h3 className="edu-professores-subtitulo">{comMaiuscula(nomeDaEtapa(etapa))}</h3>
-            <BarrasPorAno
-              descricao={`Alunos por docente ${naEtapa(etapa)}, rede municipal`}
-              casas={1}
-              barras={anos.map((a) => ({ ano: a.ano, valor: a.alunosPorDocente }))}
-              detalhar={(barra) => {
-                const linha = anos.find((a) => a.ano === barra.ano);
-                return `${pessoas(linha?.matriculas ?? null)} matrículas ÷ ${pessoas(linha?.docentes ?? null)} docentes`;
-              }}
-            />
-          </div>
-        ))}
-      </div>
+      <UmRecortePorVez
+        rotulo="Etapa"
+        opcoes={bloco.etapas.map(({ etapa, anos }) => ({
+          valor: etapa,
+          nome: comMaiuscula(nomeDaEtapa(etapa)),
+          temDado: anos.some((a) => a.alunosPorDocente !== null),
+        }))}
+      >
+        {(escolhida) => {
+          const { etapa, anos } = bloco.etapas.find((e) => e.etapa === escolhida) ?? {};
+          return (
+            etapa &&
+            anos && (
+              <div className="edu-professores-estreito">
+                <BarrasPorAno
+                  descricao={`Alunos por docente ${naEtapa(etapa)}, rede municipal`}
+                  casas={1}
+                  barras={anos.map((a) => ({ ano: a.ano, valor: a.alunosPorDocente }))}
+                  detalhar={(barra) => {
+                    const linha = anos.find((a) => a.ano === barra.ano);
+                    return `${pessoas(linha?.matriculas ?? null)} matrículas ÷ ${pessoas(linha?.docentes ?? null)} docentes`;
+                  }}
+                />
+              </div>
+            )
+          );
+        }}
+      </UmRecortePorVez>
     </BlocoDoCaderno>
   );
 }
@@ -344,28 +375,30 @@ function BlocoDosTemporarios({ bloco }: { bloco: Temporarios }) {
       }
     >
       {frase && <p className="edu-professores-frase">{frase}</p>}
-      <div className="edu-professores-dupla">
-        <div>
-          <h3 className="edu-professores-subtitulo">Magistério</h3>
-          <BarrasPorAno
-            descricao="Carga horária temporária no magistério, foto de maio"
-            unidade="%"
-            barras={barras('magisterio')}
-            maximo={100}
-            detalhar={declarados('magisterio')}
-          />
-        </div>
-        <div>
-          <h3 className="edu-professores-subtitulo">Outros profissionais da educação</h3>
-          <BarrasPorAno
-            descricao="Carga horária temporária dos outros profissionais, foto de maio"
-            unidade="%"
-            barras={barras('outros')}
-            maximo={100}
-            detalhar={declarados('outros')}
-          />
-        </div>
-      </div>
+      <UmRecortePorVez
+        rotulo="Profissionais"
+        opcoes={GRUPOS_DO_SIOPE.map(({ grupo, nome }) => ({
+          valor: grupo,
+          nome,
+          temDado: bloco.anos.some((a) => a[grupo].cargaTemporaria !== null),
+        }))}
+      >
+        {(grupo) => (
+          <div className="edu-professores-estreito">
+            <BarrasPorAno
+              descricao={
+                grupo === 'magisterio'
+                  ? 'Carga horária temporária no magistério, foto de maio'
+                  : 'Carga horária temporária dos outros profissionais, foto de maio'
+              }
+              unidade="%"
+              barras={barras(grupo)}
+              maximo={100}
+              detalhar={declarados(grupo)}
+            />
+          </div>
+        )}
+      </UmRecortePorVez>
     </BlocoDoCaderno>
   );
 }
@@ -408,25 +441,36 @@ function BlocoDaRemuneracao({ bloco }: { bloco: Remuneracao }) {
       }
     >
       {frase && <p className="edu-professores-frase">{frase}</p>}
-      <div className="edu-professores-dupla">
-        {GRAFICOS_DA_MEDIANA.map(([grupo, vinculo, nome]) => (
-          <div key={nome}>
-            <h3 className="edu-professores-subtitulo">
-              {nome} <span className="edu-professores-ressalva">em reais, foto de maio</span>
-            </h3>
-            <BarrasPorAno
-              descricao={`Salário mediano por 40 horas: ${nome.toLowerCase()}, foto de maio`}
-              formatar={emReaisInteiros}
-              barras={bloco.anos.map((a) => ({ ano: mesCurto(a.periodo), valor: a[grupo][vinculo] }))}
-              detalhar={(barra) => {
-                const linha = bloco.anos.find((a) => mesCurto(a.periodo) === barra.ano);
-                const valor = linha?.[grupo][vinculo] ?? null;
-                return linha && valor !== null ? `${moeda(valor)} na foto de ${maioDe(linha.periodo)}` : null;
-              }}
-            />
+      <UmRecortePorVez
+        rotulo="Profissionais"
+        opcoes={GRUPOS_DO_SIOPE.map(({ grupo, nome }) => ({
+          valor: grupo,
+          nome,
+          temDado: bloco.anos.some((a) => a[grupo].efetivo !== null || a[grupo].temporario !== null),
+        }))}
+      >
+        {(escolhido) => (
+          <div className="edu-professores-dupla">
+            {GRAFICOS_DA_MEDIANA.filter(([grupo]) => grupo === escolhido).map(([grupo, vinculo, nome]) => (
+              <div key={nome}>
+                <h3 className="edu-professores-subtitulo">
+                  {nome} <span className="edu-professores-ressalva">em reais, foto de maio</span>
+                </h3>
+                <BarrasPorAno
+                  descricao={`Salário mediano por 40 horas: ${nome.toLowerCase()}, foto de maio`}
+                  formatar={emReaisInteiros}
+                  barras={bloco.anos.map((a) => ({ ano: mesCurto(a.periodo), valor: a[grupo][vinculo] }))}
+                  detalhar={(barra) => {
+                    const linha = bloco.anos.find((a) => mesCurto(a.periodo) === barra.ano);
+                    const valor = linha?.[grupo][vinculo] ?? null;
+                    return linha && valor !== null ? `${moeda(valor)} na foto de ${maioDe(linha.periodo)}` : null;
+                  }}
+                />
+              </div>
+            ))}
           </div>
-        ))}
-      </div>
+        )}
+      </UmRecortePorVez>
     </BlocoDoCaderno>
   );
 }
