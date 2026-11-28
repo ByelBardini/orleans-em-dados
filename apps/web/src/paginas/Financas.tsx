@@ -232,9 +232,16 @@ function Conteudo({
           rotulo={`Arrecadado${ate ? ` ${ate}` : ''}`}
           detalhe={
             semConferido ??
-            (previsto > 0
-              ? `${pct(arrecadado, previsto)} dos ${emMilhoes(previsto)} previstos para o ano (orçamento: fonte única, sem conferência)`
-              : 'sem previsão')
+            (previsto > 0 ? (
+              // O previsto é o orçamento, em fonte única: o selo compacto fica ao lado dele, e o do cartão fala só do
+              // arrecadado.
+              <>
+                {pct(arrecadado, previsto)} dos {emMilhoes(previsto)} previstos para o ano{' '}
+                <Selo compacto selo={SELO_FONTE_UNICA} />
+              </>
+            ) : (
+              'sem previsão'
+            ))
           }
           barra={previsto > 0 && !semConferido ? (arrecadado / previsto) * 100 : undefined}
           selo={
@@ -390,7 +397,7 @@ function Conteudo({
       {!semDespesa && (
         <section className="secao dupla">
           <div className="secao-cab">
-            <h2 className="secao-titulo">Para onde vai cada R$ 100</h2>
+            <h2 className="secao-titulo">Cada R$ 100, por órgão</h2>
             <span className="legenda-secao">
               Valor original dos empenhos por órgão{pop ? ' · e quanto isso dá por morador no ano' : ''}
             </span>
@@ -419,6 +426,10 @@ function Conteudo({
               </li>
             ))}
           </ul>
+          {/* A divisão por função (saúde, educação…) é outra leitura, em Para onde vai. */}
+          <a href="/financas/para-onde-vai" className="botao-link">
+            Por função →
+          </a>
         </section>
       )}
 
