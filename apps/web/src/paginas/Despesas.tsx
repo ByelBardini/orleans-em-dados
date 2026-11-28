@@ -10,7 +10,14 @@ import {
 import { useEffect, useRef, useState } from 'react';
 import { useApi } from '../api';
 import { BarraDividida, BarrasMensais, Estado, Filtros, Fonte, ListaPontos, Mi, Numero, Numeros } from '../components';
-import { AvisosDaConferencia, ContaDaDespesa, LINK_DISCREPANCIAS, SemConferencia } from '../conferido';
+import {
+  AvisosDaConferencia,
+  ContaDaDespesa,
+  linhaDoConferido,
+  LINK_DISCREPANCIAS,
+  SecaoDaConta,
+  SemConferencia,
+} from '../conferido';
 import { avisoDeFonteUnica } from '../semConferencia';
 import { data, decimal, diaEMes, emMilhoes, MESES, MESES_LONGOS, moeda, nomeProprio, numero, pct } from '../format';
 import { usePopulacao } from '../usePopulacao';
@@ -179,6 +186,9 @@ function Conteudo({ ano, entidade, filtros, d, o }: PropsDaPagina & { d: Empenho
             Toda despesa pública passa por três etapas: empenho, liquidação e pagamento. Aqui você acompanha cada uma
             delas, por órgão e por credor, e pode buscar qualquer um dos {numero(t.quantidade)} empenhos do ano.
           </p>
+          <a href="#empenhos" className="botao-link">
+            Buscar nos empenhos ↓
+          </a>
         </div>
       </div>
 
@@ -196,10 +206,7 @@ function Conteudo({ ano, entidade, filtros, d, o }: PropsDaPagina & { d: Empenho
                 ) : fonteUnica ? (
                   <Selo selo={SELO_FONTE_UNICA} />
                 ) : (
-                  <>
-                    <Selo semLink={o.conferencia.totalBetha !== null} selo={seloDaDespesa(o.conferencia)} />
-                    <ContaDaDespesa conferido={o.totais.empenhado} conferencia={o.conferencia} />
-                  </>
+                  <Selo semLink={o.conferencia.totalBetha !== null} selo={seloDaDespesa(o.conferencia)} />
                 )}
                 <AvisoDeAtraso indicador="despesa-empenhada-liquida" ano={ano} />
               </>
@@ -224,6 +231,35 @@ function Conteudo({ ano, entidade, filtros, d, o }: PropsDaPagina & { d: Empenho
             {numero(t.credores)}
           </Numero>
         </Numeros>
+      )}
+
+      {/* As três etapas numa frase e a barra do empenhado, logo abaixo dos cartões. */}
+      {temDespesa && (
+        <section className="secao solta caminho-do-empenhado" aria-label="Do empenho ao pagamento">
+          <p className="legenda-secao">
+            O empenho reserva o valor, a liquidação confere a entrega e o pagamento tira o dinheiro do caixa.
+          </p>
+          <BarraDividida
+            total={empenhado}
+            descricao={`Pago ${pct(pago, empenhado)}, liquidado e não pago ${pct(liquidadoAPagar, empenhado)}, ainda não liquidado ${pct(naoLiquidado, empenhado)}`}
+            partes={[
+              { nome: 'Pago', valor: pago },
+              { nome: 'Liquidado, falta pagar', valor: liquidadoAPagar, classe: 'vermelho' },
+              { nome: 'Ainda não liquidado', valor: naoLiquidado, classe: 'listrada' },
+            ]}
+          />
+        </section>
+      )}
+
+      {temDespesa && !exemplo && !fonteUnica && o.conferencia.totalBetha !== null && (
+        <SecaoDaConta
+          titulo="Como se chega ao empenhado"
+          resumo={[linhaDoConferido({ conferido: o.totais.empenhado, total: o.conferencia.totalBetha })].filter(
+            (linha): linha is string => linha !== null,
+          )}
+        >
+          <ContaDaDespesa explicada conferido={o.totais.empenhado} conferencia={o.conferencia} />
+        </SecaoDaConta>
       )}
 
       {Number(aguardandoTce) > 0 && (
@@ -282,43 +318,6 @@ function Conteudo({ ano, entidade, filtros, d, o }: PropsDaPagina & { d: Empenho
               </tbody>
             </table>
           </div>
-        </section>
-      )}
-
-      {temDespesa && (
-        <section className="secao solta" style={{ gap: 20 }}>
-          <h2 className="secao-titulo" style={{ borderBottom: '1px solid var(--tinta)', paddingBottom: 8 }}>
-            O caminho dos {emMilhoes(empenhado).replace(' mi', ' milhões')} empenhados
-          </h2>
-          <ol className="etapas">
-            <li>
-              <span className="serif">1</span>
-              <span>
-                <strong>Empenho.</strong> A Prefeitura reserva o valor no orçamento para uma compra ou serviço.
-              </span>
-            </li>
-            <li>
-              <span className="serif">2</span>
-              <span>
-                <strong>Liquidação.</strong> Confere que o produto foi entregue ou o serviço, prestado.
-              </span>
-            </li>
-            <li>
-              <span className="serif">3</span>
-              <span>
-                <strong>Pagamento.</strong> O dinheiro sai do caixa para o credor.
-              </span>
-            </li>
-          </ol>
-          <BarraDividida
-            total={empenhado}
-            descricao={`Pago ${pct(pago, empenhado)}, liquidado e não pago ${pct(liquidadoAPagar, empenhado)}, ainda não liquidado ${pct(naoLiquidado, empenhado)}`}
-            partes={[
-              { nome: 'Pago', valor: pago },
-              { nome: 'Liquidado, falta pagar', valor: liquidadoAPagar, classe: 'vermelho' },
-              { nome: 'Ainda não liquidado', valor: naoLiquidado, classe: 'listrada' },
-            ]}
-          />
         </section>
       )}
 
@@ -430,7 +429,7 @@ function Conteudo({ ano, entidade, filtros, d, o }: PropsDaPagina & { d: Empenho
         </section>
       )}
 
-      <section className="secao dupla" ref={tabela} style={{ scrollMarginTop: 16 }}>
+      <section className="secao dupla" id="empenhos" ref={tabela} style={{ scrollMarginTop: 16 }}>
         <div className="secao-cab com-acoes">
           <div>
             <h2 className="secao-titulo">Todos os empenhos</h2>
