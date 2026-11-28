@@ -381,13 +381,25 @@ describe('Metodologia: privacidade', () => {
     expect(secao).toContain('fora dos buscadores');
   });
 
-  it('de quem visita: sem cookies, o tema fica no navegador e as fontes saem do próprio site, sem o Google', () => {
+  // O contador de acessos (2026-11-27, plano docs/plans/2026-11-27-contagem-de-acessos.md): a promessa
+  // "sem rastreadores" sai, e o aviso diz quem conta as visitas e que ninguém é identificado.
+  it('de quem visita: as visitas são contadas pelo Cloudflare, sem cookies e sem identificar quem visita', () => {
     render(<Metodologia />);
 
     const secao = secaoDe('Privacidade');
-    expect(secao).toContain('não usa cookies nem rastreadores');
+    expect(secao).toContain('Cloudflare Web Analytics');
+    expect(secao).toContain('não usa cookies');
+    expect(secao).toContain('sem identificar quem visita');
+    expect(secao).not.toContain('nem rastreadores');
+  });
+
+  it('de quem visita: o tema fica no navegador e as fontes saem do próprio site, sem o Google', () => {
+    render(<Metodologia />);
+
+    const secao = secaoDe('Privacidade');
     expect(secao).toContain('fica guardada só no seu navegador');
     expect(secao).toContain('As fontes do texto saem do próprio site');
+    expect(secao).not.toContain('sem conexão a outro servidor');
     expect(secao).not.toContain('Google');
   });
 

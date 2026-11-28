@@ -113,6 +113,9 @@ O código é aberto, mas os dados coletados **não são versionados**: ficam no 
 `data/`, que está no `.gitignore`, porque os empenhos trazem nomes de credores, que podem ser pessoas físicas. Também não são versionados tokens, arquivos `.env`, HAR ou
 planilhas baixadas.
 
+De quem visita, o site não usa cookies. As visitas são contadas pelo Cloudflare Web Analytics, que soma os acessos
+por página sem identificar quem visita, e só quando `CLOUDFLARE_ANALYTICS_TOKEN` está definido.
+
 O coletor usa endpoints internos observados no portal Betha. A estabilidade e a autorização para uso automatizado
 contínuo ainda não foram confirmadas. Veja [docs/FONTES_DE_DADOS.md](docs/FONTES_DE_DADOS.md).
 

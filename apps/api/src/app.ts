@@ -25,6 +25,8 @@ export type OpcoesDoApp = {
   siteUrl?: string | undefined;
   /** O código da meta `google-site-verification` (`GOOGLE_SITE_VERIFICATION`). */
   verificacaoGoogle?: string | undefined;
+  /** O token do contador de acessos (`CLOUDFLARE_ANALYTICS_TOKEN`, por `tokenDoAnalitico`); sem ele, nada é contado. */
+  analitico?: string | undefined;
   /** O Pix do apoio (`apoioDaSubida`); sem ele, `/api/apoio` e a página Apoiar são 404. */
   apoio?: ConfigDoApoio | null;
   /** Para o teste: o codificador do QR (padrão: o pacote `qrcode`). */
@@ -42,6 +44,7 @@ export function criarApp(
     site,
     siteUrl,
     verificacaoGoogle,
+    analitico,
     apoio = null,
     codificarQr,
     checarBanco,
@@ -58,7 +61,15 @@ export function criarApp(
   });
 
   if (site && existsSync(path.join(site, 'index.html'))) {
-    registrarSite(app, { pasta: site, siteUrl, verificacaoGoogle, apoioAtivo: Boolean(apoio), lerExercicios, relogio });
+    registrarSite(app, {
+      pasta: site,
+      siteUrl,
+      verificacaoGoogle,
+      analitico,
+      apoioAtivo: Boolean(apoio),
+      lerExercicios,
+      relogio,
+    });
   } else {
     app.setNotFoundHandler((_request, reply) => reply.code(404).send({ erro: 'Rota não encontrada' }));
   }

@@ -9,6 +9,13 @@ const SITE = 'https://exemplo.test';
 const atributo = (head: string, chave: string, valor = 'content') =>
   head.match(new RegExp(`<[^>]*(?:name|property|rel)="${chave}"[^>]*${valor}="([^"]*)"`))?.[1];
 
+const TOKEN = '0123456789abcdef0123456789abcdef';
+// A config de cada tag do Cloudflare no head, lida como o beacon lê: o atributo desescapado e o JSON.
+const beacons = (head: string) =>
+  [...head.matchAll(/<script [^>]*src="https:\/\/static\.cloudflareinsights\.com\/beacon\.min\.js"[^>]*>/g)].map(
+    ([tag]) => JSON.parse(tag.match(/data-cf-beacon="([^"]*)"/)![1]!.replaceAll('&quot;', '"')),
+  );
+
 describe('montarHead', () => {
   it('o head de Receitas traz título, descrição, canonical e a prévia das redes, com URL absoluta', () => {
     const head = montarHead(RECEITAS, { siteUrl: SITE });
@@ -62,6 +69,33 @@ describe('montarHead', () => {
 
   it('sem a verificação do Google, nada dela', () => {
     expect(montarHead(RECEITAS, { siteUrl: SITE })).not.toContain('google-site-verification');
+  });
+
+  it('com o token do contador, o head traz uma única tag do Cloudflare com ele', () => {
+    const head = montarHead(RECEITAS, { siteUrl: SITE, analitico: TOKEN });
+
+    expect(beacons(head)).toEqual([{ token: '0123456789abcdef0123456789abcdef' }]);
+  });
+
+  // Link quebrado compartilhado por aí também aparece na contagem.
+  it('a página não encontrada também é contada, junto do noindex', () => {
+    const head = montarHead(null, { siteUrl: SITE, analitico: TOKEN });
+
+    expect(beacons(head)).toEqual([{ token: '0123456789abcdef0123456789abcdef' }]);
+    expect(atributo(head, 'robots')).toBe('noindex');
+  });
+
+  it('sem SITE_URL, o contador entra do mesmo jeito', () => {
+    expect(beacons(montarHead(RECEITAS, { analitico: TOKEN }))).toEqual([
+      { token: '0123456789abcdef0123456789abcdef' },
+    ]);
+  });
+
+  it('sem o token, nada do Cloudflare no head', () => {
+    const head = montarHead(RECEITAS, { siteUrl: SITE });
+
+    expect(head).not.toContain('cloudflareinsights');
+    expect(head).not.toContain('data-cf-beacon');
   });
 
   it('página não encontrada leva noindex, sem canonical nem descrição', () => {
