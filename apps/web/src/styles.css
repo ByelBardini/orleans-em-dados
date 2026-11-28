@@ -1047,27 +1047,13 @@ input[type='search']::placeholder {
   height: 12px;
 }
 
-.etapas {
+/* Despesas: as três etapas numa frase e a barra do empenhado, logo abaixo dos cartões. */
+.caminho-do-empenhado {
+  gap: 12px;
+}
+
+.caminho-do-empenhado .legenda-secao {
   margin: 0;
-  padding: 0;
-  list-style: none;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 16px 40px;
-}
-
-.etapas li {
-  flex: 1 1 260px;
-  display: flex;
-  gap: 14px;
-  align-items: baseline;
-}
-
-.etapas .serif {
-  font-size: 44px;
-  line-height: 1;
-  font-style: italic;
-  color: var(--vermelho);
 }
 
 /* ---------- cada R$ 100 ---------- */
@@ -1909,6 +1895,20 @@ button.selo-icone:hover {
   color: var(--tinta);
 }
 
+.conta-explicada dd {
+  font-size: 16px;
+}
+
+.conta-explicada dd.conta-explica {
+  font-family: inherit;
+  font-size: 14px;
+  color: var(--apagado);
+}
+
+.faixa-conta .conta-explicada + .conta-explicada {
+  margin-top: 8px;
+}
+
 /* À vista, uma linha por área; a conta explicada abre em "Ver a conta". */
 .faixa-conta .conta-resumo {
   margin: 0;
@@ -1930,20 +1930,6 @@ button.selo-icone:hover {
 
 .conta-detalhes[open] > summary {
   margin-bottom: 8px;
-}
-
-.conta-explicada dd {
-  font-size: 16px;
-}
-
-.conta-explicada dd.conta-explica {
-  font-family: inherit;
-  font-size: 14px;
-  color: var(--apagado);
-}
-
-.faixa-conta .conta-explicada + .conta-explicada {
-  margin-top: 8px;
 }
 
 .conta-explicada .selo-link {
