@@ -32,6 +32,101 @@ const setasDa = (tabela: HTMLElement) =>
     li.className,
   ]);
 const dicaDa = (figura: RegExp) => screen.getByRole('img', { name: figura }).querySelector('.bpa-dica');
+// Os blocos com gráficos repetidos mostram um recorte por vez: o alternador do bloco troca o recorte.
+const escolherNoBloco = (doBloco: RegExp, nome: string) =>
+  userEvent.click(within(bloco(doBloco)).getByRole('button', { name: nome }));
+const figurasDo = (doBloco: RegExp) =>
+  within(bloco(doBloco))
+    .queryAllByRole('img')
+    .map((figura) => figura.getAttribute('aria-label'));
+
+describe('Professores: um recorte por vez', () => {
+  it('o salário abre no magistério, efetivos e temporários, e troca para os outros profissionais', async () => {
+    await abrir();
+
+    const salario = /salário mediano/i;
+    expect(within(bloco(salario)).getByRole('button', { name: 'Magistério' })).toHaveAttribute('aria-pressed', 'true');
+    expect(figurasDo(salario)).toEqual([
+      'Salário mediano por 40 horas: magistério, efetivos, foto de maio',
+      'Salário mediano por 40 horas: magistério, temporários, foto de maio',
+    ]);
+
+    await escolherNoBloco(salario, 'Outros profissionais');
+
+    expect(figurasDo(salario)).toEqual([
+      'Salário mediano por 40 horas: outros profissionais, efetivos, foto de maio',
+      'Salário mediano por 40 horas: outros profissionais, temporários, foto de maio',
+    ]);
+  });
+
+  it('os temporários abrem no magistério, um gráfico, e trocam para os outros profissionais', async () => {
+    await abrir();
+
+    expect(figurasDo(/temporári/i)).toEqual(['Carga horária temporária no magistério, foto de maio']);
+
+    await escolherNoBloco(/temporári/i, 'Outros profissionais');
+
+    expect(figurasDo(/temporári/i)).toEqual(['Carga horária temporária dos outros profissionais, foto de maio']);
+  });
+
+  it('alunos por docente abre na creche e troca de etapa; a frase continua com as duas', async () => {
+    await abrir();
+
+    expect(figurasDo(/alunos por docente/i)).toEqual(['Alunos por docente na creche, rede municipal']);
+
+    await escolherNoBloco(/alunos por docente/i, 'Pré-escola');
+
+    expect(figurasDo(/alunos por docente/i)).toEqual(['Alunos por docente na pré-escola, rede municipal']);
+    expect(bloco(/alunos por docente/i)).toHaveTextContent(
+      'Em 2025, a rede municipal tem 11,8 alunos por docente na creche e 11,0 na pré-escola.',
+    );
+  });
+
+  it('a formação grupo a grupo abre na educação infantil e troca para os anos iniciais', async () => {
+    await abrir();
+
+    const formacao = /quem dá as aulas/i;
+    expect(
+      within(bloco(formacao)).queryByRole('table', { name: /^Anos iniciais, rede pública: percentual/ }),
+    ).toBeNull();
+
+    await escolherNoBloco(formacao, 'Anos iniciais');
+
+    expect(
+      within(bloco(formacao)).getByRole('table', { name: /^Anos iniciais, rede pública: percentual/ }),
+    ).toBeInTheDocument();
+    expect(
+      within(bloco(formacao)).queryByRole('table', { name: /^Educação infantil, rede pública: percentual/ }),
+    ).toBeNull();
+  });
+
+  it('recorte sem dado nenhum fica desabilitado', async () => {
+    const base = professores();
+    await abrir(
+      professores({
+        temporarios: {
+          ...base.temporarios!,
+          anos: base.temporarios!.anos.map((a) => ({ ...a, outros: { ...a.outros, cargaTemporaria: null } })),
+        },
+      }),
+    );
+
+    expect(within(bloco(/temporári/i)).getByRole('button', { name: 'Outros profissionais' })).toBeDisabled();
+    expect(within(bloco(/temporári/i)).getByRole('button', { name: 'Magistério' })).toBeEnabled();
+  });
+
+  it('bloco com um recorte só não tem alternador', async () => {
+    const base = professores();
+    await abrir(
+      professores({
+        alunosPorDocente: { ...base.alunosPorDocente!, etapas: base.alunosPorDocente!.etapas.slice(0, 1) },
+      }),
+    );
+
+    expect(within(bloco(/alunos por docente/i)).queryByRole('group', { name: 'Etapa' })).toBeNull();
+    expect(figurasDo(/alunos por docente/i)).toEqual(['Alunos por docente na creche, rede municipal']);
+  });
+});
 
 describe('Professores: estados', () => {
   it('enquanto carrega, diz que está carregando', () => {
@@ -274,6 +369,7 @@ describe('Professores: alunos por docente', () => {
 
   it('na dica, docente sem dado é travessão, nunca zero', async () => {
     await abrir();
+    await escolherNoBloco(/alunos por docente/i, 'Pré-escola');
 
     await userEvent.hover(coluna(/^Alunos por docente na pré-escola/, '2024'));
 
@@ -282,6 +378,7 @@ describe('Professores: alunos por docente', () => {
 
   it('ano sem conta fica sem barra e com travessão', async () => {
     await abrir();
+    await escolherNoBloco(/alunos por docente/i, 'Pré-escola');
 
     const tabela = tabelaDa(/^Alunos por docente na pré-escola, rede municipal/);
     expect(within(tabela).getByRole('row', { name: '2024 —' })).toBeInTheDocument();
@@ -308,6 +405,7 @@ describe('Professores: temporários', () => {
 
   it('carga de 0% é zero, não travessão', async () => {
     await abrir();
+    await escolherNoBloco(/temporári/i, 'Outros profissionais');
 
     const tabela = tabelaDa(/^Carga horária temporária dos outros profissionais/);
     expect(within(tabela).getByRole('row', { name: '2025 0,0%' })).toBeInTheDocument();
@@ -325,6 +423,7 @@ describe('Professores: temporários', () => {
 
   it('a dica traz o texto da fonte quando os profissionais são menos de 5', async () => {
     await abrir();
+    await escolherNoBloco(/temporári/i, 'Outros profissionais');
 
     await userEvent.hover(coluna(/^Carga horária temporária dos outros/, '2024'));
 
@@ -371,6 +470,7 @@ describe('Professores: remuneração', () => {
 
   it('mediana nula fica sem barra e com travessão', async () => {
     await abrir();
+    await escolherNoBloco(/salário mediano/i, 'Outros profissionais');
 
     const figura = screen.getByRole('img', { name: /outros profissionais, temporários/i });
     expect(figura.querySelectorAll('.bpa-barra')).toHaveLength(2);

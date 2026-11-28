@@ -42,12 +42,6 @@
   color: var(--apagado);
 }
 
-.edu-professores-etapa {
-  margin: 12px 0 8px;
-  font-size: var(--edu-texto);
-  font-weight: 600;
-}
-
 /* As definições dos grupos ficam em grade, como uma legenda que se lê ao lado das barras. */
 .edu-professores-grupos {
   display: grid;
