@@ -21,6 +21,7 @@ O Postgres fica fora do compose, como recurso próprio do Coolify. Não há áre
    | `DATABASE_URL`                      | a URL interna do Postgres do passo 1                         | sim         |
    | `SITE_URL`                          | o endereço público, como `https://orleansemdados.com.br`     | sim (busca) |
    | `GOOGLE_SITE_VERIFICATION`          | o código da meta do Search Console, se não verificar por DNS | não         |
+   | `CLOUDFLARE_ANALYTICS_TOKEN`        | o token do Cloudflare Web Analytics (ver "Depois")           | não         |
    | `PIX_CHAVE`                         | a chave Pix do apoio: prefira aleatória ou e-mail, nunca CPF | não         |
    | `PIX_NOME`, `PIX_CIDADE`            | nome e cidade de quem recebe, como no banco (com a chave)    | com a chave |
    | `ANOS_DE_HISTORICO`                 | exercícios encerrados a manter (padrão 10)                   | não         |
@@ -42,6 +43,7 @@ O Postgres fica fora do compose, como recurso próprio do Coolify. Não há áre
 - **Todo dia**, o worker roda Betha (3h), TCE-SC (4h), IBGE (5h) e SICONFI (6h), no fuso de São Paulo, sobre o exercício corrente e o anterior. Às 2h, o `historico` completa o que ainda faltar (uma fonte fora do ar na véspera, por exemplo).
 - **Um deploy novo** reabre o histórico no modo `subida`: tenta de novo o que foi rejeitado, porque o código pode ter mudado.
 - **Snapshot novo de Educação ou do SIOPE** (extraído à mão, com `pnpm extrair educacao …` e `pnpm extrair educacao varrer` dizendo 0 achados): commite em `docs/educacao/snapshots/` e faça o push. Na subida, o worker carrega; o que não mudou vira `sem mudança`.
+- **Contagem de acessos:** no painel do Cloudflare, em **Web Analytics**, adicione o domínio e escolha a configuração manual (o snippet JS). Do snippet, copie só o valor de `token` para `CLOUDFLARE_ANALYTICS_TOKEN` no serviço `site` e faça o redeploy. Depois, **desligue a configuração automática** do Web Analytics no domínio: com o proxy ligado, ela vem ativa e injeta um segundo script, e cada visita conta duas vezes. Para conferir, navegue por três páginas pelo menu e veja as três no painel em alguns minutos. Token fora do formato (32 caracteres hexadecimais) não derruba o site: o log do `site` diz `contador de acessos desligado` e nada é contado.
 - **Busca:** sem `SITE_URL`, o `site` sobe e avisa no log, mas as páginas saem sem canonical e sem imagem na prévia das redes. Cada página tem endereço próprio (`/financas/receitas`) e head próprio, montado pelo servidor; caminho que não é página responde 404.
 - **Apoio por Pix:** com `PIX_CHAVE`, `PIX_NOME` e `PIX_CIDADE` no serviço `site`, aparecem o botão "Apoiar" e a página `/apoiar`, com o QR e o copia e cola; sem a chave, nada disso existe. A chave fica pública no QR: use uma chave aleatória ou um e-mail, nunca o CPF. Config errada (chave inválida, nome faltando) não derruba o site: o apoio fica desligado, e o motivo sai no log. Antes de divulgar, leia o QR com o app de um banco.
 - **Saúde:** `GET /api/saude` responde `{ "ok": true }` com o banco de pé e `503` sem ele.
