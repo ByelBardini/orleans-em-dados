@@ -55,7 +55,7 @@ Leia o hub da área antes de abrir fonte. O driver do `/testar` indica qual (`le
 
 ## Comandos
 
-- `pnpm db:subir`, `pnpm db:migrar`, `pnpm db:exemplos`, `pnpm dev` (API em 3000, web em 5173). Em produção, `WEB_DIST` faz a API servir o build do web; `SITE_URL` (endereço público: canonical, prévia das redes, sitemap), `GOOGLE_SITE_VERIFICATION` (opcional) e `PIX_CHAVE`, `PIX_NOME`, `PIX_CIDADE` (o Pix da página Apoiar; sem a chave, ela não existe) são do serviço `site`; o worker lê `ANOS_DE_HISTORICO` e `HISTORICO_PAUSA_MS`.
+- `pnpm db:subir`, `pnpm db:migrar`, `pnpm db:exemplos`, `pnpm dev` (API em 3000, web em 5173). Em produção, `WEB_DIST` faz a API servir o build do web; `SITE_URL` (endereço público: canonical, prévia das redes, sitemap), `GOOGLE_SITE_VERIFICATION` (opcional), `CLOUDFLARE_ANALYTICS_TOKEN` (opcional: o contador de acessos do Cloudflare Web Analytics, sem cookie) e `PIX_CHAVE`, `PIX_NOME`, `PIX_CIDADE` (o Pix da página Apoiar; sem a chave, ela não existe) são do serviço `site`; o worker lê `ANOS_DE_HISTORICO` e `HISTORICO_PAUSA_MS`.
 - `pnpm importar <betha|tcesc|ibge|siconfi> --ano 2025 [--consulta <chave>] [--json]`, `pnpm importar --arquivo <snapshot.json>`, `pnpm conferir --ano 2025`, `pnpm worker`.
 - `pnpm extrair educacao <inep|siope|enem|superior> --origem <pasta> [--de-extratos] [--destino <pasta>]`, `pnpm extrair educacao mec`, `pnpm extrair educacao varrer --origem <pasta>`: geram os snapshots em `docs/educacao/snapshots/`, sem banco; `varrer` procura dados pessoais neles e tem de dizer 0 achados. A carga é `pnpm importar --arquivo`.
 - Argumento vai direto depois do script: `pnpm importar betha --ano 2025`. O pnpm repassa `--` literalmente e o `parseArgs` da CLI trataria o resto como posicional.

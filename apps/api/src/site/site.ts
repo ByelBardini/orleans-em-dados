@@ -19,6 +19,8 @@ export type OpcoesDoSite = {
   pasta: string;
   siteUrl?: string | undefined;
   verificacaoGoogle?: string | undefined;
+  /** O token do contador de acessos; entra no head de toda página e do 404. */
+  analitico?: string | undefined;
   /** A página Apoiar só existe com o Pix configurado. */
   apoioAtivo?: boolean | undefined;
   /** Os exercícios publicados (`anosDisponiveis`); o teste troca por um falso. */
@@ -69,7 +71,7 @@ function exerciciosEmCache(ler: () => Promise<Exercicios>, relogio: () => number
 /** Registra o site no app: os arquivos do build, uma rota por página do catálogo e o 404 do que sobra. */
 export function registrarSite(
   app: FastifyInstance,
-  { pasta, siteUrl, verificacaoGoogle, apoioAtivo = false, lerExercicios, relogio = Date.now }: OpcoesDoSite,
+  { pasta, siteUrl, verificacaoGoogle, analitico, apoioAtivo = false, lerExercicios, relogio = Date.now }: OpcoesDoSite,
 ) {
   // Lido uma vez na subida: o build não muda com o processo de pé.
   const index = readFileSync(path.join(pasta, 'index.html'), 'utf8');
@@ -87,7 +89,7 @@ export function registrarSite(
     return jsonLdDaPagina(pagina, { siteUrl, anos }).map(serializarJsonLd);
   };
   const enviar = async (reply: FastifyReply, codigo: number, pagina: Pagina | null) => {
-    const head = montarHead(pagina, { siteUrl, verificacaoGoogle, jsonLd: await jsonLd(pagina) });
+    const head = montarHead(pagina, { siteUrl, verificacaoGoogle, analitico, jsonLd: await jsonLd(pagina) });
     return reply
       .code(codigo)
       .header('Content-Type', 'text/html; charset=utf-8')

@@ -1,6 +1,7 @@
 // O head de cada página, no HTML que o servidor entrega: buscador sem JS e prévia de link (WhatsApp,
 // Facebook, LinkedIn) não rodam o React, então título, descrição, canonical e imagem já vêm aqui.
 import type { Pagina } from '@orleans-em-dados/contracts';
+import { scriptDoAnalitico } from './analitico';
 
 export type PaginaDoHead = Pick<Pagina, 'caminho' | 'titulo' | 'descricao'>;
 
@@ -11,6 +12,8 @@ export type OpcoesDoHead = {
   verificacaoGoogle?: string | undefined;
   /** Os blocos de JSON-LD já serializados para o `<script>`. */
   jsonLd?: readonly string[];
+  /** O token do contador de acessos (`tokenDoAnalitico`); sem ele, nada é contado. */
+  analitico?: string | undefined;
 };
 
 const NOME_DO_SITE = 'Orleans em Dados';
@@ -34,7 +37,10 @@ const meta = (chave: 'name' | 'property', nome: string, conteudo: string) =>
 export const urlDoSite = (siteUrl: string, caminho: string) => `${siteUrl}${caminho}`;
 
 /** O head da página; `null` é a página não encontrada, com `noindex`. */
-export function montarHead(pagina: PaginaDoHead | null, { siteUrl, verificacaoGoogle, jsonLd = [] }: OpcoesDoHead) {
+export function montarHead(
+  pagina: PaginaDoHead | null,
+  { siteUrl, verificacaoGoogle, jsonLd = [], analitico }: OpcoesDoHead,
+) {
   const linhas: string[] = [];
   if (!pagina) {
     linhas.push(`<title>${escaparHtml(TITULO_NAO_ENCONTRADA)}</title>`, meta('name', 'robots', 'noindex'));
@@ -66,5 +72,6 @@ export function montarHead(pagina: PaginaDoHead | null, { siteUrl, verificacaoGo
     );
   }
   if (verificacaoGoogle) linhas.push(meta('name', 'google-site-verification', verificacaoGoogle));
+  if (analitico) linhas.push(scriptDoAnalitico(analitico));
   return linhas.join('\n    ');
 }
