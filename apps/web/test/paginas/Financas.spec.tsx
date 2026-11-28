@@ -70,6 +70,12 @@ describe('Finanças com o conferido', () => {
       .closest('section') as HTMLElement;
     expect(secao).toHaveTextContent('Tribunal de Contas do Estado');
     expect(within(totais()).queryByRole('group')).not.toBeInTheDocument();
+    // À vista, uma linha por área; a conta fica recolhida em "Ver a conta".
+    expect([...secao.querySelectorAll('.conta-resumo')].map((p) => p.textContent)).toEqual([
+      'Receita: R$ 1,2 mi conferidos, 12,1% do total do Portal da Transparência.',
+      'Despesa: R$ 10,8 mi conferidos, 98,9% do total do Portal da Transparência.',
+    ]);
+    expect(secao.querySelector('details')).not.toHaveAttribute('open');
     const daReceita = within(secao).getByRole('group', { name: 'A conta da receita' });
     expect(contaNaTela(daReceita)).toEqual({ parcelas: [120000050, 870000030], total: 990000080 });
     const daDespesa = within(secao).getByRole('group', { name: 'A conta da despesa' });
@@ -80,12 +86,33 @@ describe('Finanças com o conferido', () => {
     );
   });
 
-  it('o previsto usa o conferido no percentual, e declara que é fonte única', async () => {
+  it('o previsto usa o conferido no percentual, e o selo compacto ao lado diz que é fonte única', async () => {
     await abrir();
 
-    expect(celula('Arrecadado').querySelector('.numero-detalhe')).toHaveTextContent(
-      '60,0% dos R$ 2,0 mi previstos para o ano (orçamento: fonte única, sem conferência)',
+    const detalhe = celula('Arrecadado').querySelector('.numero-detalhe') as HTMLElement;
+    expect(detalhe).toHaveTextContent('60,0% dos R$ 2,0 mi previstos para o ano');
+    expect(detalhe).not.toHaveTextContent('(orçamento');
+    expect(within(detalhe).getByRole('button', { name: 'fonte única, sem conferência' })).toBeInTheDocument();
+  });
+
+  it('a divisão por órgão se chama "Cada R$ 100, por órgão" e leva à divisão por função', async () => {
+    await abrir();
+
+    expect(screen.queryByRole('heading', { name: 'Para onde vai cada R$ 100' })).not.toBeInTheDocument();
+    const secao = screen.getByRole('heading', { name: 'Cada R$ 100, por órgão' }).closest('section') as HTMLElement;
+    expect(within(secao).getByRole('link', { name: 'Por função →' })).toHaveAttribute(
+      'href',
+      '/financas/para-onde-vai',
     );
+  });
+
+  it('sem previsão, o detalhe diz isso e não leva selo do previsto', async () => {
+    const receita = receitas();
+    await abrir({ receita: { ...receita, totais: { ...receita.totais, orcadoAtualizado: 0 } } });
+
+    const detalhe = celula('Arrecadado').querySelector('.numero-detalhe') as HTMLElement;
+    expect(detalhe).toHaveTextContent('sem previsão');
+    expect(within(detalhe).queryByRole('button')).toBeNull();
   });
 
   it('por morador usa o conferido: a parte própria e, com os repasses, o total', async () => {
@@ -234,7 +261,10 @@ describe('Finanças com a receita só do Portal da Transparência, no ano que o 
     await abrir({ receita: receitasFonteUnica(), despesa: despesasForaDaFonte(), empenhos: empenhosForaDaFonte() });
 
     expect(celula('Arrecadado').querySelector('.numero-valor')).toHaveTextContent('1,2 mi');
-    expect(within(celula('Arrecadado')).getByText('fonte única, sem conferência')).toBeInTheDocument();
+    // Dois selos de fonte única: o do arrecadado, no cartão, e o compacto do previsto, no detalhe.
+    expect(within(celula('Arrecadado')).getAllByRole('button', { name: 'fonte única, sem conferência' })).toHaveLength(
+      2,
+    );
     const aviso = screen.getByText(/^O TCE-SC não publica as receitas de 2025\. Os números/);
     expect(
       aviso.compareDocumentPosition(screen.getByRole('heading', { level: 1 })) & Node.DOCUMENT_POSITION_FOLLOWING,
@@ -299,10 +329,10 @@ describe('Finanças com a receita conferida e a despesa em fonte única', () => 
     ).toBeInTheDocument();
   });
 
-  it('"Quem gasta" e "Para onde vai cada R$ 100" voltam', async () => {
+  it('"Quem gasta" e "Cada R$ 100, por órgão" voltam', async () => {
     await abrirDespesaUnica();
 
-    expect(screen.getByRole('heading', { name: 'Para onde vai cada R$ 100' })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Cada R$ 100, por órgão' })).toBeInTheDocument();
     const quem = screen.getByRole('heading', { name: 'Quem gasta' }).closest('section') as HTMLElement;
     expect(quem).not.toHaveTextContent('O TCE-SC não publica');
   });
@@ -344,7 +374,8 @@ describe('Finanças de um ano só do Portal da Transparência, na receita e na d
         'O TCE-SC não publica as receitas nem os empenhos de 2025. Os números são só do Portal da Transparência, sem conferência.',
       ),
     ).toBeInTheDocument();
-    expect(within(totais()).getAllByText('fonte única, sem conferência')).toHaveLength(2);
+    // O arrecadado, o empenhado e, compacto, o previsto.
+    expect(within(totais()).getAllByText('fonte única, sem conferência')).toHaveLength(3);
   });
 });
 
@@ -375,7 +406,7 @@ describe('Finanças com a receita conferida e a despesa fora da fonte', () => {
   it('sem empenhos, não há "cada R$ 100" nem a série de empenhado no mês a mês', async () => {
     await abrirSemDespesa();
 
-    expect(screen.queryByRole('heading', { name: 'Para onde vai cada R$ 100' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('heading', { name: 'Cada R$ 100, por órgão' })).not.toBeInTheDocument();
     const mes = screen.getByRole('heading', { name: 'Mês a mês' }).closest('section') as HTMLElement;
     expect(within(mes).queryByText('Empenhado')).not.toBeInTheDocument();
     expect(mes.querySelectorAll('.barras-mes-grupo .vermelho')).toHaveLength(0);

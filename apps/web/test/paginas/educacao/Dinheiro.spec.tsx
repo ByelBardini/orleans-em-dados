@@ -250,7 +250,6 @@ describe('Dinheiro: gasto', () => {
   // Um cartão por ano: o gasto em destaque e, embaixo, por morador e participação, cada valor em <strong>.
   const quadroDo = (ano: number) => within(bloco(GASTO)).getByRole('group', { name: `Gasto em ${ano}` });
   const valoresDo = (quadro: HTMLElement) => [...quadro.querySelectorAll('strong')].map((v) => textoDe(v).trim());
-  const linhaDoGasto = (quadro: HTMLElement) => quadro.querySelector('strong')?.parentElement as HTMLElement;
   const abrirDivisor = (quadro: HTMLElement) =>
     userEvent.click(within(quadro).getByRole('button', { name: 'como se calcula' }));
 
@@ -268,20 +267,25 @@ describe('Dinheiro: gasto', () => {
     expect(within(bloco(GASTO)).queryByText(/acima de SC|abaixo de SC/)).toBeNull();
   });
 
-  it('o selo do ano fica na linha do gasto', async () => {
+  it('o cartão do ano fica sem selo: quem diz o que é conferido é o título do bloco', async () => {
     await abrir();
 
-    expect(seloEm(linhaDoGasto(quadroDo(2025)), 'conferido com o Portal da Transparência')).toBeInTheDocument();
+    expect(within(quadroDo(2025)).queryAllByRole('button', { name: /conferido|fonte única/ })).toHaveLength(0);
+    expect(within(quadroDo(2023)).queryAllByRole('button', { name: /conferido|fonte única/ })).toHaveLength(0);
   });
 
-  it('cada ano tem o próprio selo: conferido com o Portal da Transparência ou fonte única', async () => {
+  it('o selo do título diz os anos conferidos, e o motivo, que os demais são fonte única', async () => {
     await abrir();
 
-    expect(seloEm(quadroDo(2025), 'conferido com o Portal da Transparência')).toBeInTheDocument();
-    expect(seloEm(quadroDo(2023), FONTE_UNICA)).toBeInTheDocument();
+    const titulo = within(bloco(GASTO)).getAllByRole('button', {
+      name: /conferido com o Portal da Transparência em 2024 e 2025/,
+    });
+    expect(titulo).toHaveLength(1);
+    await userEvent.click(titulo[0]!);
+    expect(textoDe(bloco(GASTO))).toContain('Demais anos: fonte única.');
   });
 
-  it('ano com diferença na conferência fica como fonte única', async () => {
+  it('ano com diferença na conferência sai do título do bloco', async () => {
     const base = dinheiro();
     await abrir(
       dinheiro({
@@ -292,16 +296,11 @@ describe('Dinheiro: gasto', () => {
       }),
     );
 
-    expect(seloEm(quadroDo(2025), FONTE_UNICA)).toBeInTheDocument();
-  });
-
-  it('o selo do título diz os anos conferidos', async () => {
-    await abrir();
-
-    const titulo = within(bloco(GASTO)).getAllByRole('button', {
-      name: /conferido com o Portal da Transparência em 2024 e 2025/,
-    });
-    expect(titulo).toHaveLength(1);
+    expect(
+      within(bloco(GASTO)).getByRole('button', {
+        name: 'conferido com o Portal da Transparência em 2024. Demais anos: fonte única.',
+      }),
+    ).toBeInTheDocument();
   });
 
   it('sem ano conferido, o título fica em fonte única', async () => {
@@ -610,17 +609,64 @@ describe('Dinheiro: a conta do Fundeb', () => {
     expect(textoDe(bloco(CONTA))).not.toContain('Sem a receita conferida');
   });
 
-  it('o recebido e a contribuição conferidos têm o selo do TCE-SC', async () => {
+  it('nenhum termo da conta tem selo próprio', async () => {
     await abrir();
 
-    expect(within(contaDe(2024)).getAllByRole('button', { name: /conferido com o TCE-SC/ })).toHaveLength(2);
-    expect(seloEm(contaDe(2023), 'conferido com o TCE-SC')).toBeNull();
+    for (const ano of [2023, 2024, 2025]) {
+      expect(within(contaDe(ano)).queryAllByRole('button', { name: /conferido|fonte única/ })).toHaveLength(0);
+    }
   });
 
-  it('o resultado oficial segue fonte única, no título', async () => {
+  it('o título diz em que anos o recebido e a contribuição são conferidos com o TCE-SC', async () => {
     await abrir();
 
+    const selos = within(bloco(CONTA)).getAllByRole('button', { name: /conferido|fonte única/ });
+    expect(selos).toHaveLength(1);
+    expect(selos[0]).toHaveAccessibleName(
+      /recebido conferido com o TCE-SC em 2024 e 2025; contribuição em 2024 e 2025/,
+    );
+  });
+
+  it('o motivo do título diz o que fica em fonte única: a contribuição de 2023 e o resultado oficial', async () => {
+    await abrir();
+
+    await userEvent.click(within(bloco(CONTA)).getByRole('button', { name: /recebido conferido com o TCE-SC/ }));
+    expect(textoDe(bloco(CONTA))).toContain(
+      'Contribuição, nos demais anos: fonte única. Resultado oficial: fonte única.',
+    );
+  });
+
+  it('sem contribuição conferida em ano nenhum, o título fala só do recebido', async () => {
+    const base = dinheiro();
+    await abrir(
+      dinheiro({
+        contaDoFundeb: {
+          ...base.contaDoFundeb!,
+          anos: base.contaDoFundeb!.anos.map((a) => ({ ...a, contribuicaoConferida: false })),
+        },
+      }),
+    );
+
+    expect(
+      within(bloco(CONTA)).getByRole('button', {
+        name: 'recebido conferido com o TCE-SC em 2024 e 2025. Contribuição: fonte única. Resultado oficial: fonte única.',
+      }),
+    ).toBeInTheDocument();
+  });
+
+  it('sem recebido conferido em ano nenhum, o bloco é fonte única', async () => {
+    const base = dinheiro();
+    await abrir(
+      dinheiro({
+        contaDoFundeb: {
+          ...base.contaDoFundeb!,
+          anos: base.contaDoFundeb!.anos.map((a) => ({ ...a, recebido: null, contribuicaoConferida: false })),
+        },
+      }),
+    );
+
     expect(seloEm(bloco(CONTA), FONTE_UNICA)).toBeInTheDocument();
+    expect(seloEm(bloco(CONTA), 'conferido com o TCE-SC')).toBeNull();
   });
 });
 

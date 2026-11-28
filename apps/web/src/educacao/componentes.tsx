@@ -179,11 +179,14 @@ export function Alternador<T extends string>({
   opcoes,
   valor,
   aoMudar,
+  desabilitadas = [],
 }: {
   rotulo: string;
   opcoes: readonly { valor: T; nome: string }[];
   valor: T;
   aoMudar: (valor: T) => void;
+  /** As opções sem dado: ficam à vista, desabilitadas, como a rede sem dado. */
+  desabilitadas?: readonly T[];
 }) {
   return (
     <div role="group" aria-label={rotulo} className="alternador">
@@ -195,12 +198,44 @@ export function Alternador<T extends string>({
           key={opcao.valor}
           type="button"
           aria-pressed={valor === opcao.valor}
+          disabled={desabilitadas.includes(opcao.valor)}
           onClick={() => aoMudar(opcao.valor)}
         >
           {opcao.nome}
         </button>
       ))}
     </div>
+  );
+}
+
+/** Um bloco com gráficos repetidos (por etapa, por grupo) mostra um recorte por vez. Abre no primeiro com dado; o
+ *  recorte sem dado fica desabilitado; com um recorte só, não há alternador. A frase do bloco fica fora: não muda. */
+export function UmRecortePorVez<T extends string>({
+  rotulo,
+  opcoes,
+  children,
+}: {
+  rotulo: string;
+  opcoes: readonly { valor: T; nome: string; temDado: boolean }[];
+  children: (valor: T) => ReactNode;
+}) {
+  const inicial = (opcoes.find((o) => o.temDado) ?? opcoes[0])?.valor;
+  const [escolhido, setEscolhido] = useState<T | undefined>(inicial);
+  const valor = opcoes.some((o) => o.valor === escolhido) ? escolhido : inicial;
+  if (valor === undefined) return null;
+  return (
+    <>
+      {opcoes.length > 1 && (
+        <Alternador
+          rotulo={rotulo}
+          opcoes={opcoes}
+          valor={valor}
+          aoMudar={setEscolhido}
+          desabilitadas={opcoes.filter((o) => !o.temDado).map((o) => o.valor)}
+        />
+      )}
+      {children(valor)}
+    </>
   );
 }
 

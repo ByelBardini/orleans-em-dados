@@ -34,6 +34,8 @@ const abrir = async (respostas: Parameters<typeof api>[0] = {}) => {
 const totais = () => screen.getByRole('region', { name: 'Totais de despesa' });
 const celula = (rotulo: string | RegExp) => within(totais()).getByText(rotulo).parentElement as HTMLElement;
 const porEntidade = () => screen.getByRole('region', { name: 'Despesa por entidade' });
+const secaoDaConta = () =>
+  screen.getByRole('heading', { name: 'Como se chega ao empenhado' }).closest('section') as HTMLElement;
 const linhaDa = (nome: string) => within(porEntidade()).getByText(nome).closest('tr') as HTMLElement;
 
 describe('Despesas com o conferido', () => {
@@ -57,11 +59,47 @@ describe('Despesas com o conferido', () => {
   it('o total do Portal da Transparência fica só na conta, e a conta fecha', async () => {
     const container = await abrir();
 
-    const conta = within(celula('Empenhado')).getByRole('group', { name: 'A conta do conferido' });
+    const conta = within(secaoDaConta()).getByRole('group', { name: 'A conta do conferido' });
     expect(contaNaTela(conta)).toEqual({ parcelas: [1079165253, 12388732], total: 1091553985 });
     expect(within(conta).getByRole('link', { name: 'Ver discrepâncias →' })).toHaveAttribute('href', '/discrepancias');
     expect(celula('Empenhado').querySelector('.numero-valor')).toHaveTextContent('10,8 mi');
     expect(container.textContent?.match(/10\.915\.539,85/g)).toHaveLength(1);
+  });
+
+  it('a conta sai do cartão: fica abaixo dos cartões, recolhida, com uma linha à vista', async () => {
+    await abrir();
+
+    expect(within(totais()).queryByRole('group')).not.toBeInTheDocument();
+    const secao = secaoDaConta();
+    expect([...secao.querySelectorAll('.conta-resumo')].map((p) => p.textContent)).toEqual([
+      'R$ 10,8 mi conferidos, 98,9% do total do Portal da Transparência.',
+    ]);
+    expect(secao.querySelector('details')).not.toHaveAttribute('open');
+    expect(totais().compareDocumentPosition(secao) & Node.DOCUMENT_POSITION_FOLLOWING).toBe(
+      Node.DOCUMENT_POSITION_FOLLOWING,
+    );
+  });
+
+  it('a abertura leva à busca nos empenhos', async () => {
+    await abrir();
+
+    const atalho = screen.getByRole('link', { name: 'Buscar nos empenhos ↓' });
+    expect(atalho).toHaveAttribute('href', '#empenhos');
+    const destino = document.getElementById('empenhos') as HTMLElement;
+    expect(within(destino).getByRole('heading', { name: 'Todos os empenhos' })).toBeInTheDocument();
+  });
+
+  it('o caminho do empenhado é uma barra logo depois dos cartões, com as três etapas numa frase', async () => {
+    await abrir();
+
+    expect(screen.queryByRole('heading', { name: /O caminho dos/ })).not.toBeInTheDocument();
+    const barra = screen.getByRole('img', { name: /^Pago .*, liquidado e não pago .*, ainda não liquidado/ });
+    const etapas = screen.getByRole('region', { name: 'Do empenho ao pagamento' });
+    expect(etapas).toContainElement(barra);
+    expect(etapas).toHaveTextContent(
+      'O empenho reserva o valor, a liquidação confere a entrega e o pagamento tira o dinheiro do caixa.',
+    );
+    expect(totais().nextElementSibling).toBe(etapas);
   });
 
   it('exercício encerrado tem o selo do TCE-SC', async () => {
@@ -136,6 +174,7 @@ describe('Despesas com o conferido', () => {
       await abrir(emCurso());
 
       expect(screen.queryByRole('group', { name: 'A conta do conferido' })).not.toBeInTheDocument();
+      expect(screen.queryByRole('heading', { name: 'Como se chega ao empenhado' })).not.toBeInTheDocument();
     });
 
     it('aguardando é pendência, com a quantidade e o valor', async () => {
@@ -313,6 +352,7 @@ describe('Despesas de um exercício que o TCE-SC não publica, com o Portal da T
 
     expect(within(celula('Empenhado')).queryByRole('link', { name: /Ver discrepâncias/ })).not.toBeInTheDocument();
     expect(screen.queryByRole('group', { name: 'A conta do conferido' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('heading', { name: 'Como se chega ao empenhado' })).not.toBeInTheDocument();
   });
 
   it('a lista de empenhos aparece com o selo de fonte única, e o CSV continua', async () => {
