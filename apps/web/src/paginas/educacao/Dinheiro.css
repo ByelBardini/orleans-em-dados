@@ -180,7 +180,7 @@
 .edu-dinheiro-conta dl,
 .edu-dinheiro-sem-conta dl {
   display: grid;
-  grid-template-columns: max-content minmax(0, 1fr) 24px;
+  grid-template-columns: max-content minmax(0, 1fr);
   align-items: baseline;
   gap: 6px 12px;
   margin: 0;
@@ -204,7 +204,7 @@
 }
 
 .edu-dinheiro-termo dd {
-  grid-column: 2 / 4;
+  grid-column: 2 / 3;
   margin: 0;
 }
 
@@ -279,17 +279,17 @@
 }
 
 .edu-dinheiro-sem-conta dl {
-  grid-template-columns: repeat(2, max-content minmax(0, 1fr) 24px);
+  grid-template-columns: repeat(2, max-content minmax(0, 1fr));
   column-gap: 12px;
 }
 
 .edu-dinheiro-sem-conta .edu-dinheiro-termo {
-  grid-column: span 3;
+  grid-column: span 2;
 }
 
 @media (max-width: 720px) {
   .edu-dinheiro-sem-conta dl {
-    grid-template-columns: max-content minmax(0, 1fr) 24px;
+    grid-template-columns: max-content minmax(0, 1fr);
   }
 }
 
