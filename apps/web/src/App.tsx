@@ -234,7 +234,7 @@ export default function App() {
         <div>
           <p className="rotulo">Sobre os dados</p>
           <p>
-            Portal da Transparência de Orleans (Betha) conferido com o Farol do TCE-SC, despesa por função do SICONFI,
+            Portal da Transparência de Orleans conferido com o Farol do TCE-SC, despesa por função do SICONFI,
             indicadores do IBGE e, na educação, INEP, SIOPE e MEC. <a href="/discrepancias">Onde as fontes divergem</a>{' '}
             · <a href="/sobre-os-dados">Como os números são conferidos</a>.
           </p>

@@ -85,7 +85,7 @@ describe('/api/despesas/empenhos no ano sem os empenhos do TCE-SC', () => {
     expect(totais).toMatchObject({ quantidade: 6, empenhado: 198000, excluidos: 0 });
   });
 
-  it('a lista traz os empenhos da Betha, e a busca funciona', async () => {
+  it('a lista traz os empenhos do Portal da Transparência, e a busca funciona', async () => {
     const { itens } = await get(`/api/despesas/empenhos?ano=${ANO_ANTIGO}&q=laboratorio`);
 
     expect(itens.map((i: { numero: number; historico: string }) => [i.numero, i.historico])).toEqual([

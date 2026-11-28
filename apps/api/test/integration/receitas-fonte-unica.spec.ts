@@ -52,8 +52,8 @@ afterAll(async () => {
   await pool.end();
 });
 
-describe('ano que o TCE-SC não publica, só com a Betha', () => {
-  it('a receita sai da Betha como fonte única, sem conferência, e diz que a fonte não publica', async () => {
+describe('ano que o TCE-SC não publica, só com o Portal da Transparência', () => {
+  it('a receita sai do Portal da Transparência como fonte única, sem conferência, e diz que a fonte não publica', async () => {
     const { conferencia, totais } = await get(`/api/receitas?ano=${SO_BETHA}`);
 
     expect(conferencia).toMatchObject({
@@ -80,7 +80,7 @@ describe('ano que o TCE-SC não publica, só com a Betha', () => {
     expect(naturezas.map((n: { natureza: string }) => n.natureza)).toEqual(['17135011010000']);
   });
 
-  it('a natureza da tabela vem no formato novo, e a rubrica como a Betha publica', async () => {
+  it('a natureza da tabela vem no formato novo, e a rubrica como o Portal da Transparência publica', async () => {
     const { naturezas } = await get(`/api/receitas?ano=${SO_BETHA}&entidade=728`);
 
     expect(naturezas.map((n: { rubrica: string; natureza: string }) => [n.rubrica, n.natureza])).toEqual([
@@ -92,13 +92,15 @@ describe('ano que o TCE-SC não publica, só com a Betha', () => {
   it('o CSV traz a natureza ao lado da rubrica e não chama o arrecadado de conferido', async () => {
     const { corpo } = await pedir(base, `/api/receitas.csv?ano=${SO_BETHA}&entidade=319`);
 
-    expect(corpo).toContain('Rubrica;Natureza;Descrição;Entidade;Orçado atualizado;Arrecadado (só Betha)\r\n');
+    expect(corpo).toContain(
+      'Rubrica;Natureza;Descrição;Entidade;Orçado atualizado;Arrecadado (só do Portal da Transparência)\r\n',
+    );
     expect(corpo).toContain('417135011010000;17135011010000;');
   });
 });
 
 describe('ano no formato bruto, com o TCE-SC', () => {
-  it('a receita conferida diz que é bruta, traz a dedução do TCE-SC e a entidade que a Betha não publica', async () => {
+  it('a receita conferida diz que é bruta, traz a dedução do TCE-SC e a entidade que o Portal da Transparência não publica', async () => {
     const { conferencia, totais } = await get(`/api/receitas?ano=${ANO_ANTIGO}`);
 
     expect(conferencia).toMatchObject({

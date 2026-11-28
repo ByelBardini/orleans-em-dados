@@ -505,7 +505,7 @@ function Conteudo({ ano, entidade, filtros, dados }: PropsDaPagina & { dados: Da
         <div className="paginacao">
           <p className="nota-serif">
             O traço vertical marca 100% do previsto. Em vermelho, receitas que passaram da meta. O previsto é o
-            orçamento da Betha: fonte única, sem conferência.
+            orçamento do Portal da Transparência: fonte única, sem conferência.
           </p>
           {!busca && rubricas.length > INICIAL && (
             <button type="button" className="botao-link" onClick={() => setTodas((t) => !t)}>

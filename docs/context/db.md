@@ -26,6 +26,7 @@ Esquema PostgreSQL, migrações e conexão. Vive em `packages/db/` (pacote `@orl
 - `ibge_valores` — `localidade` é o código do IBGE (`4211702` Orleans, `42` Santa Catarina, `1` Brasil). `valor` `NUMERIC(18,3)` (contagem, área, mil reais), `NULL` quando o SIDRA traz símbolo, guardado em `simbolo`. `categoria` vazia quando a tabela não tem classificação.
 - `educacao_valores`, `educacao_financas` — o caderno de Educação, migrações `0004` e `0005`; modelo e indicadores em [educacao.md](educacao.md).
 - `0006_ipca` só registra a consulta `ibge_ipca` (900108), gravada em `ibge_valores`.
+- `0008_nome_da_fonte` troca o nome da fonte `betha` para `Portal da Transparência — Orleans/SC`: é o que o rodapé "Fonte: ..." mostra. O id `betha` fica.
 - `receitas.natureza` e `receitas.deducao` (`0007`) — colunas geradas (`generatedAlwaysAs`, `STORED`) da `rubrica`: rubrica de 15 dígitos com `4`/`9` na frente (a Betha até 2019) perde a classe, e `9` é dedução; o resto sai igual, com `deducao = false`. Valem para coleta já gravada, sem recoleta; `rubrica` segue como a fonte publica. Escrita direta é recusada. Índice `(coleta_id, natureza)`.
 - `siconfi_funcoes` — `etapa` `empenhado`, `liquidado`, `pago`, `rp_nao_processados`, `rp_processados`; `tipo` `total` (sem `funcao_codigo`), `funcao`, `subfuncao` (`10.301` ou `FU12`).
 

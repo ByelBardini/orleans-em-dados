@@ -55,7 +55,7 @@ describe('conferenciaPorArea', () => {
     expect(despesa).toEqual({ disponivel: false, faltando: ['tcesc_receitas'] });
   });
 
-  it('só com a Betha, cada área lista as próprias coletas do TCE-SC que faltam', async () => {
+  it('só com o Portal da Transparência, cada área lista as próprias coletas do TCE-SC que faltam', async () => {
     await tirar(TCE_RECEITAS, TCE_EMPENHOS);
 
     const { receita, despesa } = await conferenciaPorArea(2025);
@@ -64,7 +64,7 @@ describe('conferenciaPorArea', () => {
     expect(despesa).toEqual({ disponivel: false, faltando: ['tcesc_receitas', 'tcesc_empenhos'] });
   });
 
-  it('sem a Betha, as duas áreas listam as consultas dela', async () => {
+  it('sem o Portal da Transparência, as duas áreas listam as consultas dela', async () => {
     await tirar(...BETHA);
 
     const { receita, despesa } = await conferenciaPorArea(2025);
@@ -87,7 +87,7 @@ describe('dadosConferidos e empenhosConferidos sem os empenhos do TCE-SC', () =>
     expect(await empenhosConferidos(2025)).toMatchObject({ disponivel: false, faltando: ['tcesc_empenhos'] });
   });
 
-  it('empenhosConferidos não depende das receitas da Betha', async () => {
+  it('empenhosConferidos não depende das receitas do Portal da Transparência', async () => {
     await tirar(57153);
 
     expect(await empenhosConferidos(2025)).toMatchObject({ disponivel: true });

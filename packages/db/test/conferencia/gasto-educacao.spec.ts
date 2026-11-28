@@ -28,7 +28,7 @@ describe('compararGastoEducacao', () => {
     expect(resultado.estado).toBe('conferido');
   });
 
-  it('um centavo a menos na Betha numa etapa é diferença, que aponta a etapa e a DCA como o lado maior', () => {
+  it('um centavo a menos no Portal da Transparência numa etapa é diferença, que aponta a etapa e a DCA como o lado maior', () => {
     const resultado = compararGastoEducacao(2025, DCA, etapas(1000.5, 900.24, 800));
 
     if (resultado.estado !== 'diferenca') throw new Error('esperava diferença');
@@ -37,14 +37,14 @@ describe('compararGastoEducacao', () => {
     ]);
   });
 
-  it('Betha maior que a DCA aponta a Betha como o lado maior, com a diferença negativa', () => {
+  it('Portal da Transparência maior que a DCA aponta o Portal da Transparência como o lado maior, com a diferença negativa', () => {
     const resultado = compararGastoEducacao(2025, DCA, etapas(1000.5, 900.25, 800.5));
 
     if (resultado.estado !== 'diferenca') throw new Error('esperava diferença');
     expect(resultado.etapas[2]).toEqual({ etapa: 'pago', dca: 800, betha: 800.5, diferenca: -0.5, maior: 'betha' });
   });
 
-  it('sem coleta da Betha fica sem_betha, sem diferença calculada', () => {
+  it('sem coleta do Portal da Transparência fica sem_betha, sem diferença calculada', () => {
     expect(compararGastoEducacao(2023, DCA, [])).toEqual({ ano: 2023, estado: 'sem_betha' });
   });
 

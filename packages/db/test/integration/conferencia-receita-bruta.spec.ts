@@ -26,7 +26,7 @@ describe('conferenciaPorArea: receita no formato bruto', () => {
     await gravarLote('tcesc', 'receitas', tcescReceitasFormatoAntigo());
   });
 
-  it('o bruto da Betha confere com o bruto do TCE-SC, e a dedução do FUNDEB não entra na diferença', async () => {
+  it('o bruto do Portal da Transparência confere com o bruto do TCE-SC, e a dedução do FUNDEB não entra na diferença', async () => {
     const { receita } = await receitaDoAno(ANO_ANTIGO);
 
     expect(receita.totais).toMatchObject({ conferido: 1500, diferencaBetha: 0, diferencaTce: 300 });
@@ -50,7 +50,7 @@ describe('conferenciaPorArea: receita no formato bruto', () => {
     expect(receita.porOrigem.map((o) => o.origem).sort()).toEqual(['11', '17']);
   });
 
-  it('a linha de dedução da Betha, com o arrecadado zerado, não vira discrepância', async () => {
+  it('a linha de dedução do Portal da Transparência, com o arrecadado zerado, não vira discrepância', async () => {
     const { discrepancias } = await receitaDoAno(ANO_ANTIGO);
 
     expect(discrepancias.map((d) => [d.codigoEntidade, d.tipo])).toEqual([['319', 'so_tce']]);
@@ -63,7 +63,7 @@ describe('conferenciaPorArea: receita no formato bruto', () => {
     expect(discrepancias.find((d) => d.codigoEntidade === '319')).toMatchObject({ tipo: 'so_tce', tce: 300 });
   });
 
-  it('a coleta no formato novo não é bruta, não tem dedução à parte nem entidade sem Betha', async () => {
+  it('a coleta no formato novo não é bruta, não tem dedução à parte nem entidade sem Portal da Transparência', async () => {
     const { receita } = await receitaDoAno(2025);
 
     expect(receita).toMatchObject({ receitaBruta: false, deducaoSoTce: null, entidadesSemBetha: [] });

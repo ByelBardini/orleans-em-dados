@@ -138,7 +138,12 @@ const SICONFI = {
   nome: 'SICONFI, RREO Anexo 14',
   url: 'https://siconfi.exemplo/rreo',
 };
-const BETHA = { coluna: 'Betha', lado: 'na Betha', nome: 'Betha, consulta 57170', url: 'https://betha.exemplo/57170' };
+const BETHA = {
+  coluna: 'Portal da Transparência',
+  lado: 'no Portal da Transparência',
+  nome: 'Portal da Transparência, consulta 57170',
+  url: 'https://betha.exemplo/57170',
+};
 
 const soValor = (valor: number) => ({ valor, percentual: null });
 
@@ -995,7 +1000,7 @@ export const dinheiro = (trocas: Partial<EducacaoDinheiro> = {}): EducacaoDinhei
       acoesNasEtapas: { ano: 2025, transporte: 3950000, merenda: 1650000 },
     },
     acoes: {
-      fonte: { nome: 'Portal da Transparência (Betha), despesa por ação', url: 'https://betha.exemplo/despesas' },
+      fonte: { nome: 'Portal da Transparência, despesa por ação', url: 'https://betha.exemplo/despesas' },
       anos: [
         {
           ano: 2024,
@@ -1026,7 +1031,7 @@ export const dinheiro = (trocas: Partial<EducacaoDinheiro> = {}): EducacaoDinhei
       ],
     },
     repasses: {
-      fonte: { nome: 'Portal da Transparência (Betha), receita conferida', url: 'https://betha.exemplo/receitas' },
+      fonte: { nome: 'Portal da Transparência, receita conferida', url: 'https://betha.exemplo/receitas' },
       anos: [
         {
           ano: 2024,

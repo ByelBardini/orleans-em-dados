@@ -167,7 +167,7 @@ function seloDoGasto(anos: readonly AnoDoGasto[]): DadosDoSelo {
   if (!conferidos.length) return SELO_FONTE_UNICA;
   return {
     estado: 'confere',
-    titulo: `conferido com a Betha em ${emLista(conferidos)}`,
+    titulo: `conferido com o Portal da Transparência em ${emLista(conferidos)}`,
     motivo: 'Demais anos: fonte única.',
   };
 }

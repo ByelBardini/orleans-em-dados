@@ -22,7 +22,7 @@ export const DESDE_QUANDO_O_TCE_PUBLICA = `O Farol do TCE-SC tem ${Object.entrie
 
 /** O aviso da fonte única: "O TCE-SC não publica as receitas de 2017. Os números são só da Betha, sem conferência." */
 export const avisoDeFonteUnica = (foraDaFonte: readonly string[], ano: number, deQue?: string) =>
-  `${naoPublica(foraDaFonte, ano)}. Os números${deQue ? ` ${deQue}` : ''} são só da Betha, sem conferência.`;
+  `${naoPublica(foraDaFonte, ano)}. Os números${deQue ? ` ${deQue}` : ''} são só do Portal da Transparência, sem conferência.`;
 
 // "da Prefeitura", "do FMS": as entidades femininas do catálogo começam pelo substantivo.
 const comArtigo = (entidade: string) =>
@@ -30,7 +30,7 @@ const comArtigo = (entidade: string) =>
 
 /** "A Betha não publica a receita da Prefeitura em 2020": a lacuna é da fonte, não da coleta. */
 export const naoPublicaNaBetha = (entidade: string, ano: number) =>
-  `A Betha não publica a receita ${comArtigo(entidade)} em ${ano}`;
+  `O Portal da Transparência não publica a receita ${comArtigo(entidade)} em ${ano}`;
 
 /** A entidade que só o TCE-SC registra no ano: lacuna da Betha, fora da manchete. */
 export const avisoDeLacuna = (e: Receitas['conferencia']['entidadesSemBetha'][number], ano: number) =>
@@ -41,7 +41,7 @@ export const RECEITA_BRUTA = 'receita bruta, antes da dedução do FUNDEB';
 
 /** A dedução do FUNDEB que só o TCE-SC registra, em módulo: nunca somada ao conferido. */
 export const notaDaDeducao = (deducao: number) =>
-  `O TCE-SC registra a dedução do FUNDEB de ${moeda(Math.abs(deducao))}, que a Betha não publica neste ano.`;
+  `O TCE-SC registra a dedução do FUNDEB de ${moeda(Math.abs(deducao))}, que o Portal da Transparência não publica neste ano.`;
 
 /** Por que a despesa do ano não tem número: a fonte não publica, ou ainda não foi coletada. */
 export const motivoSemConferencia = (ano: number, foraDaFonte: readonly string[] | undefined) =>

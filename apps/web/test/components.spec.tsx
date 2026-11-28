@@ -266,7 +266,7 @@ describe('Filtros', () => {
 
 const META: Meta = {
   coletaId: 1,
-  fonte: 'Portal da Transparência Betha — Orleans/SC',
+  fonte: 'Portal da Transparência — Orleans/SC',
   consultaId: 57153,
   consultaNome: 'Receitas Orçamentárias',
   urlOrigem: 'https://transparencia.betha.cloud/consulta/57153',
@@ -287,7 +287,7 @@ const META: Meta = {
 describe('Fonte', () => {
   it('diz de onde vem, com link para a consulta original', () => {
     render(<Fonte meta={META} />);
-    expect(screen.getByText(/Portal da Transparência Betha/)).toBeInTheDocument();
+    expect(screen.getByText(/Portal da Transparência/)).toBeInTheDocument();
     expect(screen.getByRole('link', { name: 'Receitas Orçamentárias (57153)', hidden: true })).toHaveAttribute(
       'href',
       'https://transparencia.betha.cloud/consulta/57153',

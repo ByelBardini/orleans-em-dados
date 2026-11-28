@@ -21,26 +21,30 @@ const secaoDe = (nome: string) => {
 
 const termo = (nome: string) => screen.getByText(nome).closest('li') as HTMLElement;
 
-describe('Metodologia: receita bruta e anos só da Betha', () => {
-  const secao = () => secaoDe('Receita bruta e anos só da Betha');
+describe('Metodologia: receita bruta e anos só do Portal da Transparência', () => {
+  const secao = () => secaoDe('Receita bruta e anos só do Portal da Transparência');
 
-  it('diz que até 2019 a Betha publica o bruto, comparado com o bruto, e que a dedução vem só do TCE-SC', () => {
+  it('diz que até 2019 o Portal da Transparência publica o bruto, comparado com o bruto, e que a dedução vem só do TCE-SC', () => {
     render(<Metodologia />);
 
-    expect(secao()).toContain('Até 2019, a Betha publica a receita bruta, antes da dedução do FUNDEB');
+    expect(secao()).toContain(
+      'Até 2019, o Portal da Transparência publica a receita bruta, antes da dedução do FUNDEB',
+    );
     expect(secao()).toContain('A dedução vem só do TCE-SC');
   });
 
-  it('diz que de 2015 a 2017 a receita, e de 2015 a 2022 a despesa, são só da Betha', () => {
+  it('diz que de 2015 a 2017 a receita, e de 2015 a 2022 a despesa, são só do Portal da Transparência', () => {
     render(<Metodologia />);
 
-    expect(secao()).toContain('De 2015 a 2017, a receita, e de 2015 a 2022, a despesa e os empenhos são só da Betha');
+    expect(secao()).toContain(
+      'De 2015 a 2017, a receita, e de 2015 a 2022, a despesa e os empenhos são só do Portal da Transparência',
+    );
   });
 
-  it('diz que em 2020 a Betha não publica a receita da Prefeitura, e onde fica o valor do TCE-SC', () => {
+  it('diz que em 2020 o Portal da Transparência não publica a receita da Prefeitura, e onde fica o valor do TCE-SC', () => {
     render(<Metodologia />);
 
-    expect(secao()).toContain('Em 2020, a Betha não publica a receita da Prefeitura');
+    expect(secao()).toContain('Em 2020, o Portal da Transparência não publica a receita da Prefeitura');
     expect(secao()).toContain('Discrepâncias');
   });
 
@@ -58,10 +62,10 @@ describe('Metodologia: o que o painel exibe', () => {
     expect(termo('conferido com o TCE-SC')).toHaveTextContent('as duas fontes registram');
   });
 
-  it('"conferido com a Betha" explica o ano em curso, com a data do corte', () => {
+  it('"conferido com o Portal da Transparência" explica o ano em curso, com a data do corte', () => {
     render(<Metodologia />);
 
-    expect(termo('conferido com a Betha até DD/MM')).toHaveTextContent('ano em curso');
+    expect(termo('conferido com o Portal da Transparência até DD/MM')).toHaveTextContent('ano em curso');
   });
 
   it('"fonte única, sem conferência" vem com a definição e diz o que é assim', () => {
@@ -201,7 +205,7 @@ describe('Metodologia: IBGE e SICONFI', () => {
 describe('Metodologia: os símbolos dos selos', () => {
   it.each([
     ['conferido com o TCE-SC', '✓'],
-    ['conferido com a Betha até DD/MM', '✓'],
+    ['conferido com o Portal da Transparência até DD/MM', '✓'],
     ['fonte única, sem conferência', '–'],
   ])('"%s" aparece ao lado do símbolo %s', (nivel, simbolo) => {
     render(<Metodologia />);
@@ -295,10 +299,10 @@ describe('Metodologia: educação', () => {
     expect(secaoDe('Educação: o que não é publicado')).toContain(frase);
   });
 
-  it('"conferido com a Betha", sem corte, é o gasto da função 12 igual à soma das ações, e cada ação não é conferida', () => {
+  it('"conferido com o Portal da Transparência", sem corte, é o gasto da função 12 igual à soma das ações, e cada ação não é conferida', () => {
     render(<Metodologia />);
 
-    const item = termo('conferido com a Betha');
+    const item = termo('conferido com o Portal da Transparência');
     expect(item.querySelector('.selo-icone')).toHaveTextContent('✓');
     expect(item).toHaveTextContent('função 12');
     expect(item).toHaveTextContent('soma das ações de educação');
@@ -308,7 +312,10 @@ describe('Metodologia: educação', () => {
 
   it.each([
     ['SIOPE', ['índice de 25%', 'Fundeb na remuneração', 'investimento por aluno', 'fonte única']],
-    ['SICONFI', ['RREO Anexo 14', 'função 12', 'conferido com a Betha', 'igualdade do percentual não confere']],
+    [
+      'SICONFI',
+      ['RREO Anexo 14', 'função 12', 'conferido com o Portal da Transparência', 'igualdade do percentual não confere'],
+    ],
     ['INEP', ['rendimento', 'formação', 'ENEM', 'ensino superior', 'fonte única']],
     ['MEC', ['Retrato da Educação Infantil', 'a Prefeitura informou ao MEC', 'fonte única']],
     ['IBGE', ['republica o INEP', 'não conta como conferência', 'fonte única']],
@@ -349,12 +356,12 @@ describe('Metodologia: educação', () => {
 // O aviso de privacidade: quem mantém, por que o nome do credor aparece, o que não aparece,
 // o que o site guarda de quem visita e para onde vão os pedidos (LGPD, arts. 9º e 18).
 describe('Metodologia: privacidade', () => {
-  it('diz que o projeto é independente da Prefeitura, da Betha e do TCE-SC', () => {
+  it('diz que o projeto é independente da Prefeitura, do Portal da Transparência e do TCE-SC', () => {
     render(<Metodologia />);
 
     const secao = secaoDe('Privacidade');
     expect(secao).toContain('projeto independente');
-    expect(secao).toContain('sem vínculo com a Prefeitura, a Betha ou o TCE-SC');
+    expect(secao).toContain('sem vínculo com a Prefeitura nem com o TCE-SC');
   });
 
   it('o nome do credor aparece porque a LC 131 manda divulgar quem recebe, para a mesma finalidade', () => {

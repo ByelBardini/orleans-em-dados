@@ -157,14 +157,14 @@ describe('GET /api/funcoes', () => {
     expect(corpo.diferenca.legislativa.estado).toBe('conferido');
   });
 
-  it('função 12 igual à soma das ações da Betha sai com a conferência da Educação, sem diferença', async () => {
+  it('função 12 igual à soma das ações do Portal da Transparência sai com a conferência da Educação, sem diferença', async () => {
     const { corpo } = await do2025();
 
     expect(corpo.conferenciaEducacao).toBe('conferido');
     expect(corpo.diferencaEducacao).toBeNull();
   });
 
-  it('um centavo a menos na Betha põe a Educação em diferença, com a etapa, sem mexer na conferência do total', async () => {
+  it('um centavo a menos no Portal da Transparência põe a Educação em diferença, com a etapa, sem mexer na conferência do total', async () => {
     await popularCenario({
       despesas: snapshot(57170, [
         despesa(
@@ -192,7 +192,7 @@ describe('GET /api/funcoes', () => {
     expect(corpo.diferencaEducacao[0].maior).toBeNull();
   });
 
-  it('ano sem coleta da Betha fica sem_betha na Educação', async () => {
+  it('ano sem coleta do Portal da Transparência fica sem_betha na Educação', async () => {
     await popularCenario({ siconfiFuncoes: [siconfiFuncoes({ ano: 2023 })] });
 
     const { corpo } = await pedir('/api/funcoes?ano=2023');
@@ -243,7 +243,7 @@ describe('GET /api/funcoes/serie', () => {
     expect(funcao(corpo.anos[2], '01')).toBeUndefined();
   });
 
-  it('cada ano traz a conferência da Educação: sem a Betha, sem_betha', async () => {
+  it('cada ano traz a conferência da Educação: sem o Portal da Transparência, sem_betha', async () => {
     const { corpo } = await pedir('/api/funcoes/serie');
 
     expect(corpo.anos[0]).toMatchObject({ ano: 2018, conferenciaEducacao: 'sem_betha' });
