@@ -5,9 +5,74 @@ import {
   seloConferidoComTce,
   seloDaDespesa,
   seloDaSituacao,
+  seloPorAnos,
   SELO_EXEMPLO,
   SELO_FONTE_UNICA,
 } from '../src/selos';
+
+// O selo de um bloco com anos (ou termos) em estados diferentes: o título diz o que é conferido, o motivo diz o resto.
+describe('selo do bloco por anos', () => {
+  const PORTAL = 'o Portal da Transparência';
+
+  it('anos conferidos vão para o título, e o resto do bloco é fonte única no motivo', () => {
+    expect(seloPorAnos(PORTAL, [{ anos: [2023, 2024, 2025], conferidos: [2024, 2025] }])).toEqual({
+      estado: 'confere',
+      titulo: 'conferido com o Portal da Transparência em 2024 e 2025',
+      motivo: 'Demais anos: fonte única.',
+    });
+  });
+
+  it('com todos os anos conferidos, o título diz todos e não há motivo', () => {
+    expect(seloPorAnos(PORTAL, [{ anos: [2024, 2025], conferidos: [2024, 2025] }])).toEqual({
+      estado: 'confere',
+      titulo: 'conferido com o Portal da Transparência em 2024 e 2025',
+    });
+  });
+
+  it('sem ano conferido, o bloco é fonte única', () => {
+    expect(seloPorAnos(PORTAL, [{ anos: [2023, 2024], conferidos: [] }])).toBe(SELO_FONTE_UNICA);
+  });
+
+  it('sem ano nenhum, o bloco é fonte única', () => {
+    expect(seloPorAnos(PORTAL, [{ anos: [], conferidos: [] }])).toBe(SELO_FONTE_UNICA);
+  });
+
+  it('termos com nome: o título diz cada um com os próprios anos, e o termo de fora vai ao motivo', () => {
+    expect(
+      seloPorAnos(
+        'o TCE-SC',
+        [
+          { nome: 'recebido', anos: [2023, 2024, 2025], conferidos: [2023, 2024, 2025] },
+          { nome: 'contribuição', anos: [2023, 2024, 2025], conferidos: [2024, 2025] },
+        ],
+        ['resultado oficial'],
+      ),
+    ).toEqual({
+      estado: 'confere',
+      titulo: 'recebido conferido com o TCE-SC em 2023, 2024 e 2025; contribuição em 2024 e 2025',
+      motivo: 'Contribuição, nos demais anos: fonte única. Resultado oficial: fonte única.',
+    });
+  });
+
+  it('termo com nome sem ano conferido sai do título e vai inteiro ao motivo', () => {
+    expect(
+      seloPorAnos('o TCE-SC', [
+        { nome: 'recebido', anos: [2024, 2025], conferidos: [2024, 2025] },
+        { nome: 'contribuição', anos: [2024, 2025], conferidos: [] },
+      ]),
+    ).toEqual({
+      estado: 'confere',
+      titulo: 'recebido conferido com o TCE-SC em 2024 e 2025',
+      motivo: 'Contribuição: fonte única.',
+    });
+  });
+
+  it('o título diz "conferido com", nunca "validado"', () => {
+    const { titulo } = seloPorAnos(PORTAL, [{ anos: [2025], conferidos: [2025] }]);
+    expect(titulo).toBe('conferido com o Portal da Transparência em 2025');
+    expect(titulo).not.toMatch(/validad/i);
+  });
+});
 
 describe('selo do nível da conferência', () => {
   it('exercício encerrado: conferido com o TCE-SC, sem data', () => {
