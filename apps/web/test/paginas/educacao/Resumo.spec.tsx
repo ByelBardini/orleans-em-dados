@@ -10,7 +10,7 @@ afterEach(() => vi.unstubAllGlobals());
 
 const CAMINHO = '/api/educacao/resumo';
 const FONTE_UNICA = 'fonte única, sem conferência';
-const CONFERIDO = 'conferido com a Betha';
+const CONFERIDO = 'conferido com o Portal da Transparência';
 const DETALHES = 'Fonte e detalhes';
 
 const abrir = async (resposta = resumo()) => {
@@ -258,7 +258,7 @@ describe('Resumo: as seis perguntas', () => {
     expect(await comDetalhes(cartao(AULA))).not.toHaveTextContent('Turmas');
   });
 
-  it('o gasto traz o selo da aba Dinheiro: conferido com a Betha só no ano conferido', async () => {
+  it('o gasto traz o selo da aba Dinheiro: conferido com o Portal da Transparência só no ano conferido', async () => {
     await abrir();
 
     const c = cartao(GASTO);

@@ -132,11 +132,15 @@ export async function discrepanciasDeEducacao(): Promise<EducacaoDiscrepancias> 
     acoes.length && loteDaBetha
       ? {
           id: 'gasto_acoes',
-          rotulo: 'Função 12: SICONFI × Betha',
+          rotulo: 'Função 12: SICONFI × Portal da Transparência',
           explicacao:
-            'A função 12 da DCA e a soma das ações de educação da Betha 57170, em cada etapa. As etapas não se somam.',
+            'A função 12 da DCA e a soma das ações de educação do Portal da Transparência (consulta 57170), em cada etapa. As etapas não se somam.',
           fonteA: fonteDoSiconfi(loteDaDca, NOME_DA_DCA),
-          fonteB: { coluna: 'Betha', lado: 'na Betha', ...fonteDoLote(loteDaBetha, 'Betha, consulta 57170') },
+          fonteB: {
+            coluna: 'Portal da Transparência',
+            lado: 'no Portal da Transparência',
+            ...fonteDoLote(loteDaBetha, 'Portal da Transparência, consulta 57170'),
+          },
           casos: acoes,
         }
       : null,

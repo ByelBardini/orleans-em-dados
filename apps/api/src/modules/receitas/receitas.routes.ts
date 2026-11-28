@@ -35,7 +35,7 @@ export async function rotasDeReceitas(app: FastifyInstance) {
     const titulo = coleta.meta.exemplo
       ? 'Arrecadado'
       : conferencia.fonteUnica
-        ? 'Arrecadado (só Betha)'
+        ? 'Arrecadado (só do Portal da Transparência)'
         : 'Arrecadado conferido';
     return responderCsv(reply, `receitas-${parametro(request, 'ano')}.csv`, gerarCsv(colunas(titulo), naturezas));
   });

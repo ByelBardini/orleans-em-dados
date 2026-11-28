@@ -44,7 +44,7 @@ describe('Receitas com o conferido', () => {
     expect(arrecadado.querySelector('.numero-detalhe')).toHaveTextContent(`R$${NBSP}1.200.000,50`);
   });
 
-  it('um valor presente só no total da Betha nunca é número principal nem aparece nas tabelas', async () => {
+  it('um valor presente só no total do Portal da Transparência nunca é número principal nem aparece nas tabelas', async () => {
     const container = await abrir();
 
     for (const valor of container.querySelectorAll('.numero-valor')) {
@@ -53,10 +53,10 @@ describe('Receitas com o conferido', () => {
     expect(screen.getByRole('heading', { level: 1 })).not.toHaveTextContent('9,9');
     expect(screen.getByRole('table').textContent).not.toContain('9,9');
     expect(screen.getByRole('table').textContent).not.toContain('9.900.000,80');
-    expect(conta()).toHaveTextContent(`= total da BethaR$${NBSP}9.900.000,80`);
+    expect(conta()).toHaveTextContent(`= total do Portal da TransparênciaR$${NBSP}9.900.000,80`);
   });
 
-  it('a conta mostrada fecha: conferido + em discrepância = total da Betha', async () => {
+  it('a conta mostrada fecha: conferido + em discrepância = total do Portal da Transparência', async () => {
     await abrir();
 
     const { parcelas, total } = contaNaTela(conta());
@@ -85,7 +85,7 @@ describe('Receitas com o conferido', () => {
   it.each([
     ['conferido', 'registram igual, ao centavo'],
     ['+ em discrepância', 'difere do TCE-SC'],
-    ['= total da Betha', 'publicado no portal da transparência'],
+    ['= total do Portal da Transparência', 'publicado no portal da transparência'],
   ])('a parcela "%s" diz o que é', async (rotulo, explicacao) => {
     await abrir();
 
@@ -318,8 +318,8 @@ describe('Receitas com o conferido', () => {
   });
 });
 
-describe('Receitas de um exercício que o TCE-SC não publica, com a Betha', () => {
-  it('a manchete e o cartão mostram o valor da Betha, com o selo de fonte única', async () => {
+describe('Receitas de um exercício que o TCE-SC não publica, com o Portal da Transparência', () => {
+  it('a manchete e o cartão mostram o valor do Portal da Transparência, com o selo de fonte única', async () => {
     await abrir(receitasFonteUnica());
 
     expect(celula('Arrecadado').querySelector('.numero-valor')).toHaveTextContent('1,2 mi');
@@ -335,11 +335,11 @@ describe('Receitas de um exercício que o TCE-SC não publica, com a Betha', () 
     expect(document.body).not.toHaveTextContent(/conferido com o TCE-SC/);
   });
 
-  it('o aviso fica acima da manchete e diz que a fonte não publica e que os números são só da Betha', async () => {
+  it('o aviso fica acima da manchete e diz que a fonte não publica e que os números são só do Portal da Transparência', async () => {
     await abrir(receitasFonteUnica());
 
     const aviso = screen.getByText(
-      'O TCE-SC não publica as receitas de 2025. Os números são só da Betha, sem conferência.',
+      'O TCE-SC não publica as receitas de 2025. Os números são só do Portal da Transparência, sem conferência.',
     );
     const manchete = screen.getByRole('heading', { level: 1 });
     expect(aviso.compareDocumentPosition(manchete) & Node.DOCUMENT_POSITION_FOLLOWING).toBe(
@@ -354,7 +354,7 @@ describe('Receitas de um exercício que o TCE-SC não publica, com a Betha', () 
     expect(document.body).not.toHaveTextContent('arrecadado conferido');
   });
 
-  it('a receita bruta da Betha é rotulada na manchete', async () => {
+  it('a receita bruta do Portal da Transparência é rotulada na manchete', async () => {
     await abrir(receitasFonteUnica());
 
     expect(screen.getByText(/receita bruta, antes da dedução do FUNDEB/)).toBeInTheDocument();
@@ -374,7 +374,7 @@ describe('Receitas no formato bruto, até 2019', () => {
 
     expect(
       within(conta()).getByText(
-        `O TCE-SC registra a dedução do FUNDEB de R$${NBSP}790.000,40, que a Betha não publica neste ano.`,
+        `O TCE-SC registra a dedução do FUNDEB de R$${NBSP}790.000,40, que o Portal da Transparência não publica neste ano.`,
       ),
     ).toBeInTheDocument();
     expect(contaNaTela(conta()).parcelas).not.toContain(79000040);
@@ -387,11 +387,13 @@ describe('Receitas no formato bruto, até 2019', () => {
   });
 });
 
-describe('Receitas com uma entidade que a Betha não publica', () => {
+describe('Receitas com uma entidade que o Portal da Transparência não publica', () => {
   it('o aviso em destaque diz o que o TCE-SC registra dela e leva a Discrepâncias', async () => {
     await abrir(receitasComLacuna());
 
-    const aviso = screen.getByText(/A Betha não publica a receita da Prefeitura em 2025/).closest('.aviso');
+    const aviso = screen
+      .getByText(/O Portal da Transparência não publica a receita da Prefeitura em 2025/)
+      .closest('.aviso');
     expect(aviso).toHaveTextContent(`O TCE-SC registra R$${NBSP}74.677.758,70.`);
     expect(within(aviso as HTMLElement).getByRole('link', { name: /Ver discrepâncias/ })).toHaveAttribute(
       'href',
@@ -407,11 +409,13 @@ describe('Receitas com uma entidade que a Betha não publica', () => {
 });
 
 describe('Receitas com a conferência disponível e nada conferido', () => {
-  it('com a lacuna, o cartão não mostra R$ 0,0 e diz que a Betha não publica a entidade', async () => {
+  it('com a lacuna, o cartão não mostra R$ 0,0 e diz que o Portal da Transparência não publica a entidade', async () => {
     await abrir(receitasSemConferido([PREFEITURA_SEM_BETHA]));
 
     expect(celula('Arrecadado').querySelector('.numero-valor')).not.toHaveTextContent('0,0');
-    expect(celula('Arrecadado')).toHaveTextContent('A Betha não publica a receita da Prefeitura em 2025');
+    expect(celula('Arrecadado')).toHaveTextContent(
+      'O Portal da Transparência não publica a receita da Prefeitura em 2025',
+    );
   });
 
   it('sem lacuna, o cartão diz que nada confere e leva a Discrepâncias', async () => {

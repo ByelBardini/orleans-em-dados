@@ -26,7 +26,7 @@ export const FRASE_DA_DIFERENCA =
 type Apresentacao = { semLink?: boolean; titulo?: string; explicada?: boolean };
 type Linha = { rotulo: string; valor: number | null; explicacao?: string };
 
-const EM_DISCREPANCIA = 'A parte da Betha que difere do TCE-SC. Cada caso está em Discrepâncias.';
+const EM_DISCREPANCIA = 'A parte do Portal da Transparência que difere do TCE-SC. Cada caso está em Discrepâncias.';
 const TOTAL_DA_BETHA = 'O total publicado no portal da transparência do município.';
 
 // Os cartões ficam com o número; a conta, as fontes e o que cada parcela quer dizer ficam aqui, abaixo deles.
@@ -35,7 +35,7 @@ export function SecaoDaConta({ titulo, children }: { titulo: string; children: R
     <section className="secao solta faixa-conta">
       <h2 className="secao-titulo">{titulo}</h2>
       <p className="nota-serif">
-        O número do cartão é só o que as duas fontes registram igual: a Betha, portal da transparência do município, e o
+        O número do cartão é só o que as duas fontes registram igual: o Portal da Transparência do município, e o
         TCE-SC, sistema do Tribunal de Contas do Estado. O resto continua na conta, separado.
       </p>
       {children}
@@ -97,14 +97,14 @@ export function ContaDaReceita({
         {
           rotulo: 'conferido',
           valor: c.conferido,
-          explicacao: 'O que a Betha e o TCE-SC registram igual, ao centavo. É o número do cartão.',
+          explicacao: 'O que o Portal da Transparência e o TCE-SC registram igual, ao centavo. É o número do cartão.',
         },
         { rotulo: '+ em discrepância', valor: c.diferencaBetha, explicacao: EM_DISCREPANCIA },
         ...(Number(c.aguardandoTce) > 0
           ? [{ rotulo: '+ aguardando TCE', valor: c.aguardandoTce, explicacao: aguarda }]
           : []),
       ]}
-      total={{ rotulo: '= total da Betha', valor: c.totalBetha, explicacao: TOTAL_DA_BETHA }}
+      total={{ rotulo: '= total do Portal da Transparência', valor: c.totalBetha, explicacao: TOTAL_DA_BETHA }}
     >
       {soNoTce && <p className="conta-nota">Só o TCE-SC registra mais {moeda(c.diferencaTce)}, fora desta conta.</p>}
       {c.receitaBruta && c.deducaoSoTce !== null && c.deducaoSoTce !== 0 && (
@@ -137,11 +137,11 @@ export function ContaDaDespesa({
           rotulo: 'conferido',
           valor: conferido,
           explicacao:
-            'O empenhado que a Betha e o TCE-SC registram igual, por entidade, já descontadas as anulações. É o número do cartão.',
+            'O empenhado que o Portal da Transparência e o TCE-SC registram igual, por entidade, já descontadas as anulações. É o número do cartão.',
         },
         { rotulo: '+ em discrepância', valor: c.diferencaBetha, explicacao: EM_DISCREPANCIA },
       ]}
-      total={{ rotulo: '= total da Betha', valor: c.totalBetha, explicacao: TOTAL_DA_BETHA }}
+      total={{ rotulo: '= total do Portal da Transparência', valor: c.totalBetha, explicacao: TOTAL_DA_BETHA }}
     />
   );
 }
@@ -172,7 +172,7 @@ export function ContaDosEmpenhos({
         { rotulo: '+ em discrepância', valor: emDiscrepancia },
         ...(aguardando > 0 ? [{ rotulo: '+ aguardando TCE', valor: aguardando }] : []),
       ]}
-      total={{ rotulo: '= total da Betha', valor: total }}
+      total={{ rotulo: '= total do Portal da Transparência', valor: total }}
     >
       {soNoTce > 0 && <p className="conta-nota">Só o TCE-SC registra mais {moeda(soNoTce)}, fora desta conta.</p>}
     </Conta>
@@ -219,9 +219,9 @@ export function motivoSemConferido(c: Receitas['conferencia'], ano: number): Rea
 }
 
 const NOMES_DAS_COLETAS: Record<string, string> = {
-  receitas: 'receitas da Betha',
-  despesas: 'despesas da Betha',
-  empenhos: 'empenhos da Betha',
+  receitas: 'receitas do Portal da Transparência',
+  despesas: 'despesas do Portal da Transparência',
+  empenhos: 'empenhos do Portal da Transparência',
   tcesc_receitas: 'receitas do TCE-SC',
   tcesc_empenhos: 'empenhos do TCE-SC',
 };

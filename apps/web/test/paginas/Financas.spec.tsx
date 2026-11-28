@@ -53,7 +53,7 @@ describe('Finanças com o conferido', () => {
     expect(celula('Empenhado').querySelector('.numero-valor')).toHaveTextContent('10,8 mi');
   });
 
-  it('o total só da Betha fica na conta, nunca como número principal', async () => {
+  it('o total só do Portal da Transparência fica na conta, nunca como número principal', async () => {
     const container = await abrir();
 
     for (const valor of container.querySelectorAll('.numero-valor')) {
@@ -174,7 +174,7 @@ describe('Finanças com o conferido', () => {
       await abrir(parciais);
 
       expect(screen.getByText('conferido com o TCE-SC até setembro')).toBeInTheDocument();
-      expect(screen.getByText('conferido com a Betha até 30/09')).toBeInTheDocument();
+      expect(screen.getByText('conferido com o Portal da Transparência até 30/09')).toBeInTheDocument();
       expect(screen.queryByText('conferido com o TCE-SC')).not.toBeInTheDocument();
     });
 
@@ -229,7 +229,7 @@ describe('Finanças com o conferido', () => {
   });
 });
 
-describe('Finanças com a receita só da Betha, no ano que o TCE-SC não publica', () => {
+describe('Finanças com a receita só do Portal da Transparência, no ano que o TCE-SC não publica', () => {
   it('o arrecadado tem número e o selo de fonte única, e o aviso fica acima da manchete', async () => {
     await abrir({ receita: receitasFonteUnica(), despesa: despesasForaDaFonte(), empenhos: empenhosForaDaFonte() });
 
@@ -248,7 +248,7 @@ describe('Finanças com a receita só da Betha, no ano que o TCE-SC não publica
   });
 });
 
-describe('Finanças com a receita bruta e a lacuna da Betha', () => {
+describe('Finanças com a receita bruta e a lacuna do Portal da Transparência', () => {
   it('a receita bruta é rotulada, e a dedução do TCE-SC sai em nota, fora do conferido', async () => {
     await abrir({ receita: receitasBrutas(-790000.4) });
 
@@ -258,10 +258,12 @@ describe('Finanças com a receita bruta e a lacuna da Betha', () => {
     );
   });
 
-  it('a entidade que a Betha não publica tem aviso em destaque, com link para Discrepâncias', async () => {
+  it('a entidade que o Portal da Transparência não publica tem aviso em destaque, com link para Discrepâncias', async () => {
     await abrir({ receita: receitasComLacuna() });
 
-    const aviso = screen.getByText(/A Betha não publica a receita da Prefeitura em 2025/).closest('.aviso');
+    const aviso = screen
+      .getByText(/O Portal da Transparência não publica a receita da Prefeitura em 2025/)
+      .closest('.aviso');
     expect(within(aviso as HTMLElement).getByRole('link', { name: /Ver discrepâncias/ })).toBeInTheDocument();
   });
 
@@ -269,7 +271,9 @@ describe('Finanças com a receita bruta e a lacuna da Betha', () => {
     await abrir({ receita: receitasSemConferido([PREFEITURA_SEM_BETHA]) });
 
     expect(celula('Arrecadado').querySelector('.numero-valor')).not.toHaveTextContent('0,0');
-    expect(celula('Arrecadado')).toHaveTextContent('A Betha não publica a receita da Prefeitura em 2025');
+    expect(celula('Arrecadado')).toHaveTextContent(
+      'O Portal da Transparência não publica a receita da Prefeitura em 2025',
+    );
   });
 });
 
@@ -285,12 +289,12 @@ describe('Finanças com a receita conferida e a despesa em fonte única', () => 
     expect(celula('Empenhado').querySelector('.numero-valor')).toHaveTextContent('10,8 mi');
   });
 
-  it('o aviso diz que o TCE-SC não publica os empenhos e que só a despesa é da Betha', async () => {
+  it('o aviso diz que o TCE-SC não publica os empenhos e que só a despesa é do Portal da Transparência', async () => {
     await abrirDespesaUnica();
 
     expect(
       screen.getByText(
-        'O TCE-SC não publica os empenhos de 2025. Os números da despesa são só da Betha, sem conferência.',
+        'O TCE-SC não publica os empenhos de 2025. Os números da despesa são só do Portal da Transparência, sem conferência.',
       ),
     ).toBeInTheDocument();
   });
@@ -319,7 +323,7 @@ describe('Finanças com a receita conferida e a despesa em fonte única', () => 
   });
 });
 
-describe('Finanças de um ano só da Betha, na receita e na despesa', () => {
+describe('Finanças de um ano só do Portal da Transparência, na receita e na despesa', () => {
   it('um aviso só, com as duas consultas que o TCE-SC não publica', async () => {
     const despesa = despesasFonteUnica();
     await abrir({
@@ -337,7 +341,7 @@ describe('Finanças de um ano só da Betha, na receita e na despesa', () => {
 
     expect(
       screen.getByText(
-        'O TCE-SC não publica as receitas nem os empenhos de 2025. Os números são só da Betha, sem conferência.',
+        'O TCE-SC não publica as receitas nem os empenhos de 2025. Os números são só do Portal da Transparência, sem conferência.',
       ),
     ).toBeInTheDocument();
     expect(within(totais()).getAllByText('fonte única, sem conferência')).toHaveLength(2);

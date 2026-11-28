@@ -209,7 +209,7 @@ describe('GET /api/educacao/discrepancias', () => {
     });
   });
 
-  describe('função 12 × ações da Betha', () => {
+  describe('função 12 × ações do Portal da Transparência', () => {
     const acao = (empenhado: number, liquidado: number, pago: number) =>
       snapshot(57170, [
         despesa(
@@ -230,7 +230,10 @@ describe('GET /api/educacao/discrepancias', () => {
       const { corpo } = await pedir();
 
       const grupo = grupoDe(corpo, 'gasto_acoes');
-      expect([grupo?.fonteA.nome, grupo?.fonteB.nome]).toEqual(['SICONFI, DCA Anexo I-E', 'Betha, consulta 57170']);
+      expect([grupo?.fonteA.nome, grupo?.fonteB.nome]).toEqual([
+        'SICONFI, DCA Anexo I-E',
+        'Portal da Transparência, consulta 57170',
+      ]);
       expect(grupo?.casos).toEqual([
         {
           ano: 2025,
@@ -259,7 +262,7 @@ describe('GET /api/educacao/discrepancias', () => {
       expect(grupoDe((await pedir()).corpo, 'gasto_acoes')).toBeUndefined();
     });
 
-    it('ano com DCA sem a Betha não vira caso', async () => {
+    it('ano com DCA sem o Portal da Transparência não vira caso', async () => {
       await popularCenario(CENARIO);
 
       expect(grupoDe((await pedir()).corpo, 'gasto_acoes')).toBeUndefined();

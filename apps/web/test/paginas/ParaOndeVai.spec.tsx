@@ -9,7 +9,7 @@ import { anoDaSerie, funcoes, funcoesComDiferenca, SERIE_PADRAO, serie } from '.
 const NBSP = ' ';
 const CONFERIDO = 'conferido com o TCE-SC';
 const FONTE_UNICA = 'fonte única, sem conferência';
-const CONFERIDO_COM_BETHA = 'conferido com a Betha';
+const CONFERIDO_COM_BETHA = 'conferido com o Portal da Transparência';
 
 afterEach(() => vi.unstubAllGlobals());
 
@@ -100,7 +100,7 @@ describe('Para onde vai: selo da Educação', () => {
     ano2025: { ...COM_PEQUENAS(), conferenciaEducacao },
   });
 
-  it('conferida, a linha da função 12 leva "conferido com a Betha", e nenhuma outra leva', async () => {
+  it('conferida, a linha da função 12 leva "conferido com o Portal da Transparência", e nenhuma outra leva', async () => {
     await abrir(comEducacao('conferido'));
 
     expect(linhaDa(/Educação/)).toHaveTextContent(CONFERIDO_COM_BETHA);
@@ -118,7 +118,7 @@ describe('Para onde vai: selo da Educação', () => {
   });
 
   it.each(['diferenca', 'sem_betha'] as const)(
-    'com %s, a linha da função 12 fica sem o selo da Betha',
+    'com %s, a linha da função 12 fica sem o selo do Portal da Transparência',
     async (estado) => {
       await abrir(comEducacao(estado));
 
@@ -126,7 +126,7 @@ describe('Para onde vai: selo da Educação', () => {
     },
   );
 
-  it('total conferido com o TCE-SC não confere a Educação: sem a Betha, a linha fica sem selo', async () => {
+  it('total conferido com o TCE-SC não confere a Educação: sem o Portal da Transparência, a linha fica sem selo', async () => {
     await abrir({ ano2025: { ...COM_PEQUENAS(), conferencia: 'conferido', conferenciaEducacao: 'sem_betha' } });
 
     expect(linhaDoTotal()).toHaveTextContent(CONFERIDO);

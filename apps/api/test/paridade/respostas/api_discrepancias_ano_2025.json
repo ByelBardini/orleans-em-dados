@@ -15,7 +15,7 @@
         "tipo": "fora_do_acumulado",
         "area": "receita",
         "rotulo": "Lançamento fora do acumulado",
-        "explicacao": "O valor do mês na Betha traz um lançamento que o acumulado da própria rubrica não considera.",
+        "explicacao": "O valor do mês no Portal da Transparência traz um lançamento que o acumulado da própria rubrica não considera.",
         "total": 50000,
         "itens": [
           {
@@ -50,7 +50,7 @@
             "etapas": null,
             "valor": 50000,
             "compensacao": null,
-            "nota": "Na própria Betha, o arrecadado no mês não fecha com o acumulado da rubrica em fevereiro (R$ 50.000,00): é onde a conta desencontra. A linha que o acumulado provavelmente desconsidera pode ser de outro mês. Explica toda a diferença."
+            "nota": "Na própria Portal da Transparência, o arrecadado no mês não fecha com o acumulado da rubrica em fevereiro (R$ 50.000,00): é onde a conta desencontra. A linha que o acumulado provavelmente desconsidera pode ser de outro mês. Explica toda a diferença."
           }
         ]
       },
@@ -58,7 +58,7 @@
         "tipo": "empenho_repetido",
         "area": "empenho",
         "rotulo": "Registro repetido",
-        "explicacao": "Mais de um registro na Betha com o mesmo número, a mesma data e o mesmo valor.",
+        "explicacao": "Mais de um registro no Portal da Transparência com o mesmo número, a mesma data e o mesmo valor.",
         "total": 3000,
         "itens": [
           {

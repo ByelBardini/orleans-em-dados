@@ -47,9 +47,13 @@ describe('Selo como símbolo', () => {
   });
 
   it('o motivo também entra no nome do botão', () => {
-    render(<Selo selo={{ estado: 'confere', titulo: 'conferido com a Betha', motivo: 'Valores do TCE-SC.' }} />);
+    render(
+      <Selo
+        selo={{ estado: 'confere', titulo: 'conferido com o Portal da Transparência', motivo: 'Valores do TCE-SC.' }}
+      />,
+    );
 
-    expect(botao('conferido com a Betha. Valores do TCE-SC.')).toBeInTheDocument();
+    expect(botao('conferido com o Portal da Transparência. Valores do TCE-SC.')).toBeInTheDocument();
   });
 
   it('passar o mouse abre o texto, e tirar o mouse fecha', () => {

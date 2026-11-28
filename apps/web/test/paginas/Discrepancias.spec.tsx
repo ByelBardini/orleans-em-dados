@@ -190,7 +190,7 @@ describe('Discrepancias: cada caso', () => {
     expect(linha).toHaveTextContent('maio');
     expect(linha).toHaveTextContent(reais('1.300,00'));
     expect(linha).toHaveTextContent(reais('1.000,00'));
-    expect(linha).toHaveTextContent(`${reais('300,00')} a mais na Betha`);
+    expect(linha).toHaveTextContent(`${reais('300,00')} a mais no Portal da Transparência`);
     expect(linha).toHaveTextContent('Nota do caso (exemplo).');
   });
 
@@ -221,9 +221,9 @@ describe('Discrepancias: cada caso', () => {
 
     const linha = linhaDo('Registro sem execução e sem par no TCE-SC');
     expect(linha).toHaveTextContent('Empenho nº 340 · SAMAE');
-    expect(linha).toHaveTextContent('só na Betha');
+    expect(linha).toHaveTextContent('só no Portal da Transparência');
     expect(linha).toHaveTextContent('01/04/2025');
-    expect(linha).toHaveTextContent(`${reais('20.000,00')} a mais na Betha`);
+    expect(linha).toHaveTextContent(`${reais('20.000,00')} a mais no Portal da Transparência`);
     const so = linhaDo('Empenho só no TCE-SC');
     expect(so).toHaveTextContent('só no TCE-SC');
     expect(so).toHaveTextContent(`${reais('500,00')} a mais no TCE`);
@@ -340,7 +340,7 @@ describe('Discrepancias: a abertura', () => {
     await abrir();
 
     expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent(
-      'Em 2025, 8 casos em que Betha e TCE-SC não coincidem.',
+      'Em 2025, 8 casos em que o Portal da Transparência e o TCE-SC não coincidem.',
     );
     expect(screen.getByText(/cada valor que ficou fora do número principal/)).toBeInTheDocument();
   });
@@ -418,7 +418,7 @@ describe('Discrepancias: a abertura', () => {
     await abrir({ secao: discrepancias({ grupos: [] }) });
 
     expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent(
-      'Em 2025, Betha e TCE-SC mostram os mesmos números.',
+      'Em 2025, o Portal da Transparência e o TCE-SC mostram os mesmos números.',
     );
   });
 });
@@ -634,7 +634,7 @@ describe('Discrepancias: os totais, para conferir', () => {
     const linha = within(await secao('Receita arrecadada por entidade'))
       .getByText('FMS')
       .closest('tr') as HTMLElement;
-    expect(linha).toHaveTextContent(`${reais('50.000,00')} a mais na Betha`);
+    expect(linha).toHaveTextContent(`${reais('50.000,00')} a mais no Portal da Transparência`);
     expect(linha.querySelector('.vermelho')).toBeNull();
   });
 
@@ -679,7 +679,7 @@ describe('Discrepancias: os totais, para conferir', () => {
     });
 
     const meses = await secao('Receita mês a mês');
-    expect(meses).toHaveTextContent(`${reais('1.000,10')} a mais na Betha`);
+    expect(meses).toHaveTextContent(`${reais('1.000,10')} a mais no Portal da Transparência`);
     expect(meses).not.toHaveTextContent('SAMAE');
   });
 
@@ -687,7 +687,7 @@ describe('Discrepancias: os totais, para conferir', () => {
     await abrir();
 
     expect(await screen.findByRole('heading', { name: 'Câmara Municipal' })).toBeInTheDocument();
-    expect(screen.getByText(/A Câmara não está no portal Betha da Prefeitura/)).toBeInTheDocument();
+    expect(screen.getByText(/A Câmara não está no Portal da Transparência da Prefeitura/)).toBeInTheDocument();
   });
 
   it('no exercício parcial, avisa até onde o TCE-SC tem dados', async () => {
@@ -780,8 +780,8 @@ describe('caso de rubricas que se compensam', () => {
   it('cada coluna traz o valor de cada rubrica na fonte', async () => {
     const linha = await abrirCaso();
     const coluna = (rotulo: string) => linha.querySelector(`td[data-rotulo="${rotulo}"]`);
-    expect(coluna('Betha')).toHaveTextContent(`17295101: R$${NBSP}180.674,65`);
-    expect(coluna('Betha')).toHaveTextContent(`24299901: R$${NBSP}5.047.727,72`);
+    expect(coluna('Portal da Transparência')).toHaveTextContent(`17295101: R$${NBSP}180.674,65`);
+    expect(coluna('Portal da Transparência')).toHaveTextContent(`24299901: R$${NBSP}5.047.727,72`);
     expect(coluna('TCE-SC')).toHaveTextContent(`17295101: R$${NBSP}195.986,77`);
     expect(coluna('TCE-SC')).toHaveTextContent(`24299901: R$${NBSP}5.032.415,60`);
   });
@@ -831,13 +831,13 @@ describe('Discrepancias: Educação', () => {
     expect(linha).not.toHaveTextContent('%');
   });
 
-  it('as colunas e o lado seguem as fontes do grupo: SICONFI × Betha', async () => {
+  it('as colunas e o lado seguem as fontes do grupo: SICONFI × Portal da Transparência', async () => {
     await abrir({ educacao: discrepanciasDeEducacao() });
 
     const grupo = within(await blocoDeEducacao()).getByRole('region', { name: 'Função 12 (exemplo)' });
-    expect(within(grupo).getByRole('columnheader', { name: 'Betha' })).toBeInTheDocument();
+    expect(within(grupo).getByRole('columnheader', { name: 'Portal da Transparência' })).toBeInTheDocument();
     expect(within(grupo).queryByRole('columnheader', { name: 'SIOPE' })).not.toBeInTheDocument();
-    expect(grupo).toHaveTextContent(`${reais('0,01')} a mais na Betha`);
+    expect(grupo).toHaveTextContent(`${reais('0,01')} a mais no Portal da Transparência`);
   });
 
   it('cada grupo traz a explicação e o link das duas fontes', async () => {
@@ -959,7 +959,7 @@ describe('Discrepancias: despesa por função', () => {
 
     const bloco = screen.getByRole('region', { name: 'Despesa por função: pago' });
     expect(within(bloco).getByRole('columnheader', { name: 'SICONFI' })).toBeInTheDocument();
-    expect(within(bloco).queryByRole('columnheader', { name: 'Betha' })).not.toBeInTheDocument();
+    expect(within(bloco).queryByRole('columnheader', { name: 'Portal da Transparência' })).not.toBeInTheDocument();
     const linha = within(bloco)
       .getByText(/Total sem a Câmara/)
       .closest('tr') as HTMLElement;
@@ -968,7 +968,7 @@ describe('Discrepancias: despesa por função', () => {
     expect(linha).toHaveTextContent(`${reais('10,50')} a mais no SICONFI`);
   });
 
-  it('a manchete não atribui o caso só a Betha e TCE-SC', async () => {
+  it('a manchete não atribui o caso só a o Portal da Transparência e o TCE-SC', async () => {
     await abrir({ secao: discrepancias({ grupos: [FUNCAO] }) });
 
     expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('em que as fontes não coincidem');

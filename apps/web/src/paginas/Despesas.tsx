@@ -229,7 +229,7 @@ function Conteudo({ ano, entidade, filtros, d, o }: PropsDaPagina & { d: Empenho
       {Number(aguardandoTce) > 0 && (
         <Selo
           selo={seloAguardando(
-            `${numero(t.aguardandoTce)} empenhos da Betha depois de ${data(dataCorte)} (${moeda(aguardandoTce)} no valor original) ainda não chegaram ao TCE-SC, que recebe os dados com atraso. Entram quando a remessa chegar.`,
+            `${numero(t.aguardandoTce)} empenhos do Portal da Transparência depois de ${data(dataCorte)} (${moeda(aguardandoTce)} no valor original) ainda não chegaram ao TCE-SC, que recebe os dados com atraso. Entram quando a remessa chegar.`,
           )}
         />
       )}
@@ -436,7 +436,7 @@ function Conteudo({ ano, entidade, filtros, d, o }: PropsDaPagina & { d: Empenho
             <h2 className="secao-titulo">Todos os empenhos</h2>
             <p className="legenda-secao">
               Busque por credor, número ou descrição · clique numa linha para ler tudo · empenhado é o valor original;
-              liquidado e pago, {fonteUnica ? 'da Betha' : 'do TCE-SC'}
+              liquidado e pago, {fonteUnica ? 'do Portal da Transparência' : 'do TCE-SC'}
             </p>
             <Selo compacto selo={seloDaLista} />
           </div>
@@ -602,7 +602,7 @@ function Conteudo({ ano, entidade, filtros, d, o }: PropsDaPagina & { d: Empenho
           </h2>
           <Selo selo={SELO_FONTE_UNICA} />
           <p className="nota-serif">
-            A Câmara não publica no portal Betha da Prefeitura. Pelos dados enviados ao TCE-SC
+            A Câmara não publica no Portal da Transparência da Prefeitura. Pelos dados enviados ao TCE-SC
             {anoEncerrado ? '' : ` (até ${data(camara.ultimoEmpenho)})`}, ela empenhou{' '}
             <strong>{moeda(camara.empenhado)}</strong> em {numero(camara.quantidade)} empenhos e pagou{' '}
             <strong>{moeda(camara.pago)}</strong>. Só o TCE-SC tem esses valores, sem outra fonte para conferir: ficam à
@@ -619,12 +619,12 @@ function Conteudo({ ano, entidade, filtros, d, o }: PropsDaPagina & { d: Empenho
         {parcial ? (
           <>
             Os totais (empenhado, liquidado, pago e falta pagar) são os <strong>valores do TCE-SC</strong> nos empenhos
-            casados com a Betha até {data(dataCorte)}, já descontadas as anulações.
+            casados com o Portal da Transparência até {data(dataCorte)}, já descontadas as anulações.
           </>
         ) : (
           <>
             Os totais (empenhado, liquidado, pago e falta pagar) são a <strong>despesa orçamentária</strong> (consulta
-            Betha 57170), já descontadas as anulações
+            57170 do Portal da Transparência), já descontadas as anulações
             {exemplo || fonteUnica ? '' : ': é o número conferido com o TCE-SC'}.
           </>
         )}{' '}

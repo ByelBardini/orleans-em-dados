@@ -96,7 +96,7 @@ describe('conferirGastoEducacao', () => {
     expect((await conferirGastoEducacao(2025)).estado).toBe('conferido');
   });
 
-  it('coleta da Betha sem nenhuma ação da educação compara com zero, e fica em diferença', async () => {
+  it('coleta do Portal da Transparência sem nenhuma ação da educação compara com zero, e fica em diferença', async () => {
     await popularCenario({
       despesas: snapshot(57170, [linha('1', '1', 'Obras urbanas', [53000, 53000, 53000])]),
     });
@@ -107,13 +107,13 @@ describe('conferirGastoEducacao', () => {
     });
   });
 
-  it('ano com DCA e sem coleta da Betha fica sem_betha', async () => {
+  it('ano com DCA e sem coleta do Portal da Transparência fica sem_betha', async () => {
     await popularCenario({ siconfiFuncoes: [siconfiFuncoes(), siconfiFuncoes({ ano: 2023 })] });
 
     expect(await conferirGastoEducacao(2023)).toEqual({ ano: 2023, estado: 'sem_betha' });
   });
 
-  it('coleta de exemplo da Betha não confere: fica sem_betha', async () => {
+  it('coleta de exemplo do Portal da Transparência não confere: fica sem_betha', async () => {
     const exemplo = snapshot(57170, [linha('1', '54', 'Manutenção do Ensino Fundamental', [53000, 53000, 53000])], {
       status: 'exemplo',
     });
