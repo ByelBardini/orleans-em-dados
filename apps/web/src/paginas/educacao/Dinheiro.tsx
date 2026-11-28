@@ -15,8 +15,7 @@ import {
   Detalhes,
 } from '../../educacao/componentes';
 import { emMilhoes, moeda, numero, pct, porExtenso } from '../../format';
-import { Selo } from '../../selo';
-import { SELO_CONFERIDO_COM_A_BETHA, SELO_FONTE_UNICA, seloConferidoComTce, type DadosDoSelo } from '../../selos';
+import { seloConferidoComTce, seloPorAnos, type DadosDoSelo } from '../../selos';
 import './Dinheiro.css';
 
 const emPct = (valor: number | null) => formatarValor(valor, '%', 2);
@@ -162,15 +161,10 @@ function BlocoDoFundeb({ bloco }: { bloco: BlocoDoIndice }) {
 type Gasto = NonNullable<EducacaoDinheiro['gasto']>;
 type AnoDoGasto = Gasto['anos'][number];
 
-function seloDoGasto(anos: readonly AnoDoGasto[]): DadosDoSelo {
-  const conferidos = anos.filter((a) => a.conferencia === 'conferido').map((a) => String(a.ano));
-  if (!conferidos.length) return SELO_FONTE_UNICA;
-  return {
-    estado: 'confere',
-    titulo: `conferido com o Portal da Transparência em ${emLista(conferidos)}`,
-    motivo: 'Demais anos: fonte única.',
-  };
-}
+const seloDoGasto = (anos: readonly AnoDoGasto[]): DadosDoSelo =>
+  seloPorAnos('o Portal da Transparência', [
+    { anos: anos.map((a) => a.ano), conferidos: anos.filter((a) => a.conferencia === 'conferido').map((a) => a.ano) },
+  ]);
 
 function textoDoDivisor({ divisor }: AnoDoGasto) {
   if (!divisor) return null;
@@ -178,8 +172,8 @@ function textoDoDivisor({ divisor }: AnoDoGasto) {
   return `÷ ${numero(divisor.populacao)} moradores, ${origem}`;
 }
 
-// Um cartão por ano: o gasto, com o selo do ano ao lado, e embaixo por morador e participação. O divisor do por
-// morador fica na dica. Nenhum dos três tem sentido de melhor ou pior, por isso não há seta.
+// Um cartão por ano: o gasto e, embaixo, por morador e participação. O selo é o do título do bloco, que diz os anos
+// conferidos. O divisor do por morador fica na dica. Nenhum dos três tem sentido de melhor ou pior: não há seta.
 function CartaoDoAno({ ano }: { ano: AnoDoGasto }) {
   const divisor = textoDoDivisor(ano);
   return (
@@ -187,7 +181,6 @@ function CartaoDoAno({ ano }: { ano: AnoDoGasto }) {
       <h3>{ano.ano}</h3>
       <p className="edu-dinheiro-ano-gasto">
         <strong>{moeda(ano.liquidado)}</strong>
-        <Selo selo={ano.conferencia === 'conferido' ? SELO_CONFERIDO_COM_A_BETHA : SELO_FONTE_UNICA} />
       </p>
       <div className="edu-dinheiro-ano-razoes">
         <p>
@@ -433,9 +426,24 @@ function BlocoDosRepasses({ bloco }: { bloco: Repasses }) {
 type Conta = NonNullable<EducacaoDinheiro['contaDoFundeb']>;
 type AnoDaConta = Conta['anos'][number];
 
-function Selado({ conferido }: { conferido: boolean }) {
-  return <span className="edu-dinheiro-selo">{conferido && <Selo selo={seloConferidoComTce()} />}</span>;
-}
+// O selo da conta, no título: em que anos o recebido e a contribuição são conferidos com o TCE-SC. O recebido só
+// aparece nos anos com a receita conferida; o resultado oficial é sempre o do SIOPE, em fonte única.
+const seloDaConta = (anos: readonly AnoDaConta[]): DadosDoSelo => {
+  const comRecebido = anos.filter((a) => a.recebido !== null).map((a) => a.ano);
+  const comContribuicao = anos.filter((a) => a.contribuicao !== null);
+  return seloPorAnos(
+    'o TCE-SC',
+    [
+      { nome: 'recebido', anos: comRecebido, conferidos: comRecebido },
+      {
+        nome: 'contribuição',
+        anos: comContribuicao.map((a) => a.ano),
+        conferidos: comContribuicao.filter((a) => a.contribuicaoConferida).map((a) => a.ano),
+      },
+    ],
+    ['resultado oficial'],
+  );
+};
 
 function textoDaDiferenca(diferenca: number | null) {
   if (diferenca === null) return '—';
@@ -443,18 +451,16 @@ function textoDaDiferenca(diferenca: number | null) {
   return diferenca > 0 ? `+${moeda(diferenca)}` : `−${moeda(-diferenca)}`;
 }
 
-// Uma linha da conta: termo, valor alinhado à direita e a coluna do selo, que fica vazia quando não há selo.
+// Uma linha da conta: termo e valor alinhado à direita. O selo é o do título do bloco.
 function Termo({
   sinal,
   nome,
   children,
-  conferido = false,
   className,
 }: {
   sinal?: string;
   nome: string;
   children: ReactNode;
-  conferido?: boolean;
   className?: string;
 }) {
   return (
@@ -466,7 +472,6 @@ function Termo({
       </dt>
       <dd>
         <span className="edu-dinheiro-valor">{children}</span>
-        <Selado conferido={conferido} />
       </dd>
     </div>
   );
@@ -480,10 +485,10 @@ function ContaDoAno({ ano }: { ano: AnoDaConta }) {
     <div role="group" aria-labelledby={id} className="edu-dinheiro-conta">
       <h3 id={id}>{ano.ano}</h3>
       <dl>
-        <Termo sinal="+" nome="Recebido do fundo" conferido>
+        <Termo sinal="+" nome="Recebido do fundo">
           {moeda(ano.recebido)}
         </Termo>
-        <Termo sinal="−" nome="Contribuição ao fundo" conferido={ano.contribuicaoConferida}>
+        <Termo sinal="−" nome="Contribuição ao fundo">
           {moeda(ano.contribuicao)}
         </Termo>
         <Termo sinal="=" nome="Recebido − contribuição" className="edu-dinheiro-saldo">
@@ -525,9 +530,7 @@ function FaixaSemConta({ anos }: { anos: readonly AnoDaConta[] }) {
           </span>
           <dl>
             {/* Sem contribuição publicada, travessão: as colunas dos anos ficam alinhadas. */}
-            <Termo nome="Contribuição ao fundo" conferido={ano.contribuicao !== null && ano.contribuicaoConferida}>
-              {moeda(ano.contribuicao)}
-            </Termo>
+            <Termo nome="Contribuição ao fundo">{moeda(ano.contribuicao)}</Termo>
             <Termo nome="Resultado oficial">{moeda(ano.resultado)}</Termo>
           </dl>
         </div>
@@ -541,6 +544,7 @@ function BlocoDaConta({ bloco }: { bloco: Conta }) {
   return (
     <BlocoDoCaderno
       titulo="A conta do Fundeb"
+      selo={seloDaConta(bloco.anos)}
       fonte={bloco.fonte}
       ano={`${bloco.anos[0]?.ano} a ${bloco.anos.at(-1)?.ano}`}
       nota={
